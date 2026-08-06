@@ -11,7 +11,7 @@
             <p>This account can use public and profile features. Student materials remain locked until the account receives student access.</p>
             <div class="auth-note">
                 Already have an account?
-                <a href="{{ route('login') }}">Log in here</a>
+                <a href="{{ route('login', request()->filled('email') ? ['email' => request('email')] : []) }}">Log in here</a>
             </div>
             <div class="auth-note">
                 Already received a student access code?
@@ -31,7 +31,7 @@
 
                 <div class="field">
                     <label for="email">Email Address</label>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required>
+                    <input id="email" name="email" type="email" value="{{ old('email', request('email')) }}" autocomplete="email" required>
                     @error('email')<small class="field-error">{{ $message }}</small>@enderror
                 </div>
 
