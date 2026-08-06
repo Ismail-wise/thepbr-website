@@ -57,6 +57,7 @@ class ArticleForm
                 FileUpload::make('cover_image')
                     ->label('ပုံ')
                     ->image()
+                    ->disk('public')
                     ->directory('articles')
                     ->imageEditor()
                     ->maxSize(3072)
