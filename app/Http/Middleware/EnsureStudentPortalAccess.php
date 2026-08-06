@@ -5,7 +5,6 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
 class EnsureStudentPortalAccess
@@ -14,18 +13,22 @@ class EnsureStudentPortalAccess
     {
         $user = $request->user();
 
-        if ($user && $user->isStudent() && $user->hasActivePortalAccess()) {
+        if ($user && $user->hasActivePortalAccess()) {
             return $next($request);
         }
 
-        Auth::logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        if (! $user) {
+            return redirect()
+                ->route('student.login')
+                ->withErrors([
+                    'email' => 'Please log in to access the Student Portal.',
+                ]);
+        }
 
         return redirect()
-            ->route('student.login')
+            ->route('home')
             ->withErrors([
-                'email' => 'Your Student Portal access is not active. Please contact the PBR team.',
+                'email' => 'This account does not currently have Student Portal access.',
             ]);
     }
 }
