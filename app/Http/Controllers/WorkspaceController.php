@@ -12,6 +12,13 @@ class WorkspaceController extends Controller
     {
         $user = $request->user();
 
+        abort_unless(
+            $user->isAdmin()
+                || $user->ownedWorkspaces()->exists()
+                || $user->hasAcceptedWorkspaceMembership(),
+            403,
+        );
+
         $workspaces = PartnershipWorkspace::query()
             ->when(! $user->isAdmin(), function ($query) use ($user): void {
                 $query->where(function ($workspaceQuery) use ($user): void {
