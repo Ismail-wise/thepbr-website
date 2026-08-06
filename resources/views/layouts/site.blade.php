@@ -16,6 +16,21 @@
 
 @stack('before')
 
+@php
+  $currentUser = auth()->user();
+
+  if ($currentUser?->isStudent()) {
+      $portalUrl = route('student.dashboard');
+      $portalLabel = 'My Workspace';
+  } elseif ($currentUser?->isAdmin()) {
+      $portalUrl = url('/admin');
+      $portalLabel = 'Admin Panel';
+  } else {
+      $portalUrl = route('student.login');
+      $portalLabel = 'Student Portal';
+  }
+@endphp
+
 <header>
   <div class="wrap bar">
     <a href="{{ route('home') }}" class="mark">
@@ -42,7 +57,7 @@
       <a href="#" class="item">Contact Us</a>
     </nav>
 
-    <a href="#" class="btn">Sign Up / Log In</a>
+    <a href="{{ $portalUrl }}" class="btn">{{ $portalLabel }}</a>
 
     <button class="burger" id="burger" aria-label="Menu" aria-expanded="false">
       <span></span><span></span><span></span>
@@ -56,7 +71,7 @@
     <a href="{{ route('classes') }}" class="sub">— Classes</a>
     <a href="#">About the Class</a>
     <a href="#">Contact Us</a>
-    <a href="#" class="btn" style="width:100%;margin-top:14px">Sign Up / Log In</a>
+    <a href="{{ $portalUrl }}" class="btn" style="width:100%;margin-top:14px">{{ $portalLabel }}</a>
   </div>
 </header>
 
@@ -83,7 +98,8 @@
         <h5>Class</h5>
         <a href="#">About the Class</a>
         <a href="#">Contact Us</a>
-        <a href="#">Sign Up</a>
+        <a href="{{ route('student.register') }}">Student Registration</a>
+        <a href="{{ route('student.login') }}">Student Portal</a>
       </div>
       <div>
         <h5>Contact</h5>
