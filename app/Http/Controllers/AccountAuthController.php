@@ -69,7 +69,7 @@ class AccountAuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->route('account.dashboard')
+            ->intended(route('account.dashboard'))
             ->with('success', 'Your PBR account has been created successfully.');
     }
 
