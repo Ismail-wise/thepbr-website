@@ -9,6 +9,7 @@ use App\Http\Controllers\StudentAccessRedemptionController;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\WorkspaceController;
+use App\Http\Controllers\WorkspaceInvitationController;
 use App\Http\Middleware\EnsureStudentPortalAccess;
 use Illuminate\Support\Facades\Route;
 
@@ -18,6 +19,9 @@ Route::get('/articles', [ArticleController::class, 'index'])->name('articles.ind
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 Route::get('/classes', [ClassController::class, 'index'])->name('classes');
+
+Route::get('/workspace-invitations/{token}', [WorkspaceInvitationController::class, 'show'])
+    ->name('workspace-invitations.show');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AccountAuthController::class, 'showLogin'])
@@ -56,8 +60,15 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/workspaces', [WorkspaceController::class, 'index'])
         ->name('workspaces.index');
+    Route::post('/workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store'])
+        ->name('workspace-invitations.store');
+    Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
+        ->name('workspace-invitations.revoke');
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
+
+    Route::post('/workspace-invitations/{token}/accept', [WorkspaceInvitationController::class, 'accept'])
+        ->name('workspace-invitations.accept');
 });
 
 Route::middleware(['auth', EnsureStudentPortalAccess::class])
