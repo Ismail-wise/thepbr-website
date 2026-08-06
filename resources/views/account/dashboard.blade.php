@@ -37,6 +37,13 @@
                 <a class="portal-button" href="{{ route('workspaces.index') }}">Open Workspaces</a>
             @endif
 
+            @unless($user->isAdmin() || $user->isStudent())
+                <div class="auth-note">
+                    Have a Student Access Code? Upgrade this existing account without registering again.
+                </div>
+                <a class="portal-button" href="{{ route('account.access-code.show') }}">Redeem Student Access Code</a>
+            @endunless
+
             @unless($user->isAdmin() || $user->isStudent() || $user->workspaceMemberships->where('invitation_status', 'accepted')->isNotEmpty())
                 <div class="auth-note">
                     This is currently a public account. Student Portal and private workspaces remain locked.
