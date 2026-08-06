@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClassController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\StudentAccessRedemptionController;
 use App\Http\Controllers\StudentAuthController;
 use App\Http\Controllers\StudentPortalController;
 use App\Http\Controllers\WorkspaceController;
@@ -48,6 +49,10 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/account', [AccountController::class, 'dashboard'])
         ->name('account.dashboard');
+    Route::get('/account/redeem-access-code', [StudentAccessRedemptionController::class, 'show'])
+        ->name('account.access-code.show');
+    Route::post('/account/redeem-access-code', [StudentAccessRedemptionController::class, 'redeem'])
+        ->name('account.access-code.redeem');
 
     Route::get('/workspaces', [WorkspaceController::class, 'index'])
         ->name('workspaces.index');
