@@ -57,8 +57,14 @@ class WorkspaceInvitationController extends Controller
 
         $invitation = WorkspaceMember::query()
             ->where('workspace_id', $workspace->id)
-            ->whereRaw('LOWER(invited_email) = ?', [$email])
             ->where('invitation_status', 'pending')
+            ->where(function ($query) use ($email, $existingUser): void {
+                $query->whereRaw('LOWER(invited_email) = ?', [$email]);
+
+                if ($existingUser) {
+                    $query->orWhere('user_id', $existingUser->id);
+                }
+            })
             ->first() ?? new WorkspaceMember();
 
         $invitation->fill([
@@ -117,7 +123,7 @@ class WorkspaceInvitationController extends Controller
                 ->where('workspace_id', $invitation->workspace_id)
                 ->where('user_id', $user->id)
                 ->where('invitation_status', 'accepted')
-                ->whereKeyNot($invitation->id)
+                ->where('id', '!=', $invitation->id)
                 ->first();
 
             if ($existingMembership) {
