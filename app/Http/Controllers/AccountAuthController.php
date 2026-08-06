@@ -86,6 +86,10 @@ class AccountAuthController extends Controller
 
     private function destinationFor(User $user): string
     {
+        if ($user->isAdmin()) {
+            return route('account.dashboard');
+        }
+
         if ($user->isStudent()) {
             return route('student.dashboard');
         }
