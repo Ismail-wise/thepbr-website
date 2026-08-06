@@ -1,0 +1,148 @@
+:root{
+    --forest:#157f09;
+    --forest-dark:#0f6206;
+    --orange:#e38514;
+    --ink:#17210f;
+    --muted:#5f6b58;
+    --paper:#fbfcfa;
+    --sage:#eaf5e4;
+    --line:#dbe7d4;
+    --danger:#b4321f;
+    --white:#ffffff;
+}
+
+*{box-sizing:border-box}
+html{min-height:100%;background:var(--paper)}
+body{
+    min-height:100vh;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    background:
+        radial-gradient(circle at 10% 0%, rgba(227,133,20,.08), transparent 28%),
+        radial-gradient(circle at 100% 10%, rgba(21,127,9,.09), transparent 32%),
+        var(--paper);
+    color:var(--ink);
+    font-family:'Noto Sans Myanmar','Noto Sans',sans-serif;
+    line-height:1.65;
+}
+
+a{color:inherit}
+button,input{font:inherit}
+main{flex:1}
+.portal-wrap{width:min(1160px,calc(100% - 40px));margin:0 auto}
+
+.portal-header{
+    position:sticky;
+    top:0;
+    z-index:20;
+    border-bottom:1px solid rgba(219,231,212,.9);
+    background:rgba(251,252,250,.93);
+    backdrop-filter:blur(12px);
+}
+.portal-bar{height:72px;display:flex;align-items:center;justify-content:space-between;gap:20px}
+.portal-brand{display:flex;align-items:center;gap:10px;text-decoration:none;font-family:'Noto Sans',sans-serif;font-size:20px;font-weight:600}
+.portal-brand img{width:40px;height:40px;object-fit:contain}
+.portal-brand strong{color:var(--forest)}
+.portal-nav{display:flex;align-items:center;gap:14px;font-family:'Noto Sans',sans-serif;font-size:14px}
+.portal-nav a,.portal-nav button{border:0;background:none;color:var(--muted);cursor:pointer;text-decoration:none;padding:8px 10px;border-radius:7px}
+.portal-nav a:hover,.portal-nav button:hover{background:var(--sage);color:var(--forest)}
+.portal-nav form{margin:0}
+
+.alert{margin-top:24px;padding:13px 16px;border:1px solid #b8dbaa;border-radius:10px;background:#eff9eb;color:#255f1c;font-size:14px}
+
+.auth-section{padding:72px 20px 88px}
+.auth-shell{
+    width:min(1060px,100%);
+    margin:0 auto;
+    display:grid;
+    grid-template-columns:.85fr 1.15fr;
+    gap:54px;
+    align-items:start;
+}
+.auth-shell.compact{width:min(950px,100%)}
+.auth-copy{padding:40px 0}
+.portal-kicker{display:block;margin-bottom:14px;color:var(--forest);font-family:'Noto Sans',sans-serif;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+.auth-copy h1,.workspace-head h1{margin:0;font-family:'Noto Sans Myanmar','Noto Sans',sans-serif;font-size:clamp(31px,4.5vw,48px);line-height:1.24;letter-spacing:-.035em}
+.auth-copy p,.workspace-head p{margin:20px 0 0;color:var(--muted);font-size:16px;max-width:52ch}
+.auth-note{margin-top:28px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+.auth-note a{color:var(--forest);font-weight:700;text-decoration:none}
+
+.auth-card{
+    padding:34px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:rgba(255,255,255,.9);
+    box-shadow:0 26px 70px -42px rgba(11,61,5,.5);
+}
+.field{margin-bottom:20px}
+.field label{display:block;margin-bottom:8px;font-size:14px;font-weight:700}
+.field label span{font-weight:400;color:var(--muted)}
+.field input{
+    width:100%;
+    min-height:48px;
+    padding:11px 13px;
+    border:1px solid #cfdcc8;
+    border-radius:9px;
+    background:var(--white);
+    color:var(--ink);
+    outline:none;
+    transition:.16s;
+}
+.field input:focus{border-color:var(--forest);box-shadow:0 0 0 3px rgba(21,127,9,.13)}
+.field-help{display:block;margin-top:7px;color:var(--muted);font-size:12.5px}
+.field-error{display:block;margin-top:7px;color:var(--danger);font-size:13px;font-weight:600}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.check-row{display:flex;align-items:center;gap:10px;margin:-2px 0 22px;color:var(--muted);font-size:14px;cursor:pointer}
+.check-row input{width:17px;height:17px;accent-color:var(--forest)}
+.portal-button{
+    width:100%;
+    min-height:50px;
+    border:1px solid var(--forest);
+    border-radius:9px;
+    background:var(--forest);
+    color:var(--white);
+    font-weight:700;
+    cursor:pointer;
+    transition:.16s;
+}
+.portal-button:hover{background:var(--forest-dark);border-color:var(--forest-dark);transform:translateY(-1px)}
+
+.workspace-section{padding:62px 0 90px}
+.workspace-head{display:flex;align-items:flex-start;justify-content:space-between;gap:30px;margin-bottom:34px}
+.workspace-head h1{font-size:clamp(30px,4vw,45px)}
+.status-pill{flex:none;padding:9px 14px;border-radius:999px;background:#e8f7e2;color:#206b17;font-size:13px;font-weight:700;border:1px solid #b8dbaa}
+.workspace-grid{display:grid;grid-template-columns:1.3fr 1fr 1fr;gap:20px}
+.workspace-card{min-height:220px;padding:27px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.9)}
+.workspace-card.primary-card{background:linear-gradient(145deg,#0f6206,#174d10);color:var(--white);border-color:transparent}
+.workspace-card span{display:block;margin-bottom:18px;font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--forest)}
+.workspace-card.primary-card span{color:#ccebc4}
+.workspace-card h2{margin:0;font-size:22px;line-height:1.45}
+.workspace-card p{margin:16px 0 0;color:var(--muted);font-size:14px}
+.workspace-card.primary-card p{color:#dbeed7}
+.progress-track{height:8px;margin-top:25px;border-radius:999px;background:#e5ede1;overflow:hidden}
+.progress-track i{display:block;height:100%;border-radius:inherit;background:var(--orange)}
+.coming-panel{margin-top:22px;padding:34px;border-radius:16px;border:1px dashed #b9cdb0;background:rgba(234,245,228,.62)}
+.coming-panel h2{margin:0;font-size:25px}
+.coming-panel p{margin:12px 0 0;color:var(--muted)}
+
+.portal-footer{padding:24px 0;border-top:1px solid var(--line);color:var(--muted);font-size:13px;background:rgba(251,252,250,.8)}
+
+@media (max-width:860px){
+    .auth-shell{grid-template-columns:1fr;gap:12px}
+    .auth-copy{padding:12px 0 16px}
+    .workspace-grid{grid-template-columns:1fr}
+    .workspace-head{flex-direction:column}
+}
+
+@media (max-width:620px){
+    .portal-wrap{width:min(100% - 28px,1160px)}
+    .portal-bar{height:auto;min-height:66px;align-items:flex-start;padding:12px 0}
+    .portal-nav{flex-wrap:wrap;justify-content:flex-end;gap:2px}
+    .portal-nav a,.portal-nav button{padding:7px}
+    .portal-brand span{display:none}
+    .auth-section{padding:38px 14px 62px}
+    .auth-card{padding:22px;border-radius:14px}
+    .form-grid{grid-template-columns:1fr;gap:0}
+    .workspace-section{padding-top:38px}
+}
