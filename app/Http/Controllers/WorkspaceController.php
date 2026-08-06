@@ -44,9 +44,15 @@ class WorkspaceController extends Controller
 
         $workspace->load([
             'owner',
+            'memberships' => fn ($query) => $query
+                ->with(['user', 'invitedBy'])
+                ->latest('id'),
             'acceptedMemberships.user',
         ]);
 
-        return view('workspaces.show', compact('workspace'));
+        $canManageInvitations = $request->user()->isAdmin()
+            || $workspace->owner_user_id === $request->user()->id;
+
+        return view('workspaces.show', compact('workspace', 'canManageInvitations'));
     }
 }
