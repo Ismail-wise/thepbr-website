@@ -11,7 +11,11 @@
             <p>Use the unique access code provided by the PBR team. Each code can be used only once.</p>
             <div class="auth-note">
                 Already registered?
-                <a href="{{ route('student.login') }}">Log in here</a>
+                <a href="{{ route('login') }}">Log in here</a>
+            </div>
+            <div class="auth-note">
+                Already have a public PBR account?
+                Access-code redemption for existing accounts will be added in the next phase.
             </div>
         </div>
 
