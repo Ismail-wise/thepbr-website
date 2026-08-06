@@ -19,15 +19,21 @@
 @php
   $currentUser = auth()->user();
 
-  if ($currentUser?->isStudent()) {
+  if ($currentUser?->isAdmin()) {
+      $portalUrl = route('account.dashboard');
+      $portalLabel = 'My Account';
+  } elseif ($currentUser?->isStudent()) {
       $portalUrl = route('student.dashboard');
-      $portalLabel = 'My Workspace';
-  } elseif ($currentUser?->isAdmin()) {
-      $portalUrl = url('/admin');
-      $portalLabel = 'Admin Panel';
-  } else {
-      $portalUrl = route('student.login');
       $portalLabel = 'Student Portal';
+  } elseif ($currentUser?->hasAcceptedWorkspaceMembership()) {
+      $portalUrl = route('workspaces.index');
+      $portalLabel = 'My Workspace';
+  } elseif ($currentUser) {
+      $portalUrl = route('account.dashboard');
+      $portalLabel = 'My Account';
+  } else {
+      $portalUrl = route('login');
+      $portalLabel = 'Log In';
   }
 @endphp
 
@@ -95,11 +101,10 @@
         <a href="{{ route('classes') }}">Classes</a>
       </div>
       <div>
-        <h5>Class</h5>
-        <a href="#">About the Class</a>
-        <a href="#">Contact Us</a>
+        <h5>Account</h5>
+        <a href="{{ route('register') }}">Create Public Account</a>
         <a href="{{ route('student.register') }}">Student Registration</a>
-        <a href="{{ route('student.login') }}">Student Portal</a>
+        <a href="{{ route('login') }}">Account Login</a>
       </div>
       <div>
         <h5>Contact</h5>
