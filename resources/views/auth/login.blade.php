@@ -11,7 +11,7 @@
             <p>Use one account to access the public website, Student Portal, invited workspaces, and the Admin Portal when permitted.</p>
             <div class="auth-note">
                 New to thePBR?
-                <a href="{{ route('register') }}">Create a public account</a>
+                <a href="{{ route('register', request()->filled('email') ? ['email' => request('email')] : []) }}">Create a public account</a>
             </div>
             <div class="auth-note">
                 Have a new student access code?
@@ -25,7 +25,7 @@
 
                 <div class="field">
                     <label for="email">Email Address</label>
-                    <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required autofocus>
+                    <input id="email" name="email" type="email" value="{{ old('email', request('email')) }}" autocomplete="email" required autofocus>
                     @error('email')<small class="field-error">{{ $message }}</small>@enderror
                 </div>
 
