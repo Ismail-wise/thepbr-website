@@ -1,0 +1,140 @@
+.portal-button{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-top:18px;
+    padding:10px 16px;
+    text-align:center;
+    text-decoration:none;
+}
+
+.portal-button + .portal-button,
+.portal-button + form,
+form + .portal-button{
+    margin-top:10px;
+}
+
+.portal-button.secondary{
+    border-color:var(--line);
+    background:var(--white);
+    color:var(--forest);
+}
+
+.portal-button.secondary:hover{
+    border-color:var(--forest);
+    background:var(--sage);
+    color:var(--forest-dark);
+}
+
+.alert.error{
+    border-color:#edc5be;
+    background:#fff2ef;
+    color:var(--danger);
+}
+
+.workspace-detail-shell{
+    width:min(1120px,100%);
+    grid-template-columns:.78fr 1.22fr;
+}
+
+.workspace-panels{
+    display:grid;
+    gap:20px;
+}
+
+.auth-card h2{
+    margin:0;
+    font-size:23px;
+    line-height:1.4;
+}
+
+.panel-copy{
+    margin:10px 0 22px;
+    color:var(--muted);
+    font-size:14px;
+}
+
+.invitation-link-card{
+    border-color:#b8dbaa;
+    background:#f4fbf1;
+}
+
+.first-note{
+    margin-top:0;
+    padding-top:0;
+    border-top:0;
+}
+
+.invite-error,
+.warning-note{
+    margin:20px 0;
+}
+
+.warning-note{
+    padding:14px;
+    border:1px solid #efcf9f;
+    border-radius:9px;
+    background:#fff8ec;
+}
+
+.member-list{
+    margin-top:18px;
+    border-top:1px solid var(--line);
+}
+
+.member-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:18px;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+}
+
+.member-row strong,
+.member-row small{
+    display:block;
+}
+
+.member-row small{
+    margin-top:3px;
+    color:var(--muted);
+    font-size:12.5px;
+}
+
+.member-status{
+    flex:none;
+    padding:5px 9px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+}
+
+.member-status.accepted{
+    border:1px solid #b8dbaa;
+    background:#e8f7e2;
+    color:#206b17;
+}
+
+.invite-row form{
+    margin:0;
+}
+
+.text-button{
+    border:0;
+    background:none;
+    cursor:pointer;
+    font:inherit;
+    font-size:13px;
+    font-weight:700;
+}
+
+.text-button.danger{
+    color:var(--danger);
+}
+
+@media (max-width:860px){
+    .workspace-detail-shell{
+        grid-template-columns:1fr;
+    }
+}
