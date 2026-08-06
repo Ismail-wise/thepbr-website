@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'Student Portal') — thePBR</title>
+    <title>@yield('title', 'PBR Account') — thePBR</title>
     <meta name="robots" content="noindex,nofollow">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,13 +22,26 @@
             <div class="portal-nav">
                 <a href="{{ route('home') }}">Public Website</a>
                 @auth
+                    <a href="{{ route('account.dashboard') }}">My Account</a>
+
                     @if(auth()->user()->isStudent())
-                        <a href="{{ route('student.dashboard') }}">My Workspace</a>
-                        <form method="POST" action="{{ route('student.logout') }}">
-                            @csrf
-                            <button type="submit">Log Out</button>
-                        </form>
+                        <a href="{{ route('student.dashboard') }}">Student Portal</a>
                     @endif
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->ownedWorkspaces()->exists() || auth()->user()->hasAcceptedWorkspaceMembership())
+                        <a href="{{ route('workspaces.index') }}">Workspaces</a>
+                    @endif
+
+                    @if(auth()->user()->isAdmin())
+                        <a href="{{ url('/admin') }}">Admin Portal</a>
+                    @endif
+
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit">Log Out</button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}">Log In</a>
                 @endauth
             </div>
         </div>
@@ -39,11 +52,15 @@
             <div class="portal-wrap alert success">{{ session('success') }}</div>
         @endif
 
+        @if($errors->any())
+            <div class="portal-wrap alert error">{{ $errors->first() }}</div>
+        @endif
+
         @yield('content')
     </main>
 
     <footer class="portal-footer">
-        <div class="portal-wrap">© {{ date('Y') }} thePBR. Student Portal.</div>
+        <div class="portal-wrap">© {{ date('Y') }} thePBR. Secure Account Access.</div>
     </footer>
 </body>
 </html>
