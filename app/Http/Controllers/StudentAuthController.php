@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PartnershipWorkspace;
 use App\Models\StudentAccessCode;
+use App\Models\StudentEnrollment;
 use App\Models\User;
+use App\Models\WorkspaceMember;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,10 +61,40 @@ class StudentAuthController extends Controller
                 'email' => strtolower(trim($validated['email'])),
                 'phone' => filled($validated['phone'] ?? null) ? trim($validated['phone']) : null,
                 'password' => $validated['password'],
+                'is_admin' => false,
                 'role' => 'student',
                 'class_session_id' => $accessCode->class_session_id,
                 'account_status' => 'active',
                 'portal_access_expires_at' => null,
+            ]);
+
+            StudentEnrollment::query()->create([
+                'user_id' => $user->id,
+                'class_session_id' => $accessCode->class_session_id,
+                'student_access_code_id' => $accessCode->id,
+                'status' => 'active',
+                'started_at' => now(),
+                'access_expires_at' => null,
+            ]);
+
+            $workspace = PartnershipWorkspace::query()->create([
+                'owner_user_id' => $user->id,
+                'name' => $user->name.' — My PBR Workspace',
+                'business_name' => null,
+                'status' => 'active',
+            ]);
+
+            WorkspaceMember::query()->create([
+                'workspace_id' => $workspace->id,
+                'user_id' => $user->id,
+                'member_role' => 'owner',
+                'invitation_status' => 'accepted',
+                'invited_email' => $user->email,
+                'invitation_token_hash' => null,
+                'invited_by_user_id' => $user->id,
+                'invited_at' => now(),
+                'accepted_at' => now(),
+                'permissions' => null,
             ]);
 
             $accessCode->update([
@@ -112,7 +145,7 @@ class StudentAuthController extends Controller
         $request->session()->regenerate();
         $user = $request->user();
 
-        if (! $user || ! $user->isStudent() || ! $user->hasActivePortalAccess()) {
+        if (! $user || ! $user->hasActivePortalAccess()) {
             Auth::logout();
             $request->session()->invalidate();
             $request->session()->regenerateToken();
