@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AboutController;
 use App\Http\Controllers\AccountAuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ArticleController;
@@ -19,6 +20,9 @@ Route::get('/articles', [ArticleController::class, 'index'])->name('articles.ind
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 Route::get('/classes', [ClassController::class, 'index'])->name('classes');
+
+Route::get('/about', [AboutController::class, 'index'])
+    ->name('about');
 
 Route::get('/workspace-invitations/{token}', [WorkspaceInvitationController::class, 'show'])
     ->name('workspace-invitations.show');

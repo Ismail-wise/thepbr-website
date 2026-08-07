@@ -59,7 +59,10 @@
         </div>
       </div>
 
-      <a href="#" class="item">About the Class</a>
+      <a href="{{ route('about') }}"
+         class="item {{ request()->routeIs('about') ? 'on' : '' }}">
+        About the Class
+      </a>
       <a href="#" class="item">Contact Us</a>
     </nav>
 
@@ -75,7 +78,7 @@
     <a href="{{ route('articles.index') }}">Resources</a>
     <a href="{{ route('articles.index') }}" class="sub">— Articles</a>
     <a href="{{ route('classes') }}" class="sub">— Classes</a>
-    <a href="#">About the Class</a>
+    <a href="{{ route('about') }}">About the Class</a>
     <a href="#">Contact Us</a>
     <a href="{{ $portalUrl }}" class="btn" style="width:100%;margin-top:14px">{{ $portalLabel }}</a>
   </div>
