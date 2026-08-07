@@ -27,21 +27,25 @@ Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AccountAuthController::class, 'showLogin'])
         ->name('login');
     Route::post('/login', [AccountAuthController::class, 'login'])
+        ->middleware('throttle:account-login')
         ->name('login.store');
 
     Route::get('/register', [AccountAuthController::class, 'showRegister'])
         ->name('register');
     Route::post('/register', [AccountAuthController::class, 'register'])
+        ->middleware('throttle:public-registration')
         ->name('register.store');
 
     Route::get('/student/register', [StudentAuthController::class, 'showRegister'])
         ->name('student.register');
     Route::post('/student/register', [StudentAuthController::class, 'register'])
+        ->middleware('throttle:student-registration')
         ->name('student.register.store');
 
     Route::get('/student/login', fn () => redirect()->route('login'))
         ->name('student.login');
     Route::post('/student/login', [AccountAuthController::class, 'login'])
+        ->middleware('throttle:account-login')
         ->name('student.login.store');
 });
 
@@ -56,11 +60,13 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/account/redeem-access-code', [StudentAccessRedemptionController::class, 'show'])
         ->name('account.access-code.show');
     Route::post('/account/redeem-access-code', [StudentAccessRedemptionController::class, 'redeem'])
+        ->middleware('throttle:access-code-redemption')
         ->name('account.access-code.redeem');
 
     Route::get('/workspaces', [WorkspaceController::class, 'index'])
         ->name('workspaces.index');
     Route::post('/workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store'])
+        ->middleware('throttle:workspace-invitations')
         ->name('workspace-invitations.store');
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
@@ -68,6 +74,7 @@ Route::middleware('auth')->group(function (): void {
         ->name('workspaces.show');
 
     Route::post('/workspace-invitations/{token}/accept', [WorkspaceInvitationController::class, 'accept'])
+        ->middleware('throttle:workspace-invitation-accept')
         ->name('workspace-invitations.accept');
 });
 
