@@ -30,6 +30,20 @@
                 <p>Your learning journey has not started yet.</p>
             </article>
 
+            {{-- Student Portal Partner Dynamics Card --}}
+            <article class="workspace-card">
+                <span>Partner Dynamics</span>
+                <h2>သင့် Partnership Operating Style ကို သိပါ</h2>
+                <p>
+                    သင့် strengths, decision style နဲ့ partnership ထဲမှာ
+                    သဘာဝကျကျ အားသာတဲ့ role တွေကို ရှာဖွေပါ။
+                </p>
+                <a class="pd-inline-link"
+                   href="{{ route('partner-dynamics.index') }}">
+                    Start / Continue Assessment →
+                </a>
+            </article>
+
             <article class="workspace-card">
                 <span>Student Tools</span>
                 <h2>Coming Next</h2>

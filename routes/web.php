@@ -89,3 +89,54 @@ Route::middleware(['auth', EnsureStudentPortalAccess::class])
         Route::get('/', [StudentPortalController::class, 'dashboard'])
             ->name('dashboard');
     });
+
+
+/*
+|--------------------------------------------------------------------------
+| PBR Partner Dynamics
+|--------------------------------------------------------------------------
+|
+| Available to Admins, Students and accepted Student Partners.
+| Public-only accounts cannot access the assessment.
+|
+*/
+
+Route::middleware('auth')
+    ->prefix('partner-dynamics')
+    ->name('partner-dynamics.')
+    ->group(function (): void {
+
+        Route::get(
+            '/',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'index']
+        )->name('index');
+
+        Route::post(
+            '/start',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'start']
+        )->name('start');
+
+        Route::post(
+            '/retake',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'retake']
+        )->name('retake');
+
+        Route::get(
+            '/assessment/{assessment}/step/{step}',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'step']
+        )
+            ->whereNumber('step')
+            ->name('assessment.step');
+
+        Route::put(
+            '/assessment/{assessment}/step/{step}',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'saveStep']
+        )
+            ->whereNumber('step')
+            ->name('assessment.save');
+
+        Route::get(
+            '/result/{assessment}',
+            [\App\Http\Controllers\PartnerDynamicsController::class, 'result']
+        )->name('result');
+    });

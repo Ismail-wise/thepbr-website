@@ -11,6 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/student-portal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/workspace-invitations.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/partner-dynamics.css') }}">
 </head>
 <body>
     <header class="portal-header">
@@ -24,6 +25,10 @@
                 <a href="{{ route('home') }}">Public Website</a>
                 @auth
                     <a href="{{ route('account.dashboard') }}">My Account</a>
+
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
+                        <a href="{{ route('partner-dynamics.index') }}">Partner Dynamics</a>
+                    @endif
 
                     @if(auth()->user()->isStudent())
                         <a href="{{ route('student.dashboard') }}">Student Portal</a>
