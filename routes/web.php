@@ -77,6 +77,16 @@ Route::middleware('auth')->group(function (): void {
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
 
+    Route::get(
+        '/workspaces/{workspace}/partner-dynamics',
+        [\App\Http\Controllers\WorkspacePartnerDynamicsController::class, 'show']
+    )->name('workspaces.partner-dynamics.show');
+
+    Route::get(
+        '/workspaces/{workspace}/partner-dynamics/profile/{assessment}',
+        [\App\Http\Controllers\WorkspacePartnerDynamicsController::class, 'profile']
+    )->name('workspaces.partner-dynamics.profile');
+
     Route::post('/workspace-invitations/{token}/accept', [WorkspaceInvitationController::class, 'accept'])
         ->middleware('throttle:workspace-invitation-accept')
         ->name('workspace-invitations.accept');

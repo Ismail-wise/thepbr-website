@@ -24,6 +24,22 @@
         </div>
 
         <div class="workspace-panels">
+
+            {{-- Workspace Partner Dynamics Entry --}}
+            <div class="auth-card pd-workspace-entry">
+                <span class="portal-kicker">Partner Dynamics</span>
+                <h2>Partnership Alignment</h2>
+                <p class="panel-copy">
+                    Partner တစ်ယောက်ချင်းစီရဲ့ operating style,
+                    shared strengths, important differences နဲ့
+                    role suggestions တွေကို ကြည့်ပါ။
+                </p>
+
+                <a class="portal-button"
+                   href="{{ route('workspaces.partner-dynamics.show', $workspace) }}">
+                    Open Partnership Alignment
+                </a>
+            </div>
             @if(session('invitation_link'))
                 <div class="auth-card invitation-link-card">
                     <span class="portal-kicker">Invitation Ready</span>

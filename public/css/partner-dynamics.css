@@ -818,3 +818,627 @@
         padding:22px;
     }
 }
+
+
+/* Workspace Partnership Alignment */
+
+.pd-alignment-heading{
+    display:flex;
+    justify-content:space-between;
+    gap:40px;
+    align-items:flex-start;
+    padding:25px 0 35px;
+}
+
+.pd-alignment-heading h1{
+    margin:0;
+    font-size:clamp(34px,5vw,54px);
+    letter-spacing:-.04em;
+    line-height:1.18;
+}
+
+.pd-alignment-heading p{
+    max-width:720px;
+    margin:16px 0 0;
+    color:var(--muted);
+}
+
+.pd-alignment-status{
+    flex:none;
+    min-width:180px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:16px;
+    background:#fff;
+    text-align:center;
+}
+
+.pd-alignment-status strong{
+    display:block;
+    color:var(--forest);
+    font:700 36px 'Noto Sans',sans-serif;
+}
+
+.pd-alignment-status span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.pd-alignment-section{
+    margin-top:22px;
+    padding:30px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:rgba(255,255,255,.88);
+}
+
+.pd-profile-grid,
+.pd-role-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:16px;
+    margin-top:22px;
+}
+
+.pd-profile-card,
+.pd-role-card{
+    padding:22px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+}
+
+.pd-profile-top{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.pd-profile-top > div > span,
+.pd-profile-result span{
+    display:block;
+    color:var(--muted);
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+}
+
+.pd-profile-top h3{
+    margin:3px 0 0;
+    font-size:19px;
+}
+
+.pd-profile-ready,
+.pd-profile-waiting{
+    flex:none;
+    height:max-content;
+    padding:6px 9px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:700;
+}
+
+.pd-profile-ready{
+    background:#edf8e8;
+    color:var(--forest);
+}
+
+.pd-profile-waiting{
+    background:#fff5e7;
+    color:#9a5b0b;
+}
+
+.pd-profile-result{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+    margin-top:22px;
+}
+
+.pd-profile-result > div{
+    padding:13px;
+    border-radius:10px;
+    background:#f6f8f5;
+}
+
+.pd-profile-result strong{
+    display:block;
+    margin-top:4px;
+}
+
+.pd-profile-message{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.pd-waiting-report{
+    margin-top:22px;
+    padding:38px;
+    border:1px dashed #b9cdb0;
+    border-radius:18px;
+    background:var(--sage);
+}
+
+.pd-waiting-report h2{
+    margin:0;
+}
+
+.pd-waiting-report p{
+    margin:12px 0 0;
+    color:var(--muted);
+}
+
+.pd-alignment-summary-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin-top:22px;
+}
+
+.pd-alignment-summary-grid div{
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+}
+
+.pd-alignment-summary-grid strong{
+    display:block;
+    color:var(--forest);
+    font:700 30px 'Noto Sans',sans-serif;
+}
+
+.pd-alignment-summary-grid span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.pd-insight-grid{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:14px;
+    margin-top:22px;
+}
+
+.pd-insight-card,
+.pd-empty-insight{
+    padding:20px;
+    border-radius:13px;
+    border:1px solid var(--line);
+}
+
+.pd-insight-card.positive{
+    background:#f1faed;
+}
+
+.pd-insight-card.complement{
+    background:#fff8ee;
+}
+
+.pd-insight-card.caution{
+    background:#fff7f3;
+}
+
+.pd-insight-label{
+    display:block;
+    color:var(--forest);
+    font-size:12px;
+    font-weight:700;
+}
+
+.pd-insight-card strong{
+    display:block;
+    margin-top:5px;
+}
+
+.pd-insight-card p,
+.pd-empty-insight{
+    color:var(--muted);
+    font-size:13px;
+}
+
+.pd-difference-list,
+.pd-recommendation-list,
+.pd-priority-list{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:22px;
+}
+
+.pd-difference-card{
+    padding:21px;
+    border:1px solid #ead7c1;
+    border-radius:14px;
+    background:#fffaf4;
+}
+
+.pd-difference-head{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+}
+
+.pd-difference-head span{
+    color:var(--muted);
+    font-size:10px;
+    text-transform:uppercase;
+}
+
+.pd-difference-head h3{
+    margin:3px 0 0;
+}
+
+.pd-difference-head > strong{
+    color:var(--orange);
+    font:700 27px 'Noto Sans',sans-serif;
+}
+
+.pd-difference-head small{
+    display:block;
+    color:var(--muted);
+    font-size:9px;
+}
+
+.pd-partner-score-row{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:17px;
+}
+
+.pd-partner-score-row div{
+    display:flex;
+    justify-content:space-between;
+    gap:15px;
+    padding:11px 13px;
+    border-radius:9px;
+    background:#fff;
+}
+
+.pd-partner-score-row span{
+    font-size:12px;
+}
+
+.pd-partner-score-row strong{
+    color:var(--forest);
+}
+
+.pd-difference-card > p{
+    margin:14px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.pd-role-card > span{
+    color:var(--muted);
+    font-size:12px;
+}
+
+.pd-role-card h3{
+    margin:4px 0 12px;
+    color:var(--forest);
+}
+
+.pd-role-card ul{
+    margin:0;
+    padding-left:20px;
+}
+
+.pd-role-card li{
+    margin:8px 0;
+    font-size:13px;
+}
+
+.pd-role-card small{
+    display:block;
+    margin-top:18px;
+    padding-top:13px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+}
+
+.pd-recommendation-card{
+    display:grid;
+    grid-template-columns:45px 1fr;
+    gap:15px;
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:12px;
+}
+
+.pd-recommendation-card > span{
+    color:var(--orange);
+    font:700 13px 'Noto Sans',sans-serif;
+}
+
+.pd-recommendation-card h3{
+    margin:0;
+    font-size:16px;
+}
+
+.pd-recommendation-card p{
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+.pd-priority-row{
+    display:grid;
+    grid-template-columns:75px 1fr;
+    gap:15px;
+    align-items:start;
+    padding:16px;
+    border:1px solid var(--line);
+    border-radius:12px;
+}
+
+.pd-priority-level{
+    display:inline-flex;
+    justify-content:center;
+    padding:5px 8px;
+    border-radius:999px;
+    font-size:10px;
+    font-weight:700;
+}
+
+.pd-priority-level.high{
+    background:#fff0e9;
+    color:#a34620;
+}
+
+.pd-priority-level.medium{
+    background:#edf7e9;
+    color:var(--forest);
+}
+
+.pd-priority-row strong{
+    font-size:14px;
+}
+
+.pd-priority-row p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:12px;
+}
+
+.pd-workspace-entry{
+    border-color:#c9dfc1;
+    background:linear-gradient(145deg,#f5fbf2,#ffffff);
+}
+
+
+@media(max-width:800px){
+
+    .pd-alignment-heading{
+        flex-direction:column;
+    }
+
+    .pd-alignment-status{
+        width:100%;
+    }
+
+    .pd-profile-grid,
+    .pd-role-grid,
+    .pd-insight-grid,
+    .pd-alignment-summary-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+
+@media(max-width:620px){
+
+    .pd-alignment-section{
+        padding:20px;
+    }
+
+    .pd-profile-result,
+    .pd-partner-score-row{
+        grid-template-columns:1fr;
+    }
+
+    .pd-difference-head{
+        flex-direction:column;
+    }
+}
+
+
+/* Secure workspace participant profile */
+
+.pd-workspace-profile-section{
+    padding:55px 0 75px;
+    background:
+        linear-gradient(
+            135deg,
+            #fffaf1 0%,
+            #f4faef 100%
+        );
+}
+
+.pd-workspace-profile-hero{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:35px;
+    margin-top:45px;
+    padding:10px 0 20px;
+}
+
+.pd-workspace-profile-hero h1{
+    margin:6px 0 10px;
+    font-size:clamp(36px,5vw,58px);
+    line-height:1.12;
+    letter-spacing:-.04em;
+}
+
+.pd-workspace-profile-hero p{
+    max-width:700px;
+    color:var(--muted);
+}
+
+.pd-workspace-profile-badge{
+    min-width:220px;
+    padding:25px;
+    border-radius:18px;
+    background:var(--forest);
+    color:#fff;
+}
+
+.pd-workspace-profile-badge span,
+.pd-workspace-profile-badge small{
+    display:block;
+    opacity:.78;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+}
+
+.pd-workspace-profile-badge strong{
+    display:block;
+    margin:8px 0;
+    font-size:28px;
+}
+
+.pd-workspace-profile-badge small{
+    font-size:18px;
+    font-weight:700;
+    opacity:1;
+}
+
+.pd-workspace-style-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+    margin-top:24px;
+}
+
+.pd-workspace-style-grid article{
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:13px;
+    background:#fff;
+}
+
+.pd-workspace-style-grid span{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:.07em;
+}
+
+.pd-workspace-style-grid strong{
+    display:block;
+    margin-top:7px;
+    font-size:18px;
+}
+
+.pd-workspace-style-grid small{
+    display:block;
+    margin-top:5px;
+    color:var(--forest);
+    font-weight:700;
+}
+
+.pd-workspace-dimensions{
+    display:flex;
+    flex-direction:column;
+    gap:19px;
+    margin-top:28px;
+}
+
+.pd-workspace-dimension-head{
+    display:flex;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:7px;
+}
+
+.pd-workspace-dimension-head span{
+    font-size:14px;
+}
+
+.pd-workspace-dimension-head strong{
+    color:var(--forest);
+}
+
+.pd-workspace-dimension-track{
+    height:10px;
+    overflow:hidden;
+    border-radius:999px;
+    background:#e6eee2;
+}
+
+.pd-workspace-dimension-track span{
+    display:block;
+    height:100%;
+    border-radius:999px;
+    background:
+        linear-gradient(
+            90deg,
+            var(--forest),
+            var(--orange)
+        );
+}
+
+.pd-workspace-profile-note{
+    display:grid;
+    grid-template-columns:180px 1fr;
+    gap:20px;
+    margin-top:22px;
+    padding:22px 28px;
+    border:1px dashed #bdd2b3;
+    border-radius:15px;
+    background:#f4faef;
+}
+
+.pd-workspace-profile-note strong{
+    color:var(--forest);
+}
+
+.pd-workspace-profile-note p{
+    margin:0;
+    color:var(--muted);
+    font-size:13px;
+}
+
+
+@media(max-width:800px){
+
+    .pd-workspace-profile-hero{
+        flex-direction:column;
+    }
+
+    .pd-workspace-profile-badge{
+        width:100%;
+    }
+
+    .pd-workspace-style-grid{
+        grid-template-columns:1fr;
+    }
+
+    .pd-workspace-profile-note{
+        grid-template-columns:1fr;
+    }
+
+}
+
+
+/* Partner Dynamics V1 final polish */
+
+.pd-alignment-page{
+    padding-top:32px;
+}
+
+.pd-alignment-page .pd-alignment-heading{
+    padding-top:8px;
+}
+
+.pd-insight-grid > :only-child{
+    grid-column:1 / -1;
+}
+
+.pd-workspace-profile-section{
+    padding-top:38px;
+}
