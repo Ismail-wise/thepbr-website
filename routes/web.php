@@ -75,6 +75,11 @@ Route::middleware('auth')->group(function (): void {
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
     Route::get(
+        '/workspaces/{workspace}/tools/startup-capital-planner',
+        [\App\Http\Controllers\WorkspaceStartupCapitalController::class, 'show']
+    )->name('workspaces.tools.startup-capital.show');
+
+    Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']
     )->name('workspaces.tools.index');
