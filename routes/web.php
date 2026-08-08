@@ -74,6 +74,16 @@ Route::middleware('auth')->group(function (): void {
         ->name('workspace-invitations.store');
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
+    Route::get(
+        '/workspaces/{workspace}/tools',
+        [\App\Http\Controllers\WorkspaceToolsController::class, 'index']
+    )->name('workspaces.tools.index');
+
+    Route::put(
+        '/workspaces/{workspace}/business-context',
+        [\App\Http\Controllers\WorkspaceToolsController::class, 'updateContext']
+    )->name('workspaces.business-context.update');
+
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
 

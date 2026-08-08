@@ -12,6 +12,7 @@
     <link rel="stylesheet" href="{{ asset('css/student-portal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/workspace-invitations.css') }}">
     <link rel="stylesheet" href="{{ asset('css/partner-dynamics.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-tools.css') }}">
 </head>
 <body>
     <header class="portal-header">

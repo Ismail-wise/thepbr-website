@@ -40,6 +40,35 @@
                     Open Partnership Alignment
                 </a>
             </div>
+            {{-- PBR Business Tools Entry --}}
+            <div class="auth-card">
+                <span class="portal-kicker">
+                    PBR Business System
+                </span>
+
+                <h2>
+                    Business Tools
+                </h2>
+
+                <p class="panel-copy">
+                    Partnership planning, finance,
+                    ownership, governance, exit နဲ့
+                    dispute management အတွက်
+                    practical business tools တွေကို
+                    အသုံးပြုပါ။
+                </p>
+
+                <a
+                    class="portal-button"
+                    href="{{ route(
+                        'workspaces.tools.index',
+                        $workspace
+                    ) }}"
+                >
+                    Open PBR Business Tools
+                </a>
+            </div>
+
             @if(session('invitation_link'))
                 <div class="auth-card invitation-link-card">
                     <span class="portal-kicker">Invitation Ready</span>
