@@ -453,13 +453,35 @@
 
 
                                     @if(
+                                        $tool->tool_key
+                                        === 'startup_capital_planner'
+                                        && $workspace->business_stage === 'new'
+                                    )
+
+                                        <p>
+                                            Plan one-time startup costs
+                                            and calculate the estimated
+                                            startup capital requirement.
+                                        </p>
+
+                                        <a
+                                            class="pbr-open-tool"
+                                            href="{{ route(
+                                                'workspaces.tools.startup-capital.show',
+                                                $workspace
+                                            ) }}"
+                                        >
+                                            Open Tool →
+                                        </a>
+
+                                    @elseif(
                                         $chapter->chapter_number === 1
                                     )
 
                                         <p>
-                                            Chapter 1 prototype.
-                                            Interactive version will be
-                                            connected next.
+                                            Chapter 1 prototype tool.
+                                            Interactive version is
+                                            coming next.
                                         </p>
 
                                     @else

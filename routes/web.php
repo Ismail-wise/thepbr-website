@@ -79,6 +79,11 @@ Route::middleware('auth')->group(function (): void {
         [\App\Http\Controllers\WorkspaceStartupCapitalController::class, 'show']
     )->name('workspaces.tools.startup-capital.show');
 
+    Route::post(
+        '/workspaces/{workspace}/tools/startup-capital-planner',
+        [\App\Http\Controllers\WorkspaceStartupCapitalController::class, 'calculate']
+    )->name('workspaces.tools.startup-capital.calculate');
+
     Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']

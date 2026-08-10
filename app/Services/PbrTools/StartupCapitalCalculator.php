@@ -4,87 +4,170 @@ namespace App\Services\PbrTools;
 
 class StartupCapitalCalculator
 {
-    public const CATEGORIES = [
-        'registration_legal' => 'Registration & Legal',
-        'location_renovation' => 'Location / Renovation',
-        'equipment' => 'Equipment',
-        'initial_inventory' => 'Initial Inventory',
-        'technology_software' => 'Technology & Software',
-        'branding_marketing' => 'Branding & Launch Marketing',
-        'deposits_prepayments' => 'Deposits & Prepayments',
-        'other_startup_costs' => 'Other Startup Costs',
-    ];
-
     public function calculate(array $input): array
     {
         $categories = [];
+        $grandTotal = 0.0;
+        $itemCount = 0;
 
-        foreach (self::CATEGORIES as $key => $label) {
-            $amount = $this->normalizeAmount(
-                $input[$key] ?? 0
+        $largestCategory = null;
+        $largestItem = null;
+
+        foreach ($input['categories'] ?? [] as $categoryIndex => $category) {
+            if (! is_array($category)) {
+                continue;
+            }
+
+            $categoryName = trim(
+                (string) ($category['name'] ?? '')
             );
 
-            $categories[$key] = [
-                'label' => $label,
-                'amount' => $amount,
-            ];
-        }
+            if ($categoryName === '') {
+                $categoryName = 'Others';
+            }
 
-        $total = round(
-            array_sum(
-                array_column($categories, 'amount')
-            ),
-            2
-        );
+            $items = [];
+            $categorySubtotal = 0.0;
 
-        foreach ($categories as $key => $category) {
-            $categories[$key]['percentage'] =
-                $total > 0
-                    ? round(
-                        ($category['amount'] / $total) * 100,
-                        2
+            foreach ($category['items'] ?? [] as $itemIndex => $item) {
+                if (! is_array($item)) {
+                    continue;
+                }
+
+                $itemName = trim(
+                    (string) ($item['name'] ?? '')
+                );
+
+                $amount = $this->normalizeAmount(
+                    $item['amount'] ?? null
+                );
+
+                if ($itemName === '' && $amount <= 0) {
+                    continue;
+                }
+
+                if ($itemName === '') {
+                    $itemName = 'Unnamed Item';
+                }
+
+                $items[] = [
+                    'name' => $itemName,
+                    'amount' => $amount,
+                ];
+
+                $categorySubtotal += $amount;
+
+                if ($amount > 0) {
+                    $itemCount++;
+                }
+
+                if (
+                    $amount > 0
+                    && (
+                        $largestItem === null
+                        || $amount > $largestItem['amount']
                     )
-                    : 0;
-        }
+                ) {
+                    $largestItem = [
+                        'category' => $categoryName,
+                        'name' => $itemName,
+                        'amount' => $amount,
+                    ];
+                }
+            }
 
-        $largestKey = null;
-        $largestAmount = 0;
+            if (empty($items)) {
+                continue;
+            }
 
-        foreach ($categories as $key => $category) {
-            if ($category['amount'] > $largestAmount) {
-                $largestKey = $key;
-                $largestAmount = $category['amount'];
+            $categorySubtotal = round(
+                $categorySubtotal,
+                2
+            );
+
+            $grandTotal += $categorySubtotal;
+
+            $categories[] = [
+                'name' => $categoryName,
+                'subtotal' => $categorySubtotal,
+                'percentage' => 0.0,
+                'item_count' => count($items),
+                'items' => $items,
+            ];
+
+            if (
+                $categorySubtotal > 0
+                && (
+                    $largestCategory === null
+                    || $categorySubtotal
+                        > $largestCategory['subtotal']
+                )
+            ) {
+                $largestCategory = [
+                    'name' => $categoryName,
+                    'subtotal' => $categorySubtotal,
+                ];
             }
         }
 
+        $grandTotal = round($grandTotal, 2);
+
+        foreach ($categories as &$category) {
+            $category['percentage'] =
+                $grandTotal > 0
+                    ? round(
+                        ($category['subtotal'] / $grandTotal)
+                        * 100,
+                        2
+                    )
+                    : 0.0;
+        }
+
+        unset($category);
+
+        if ($largestCategory !== null) {
+            $largestCategory['percentage'] =
+                $grandTotal > 0
+                    ? round(
+                        (
+                            $largestCategory['subtotal']
+                            / $grandTotal
+                        ) * 100,
+                        2
+                    )
+                    : 0.0;
+        }
+
+        if ($largestItem !== null) {
+            $largestItem['percentage'] =
+                $grandTotal > 0
+                    ? round(
+                        (
+                            $largestItem['amount']
+                            / $grandTotal
+                        ) * 100,
+                        2
+                    )
+                    : 0.0;
+        }
+
         return [
-            'startup_cost_total' => $total,
-
+            'total_startup_capital' => $grandTotal,
+            'category_count' => count($categories),
+            'item_count' => $itemCount,
             'categories' => $categories,
-
-            'largest_category' => $largestKey
-                ? [
-                    'key' => $largestKey,
-                    'label' => $categories[$largestKey]['label'],
-                    'amount' => $categories[$largestKey]['amount'],
-                    'percentage' =>
-                        $categories[$largestKey]['percentage'],
-                ]
-                : null,
-
-            'non_zero_categories' => collect($categories)
-                ->where('amount', '>', 0)
-                ->count(),
+            'largest_category' => $largestCategory,
+            'largest_item' => $largestItem,
         ];
     }
 
     private function normalizeAmount(mixed $value): float
     {
-        if ($value === null || $value === '') {
-            return 0.0;
-        }
-
-        if (! is_numeric($value)) {
+        if (
+            $value === null
+            || $value === ''
+            || ! is_numeric($value)
+        ) {
             return 0.0;
         }
 
