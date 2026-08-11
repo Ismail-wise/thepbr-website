@@ -72,6 +72,14 @@ Route::middleware('auth')->group(function (): void {
     Route::post('/workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store'])
         ->middleware('throttle:workspace-invitations')
         ->name('workspace-invitations.store');
+
+    Route::post('/workspaces/{workspace}/shareable-invitations', [WorkspaceInvitationController::class, 'storeShareable'])
+        ->middleware('throttle:workspace-invitations')
+        ->name('workspace-invitations.shareable.store');
+
+    Route::post('/workspace-invitations/connect', [WorkspaceInvitationController::class, 'connect'])
+        ->middleware('throttle:workspace-invitation-accept')
+        ->name('workspace-invitations.connect');
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
     Route::get(

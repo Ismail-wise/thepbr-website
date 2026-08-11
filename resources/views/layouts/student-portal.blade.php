@@ -36,9 +36,7 @@
                         <a href="{{ route('student.dashboard') }}">Student Portal</a>
                     @endif
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->ownedWorkspaces()->exists() || auth()->user()->hasAcceptedWorkspaceMembership())
-                        <a href="{{ route('workspaces.index') }}">Workspaces</a>
-                    @endif
+                    <a href="{{ route('workspaces.index') }}">Workspaces</a>
 
                     @if(auth()->user()->isAdmin())
                         <a href="{{ url('/admin') }}">Admin Portal</a>

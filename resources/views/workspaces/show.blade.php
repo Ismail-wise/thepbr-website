@@ -83,8 +83,50 @@
             @endif
 
             @if($canManageInvitations)
+
                 <div class="auth-card">
-                    <span class="portal-kicker">Invite Partner</span>
+                    <span class="portal-kicker">
+                        Quick Partner Invitation
+                    </span>
+
+                    <h2>
+                        Shareable Invitation Link
+                    </h2>
+
+                    <p class="panel-copy">
+                        Email ကြိုထည့်စရာမလိုပါဘူး။
+                        Link ကို Partner ဆီပို့ပါ။
+                        Account ရှိသူက Login ဝင်ပြီး
+                        ဒီ Workspace ကို Partner အဖြစ်
+                        ချိတ်ဆက်နိုင်ပါတယ်။
+                    </p>
+
+                    <div class="auth-note">
+                        <strong>Single-use Link</strong><br>
+                        လူတစ်ယောက် Accept လုပ်ပြီးတာနဲ့
+                        Link က အလိုအလျောက် အသုံးမပြုနိုင်တော့ပါ။
+                    </div>
+
+                    <form
+                        method="POST"
+                        action="{{ route(
+                            'workspace-invitations.shareable.store',
+                            $workspace
+                        ) }}"
+                    >
+                        @csrf
+
+                        <button
+                            class="portal-button"
+                            type="submit"
+                        >
+                            Create Shareable Invitation Link
+                        </button>
+                    </form>
+                </div>
+
+                <div class="auth-card">
+                    <span class="portal-kicker">Invite by Email</span>
                     <h2>Add a workspace partner</h2>
                     <p class="panel-copy">The invited person receives access to this workspace only. Student lessons and Admin Portal remain locked.</p>
 
@@ -128,7 +170,16 @@
                         @forelse($workspace->memberships->where('invitation_status', 'pending') as $invitation)
                             <div class="member-row invite-row">
                                 <div>
-                                    <strong>{{ $invitation->invited_email }}</strong>
+                                    <strong>
+                                        @if(str_ends_with(
+                                            strtolower((string) $invitation->invited_email),
+                                            '@invite.thepbr.local'
+                                        ))
+                                            Shareable Invitation Link
+                                        @else
+                                            {{ $invitation->invited_email }}
+                                        @endif
+                                    </strong>
                                     <small>Invited {{ $invitation->invited_at?->diffForHumans() ?? 'recently' }}</small>
                                 </div>
                                 <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
