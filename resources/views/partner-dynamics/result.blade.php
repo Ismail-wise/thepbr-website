@@ -268,7 +268,7 @@
                 <div class="pd-partner-match-copy">
 
                     <span class="portal-kicker">
-                        IDEAL PARTNER MATCH
+                        သင့်အတွက် PARTNER MATCH
                     </span>
 
                     <h2>
@@ -292,7 +292,7 @@
                     <strong>3</strong>
 
                     <span>
-                        Suggested<br>
+                        အကြံပြု<br>
                         Partner Types
                     </span>
                 </div>
@@ -307,7 +307,7 @@
                     <div class="pd-partner-needs-title">
 
                         <span>
-                            PARTNER COULD STRENGTHEN
+                            ဖြည့်ဆည်းပေးနိုင်မည့် နေရာများ
                         </span>
 
                         <strong>
@@ -380,7 +380,7 @@
                         <div class="pd-partner-card-profile">
 
                             <span>
-                                Recommended Partner Type
+                                အကြံပြု PARTNER TYPE
                             </span>
 
                             <h3>
@@ -403,12 +403,12 @@
                             <div class="pd-partner-why">
 
                                 <span>
-                                    WHY IT FITS
+                                    ဘာကြောင့် သင့်တော်နိုင်သလဲ
                                 </span>
 
                                 <strong>
-                                    ဘာကြောင့် သင့်အတွက်
-                                    သင့်တော်နိုင်သလဲ?
+                                    သင့် Working Style နဲ့
+                                    ဘယ်လိုဖြည့်ဆည်းပေးနိုင်သလဲ?
                                 </strong>
 
                                 <p>
@@ -433,11 +433,12 @@
                                 <div class="pd-partner-strengthens">
 
                                     <span>
-                                        MAY STRENGTHEN
+                                        ပိုအားကောင်းလာနိုင်သည့် AREAS
                                     </span>
 
                                     <strong>
-                                        ပိုအားကောင်းလာနိုင်တဲ့ Areas
+                                        Partner က
+                                        ဖြည့်ဆည်းပေးနိုင်သည့် နေရာများ
                                     </strong>
 
                                     <div>
@@ -477,12 +478,12 @@
                                 <div class="pd-partner-discussion">
 
                                     <span>
-                                        BEFORE PARTNERING
+                                        PARTNER မဖြစ်ခင်
                                     </span>
 
                                     <strong>
-                                        Partner မဖြစ်ခင်
-                                        အရင်ဆွေးနွေးထားသင့်တာများ
+                                        ကြိုတင်ဆွေးနွေးပြီး
+                                        သဘောတူထားသင့်သည့် အချက်များ
                                     </strong>
 
                                     <ul>
