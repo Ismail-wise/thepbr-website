@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="my">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,9 +11,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/student-portal.css') }}">
     <link rel="stylesheet" href="{{ asset('css/workspace-invitations.css') }}">
-    <link rel="stylesheet"
-          href="{{ asset('css/partner-dynamics.css') }}?v={{ filemtime(public_path('css/partner-dynamics.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/partner-dynamics.css') }}?v={{ filemtime(public_path('css/partner-dynamics.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-tools.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-platform-v2.css') }}?v={{ filemtime(public_path('css/pbr-platform-v2.css')) }}">
 </head>
 <body>
     <header class="portal-header">
@@ -24,19 +24,19 @@
             </a>
 
             <div class="portal-nav">
-                <a href="{{ route('home') }}">Public Website</a>
+                <a href="{{ route('home') }}">ပင်မစာမျက်နှာ</a>
                 @auth
-                    <a href="{{ route('account.dashboard') }}">My Account</a>
+                    <a href="{{ route('account.dashboard') }}">ကျွန်ုပ်၏ Account</a>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
                         <a href="{{ route('partner-dynamics.index') }}">Partner Dynamics</a>
                     @endif
 
                     @if(auth()->user()->isStudent())
-                        <a href="{{ route('student.dashboard') }}">Student Portal</a>
+                        <a href="{{ route('student.dashboard') }}">သင်တန်း Portal</a>
                     @endif
 
-                    <a href="{{ route('workspaces.index') }}">Workspaces</a>
+                    <a href="{{ route('workspaces.index') }}">ကျွန်ုပ်၏ Business များ</a>
 
                     @if(auth()->user()->isAdmin())
                         <a href="{{ url('/admin') }}">Admin Portal</a>
@@ -44,10 +44,10 @@
 
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit">Log Out</button>
+                        <button type="submit">ထွက်ရန်</button>
                     </form>
                 @else
-                    <a href="{{ route('login') }}">Log In</a>
+                    <a href="{{ route('login') }}">Login ဝင်ရန်</a>
                 @endauth
             </div>
         </div>
@@ -66,7 +66,7 @@
     </main>
 
     <footer class="portal-footer">
-        <div class="portal-wrap">© {{ date('Y') }} thePBR. Secure Account Access.</div>
+        <div class="portal-wrap">© {{ date('Y') }} thePBR — Partnership Business Management Platform</div>
     </footer>
 </body>
 </html>
