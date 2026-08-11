@@ -48,6 +48,34 @@
 
                 <form
                     method="POST"
+                    class="pbr-scenario-rename-form"
+                    action="{{ route(
+                        'workspaces.tools.scenarios.rename',
+                        [
+                            $workspace,
+                            $tool->slug,
+                            $draft->id
+                        ]
+                    ) }}"
+                >
+                    @csrf
+
+                    <input
+                        type="text"
+                        name="scenario_name"
+                        value="{{ $draft->scenario_name }}"
+                        maxlength="120"
+                        required
+                        aria-label="Scenario name"
+                    >
+
+                    <button type="submit">
+                        Rename
+                    </button>
+                </form>
+
+                <form
+                    method="POST"
                     action="{{ route(
                         'workspaces.tools.scenarios.duplicate',
                         [

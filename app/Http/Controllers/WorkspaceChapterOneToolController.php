@@ -6,6 +6,7 @@ use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
 use App\Services\PbrTools\ChapterOneCapitalService;
+use App\Services\PbrTools\ChapterOneIntegrationService;
 use App\Services\PbrTools\ToolScenarioService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -26,7 +27,8 @@ class WorkspaceChapterOneToolController extends Controller
         Request $request,
         PartnershipWorkspace $workspace,
         string $toolSlug,
-        ToolScenarioService $scenarios
+        ToolScenarioService $scenarios,
+        ChapterOneIntegrationService $integration
     ): View {
         $tool = $this->resolveTool(
             $request,
@@ -39,6 +41,14 @@ class WorkspaceChapterOneToolController extends Controller
             $tool->tool_key
         );
         $result = null;
+
+        if ($request->query('session') === null) {
+            $input = $integration->prefill(
+                $workspace,
+                $tool->tool_key,
+                $input
+            );
+        }
 
         if ($request->query('session') !== null) {
             $sessionId = (string) $request->query(

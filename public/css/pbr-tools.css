@@ -1418,3 +1418,235 @@
         min-height:0;
     }
 }
+
+/* --------------------------------------------------
+   Chapter 1 Capital Overview
+-------------------------------------------------- */
+
+.pbr-capital-overview{
+    margin:26px 0;
+    padding:26px;
+    border:1px solid var(--line);
+    border-radius:18px;
+    background:#fff;
+}
+
+.pbr-capital-overview-head{
+    display:flex;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:20px;
+    margin-bottom:20px;
+}
+
+.pbr-capital-overview-head h2{
+    margin:6px 0 7px;
+    font-size:24px;
+}
+
+.pbr-capital-overview-head p{
+    max-width:720px;
+    margin:0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.7;
+}
+
+.pbr-capital-main-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+}
+
+.pbr-capital-main-card{
+    min-width:0;
+    padding:17px;
+    border:1px solid var(--line);
+    border-radius:13px;
+    background:#fafcf9;
+}
+
+.pbr-capital-main-card > span{
+    display:block;
+    margin-bottom:9px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+}
+
+.pbr-capital-main-card > strong{
+    display:block;
+    margin-bottom:8px;
+    font-size:20px;
+    line-height:1.2;
+}
+
+.pbr-capital-main-card > small{
+    display:block;
+    color:var(--muted);
+    font-size:10px;
+    line-height:1.5;
+}
+
+.pbr-capital-gap{
+    border-color:#edc7c7;
+    background:#fff8f8;
+}
+
+.pbr-capital-covered{
+    border-color:#cbe1c5;
+    background:#f7fcf5;
+}
+
+.pbr-capital-breakdown-head{
+    margin:24px 0 12px;
+    padding-top:20px;
+    border-top:1px solid var(--line);
+}
+
+.pbr-capital-breakdown-head h3{
+    margin:0 0 4px;
+    font-size:16px;
+}
+
+.pbr-capital-breakdown-head p{
+    margin:0;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.pbr-capital-breakdown-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+}
+
+.pbr-capital-source-card{
+    min-width:0;
+    padding:14px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#fbfcfa;
+}
+
+.pbr-capital-source-card > div > span{
+    display:block;
+    margin-bottom:5px;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.pbr-capital-source-card > div > strong{
+    display:block;
+    margin-bottom:11px;
+    font-size:15px;
+}
+
+.pbr-output-connected,
+.pbr-output-missing{
+    display:inline-flex;
+    align-items:center;
+    min-height:24px;
+    padding:4px 8px;
+    border-radius:999px;
+    font-size:9px;
+    font-weight:700;
+}
+
+.pbr-output-connected{
+    color:#236118;
+    background:#eaf6e7;
+}
+
+.pbr-output-missing{
+    color:#82631c;
+    background:#fff6dc;
+}
+
+.pbr-capital-empty-note{
+    margin-top:16px;
+    padding:14px 16px;
+    border:1px dashed #d2dccd;
+    border-radius:11px;
+    background:#fafcf9;
+}
+
+.pbr-capital-empty-note strong{
+    display:block;
+    margin-bottom:3px;
+    font-size:12px;
+}
+
+.pbr-capital-empty-note p{
+    margin:0;
+    color:var(--muted);
+    font-size:10.5px;
+    line-height:1.6;
+}
+
+@media (max-width:1000px){
+    .pbr-capital-main-grid,
+    .pbr-capital-breakdown-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+}
+
+@media (max-width:650px){
+    .pbr-capital-overview{
+        padding:18px;
+    }
+
+    .pbr-capital-overview-head{
+        flex-direction:column;
+    }
+
+    .pbr-capital-main-grid,
+    .pbr-capital-breakdown-grid{
+        grid-template-columns:1fr;
+    }
+}
+
+/* Chapter 1 completion + scenario rename */
+
+.pbr-tool-status.ready{
+    color:#176b12;
+    background:#eaf6e7;
+    border-color:#cce6c6;
+}
+
+.pbr-scenario-rename-form{
+    display:flex;
+    align-items:center;
+    gap:6px;
+}
+
+.pbr-scenario-rename-form input{
+    width:145px;
+    min-height:36px;
+    padding:7px 9px;
+    border:1px solid #d3ddcf;
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+    font:inherit;
+    font-size:10px;
+    outline:none;
+}
+
+.pbr-scenario-rename-form input:focus{
+    border-color:var(--forest);
+    box-shadow:0 0 0 3px rgba(21,127,9,.10);
+}
+
+@media (max-width:760px){
+    .pbr-scenario-rename-form{
+        width:100%;
+    }
+
+    .pbr-scenario-rename-form input{
+        flex:1;
+        width:auto;
+    }
+}

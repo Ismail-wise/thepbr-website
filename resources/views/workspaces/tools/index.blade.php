@@ -247,6 +247,453 @@
         </section>
 
 
+        @php
+            $capitalCurrency =
+                $workspace->currency_code ?? 'THB';
+
+            $chapterOneOutputs =
+                $chapterOneSummary['outputs'] ?? [];
+
+            $hasChapterOneOutputs =
+                count($chapterOneOutputs) > 0;
+
+            $capitalGap =
+                $chapterOneSummary['funding_gap'] ?? 0;
+
+            $capitalSurplus =
+                $chapterOneSummary['funding_surplus'] ?? 0;
+        @endphp
+
+
+        <section class="pbr-capital-overview">
+
+            <div class="pbr-capital-overview-head">
+
+                <div>
+                    <span class="portal-kicker">
+                        Chapter 1 · Capital Overview
+                    </span>
+
+                    <h2>
+                        Partnership Capital Position
+                    </h2>
+
+                    <p>
+                        Saved scenarios ထဲက Workspace Output
+                        အဖြစ်ရွေးထားတဲ့ data တွေကိုပဲ
+                        ဒီ Overview မှာ ချိတ်ဆက်အသုံးပြုထားပါတယ်။
+                    </p>
+                </div>
+
+                @if($hasChapterOneOutputs)
+
+                    <span class="pbr-ready-badge">
+                        Connected
+                    </span>
+
+                @else
+
+                    <span class="pbr-setup-badge">
+                        No Outputs Yet
+                    </span>
+
+                @endif
+
+            </div>
+
+
+            <div class="pbr-capital-main-grid">
+
+                <article class="pbr-capital-main-card">
+
+                    <span>
+                        Total Capital Required
+                    </span>
+
+                    <strong>
+                        {{ $capitalCurrency }}
+                        {{
+                            number_format(
+                                $chapterOneSummary[
+                                    'capital_required'
+                                ] ?? 0,
+                                2
+                            )
+                        }}
+                    </strong>
+
+                    <small>
+                        Startup + Working Capital +
+                        Contingency Reserve
+                    </small>
+
+                </article>
+
+
+                <article class="pbr-capital-main-card">
+
+                    <span>
+                        Partner Capital Committed
+                    </span>
+
+                    <strong>
+                        {{ $capitalCurrency }}
+                        {{
+                            number_format(
+                                $chapterOneSummary[
+                                    'partner_capital'
+                                ] ?? 0,
+                                2
+                            )
+                        }}
+                    </strong>
+
+                    <small>
+                        From Partner Contribution Matrix
+                    </small>
+
+                </article>
+
+
+                <article class="pbr-capital-main-card">
+
+                    <span>
+                        Other Funding
+                    </span>
+
+                    <strong>
+                        {{ $capitalCurrency }}
+                        {{
+                            number_format(
+                                $chapterOneSummary[
+                                    'other_funding'
+                                ] ?? 0,
+                                2
+                            )
+                        }}
+                    </strong>
+
+                    <small>
+                        Loans or other confirmed funding
+                    </small>
+
+                </article>
+
+
+                <article
+                    class="pbr-capital-main-card
+                    {{ $capitalGap > 0
+                        ? 'pbr-capital-gap'
+                        : 'pbr-capital-covered'
+                    }}"
+                >
+
+                    <span>
+                        {{
+                            $capitalGap > 0
+                                ? 'Funding Gap'
+                                : (
+                                    $capitalSurplus > 0
+                                        ? 'Funding Surplus'
+                                        : 'Funding Position'
+                                )
+                        }}
+                    </span>
+
+                    <strong>
+                        {{ $capitalCurrency }}
+                        {{
+                            number_format(
+                                $capitalGap > 0
+                                    ? $capitalGap
+                                    : $capitalSurplus,
+                                2
+                            )
+                        }}
+                    </strong>
+
+                    <small>
+                        {{
+                            $capitalGap > 0
+                                ? 'Additional funding still required'
+                                : (
+                                    $capitalSurplus > 0
+                                        ? 'Capital exceeds current requirement'
+                                        : 'Current requirement and funding are balanced'
+                                )
+                        }}
+                    </small>
+
+                </article>
+
+            </div>
+
+
+            <div class="pbr-capital-breakdown-head">
+
+                <div>
+                    <h3>
+                        Capital Requirement Breakdown
+                    </h3>
+
+                    <p>
+                        Tool တစ်ခုချင်းစီက selected
+                        Workspace Output ကိုစုပြထားပါတယ်။
+                    </p>
+                </div>
+
+            </div>
+
+
+            <div class="pbr-capital-breakdown-grid">
+
+                @if($workspace->business_stage === 'new')
+
+                    <article class="pbr-capital-source-card">
+
+                        <div>
+                            <span>
+                                Startup Capital
+                            </span>
+
+                            <strong>
+                                {{ $capitalCurrency }}
+                                {{
+                                    number_format(
+                                        $chapterOneSummary[
+                                            'startup_capital'
+                                        ] ?? 0,
+                                        2
+                                    )
+                                }}
+                            </strong>
+                        </div>
+
+                        @if(
+                            isset(
+                                $chapterOneOutputs[
+                                    'startup_capital_planner'
+                                ]
+                            )
+                        )
+
+                            <span class="pbr-output-connected">
+                                Workspace Output
+                            </span>
+
+                        @else
+
+                            <span class="pbr-output-missing">
+                                Select a Scenario
+                            </span>
+
+                        @endif
+
+                    </article>
+
+                @endif
+
+
+                @if($workspace->business_stage === 'existing')
+
+                    <article class="pbr-capital-source-card">
+
+                        <div>
+                            <span>
+                                Current Net Capital Position
+                            </span>
+
+                            <strong>
+                                {{ $capitalCurrency }}
+                                {{
+                                    number_format(
+                                        $chapterOneSummary[
+                                            'current_net_capital_position'
+                                        ] ?? 0,
+                                        2
+                                    )
+                                }}
+                            </strong>
+                        </div>
+
+                        @if(
+                            isset(
+                                $chapterOneOutputs[
+                                    'current_capital_position'
+                                ]
+                            )
+                        )
+
+                            <span class="pbr-output-connected">
+                                Workspace Output
+                            </span>
+
+                        @else
+
+                            <span class="pbr-output-missing">
+                                Select a Scenario
+                            </span>
+
+                        @endif
+
+                    </article>
+
+                @endif
+
+
+                <article class="pbr-capital-source-card">
+
+                    <div>
+                        <span>
+                            Working Capital
+                        </span>
+
+                        <strong>
+                            {{ $capitalCurrency }}
+                            {{
+                                number_format(
+                                    $chapterOneSummary[
+                                        'working_capital'
+                                    ] ?? 0,
+                                    2
+                                )
+                            }}
+                        </strong>
+                    </div>
+
+                    @if(
+                        isset(
+                            $chapterOneOutputs[
+                                'working_capital_calculator'
+                            ]
+                        )
+                    )
+
+                        <span class="pbr-output-connected">
+                            Workspace Output
+                        </span>
+
+                    @else
+
+                        <span class="pbr-output-missing">
+                            Select a Scenario
+                        </span>
+
+                    @endif
+
+                </article>
+
+
+                <article class="pbr-capital-source-card">
+
+                    <div>
+                        <span>
+                            Contingency Reserve
+                        </span>
+
+                        <strong>
+                            {{ $capitalCurrency }}
+                            {{
+                                number_format(
+                                    $chapterOneSummary[
+                                        'contingency_fund'
+                                    ] ?? 0,
+                                    2
+                                )
+                            }}
+                        </strong>
+                    </div>
+
+                    @if(
+                        isset(
+                            $chapterOneOutputs[
+                                'contingency_fund_calculator'
+                            ]
+                        )
+                    )
+
+                        <span class="pbr-output-connected">
+                            Workspace Output
+                        </span>
+
+                    @else
+
+                        <span class="pbr-output-missing">
+                            Select a Scenario
+                        </span>
+
+                    @endif
+
+                </article>
+
+
+                <article class="pbr-capital-source-card">
+
+                    <div>
+                        <span>
+                            Partner Contributions
+                        </span>
+
+                        <strong>
+                            {{ $capitalCurrency }}
+                            {{
+                                number_format(
+                                    $chapterOneSummary[
+                                        'partner_capital'
+                                    ] ?? 0,
+                                    2
+                                )
+                            }}
+                        </strong>
+                    </div>
+
+                    @if(
+                        isset(
+                            $chapterOneOutputs[
+                                'partner_contribution_matrix'
+                            ]
+                        )
+                    )
+
+                        <span class="pbr-output-connected">
+                            Workspace Output
+                        </span>
+
+                    @else
+
+                        <span class="pbr-output-missing">
+                            Select a Scenario
+                        </span>
+
+                    @endif
+
+                </article>
+
+            </div>
+
+
+            @unless($hasChapterOneOutputs)
+
+                <div class="pbr-capital-empty-note">
+
+                    <strong>
+                        Start by creating a scenario.
+                    </strong>
+
+                    <p>
+                        Tool တစ်ခုမှာ Scenario ကို Save Draft
+                        လုပ်ပြီးနောက် Workspace Output
+                        အဖြစ်ရွေးလိုက်ရင် ဒီ Overview ထဲမှာ
+                        automatically ချိတ်ဆက်ပေးပါမယ်။
+                    </p>
+
+                </div>
+
+            @endunless
+
+        </section>
+
+
         <div class="pbr-tools-stats">
 
             <div class="pbr-stat-card">
@@ -406,8 +853,8 @@
                                             $chapter->chapter_number === 1
                                         )
 
-                                            <span class="pbr-tool-status prototype">
-                                                Prototype
+                                            <span class="pbr-tool-status ready">
+                                                Ready
                                             </span>
 
                                         @else

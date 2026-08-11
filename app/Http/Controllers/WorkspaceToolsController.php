@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseChapter;
 use App\Models\PartnershipWorkspace;
+use App\Services\PbrTools\ChapterOneIntegrationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -13,7 +14,8 @@ class WorkspaceToolsController extends Controller
 {
     public function index(
         Request $request,
-        PartnershipWorkspace $workspace
+        PartnershipWorkspace $workspace,
+        ChapterOneIntegrationService $integration
     ): View {
         abort_unless(
             $request->user()->canAccessWorkspace($workspace),
@@ -60,6 +62,9 @@ class WorkspaceToolsController extends Controller
         $currencies =
             PartnershipWorkspace::CURRENCIES;
 
+        $chapterOneSummary =
+            $integration->summary($workspace);
+
         return view(
             'workspaces.tools.index',
             compact(
@@ -67,7 +72,8 @@ class WorkspaceToolsController extends Controller
                 'chapters',
                 'canManageContext',
                 'businessStages',
-                'currencies'
+                'currencies',
+                'chapterOneSummary'
             )
         );
     }
