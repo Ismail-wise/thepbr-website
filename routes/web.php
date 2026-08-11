@@ -203,3 +203,41 @@ Route::middleware('auth')->group(function () {
         [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'output']
     )->name('workspaces.tools.scenarios.output');
 });
+
+/*
+|--------------------------------------------------------------------------
+| Chapter 1 Shared Capital Tools
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::get(
+        '/workspaces/{workspace}/tools/{toolSlug}',
+        [
+            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
+            'show'
+        ]
+    )->name(
+        'workspaces.tools.chapter-one.show'
+    );
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}',
+        [
+            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
+            'calculate'
+        ]
+    )->name(
+        'workspaces.tools.chapter-one.calculate'
+    );
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/save-draft',
+        [
+            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
+            'save'
+        ]
+    )->name(
+        'workspaces.tools.chapter-one.save'
+    );
+});

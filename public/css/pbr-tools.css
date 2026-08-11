@@ -1273,3 +1273,148 @@
         width:100%;
     }
 }
+
+/* --------------------------------------------------
+   Shared Chapter 1 Capital Tools
+-------------------------------------------------- */
+
+.pbr-tool-divider{
+    height:1px;
+    margin:28px 0;
+    background:var(--line);
+}
+
+.pbr-builder-heading{
+    margin-bottom:14px;
+}
+
+.pbr-builder-heading h3{
+    margin:0;
+    font-size:18px;
+}
+
+.pbr-builder-heading p{
+    margin:5px 0 0;
+    color:var(--muted);
+    font-size:11px;
+}
+
+.pbr-shared-category-builder + .pbr-shared-category-builder{
+    margin-top:24px;
+}
+
+.pbr-simple-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:16px;
+}
+
+.pbr-simple-field{
+    min-width:0;
+}
+
+.pbr-simple-field label{
+    display:block;
+    margin-bottom:5px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.pbr-simple-field > small{
+    display:block;
+    min-height:30px;
+    margin-bottom:7px;
+    color:var(--muted);
+    font-size:10.5px;
+}
+
+.pbr-simple-field select,
+.pbr-simple-field > input{
+    width:100%;
+    min-height:44px;
+    padding:10px 12px;
+    border:1px solid #cfdcc8;
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+    font:inherit;
+    outline:none;
+}
+
+.pbr-simple-field select:focus,
+.pbr-simple-field > input:focus{
+    border-color:var(--forest);
+    box-shadow:0 0 0 3px rgba(21,127,9,.10);
+}
+
+.pbr-number-suffix{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    border:1px solid #cfdcc8;
+    border-radius:9px;
+    background:#fff;
+    overflow:hidden;
+}
+
+.pbr-number-suffix:focus-within{
+    border-color:var(--forest);
+    box-shadow:0 0 0 3px rgba(21,127,9,.10);
+}
+
+.pbr-number-suffix input{
+    width:100%;
+    min-height:44px;
+    padding:10px 12px;
+    border:0;
+    outline:0;
+    background:#fff;
+    color:var(--ink);
+    font:inherit;
+}
+
+.pbr-number-suffix span{
+    padding:0 12px;
+    color:var(--muted);
+    font-size:10px;
+    font-weight:700;
+    border-left:1px solid var(--line);
+}
+
+.pbr-partner-card{
+    margin-bottom:16px;
+    padding:20px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fbfcfa;
+}
+
+.pbr-partner-card [data-contributions]{
+    display:grid;
+    gap:10px;
+}
+
+.pbr-allocation-builder [data-allocations]{
+    display:grid;
+    gap:10px;
+    margin-bottom:14px;
+}
+
+.pbr-contingency-method{
+    display:grid;
+    gap:20px;
+}
+
+.pbr-contingency-section[hidden]{
+    display:none !important;
+}
+
+@media (max-width:700px){
+    .pbr-simple-grid{
+        grid-template-columns:1fr;
+    }
+
+    .pbr-simple-field > small{
+        min-height:0;
+    }
+}

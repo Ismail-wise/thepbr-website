@@ -479,10 +479,23 @@
                                     )
 
                                         <p>
-                                            Chapter 1 prototype tool.
-                                            Interactive version is
-                                            coming next.
-                                        </p>
+                                        Open this Chapter 1 capital
+                                        tool to calculate, compare,
+                                        and save different scenarios.
+                                    </p>
+
+                                    <a
+                                        class="pbr-open-tool"
+                                        href="{{ route(
+                                            'workspaces.tools.chapter-one.show',
+                                            [
+                                                $workspace,
+                                                $tool->slug
+                                            ]
+                                        ) }}"
+                                    >
+                                        Open Tool →
+                                    </a>
 
                                     @else
 
