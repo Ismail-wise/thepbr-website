@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnerDynamicsAssessment;
 use App\Services\PartnerDynamics\PartnerDynamicsScoringService;
+use App\Services\PartnerDynamics\PartnerMatchRecommendationService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -147,7 +148,8 @@ class PartnerDynamicsController extends Controller
 
     public function result(
         Request $request,
-        PartnerDynamicsAssessment $assessment
+        PartnerDynamicsAssessment $assessment,
+        PartnerMatchRecommendationService $partnerMatchService
     ): View|RedirectResponse {
         $this->ensureOwner($request, $assessment);
 
@@ -158,9 +160,19 @@ class PartnerDynamicsController extends Controller
             );
         }
 
+        $partnerMatch =
+            $partnerMatchService->recommend(
+                $assessment->dimension_scores ?? [],
+                $assessment->primary_profile,
+                $assessment->secondary_profile
+            );
+
         return view(
             'partner-dynamics.result',
-            compact('assessment')
+            compact(
+                'assessment',
+                'partnerMatch'
+            )
         );
     }
 

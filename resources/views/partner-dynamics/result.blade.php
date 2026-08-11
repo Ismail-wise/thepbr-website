@@ -253,6 +253,227 @@
         </div>
 
 
+        <section class="pd-partner-match">
+
+            <div class="pd-partner-match-heading">
+
+                <div>
+                    <span class="portal-kicker">
+                        Your Ideal Partner Profile
+                    </span>
+
+                    <h2>
+                        ဘယ် Partner Type တွေက သင့်ကို
+                        ပို Balance ဖြစ်စေနိုင်မလဲ?
+                    </h2>
+
+                    <p>
+                        ဒီ Suggestions တွေက သင့် Primary Profile
+                        တစ်ခုတည်းကိုကြည့်တာမဟုတ်ဘဲ
+                        Dimension Scores (၈) ခုလုံးကိုကြည့်ပြီး
+                        သင့် operating pattern ကို complement
+                        လုပ်ပေးနိုင်မယ့် Partner Types တွေကို
+                        ရွေးထားတာပါ။
+                    </p>
+                </div>
+
+            </div>
+
+
+            @if(! empty($partnerMatch['priority_needs']))
+
+                <div class="pd-partner-needs">
+
+                    <span class="pd-partner-needs-label">
+                        Areas a Partner Could Strengthen
+                    </span>
+
+                    <div class="pd-partner-needs-list">
+
+                        @foreach(
+                            $partnerMatch['priority_needs']
+                            as $need
+                        )
+
+                            <span>
+                                {{ $need['label'] }}
+                            </span>
+
+                        @endforeach
+
+                    </div>
+
+                </div>
+
+            @endif
+
+
+            <div class="pd-partner-recommendation-grid">
+
+                @foreach(
+                    $partnerMatch['recommendations']
+                    as $index => $recommendation
+                )
+
+                    <article
+                        class="pd-partner-recommendation-card
+                        {{ $index === 0 ? 'featured' : '' }}"
+                    >
+
+                        <div class="pd-partner-rank">
+                            <span>
+                                #{{ $index + 1 }}
+                            </span>
+
+                            <strong>
+                                {{
+                                    $recommendation[
+                                        'recommendation_label'
+                                    ]
+                                }}
+                            </strong>
+                        </div>
+
+
+                        <h3>
+                            {{ $recommendation['name'] }}
+                        </h3>
+
+                        <p class="pd-partner-description">
+                            {{
+                                $recommendation[
+                                    'description'
+                                ]
+                            }}
+                        </p>
+
+
+                        <div class="pd-partner-why">
+
+                            <span>
+                                Why this may fit you
+                            </span>
+
+                            <p>
+                                {{
+                                    $recommendation[
+                                        'reason'
+                                    ]
+                                }}
+                            </p>
+
+                        </div>
+
+
+                        @if(
+                            ! empty(
+                                $recommendation[
+                                    'strengthens'
+                                ]
+                            )
+                        )
+
+                            <div class="pd-partner-strengthens">
+
+                                <span>
+                                    May Strengthen
+                                </span>
+
+                                <div>
+
+                                    @foreach(
+                                        $recommendation[
+                                            'strengthens'
+                                        ]
+                                        as $strength
+                                    )
+
+                                        <small>
+                                            {{
+                                                $strength[
+                                                    'label'
+                                                ]
+                                            }}
+                                        </small>
+
+                                    @endforeach
+
+                                </div>
+
+                            </div>
+
+                        @endif
+
+
+                        @if(
+                            ! empty(
+                                $recommendation[
+                                    'discussion_points'
+                                ]
+                            )
+                        )
+
+                            <div class="pd-partner-discussion">
+
+                                <span>
+                                    Discuss Before Partnering
+                                </span>
+
+                                <ul>
+
+                                    @foreach(
+                                        $recommendation[
+                                            'discussion_points'
+                                        ]
+                                        as $point
+                                    )
+
+                                        <li>
+                                            {{ $point }}
+                                        </li>
+
+                                    @endforeach
+
+                                </ul>
+
+                            </div>
+
+                        @endif
+
+                    </article>
+
+                @endforeach
+
+            </div>
+
+
+            <div class="pd-partner-match-note">
+
+                <strong>
+                    Important
+                </strong>
+
+                <p>
+                    {{
+                        $partnerMatch['note']
+                    }}
+                </p>
+
+                <p>
+                    Partner Type Recommendation က
+                    Partnership အောင်မြင်မယ်လို့ အာမခံတဲ့
+                    Compatibility Score မဟုတ်ပါဘူး။
+                    Values, Trust, Business Goals,
+                    Financial Expectations နဲ့
+                    Working History တွေကိုလည်း
+                    အတူတူစဉ်းစားဖို့လိုပါတယ်။
+                </p>
+
+            </div>
+
+        </section>
+
+
         <section class="pd-next-stage">
 
             <div>
