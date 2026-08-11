@@ -1,130 +1,196 @@
 @extends('layouts.student-portal')
 
-@section('title', $workspace->name)
+@section('title', $workspace->business_name ?: $workspace->name)
 
 @section('content')
-<section class="auth-section">
-    <div class="auth-shell compact workspace-detail-shell">
-        <div class="auth-copy">
-            <span class="portal-kicker">Private Workspace</span>
-            <h1>{{ $workspace->business_name ?: $workspace->name }}</h1>
-            <p>ဒီ Business Workspace ရဲ့ Partner, Tools, Assessment နဲ့ Business Data တွေကို ဒီနေရာကနေ စီမံနိုင်ပါတယ်။</p>
+@php
+    $businessName = $workspace->business_name ?: $workspace->name;
+    $stageMm = $workspace->business_stage === 'existing'
+        ? 'ရှိပြီးသား Partnership Business ကို စီမံနေသည်'
+        : 'Partnership Business အသစ် စီစဉ်နေသည်';
+    $acceptedPartners = $workspace->memberships
+        ->where('member_role', 'partner')
+        ->where('invitation_status', 'accepted');
+    $pendingInvitations = $workspace->memberships
+        ->where('invitation_status', 'pending');
+@endphp
 
-            <div class="auth-note"><strong>Owner:</strong> {{ $workspace->owner?->name ?? 'Unknown' }}</div>
-            <div class="auth-note"><strong>Status:</strong> {{ ucfirst($workspace->status) }}</div>
-            <div class="auth-note"><strong>Stage:</strong> {{ \App\Models\PartnershipWorkspace::BUSINESS_STAGES[$workspace->business_stage] ?? 'Not configured' }}</div>
-            <div class="auth-note"><strong>Currency:</strong> {{ $workspace->currency_code ?? 'Not set' }}</div>
-            <div class="auth-note"><strong>Accepted members:</strong> {{ $workspace->acceptedMemberships->count() }}</div>
+<div class="pbr2-page">
+    <section class="pbr2-hero">
+        <div class="pbr2-hero-row">
+            <div>
+                <span class="pbr2-eyebrow">Business Control Center</span>
+                <h1>{{ $businessName }}</h1>
+                <p>{{ $stageMm }}။ ဒီနေရာကနေ Partner Alignment, Business Tools, Feasibility, Valuation နဲ့ Workspace Management ကို တစ်နေရာတည်းမှာ စီမံနိုင်ပါတယ်။</p>
+                <div class="pbr2-meta">
+                    <span class="pbr2-badge">{{ $workspace->currency_code ?? 'Currency မသတ်မှတ်ရသေး' }}</span>
+                    <span class="pbr2-badge {{ $workspace->business_stage === 'existing' ? 'orange' : 'gray' }}">{{ $workspace->business_stage === 'existing' ? 'EXISTING BUSINESS' : 'NEW BUSINESS' }}</span>
+                </div>
+            </div>
 
-            <a class="portal-button secondary" href="{{ route('workspaces.index') }}">Back to My Businesses</a>
+            <div class="pbr2-actions">
+                <a class="pbr2-btn secondary" href="{{ route('workspaces.index') }}">Business List</a>
+                @if($canManageBusiness)
+                    <a class="pbr2-btn" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
+                @endif
+            </div>
         </div>
 
-        <div class="workspace-panels">
-            <div class="auth-card pd-workspace-entry">
-                <span class="portal-kicker">Partner Dynamics</span>
-                <h2>Partnership Alignment</h2>
-                <p class="panel-copy">Partner တစ်ယောက်ချင်းစီရဲ့ operating style, shared strengths, important differences နဲ့ role suggestions တွေကို ကြည့်ပါ။</p>
-                <a class="portal-button" href="{{ route('workspaces.partner-dynamics.show', $workspace) }}">Open Partnership Alignment</a>
+        <div class="pbr2-metrics">
+            <div class="pbr2-metric">
+                <span>ချိတ်ဆက်ထားသော Partner</span>
+                <strong>{{ $partnerCount }}</strong>
             </div>
-
-            <div class="auth-card">
-                <span class="portal-kicker">PBR Business System</span>
-                <h2>Business Tools</h2>
-                <p class="panel-copy">Partnership planning, finance, ownership, governance, exit နဲ့ dispute management အတွက် practical business tools တွေကို အသုံးပြုပါ။</p>
-                <a class="portal-button" href="{{ route('workspaces.tools.index', $workspace) }}">Open PBR Business Tools</a>
+            <div class="pbr2-metric">
+                <span>Saved Tool Outputs</span>
+                <strong>{{ $savedOutputCount }}</strong>
             </div>
+            <div class="pbr2-metric">
+                <span>နောက်ဆုံးပြင်ဆင်ချိန်</span>
+                <strong style="font-size:14px;">{{ $workspace->updated_at?->diffForHumans() ?? 'မရှိသေး' }}</strong>
+            </div>
+        </div>
+    </section>
 
-            @include('workspaces._decision-tools')
+    <section class="pbr2-section">
+        <div class="pbr2-section-head">
+            <div>
+                <h2>Business Management</h2>
+                <p>လိုအပ်တဲ့ Module ကိုရွေးပြီး တိုက်ရိုက်အသုံးပြုပါ။</p>
+            </div>
+        </div>
 
-            @if(session('invitation_link'))
-                <div class="auth-card invitation-link-card">
-                    <span class="portal-kicker">Invitation Ready</span>
-                    <h2>Share this secure link</h2>
-                    <p>The link is displayed only after creating or refreshing an invitation.</p>
-                    <div class="field">
-                        <label for="invitation_link">Partner Invitation Link</label>
-                        <input id="invitation_link" type="text" value="{{ session('invitation_link') }}" readonly>
-                        <small class="field-help">Copy the complete link and send it only to the invited partner.</small>
+        <div class="pbr2-grid">
+            <article class="pbr2-card feature">
+                <div class="pbr2-icon">◎</div>
+                <span class="pbr2-eyebrow">Partner Dynamics</span>
+                <h3>Partner Alignment & Roles</h3>
+                <p>Partner တစ်ယောက်ချင်းစီရဲ့ အားသာချက်၊ လုပ်ဆောင်ပုံ၊ ကွာခြားချက်နဲ့ သင့်တော်တဲ့ Role တွေကို နားလည်နိုင်ပါတယ်။</p>
+                <div class="pbr2-actions">
+                    <a class="pbr2-btn" href="{{ route('workspaces.partner-dynamics.show', $workspace) }}">Partner Alignment ကိုဖွင့်ရန်</a>
+                </div>
+            </article>
+
+            <article class="pbr2-card feature">
+                <div class="pbr2-icon">▦</div>
+                <span class="pbr2-eyebrow">PBR Business Tools</span>
+                <h3>Chapter-based Business Tools</h3>
+                <p>Capital, Ownership, Profit Sharing, Governance, Exit နဲ့ Partnership Management အတွက် practical tools တွေကို အသုံးပြုပါ။</p>
+                <div class="pbr2-actions">
+                    <a class="pbr2-btn" href="{{ route('workspaces.tools.index', $workspace) }}">Business Tools ကိုဖွင့်ရန်</a>
+                </div>
+            </article>
+
+            <article class="pbr2-card feature">
+                <div class="pbr2-icon">✓</div>
+                <span class="pbr2-eyebrow">Feasibility</span>
+                <h3>လုပ်ငန်း / Project ဆုံးဖြတ်ချက်</h3>
+                <p>Business အသစ်၊ Product အသစ်၊ Branch အသစ် သို့မဟုတ် Project အသစ်ကို လက်ရှိအခြေအနေမှာ လုပ်သင့်မလုပ်သင့် စစ်ဆေးပါ။</p>
+                <div class="pbr2-actions">
+                    <a class="pbr2-btn" href="{{ route('workspaces.feasibility.show', $workspace) }}">Feasibility စစ်ဆေးရန်</a>
+                </div>
+            </article>
+
+            @if($workspace->isExistingPartnership())
+                <article class="pbr2-card feature">
+                    <div class="pbr2-icon">฿</div>
+                    <span class="pbr2-eyebrow">Business Valuation</span>
+                    <h3>Business တန်ဖိုး ခန့်မှန်းရန်</h3>
+                    <p>Financial Data နဲ့ Valuation Methods အမျိုးမျိုးကိုသုံးပြီး Conservative, Base နဲ့ Optimistic Value Range ကိုတွက်ပါ။</p>
+                    <div class="pbr2-actions">
+                        <a class="pbr2-btn" href="{{ route('workspaces.valuation.show', $workspace) }}">Valuation Center ကိုဖွင့်ရန်</a>
                     </div>
-                </div>
+                </article>
             @endif
+        </div>
+    </section>
 
-            @if($canManageInvitations)
-                <div class="auth-card">
-                    <span class="portal-kicker">Quick Partner Invitation</span>
-                    <h2>Shareable Invitation Link</h2>
-                    <p class="panel-copy">Email ကြိုထည့်စရာမလိုပါဘူး။ Link ကို Partner ဆီပို့ပါ။ Account ရှိသူက Login ဝင်ပြီး ဒီ Workspace ကို Partner အဖြစ် ချိတ်ဆက်နိုင်ပါတယ်။</p>
-                    <div class="auth-note"><strong>Single-use Link</strong><br>လူတစ်ယောက် Accept လုပ်ပြီးတာနဲ့ Link က အလိုအလျောက် အသုံးမပြုနိုင်တော့ပါ။</div>
-                    <form method="POST" action="{{ route('workspace-invitations.shareable.store', $workspace) }}">
-                        @csrf
-                        <button class="portal-button" type="submit">Create Shareable Invitation Link</button>
-                    </form>
-                </div>
-
-                <div class="auth-card">
-                    <span class="portal-kicker">Invite by Email</span>
-                    <h2>Add a workspace partner</h2>
-                    <p class="panel-copy">The invited person receives access to this workspace only. Student lessons and Admin Portal remain locked.</p>
-                    <form method="POST" action="{{ route('workspace-invitations.store', $workspace) }}" novalidate>
-                        @csrf
-                        <div class="field">
-                            <label for="email">Partner Email Address</label>
-                            <input id="email" name="email" type="email" value="{{ old('email') }}" autocomplete="email" required>
-                            @error('email')<small class="field-error">{{ $message }}</small>@enderror
-                        </div>
-                        <button class="portal-button" type="submit">Create Secure Invitation Link</button>
-                    </form>
-                </div>
-            @endif
-
-            <div class="auth-card">
-                <span class="portal-kicker">Workspace Members</span>
-                <h2>Accepted access</h2>
-                <div class="member-list">
-                    @forelse($workspace->memberships->where('invitation_status', 'accepted') as $membership)
-                        <div class="member-row">
-                            <div>
-                                <strong>{{ $membership->user?->name ?? $membership->invited_email }}</strong>
-                                <small>{{ ucfirst($membership->member_role) }}</small>
-                            </div>
-                            <span class="member-status accepted">Accepted</span>
-                        </div>
-                    @empty
-                        <p class="panel-copy">No accepted members are recorded yet.</p>
-                    @endforelse
-                </div>
+    @if(session('invitation_link'))
+        <section class="pbr2-section">
+            <div class="pbr2-card">
+                <span class="pbr2-eyebrow">Invitation Ready</span>
+                <h2>Partner ဆီပို့ရန် Link အသင့်ဖြစ်ပါပြီ</h2>
+                <p>ဒီ Link က single-use ဖြစ်ပါတယ်။ သင်ဖိတ်ချင်တဲ့ Partner ကိုပဲ ပို့ပါ။</p>
+                <div class="pbr2-copy-box">{{ session('invitation_link') }}</div>
             </div>
+        </section>
+    @endif
 
-            @if($canManageInvitations)
-                <div class="auth-card">
-                    <span class="portal-kicker">Pending Invitations</span>
-                    <h2>Waiting for acceptance</h2>
-                    <div class="member-list">
-                        @forelse($workspace->memberships->where('invitation_status', 'pending') as $invitation)
-                            <div class="member-row invite-row">
-                                <div>
-                                    <strong>
+    <section class="pbr2-section">
+        <details class="pbr2-details">
+            <summary>Partners & Invitations ကို စီမံရန်</summary>
+            <div class="pbr2-details-body">
+                <div class="pbr2-grid">
+                    <div class="pbr2-card">
+                        <span class="pbr2-eyebrow">ချိတ်ဆက်ထားသော Partner များ</span>
+                        <h3>{{ $acceptedPartners->count() }} Partner</h3>
+                        <div class="pbr2-divider"></div>
+                        @forelse($acceptedPartners as $membership)
+                            <div class="pbr2-data-row">
+                                <span>{{ $membership->user?->name ?? $membership->invited_email }}</span>
+                                <strong>Partner</strong>
+                            </div>
+                        @empty
+                            <p>Partner မချိတ်ဆက်ရသေးပါ။</p>
+                        @endforelse
+                    </div>
+
+                    @if($canManageInvitations)
+                        <div class="pbr2-card">
+                            <span class="pbr2-eyebrow">Quick Invitation</span>
+                            <h3>Shareable Invitation Link</h3>
+                            <p>Email ကြိုထည့်စရာမလိုဘဲ single-use Link တစ်ခုဖန်တီးပြီး Partner ဆီပို့နိုင်ပါတယ်။</p>
+                            <form method="POST" action="{{ route('workspace-invitations.shareable.store', $workspace) }}">
+                                @csrf
+                                <button class="pbr2-btn" type="submit">Invitation Link ဖန်တီးရန်</button>
+                            </form>
+                        </div>
+                    @endif
+                </div>
+
+                @if($canManageInvitations)
+                    <div class="pbr2-grid" style="margin-top:16px;">
+                        <div class="pbr2-card">
+                            <span class="pbr2-eyebrow">Email ဖြင့်ဖိတ်ရန်</span>
+                            <h3>Partner Email ထည့်ပါ</h3>
+                            <form method="POST" action="{{ route('workspace-invitations.store', $workspace) }}">
+                                @csrf
+                                <div class="pbr2-field">
+                                    <label for="email">Partner Email Address</label>
+                                    <input id="email" name="email" type="email" value="{{ old('email') }}" required>
+                                    @error('email')<small class="pbr2-error">{{ $message }}</small>@enderror
+                                </div>
+                                <button class="pbr2-btn" type="submit">Secure Invitation ဖန်တီးရန်</button>
+                            </form>
+                        </div>
+
+                        <div class="pbr2-card">
+                            <span class="pbr2-eyebrow">စောင့်ဆိုင်းနေသော Invitation</span>
+                            <h3>{{ $pendingInvitations->count() }} Pending</h3>
+                            <div class="pbr2-divider"></div>
+                            @forelse($pendingInvitations as $invitation)
+                                <div class="pbr2-data-row" style="align-items:center;">
+                                    <span>
                                         @if(str_ends_with(strtolower((string) $invitation->invited_email), '@invite.thepbr.local'))
                                             Shareable Invitation Link
                                         @else
                                             {{ $invitation->invited_email }}
                                         @endif
-                                    </strong>
-                                    <small>Invited {{ $invitation->invited_at?->diffForHumans() ?? 'recently' }}</small>
+                                    </span>
+                                    <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="pbr2-btn ghost small" type="submit">ပယ်ဖျက်ရန်</button>
+                                    </form>
                                 </div>
-                                <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="text-button danger" type="submit">Revoke</button>
-                                </form>
-                            </div>
-                        @empty
-                            <p class="panel-copy">There are no pending partner invitations.</p>
-                        @endforelse
+                            @empty
+                                <p>Pending Invitation မရှိပါ။</p>
+                            @endforelse
+                        </div>
                     </div>
-                </div>
-            @endif
-        </div>
-    </div>
-</section>
+                @endif
+            </div>
+        </details>
+    </section>
+</div>
 @endsection
