@@ -5,66 +5,81 @@ namespace App\Services\PartnerDynamics;
 class PartnerMatchRecommendationService
 {
     private const DIMENSIONS = [
-        'vision' => 'Vision & Direction',
-        'execution' => 'Execution & Delivery',
-        'people' => 'People & Influence',
-        'analysis' => 'Analysis & Finance',
-        'structure' => 'Structure & Control',
-        'risk' => 'Risk & Opportunity',
-        'decision' => 'Decision & Conflict',
-        'adaptability' => 'Adaptability & Change',
+        'vision' =>
+            'အနာဂတ်ဦးတည်ချက် (Vision & Direction)',
+
+        'execution' =>
+            'အကောင်အထည်ဖော်မှု (Execution & Delivery)',
+
+        'people' =>
+            'လူမှုဆက်ဆံရေး (People & Influence)',
+
+        'analysis' =>
+            'ဒေတာနှင့် ဘဏ္ဍာရေး (Analysis & Finance)',
+
+        'structure' =>
+            'ဖွဲ့စည်းပုံနှင့် ထိန်းချုပ်မှု (Structure & Control)',
+
+        'risk' =>
+            'အခွင့်အလမ်းနှင့် အန္တရာယ် (Risk & Opportunity)',
+
+        'decision' =>
+            'ဆုံးဖြတ်ချက်နှင့် ပဋိပက္ခ (Decision & Conflict)',
+
+        'adaptability' =>
+            'အပြောင်းအလဲနှင့် လိုက်လျောညီထွေမှု (Adaptability & Change)',
     ];
 
     private const PROFILE_DESCRIPTIONS = [
         'visionary' =>
-            'Brings future direction, opportunity thinking and new possibilities.',
+            'အနာဂတ် Direction နဲ့ Opportunity အသစ်တွေကို မြင်ပေးနိုင်ပြီး လုပ်ငန်းကို ဘယ်ဘက်သွားမလဲဆိုတာ ဖော်ထုတ်ရာမှာ အားဖြည့်ပေးနိုင်ပါတယ်။',
 
         'builder' =>
-            'Turns plans into action and helps maintain execution momentum.',
+            'Idea နဲ့ Plan တွေကို လက်တွေ့ Action အဖြစ်ပြောင်းပြီး အလုပ်တွေပြီးမြောက်အောင် တွန်းပို့ရာမှာ အားကောင်းပါတယ်။',
 
         'connector' =>
-            'Strengthens communication, relationships and stakeholder alignment.',
+            'Customer, Team နဲ့ Business Relationship တွေကို တည်ဆောက်ပြီး Communication ပိုကောင်းလာအောင် ကူညီပေးနိုင်ပါတယ်။',
 
         'analyst' =>
-            'Adds evidence, financial thinking and careful analysis to decisions.',
+            'Numbers, Data နဲ့ Financial Impact တွေကို သေချာစစ်ဆေးပြီး ဆုံးဖြတ်ချက်တွေ ပိုခိုင်မာလာအောင် ကူညီပေးနိုင်ပါတယ်။',
 
         'operator' =>
-            'Creates structure, process discipline and consistent execution.',
+            'နေ့စဉ် Operations, Process နဲ့ Responsibility တွေကို စနစ်တကျထားပြီး Execution တည်ငြိမ်လာအောင် ကူညီပေးနိုင်ပါတယ်။',
 
         'guardian' =>
-            'Adds control, downside awareness and stronger business safeguards.',
+            'Risk, Control နဲ့ Downside တွေကို သေချာကြည့်ပြီး လုပ်ငန်းရဲ့ အရေးကြီးတဲ့ဆုံးဖြတ်ချက်တွေမှာ Safeguard ပေးနိုင်ပါတယ်။',
 
         'negotiator' =>
-            'Helps navigate disagreement, difficult decisions and commercial discussions.',
+            'Partner တွေအကြား မတူညီတဲ့အမြင်၊ Conflict နဲ့ ခက်ခဲတဲ့ Decision တွေကို ဆွေးနွေးညှိနှိုင်းပြီး အဖြေရှာရာမှာ အားသာပါတယ်။',
 
         'optimizer' =>
-            'Improves systems, efficiency and adaptability as the business changes.',
+            'ရှိပြီးသား System နဲ့ Workflow တွေကို ပိုထိရောက်အောင် ပြင်ဆင်ပြီး Business ပြောင်းလဲလာတဲ့အခါ Adapt လုပ်နိုင်အောင် ကူညီပေးနိုင်ပါတယ်။',
     ];
 
     private const DISCUSSION_POINTS = [
         'vision' =>
-            'Agree how long-term direction and new opportunities will be evaluated.',
+            'လုပ်ငန်းရဲ့ ရေရှည် Direction နဲ့ Opportunity အသစ်တွေကို ဘယ်လိုရွေးချယ်မလဲဆိုတာ ကြိုတင်သဘောတူထားပါ။',
 
         'execution' =>
-            'Define who owns follow-through, deadlines and delivery accountability.',
+            'ဘယ်သူက Follow-up လုပ်မလဲ၊ Deadline နဲ့ Delivery ကို ဘယ်သူတာဝန်ယူမလဲဆိုတာ ရှင်းလင်းထားပါ။',
 
         'people' =>
-            'Agree who leads customer, team and external partner relationships.',
+            'Customer, Team နဲ့ External Partner Relationship တွေကို ဘယ်သူဦးဆောင်မလဲဆိုတာ သတ်မှတ်ထားပါ။',
 
         'analysis' =>
-            'Set rules for financial review, evidence and major spending decisions.',
+            'အရေးကြီးတဲ့ Spending နဲ့ Financial Decision တွေမှာ Data ဘယ်လောက်လိုအပ်မလဲဆိုတာ သဘောတူထားပါ။',
 
         'structure' =>
-            'Clarify roles, approval authority, responsibilities and operating processes.',
+            'Role, Responsibility, Approval Authority နဲ့ Process တွေကို Partnership မစခင် ရှင်းရှင်းလင်းလင်းသတ်မှတ်ထားပါ။',
 
         'risk' =>
-            'Agree how much business risk is acceptable and when extra approval is required.',
+            'Business Risk ဘယ်လောက်အထိ လက်ခံနိုင်မလဲ၊ ဘယ်အခြေအနေမှာ Partner နှစ်ယောက်လုံး Approval လိုမလဲဆိုတာ သဘောတူထားပါ။',
 
         'decision' =>
-            'Define how major decisions, disagreements and deadlocks will be handled.',
+            'Major Decision နဲ့ Conflict ဖြစ်လာတဲ့အခါ ဘယ်လိုဆုံးဖြတ်မလဲ၊ Deadlock ကို ဘယ်လိုဖြေရှင်းမလဲဆိုတာ ကြိုတင်သတ်မှတ်ထားပါ။',
 
         'adaptability' =>
-            'Agree when plans can change and who can approve important operational changes.',
+            'မူလ Plan ကို ဘယ်အခြေအနေမှာ ပြောင်းနိုင်မလဲ၊ အရေးကြီးတဲ့ Change ကို ဘယ်သူ Approve လုပ်နိုင်မလဲဆိုတာ သဘောတူထားပါ။',
     ];
 
     public function recommend(
@@ -219,7 +234,7 @@ class PartnerMatchRecommendationService
             'recommendations' => $top,
 
             'note' =>
-                'These recommendations show complementary operating styles, not guaranteed compatibility. Partnership fit should also consider values, trust, goals, financial expectations and working history.',
+                'ဒီ Recommendation တွေက သင့် working style ကို ဖြည့်ဆည်းပေးနိုင်မယ့် Partner Type တွေကို Suggest လုပ်တာဖြစ်ပြီး အောင်မြင်မယ့် Partnership ကို အာမခံတာမဟုတ်ပါဘူး။ Values, Trust, Business Goals, Financial Expectations နဲ့ Working History တွေကိုလည်း အတူတူစဉ်းစားဖို့လိုပါတယ်။',
         ];
     }
 
@@ -286,7 +301,7 @@ class PartnerMatchRecommendationService
         $needs['risk'] = [
             'dimension' => 'risk',
             'label' =>
-                'Opportunity & Calculated Risk',
+                'အခွင့်အလမ်းကို ရဲရဲယူနိုင်မှု (Calculated Risk)',
             'current_score' =>
                 round($riskScore, 1),
             'need' =>
@@ -302,7 +317,7 @@ class PartnerMatchRecommendationService
         $needs['cautious_risk'] = [
             'dimension' => 'cautious_risk',
             'label' =>
-                'Risk Control & Downside Awareness',
+                'အန္တရာယ်ထိန်းချုပ်မှု (Risk Control)',
             'current_score' =>
                 round($riskScore, 1),
             'need' =>
@@ -361,7 +376,7 @@ class PartnerMatchRecommendationService
 
         if (count($labels) >= 2) {
             return sprintf(
-                '%s may complement your current pattern by adding more strength in %s and %s.',
+                '%s Type က သင့်လက်ရှိ operating pattern ကို %s နဲ့ %s ဘက်မှာ ပိုအားကောင်းလာအောင် ဖြည့်ဆည်းပေးနိုင်ပါတယ်။',
                 $candidate['name'],
                 $labels[0],
                 $labels[1]
@@ -370,14 +385,14 @@ class PartnerMatchRecommendationService
 
         if (count($labels) === 1) {
             return sprintf(
-                '%s may complement your current pattern by adding more strength in %s.',
+                '%s Type က သင့်လက်ရှိ operating pattern ကို %s ဘက်မှာ ပိုအားကောင်းလာအောင် ဖြည့်ဆည်းပေးနိုင်ပါတယ်။',
                 $candidate['name'],
                 $labels[0]
             );
         }
 
         return sprintf(
-            '%s offers a different operating style that may provide useful balance alongside your current strengths.',
+            '%s Type က သင့်ရဲ့လက်ရှိ working style နဲ့ မတူညီတဲ့ အားသာချက်တွေယူဆောင်လာပြီး Partnership ကို ပို Balance ဖြစ်စေနိုင်ပါတယ်။',
             $candidate['name']
         );
     }

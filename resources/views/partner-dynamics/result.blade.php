@@ -253,28 +253,48 @@
         </div>
 
 
+        @php
+            $matchLabels = [
+                'အကောင်းဆုံး ဖြည့်ဆည်းမှု',
+                'ညီမျှစွာ ဖြည့်ဆည်းမှု',
+                'ထောက်ပံ့ ဖြည့်ဆည်းမှု',
+            ];
+        @endphp
+
         <section class="pd-partner-match">
 
-            <div class="pd-partner-match-heading">
+            <div class="pd-partner-match-hero">
 
-                <div>
+                <div class="pd-partner-match-copy">
+
                     <span class="portal-kicker">
-                        Your Ideal Partner Profile
+                        IDEAL PARTNER MATCH
                     </span>
 
                     <h2>
-                        ဘယ် Partner Type တွေက သင့်ကို
-                        ပို Balance ဖြစ်စေနိုင်မလဲ?
+                        သင့် Working Style ကို
+                        <span>Balance</span>
+                        လုပ်ပေးနိုင်မယ့် Partner Types
                     </h2>
 
                     <p>
-                        ဒီ Suggestions တွေက သင့် Primary Profile
-                        တစ်ခုတည်းကိုကြည့်တာမဟုတ်ဘဲ
-                        Dimension Scores (၈) ခုလုံးကိုကြည့်ပြီး
-                        သင့် operating pattern ကို complement
-                        လုပ်ပေးနိုင်မယ့် Partner Types တွေကို
-                        ရွေးထားတာပါ။
+                        ဒီ Recommendation က Primary Profile
+                        တစ်ခုတည်းကို ကြည့်ထားတာမဟုတ်ပါဘူး။
+                        သင့်ရဲ့ Dimension Scores (၈) ခုလုံးကို
+                        ဆန်းစစ်ပြီး သင်အားနည်းနိုင်တဲ့နေရာတွေကို
+                        ဖြည့်ဆည်းပေးနိုင်မယ့် Partner Type
+                        (၃) မျိုးကို ရွေးပေးထားတာပါ။
                     </p>
+
+                </div>
+
+                <div class="pd-match-count">
+                    <strong>3</strong>
+
+                    <span>
+                        Suggested<br>
+                        Partner Types
+                    </span>
                 </div>
 
             </div>
@@ -284,9 +304,18 @@
 
                 <div class="pd-partner-needs">
 
-                    <span class="pd-partner-needs-label">
-                        Areas a Partner Could Strengthen
-                    </span>
+                    <div class="pd-partner-needs-title">
+
+                        <span>
+                            PARTNER COULD STRENGTHEN
+                        </span>
+
+                        <strong>
+                            Partner တစ်ယောက်က
+                            ဖြည့်ဆည်းပေးနိုင်တဲ့ အဓိကနေရာများ
+                        </strong>
+
+                    </div>
 
                     <div class="pd-partner-needs-list">
 
@@ -320,44 +349,48 @@
                         {{ $index === 0 ? 'featured' : '' }}"
                     >
 
-                        <div class="pd-partner-rank">
-                            <span>
-                                #{{ $index + 1 }}
-                            </span>
+                        <div class="pd-partner-card-top">
 
-                            <strong>
-                                {{
-                                    $recommendation[
-                                        'recommendation_label'
-                                    ]
-                                }}
-                            </strong>
+                            <div class="pd-partner-rank-number">
+                                0{{ $index + 1 }}
+                            </div>
+
+                            <div class="pd-partner-match-badge">
+
+                                <strong>
+                                    {{
+                                        $matchLabels[$index]
+                                        ?? 'ဖြည့်ဆည်းနိုင်မှု'
+                                    }}
+                                </strong>
+
+                                <span>
+                                    {{
+                                        $recommendation[
+                                            'recommendation_label'
+                                        ]
+                                    }}
+                                </span>
+
+                            </div>
+
                         </div>
 
 
-                        <h3>
-                            {{ $recommendation['name'] }}
-                        </h3>
-
-                        <p class="pd-partner-description">
-                            {{
-                                $recommendation[
-                                    'description'
-                                ]
-                            }}
-                        </p>
-
-
-                        <div class="pd-partner-why">
+                        <div class="pd-partner-card-profile">
 
                             <span>
-                                Why this may fit you
+                                Recommended Partner Type
                             </span>
+
+                            <h3>
+                                {{ $recommendation['name'] }}
+                            </h3>
 
                             <p>
                                 {{
                                     $recommendation[
-                                        'reason'
+                                        'description'
                                     ]
                                 }}
                             </p>
@@ -365,80 +398,115 @@
                         </div>
 
 
-                        @if(
-                            ! empty(
-                                $recommendation[
-                                    'strengthens'
-                                ]
-                            )
-                        )
+                        <div class="pd-partner-card-details">
 
-                            <div class="pd-partner-strengthens">
+                            <div class="pd-partner-why">
 
                                 <span>
-                                    May Strengthen
+                                    WHY IT FITS
                                 </span>
 
-                                <div>
+                                <strong>
+                                    ဘာကြောင့် သင့်အတွက်
+                                    သင့်တော်နိုင်သလဲ?
+                                </strong>
 
-                                    @foreach(
+                                <p>
+                                    {{
                                         $recommendation[
-                                            'strengthens'
+                                            'reason'
                                         ]
-                                        as $strength
-                                    )
+                                    }}
+                                </p>
 
-                                        <small>
-                                            {{
-                                                $strength[
-                                                    'label'
-                                                ]
-                                            }}
-                                        </small>
+                            </div>
 
-                                    @endforeach
+
+                            @if(
+                                ! empty(
+                                    $recommendation[
+                                        'strengthens'
+                                    ]
+                                )
+                            )
+
+                                <div class="pd-partner-strengthens">
+
+                                    <span>
+                                        MAY STRENGTHEN
+                                    </span>
+
+                                    <strong>
+                                        ပိုအားကောင်းလာနိုင်တဲ့ Areas
+                                    </strong>
+
+                                    <div>
+
+                                        @foreach(
+                                            $recommendation[
+                                                'strengthens'
+                                            ]
+                                            as $strength
+                                        )
+
+                                            <small>
+                                                {{
+                                                    $strength[
+                                                        'label'
+                                                    ]
+                                                }}
+                                            </small>
+
+                                        @endforeach
+
+                                    </div>
 
                                 </div>
 
-                            </div>
-
-                        @endif
+                            @endif
 
 
-                        @if(
-                            ! empty(
-                                $recommendation[
-                                    'discussion_points'
-                                ]
+                            @if(
+                                ! empty(
+                                    $recommendation[
+                                        'discussion_points'
+                                    ]
+                                )
                             )
-                        )
 
-                            <div class="pd-partner-discussion">
+                                <div class="pd-partner-discussion">
 
-                                <span>
-                                    Discuss Before Partnering
-                                </span>
+                                    <span>
+                                        BEFORE PARTNERING
+                                    </span>
 
-                                <ul>
+                                    <strong>
+                                        Partner မဖြစ်ခင်
+                                        အရင်ဆွေးနွေးထားသင့်တာများ
+                                    </strong>
 
-                                    @foreach(
-                                        $recommendation[
-                                            'discussion_points'
-                                        ]
-                                        as $point
-                                    )
+                                    <ul>
 
-                                        <li>
-                                            {{ $point }}
-                                        </li>
+                                        @foreach(
+                                            $recommendation[
+                                                'discussion_points'
+                                            ]
+                                            as $point
+                                        )
 
-                                    @endforeach
+                                            <li>
+                                                {{ $point }}
+                                            </li>
 
-                                </ul>
+                                        @endforeach
 
-                            </div>
+                                    </ul>
 
-                        @endif
+                                </div>
+
+                            @endif
+
+                        </div>
 
                     </article>
 
@@ -449,25 +517,21 @@
 
             <div class="pd-partner-match-note">
 
-                <strong>
-                    Important
-                </strong>
+                <div class="pd-note-icon">
+                    i
+                </div>
 
-                <p>
-                    {{
-                        $partnerMatch['note']
-                    }}
-                </p>
+                <div>
 
-                <p>
-                    Partner Type Recommendation က
-                    Partnership အောင်မြင်မယ်လို့ အာမခံတဲ့
-                    Compatibility Score မဟုတ်ပါဘူး။
-                    Values, Trust, Business Goals,
-                    Financial Expectations နဲ့
-                    Working History တွေကိုလည်း
-                    အတူတူစဉ်းစားဖို့လိုပါတယ်။
-                </p>
+                    <strong>
+                        အရေးကြီးတဲ့ မှတ်ချက်
+                    </strong>
+
+                    <p>
+                        {{ $partnerMatch['note'] }}
+                    </p>
+
+                </div>
 
             </div>
 
