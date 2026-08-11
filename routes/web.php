@@ -69,6 +69,21 @@ Route::middleware('auth')->group(function (): void {
 
     Route::get('/workspaces', [WorkspaceController::class, 'index'])
         ->name('workspaces.index');
+    Route::get('/workspaces/create', [WorkspaceController::class, 'create'])
+        ->name('workspaces.create');
+    Route::post('/workspaces', [WorkspaceController::class, 'store'])
+        ->name('workspaces.store');
+
+    Route::get('/workspaces/{workspace}/feasibility', [\App\Http\Controllers\WorkspaceFeasibilityController::class, 'show'])
+        ->name('workspaces.feasibility.show');
+    Route::post('/workspaces/{workspace}/feasibility', [\App\Http\Controllers\WorkspaceFeasibilityController::class, 'calculate'])
+        ->name('workspaces.feasibility.calculate');
+
+    Route::get('/workspaces/{workspace}/valuation', [\App\Http\Controllers\WorkspaceValuationController::class, 'show'])
+        ->name('workspaces.valuation.show');
+    Route::post('/workspaces/{workspace}/valuation', [\App\Http\Controllers\WorkspaceValuationController::class, 'calculate'])
+        ->name('workspaces.valuation.calculate');
+
     Route::post('/workspaces/{workspace}/invitations', [WorkspaceInvitationController::class, 'store'])
         ->middleware('throttle:workspace-invitations')
         ->name('workspace-invitations.store');
@@ -133,7 +148,6 @@ Route::middleware(['auth', EnsureStudentPortalAccess::class])
             ->name('dashboard');
     });
 
-
 /*
 |--------------------------------------------------------------------------
 | PBR Partner Dynamics
@@ -148,7 +162,6 @@ Route::middleware('auth')
     ->prefix('partner-dynamics')
     ->name('partner-dynamics.')
     ->group(function (): void {
-
         Route::get(
             '/',
             [\App\Http\Controllers\PartnerDynamicsController::class, 'index']
