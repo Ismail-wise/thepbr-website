@@ -84,6 +84,11 @@ Route::middleware('auth')->group(function (): void {
         [\App\Http\Controllers\WorkspaceStartupCapitalController::class, 'calculate']
     )->name('workspaces.tools.startup-capital.calculate');
 
+    Route::post(
+        '/workspaces/{workspace}/tools/startup-capital-planner/save-draft',
+        [\App\Http\Controllers\WorkspaceStartupCapitalDraftController::class, 'store']
+    )->name('workspaces.tools.startup-capital.draft.store');
+
     Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']
@@ -170,3 +175,31 @@ Route::middleware('auth')
             [\App\Http\Controllers\PartnerDynamicsController::class, 'result']
         )->name('result');
     });
+
+/*
+|--------------------------------------------------------------------------
+| Shared PBR Tool Scenario Actions
+|--------------------------------------------------------------------------
+*/
+
+Route::middleware('auth')->group(function () {
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/rename',
+        [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'rename']
+    )->name('workspaces.tools.scenarios.rename');
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/duplicate',
+        [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'duplicate']
+    )->name('workspaces.tools.scenarios.duplicate');
+
+    Route::delete(
+        '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}',
+        [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'destroy']
+    )->name('workspaces.tools.scenarios.destroy');
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/output',
+        [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'output']
+    )->name('workspaces.tools.scenarios.output');
+});

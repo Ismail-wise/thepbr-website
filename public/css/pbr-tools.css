@@ -1030,3 +1030,246 @@
         align-items:flex-end;
     }
 }
+
+/* --------------------------------------------------
+   Shared PBR Scenario Manager
+-------------------------------------------------- */
+
+.pbr-scenario-box{
+    display:grid;
+    grid-template-columns:minmax(0,1fr) minmax(240px,.9fr);
+    gap:18px;
+    align-items:center;
+    margin:0 0 18px;
+    padding:16px;
+    border:1px solid var(--line);
+    border-radius:12px;
+    background:#f8faf6;
+}
+
+.pbr-scenario-box label{
+    display:block;
+    margin-bottom:4px;
+    font-size:12px;
+    font-weight:700;
+}
+
+.pbr-scenario-box small{
+    display:block;
+    color:var(--muted);
+    font-size:10.5px;
+}
+
+.pbr-scenario-box input{
+    width:100%;
+    min-height:44px;
+    padding:10px 12px;
+    border:1px solid #cfdcc8;
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+    font:inherit;
+    outline:none;
+}
+
+.pbr-scenario-box input:focus{
+    border-color:var(--forest);
+    box-shadow:0 0 0 3px rgba(21,127,9,.10);
+}
+
+.pbr-active-draft{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:16px;
+    padding:11px 14px;
+    border:1px solid #cfe2c8;
+    border-radius:10px;
+    background:#f0f7ed;
+}
+
+.pbr-active-draft span{
+    color:var(--forest);
+    font-size:10px;
+    font-weight:700;
+    text-transform:uppercase;
+}
+
+.pbr-active-draft strong{
+    font-size:12px;
+}
+
+.pbr-active-draft small{
+    margin-left:auto;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.pbr-save-success{
+    margin-bottom:16px;
+    padding:11px 14px;
+    border:1px solid #bcdcb3;
+    border-radius:10px;
+    background:#eef8eb;
+    color:#24651d;
+    font-size:12px;
+    font-weight:700;
+}
+
+.pbr-scenario-manager{
+    margin-top:24px;
+    padding:18px;
+    border:1px solid var(--line);
+    border-radius:14px;
+    background:#fff;
+}
+
+.pbr-scenario-manager-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:14px;
+    margin-bottom:14px;
+}
+
+.pbr-scenario-manager-head h3{
+    margin:2px 0 0;
+    font-size:18px;
+}
+
+.pbr-scenario-count{
+    padding:5px 9px;
+    border-radius:999px;
+    background:#eef4eb;
+    color:var(--forest);
+    font-size:10px;
+    font-weight:700;
+}
+
+.pbr-scenario-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    padding:13px 0;
+    border-top:1px solid var(--line);
+}
+
+.pbr-scenario-info strong{
+    display:block;
+    font-size:12px;
+}
+
+.pbr-scenario-info small{
+    display:block;
+    margin-top:3px;
+    color:var(--muted);
+    font-size:10px;
+}
+
+.pbr-scenario-actions{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+    gap:6px;
+}
+
+.pbr-scenario-actions form{
+    margin:0;
+}
+
+.pbr-scenario-actions button,
+.pbr-scenario-open{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-height:32px;
+    padding:0 9px;
+    border:1px solid #cfdcc8;
+    border-radius:7px;
+    background:#fff;
+    color:var(--ink);
+    font-size:9.5px;
+    font-weight:700;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+.pbr-scenario-open{
+    border-color:var(--forest);
+    color:var(--forest);
+}
+
+.pbr-scenario-actions button:hover,
+.pbr-scenario-open:hover{
+    background:#f3f7f1;
+}
+
+.pbr-scenario-actions .danger{
+    border-color:#e6caca;
+    color:#a33;
+}
+
+.pbr-scenario-actions .danger:hover{
+    background:#fff2f2;
+}
+
+.pbr-scenario-empty{
+    padding:18px 0 4px;
+    border-top:1px solid var(--line);
+    color:var(--muted);
+    font-size:11px;
+}
+
+.pbr-save-draft-button{
+    min-height:42px;
+    padding:0 16px;
+    border:1px solid var(--forest);
+    border-radius:9px;
+    background:#fff;
+    color:var(--forest);
+    font-size:11px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.pbr-save-draft-button:hover{
+    background:#f0f7ed;
+}
+
+.pbr-calculator-actions{
+    gap:10px;
+}
+
+@media (max-width:700px){
+    .pbr-scenario-box{
+        grid-template-columns:1fr;
+    }
+
+    .pbr-active-draft{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .pbr-active-draft small{
+        margin-left:0;
+    }
+
+    .pbr-scenario-row{
+        align-items:flex-start;
+        flex-direction:column;
+    }
+
+    .pbr-scenario-actions{
+        justify-content:flex-start;
+    }
+
+    .pbr-calculator-actions{
+        flex-direction:column;
+    }
+
+    .pbr-save-draft-button,
+    .pbr-tools-primary-button{
+        width:100%;
+    }
+}

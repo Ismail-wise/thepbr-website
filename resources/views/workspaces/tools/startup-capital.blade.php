@@ -55,6 +55,64 @@
             data-next-category="{{ count($categories) + 100 }}"
         >
             @csrf
+            @if($activeSession)
+                <input
+                    type="hidden"
+                    name="tool_session_id"
+                    value="{{ $activeSession->id }}"
+                >
+            @endif
+
+            @if(session('status'))
+                <div class="pbr-save-success">
+                    {{ session('status') }}
+                </div>
+            @endif
+
+            <div class="pbr-scenario-box">
+                <div>
+                    <label for="scenario_name">
+                        Scenario Name
+                    </label>
+
+                    <small>
+                        Example: Initial Plan, Lower Budget,
+                        Premium Setup
+                    </small>
+                </div>
+
+                <input
+                    id="scenario_name"
+                    name="scenario_name"
+                    type="text"
+                    maxlength="120"
+                    placeholder="Example: Initial Plan"
+                    value="{{ old(
+                        'scenario_name',
+                        $activeSession?->scenario_name ?? ''
+                    ) }}"
+                >
+            </div>
+
+            @if($activeSession)
+                <div class="pbr-active-draft">
+                    <span>Editing Saved Scenario</span>
+
+                    <strong>
+                        {{ $activeSession->scenario_name }}
+                    </strong>
+
+                    <small>
+                        Last saved
+                        {{
+                            $activeSession->last_saved_at
+                                ? $activeSession->last_saved_at->diffForHumans()
+                                : 'recently'
+                        }}
+                    </small>
+                </div>
+            @endif
+
 
             <div class="pbr-calculator-layout">
 
@@ -321,12 +379,26 @@
 
 
                     <div class="pbr-calculator-actions">
+
+                        <button
+                            type="submit"
+                            class="pbr-save-draft-button"
+                            formaction="{{ route(
+                                'workspaces.tools.startup-capital.draft.store',
+                                $workspace
+                            ) }}"
+                            formmethod="POST"
+                        >
+                            Save Draft
+                        </button>
+
                         <button
                             type="submit"
                             class="pbr-tools-primary-button"
                         >
                             Calculate Startup Capital
                         </button>
+
                     </div>
 
                 </div>
@@ -567,6 +639,11 @@
             </div>
 
         </form>
+
+        @include(
+            'workspaces.tools.partials.scenario-manager'
+        )
+
 
     </div>
 </section>
