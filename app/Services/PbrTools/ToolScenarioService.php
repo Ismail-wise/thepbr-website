@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\WorkspaceToolOutput;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class ToolScenarioService
 {
@@ -21,6 +22,17 @@ class ToolScenarioService
         array $resultData,
         ?int $sessionId = null
     ): ToolSession {
+
+        if (! array_key_exists(
+            (string) $workspace->business_stage,
+            PartnershipWorkspace::BUSINESS_STAGES
+        )) {
+            throw ValidationException::withMessages([
+                'business_stage' =>
+                    'Please set Partnership Stage in PBR Business Tools before saving a scenario.',
+            ]);
+        }
+
         $scenarioName = trim($scenarioName);
 
         if ($sessionId !== null) {
