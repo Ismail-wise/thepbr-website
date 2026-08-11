@@ -73,6 +73,12 @@ Route::middleware('auth')->group(function (): void {
         ->name('workspaces.create');
     Route::post('/workspaces', [WorkspaceController::class, 'store'])
         ->name('workspaces.store');
+    Route::get('/workspaces/{workspace}/edit', [WorkspaceController::class, 'edit'])
+        ->name('workspaces.edit');
+    Route::put('/workspaces/{workspace}', [WorkspaceController::class, 'update'])
+        ->name('workspaces.update');
+    Route::delete('/workspaces/{workspace}', [WorkspaceController::class, 'destroy'])
+        ->name('workspaces.destroy');
 
     Route::get('/workspaces/{workspace}/feasibility', [\App\Http\Controllers\WorkspaceFeasibilityController::class, 'show'])
         ->name('workspaces.feasibility.show');
@@ -157,7 +163,6 @@ Route::middleware(['auth', EnsureStudentPortalAccess::class])
 | Public-only accounts cannot access the assessment.
 |
 */
-
 Route::middleware('auth')
     ->prefix('partner-dynamics')
     ->name('partner-dynamics.')
@@ -202,7 +207,6 @@ Route::middleware('auth')
 | Shared PBR Tool Scenario Actions
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
     Route::post(
         '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/rename',
@@ -230,7 +234,6 @@ Route::middleware('auth')->group(function () {
 | Chapter 1 Shared Capital Tools
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
     Route::get(
         '/workspaces/{workspace}/tools/{toolSlug}',
