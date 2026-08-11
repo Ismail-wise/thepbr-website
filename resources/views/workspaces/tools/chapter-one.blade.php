@@ -75,11 +75,17 @@
 
             @csrf
 
-            @if($activeSession)
+            @if(
+                $activeSession
+                || request('tool_session_id')
+            )
                 <input
                     type="hidden"
                     name="tool_session_id"
-                    value="{{ $activeSession->id }}"
+                    value="{{
+                        $activeSession?->id
+                        ?? request('tool_session_id')
+                    }}"
                 >
             @endif
 
@@ -104,7 +110,7 @@
                     placeholder="Example: Initial Plan"
                     value="{{ old(
                         'scenario_name',
-                        $activeSession?->scenario_name ?? ''
+                        $activeSession?->scenario_name ?? request('scenario_name', '')
                     ) }}"
                 >
 

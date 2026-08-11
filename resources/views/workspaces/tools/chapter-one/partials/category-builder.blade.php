@@ -5,31 +5,6 @@
         $rows = [];
     }
 
-    $hasOthers = false;
-
-    foreach ($rows as $row) {
-        if (
-            strtolower(
-                trim((string) ($row['name'] ?? ''))
-            ) === 'others'
-        ) {
-            $hasOthers = true;
-            break;
-        }
-    }
-
-    if (! $hasOthers) {
-        $rows[] = [
-            'name' => 'Others',
-            'items' => [
-                [
-                    'name' => '',
-                    'amount' => '',
-                ],
-            ],
-        ];
-    }
-
     $currency = $workspace->currency_code ?? 'THB';
 @endphp
 
@@ -55,14 +30,7 @@
         @foreach($rows as $categoryIndex => $category)
 
             @php
-                $isOthers =
-                    strtolower(
-                        trim(
-                            (string) (
-                                $category['name'] ?? ''
-                            )
-                        )
-                    ) === 'others';
+                $isOthers = false;
 
                 $items = $category['items'] ?? [];
 

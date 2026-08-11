@@ -192,36 +192,6 @@ class WorkspaceStartupCapitalController extends Controller
     private function ensureOthersCategory(
         array $categories
     ): array {
-        $hasOthers = false;
-
-        foreach ($categories as &$category) {
-            if (
-                strtolower(
-                    trim(
-                        (string) ($category['name'] ?? '')
-                    )
-                ) === 'others'
-            ) {
-                $category['name'] = 'Others';
-                $hasOthers = true;
-                break;
-            }
-        }
-
-        unset($category);
-
-        if (! $hasOthers) {
-            $categories[] = [
-                'name' => 'Others',
-                'items' => [
-                    [
-                        'name' => '',
-                        'amount' => '',
-                    ],
-                ],
-            ];
-        }
-
-        return array_values($categories);
+        return $categories;
     }
 }
