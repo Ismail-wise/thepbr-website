@@ -1,56 +1,116 @@
 @extends('layouts.student-portal')
 
-@section('title', 'My Businesses')
+@section('title', 'ကျွန်ုပ်၏ Business များ')
 
 @section('content')
-<section class="auth-section">
-    <div class="auth-shell compact">
-        <div class="auth-copy">
-            <span class="portal-kicker">My Businesses</span>
-            <h1>Business Workspaces</h1>
-            <p>ကိုယ်ပိုင် Business တွေနဲ့ Partner အဖြစ် ဖိတ်ကြားထားတဲ့ Business တွေကို ဒီနေရာကနေ စီမံနိုင်ပါတယ်။</p>
+@php
+    $owned = $workspaces->filter(fn ($workspace) => $user->isAdmin() || $workspace->owner_user_id === $user->id);
+    $invited = $workspaces->filter(fn ($workspace) => ! $user->isAdmin() && $workspace->owner_user_id !== $user->id);
+@endphp
+
+<div class="pbr2-page">
+    <section class="pbr2-hero">
+        <div class="pbr2-hero-row">
+            <div>
+                <span class="pbr2-eyebrow">My Businesses</span>
+                <h1>သင့် Business အားလုံးကို တစ်နေရာတည်းက စီမံပါ</h1>
+                <p>Business တစ်ခုချင်းစီရဲ့ Partner, Tools, Feasibility, Valuation နဲ့ ဆက်စပ် Data တွေကို သီးခြား Workspace အဖြစ် စနစ်တကျ စီမံနိုင်ပါတယ်။</p>
+            </div>
+
             @if($canCreateBusiness)
-                <a class="portal-button" href="{{ route('workspaces.create') }}">+ Add New Business</a>
+                <a class="pbr2-btn" href="{{ route('workspaces.create') }}">+ Business အသစ်ထည့်ရန်</a>
             @endif
         </div>
+    </section>
 
-        <div class="auth-card">
-            <span class="portal-kicker">Partnership Invitation</span>
-            <h2>Invitation Link ရှိပါသလား?</h2>
-            <p>Partner ဆီကရထားတဲ့ Invitation Link ကို ဒီနေရာမှာထည့်ပြီး Workspace ချိတ်ဆက်နိုင်ပါတယ်။</p>
-            <form method="POST" action="{{ route('workspace-invitations.connect') }}">
-                @csrf
-                <div class="field">
-                    <label for="invitation_link">Invitation Link</label>
-                    <input id="invitation_link" name="invitation_link" type="text" value="{{ old('invitation_link') }}" placeholder="https://thepbr.io/workspace-invitations/..." required>
-                    @error('invitation_link')<small class="field-error">{{ $message }}</small>@enderror
-                </div>
-                <button class="portal-button" type="submit">Check & Connect Workspace</button>
-            </form>
+    <section class="pbr2-section">
+        <div class="pbr2-section-head">
+            <div>
+                <h2>ကျွန်ုပ်ပိုင် Business များ</h2>
+                <p>Owner အဖြစ် သင်စီမံနိုင်တဲ့ Business Workspace များ</p>
+            </div>
         </div>
 
-        <div class="auth-card">
-            <span class="portal-kicker">Available Businesses</span>
-            @forelse($workspaces as $workspace)
-                <div class="auth-note">
-                    <strong>{{ $workspace->business_name ?: $workspace->name }}</strong><br>
-                    @if($workspace->owner_user_id === $user->id)
-                        OWNED BUSINESS
-                    @elseif($user->isAdmin())
-                        ADMIN ACCESS
-                    @else
-                        INVITED BUSINESS
-                    @endif
-                    <br><br>
-                    <strong>Stage:</strong> {{ \App\Models\PartnershipWorkspace::BUSINESS_STAGES[$workspace->business_stage] ?? 'Not configured' }}<br>
-                    <strong>Currency:</strong> {{ $workspace->currency_code ?? 'Not set' }}<br>
-                    <strong>Owner:</strong> {{ $workspace->owner?->name ?? 'Unknown' }}<br><br>
-                    <a href="{{ route('workspaces.show', $workspace) }}">Open Business →</a>
-                </div>
+        <div class="pbr2-business-grid">
+            @forelse($owned as $workspace)
+                <article class="pbr2-card pbr2-business-card">
+                    <div class="pbr2-meta">
+                        <span class="pbr2-badge">OWNER</span>
+                        <span class="pbr2-badge {{ $workspace->business_stage === 'existing' ? 'orange' : 'gray' }}">
+                            {{ $workspace->business_stage === 'existing' ? 'ရှိပြီးသား Business' : 'Business အသစ် စီစဉ်နေသည်' }}
+                        </span>
+                    </div>
+
+                    <h3 class="pbr2-business-name">{{ $workspace->business_name ?: $workspace->name }}</h3>
+
+                    <div class="pbr2-data-row">
+                        <span>အဓိက Currency</span>
+                        <strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong>
+                    </div>
+                    <div class="pbr2-data-row">
+                        <span>Partner အရေအတွက်</span>
+                        <strong>{{ $workspace->acceptedMemberships->where('member_role', 'partner')->count() }}</strong>
+                    </div>
+
+                    <div class="pbr2-actions">
+                        <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business ကိုဖွင့်ရန်</a>
+                        @if($workspace->owner_user_id === $user->id || $user->isAdmin())
+                            <a class="pbr2-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">ပြင်ဆင်ရန်</a>
+                        @endif
+                    </div>
+                </article>
             @empty
-                <div class="auth-note">Business Workspace မရှိသေးပါ။ Student Account ဖြစ်ရင် <strong>Add New Business</strong> ကိုနှိပ်ပြီး စတင်နိုင်ပါတယ်။</div>
+                <div class="pbr2-empty">
+                    <strong>ကိုယ်ပိုင် Business မရှိသေးပါ</strong><br>
+                    Business အသစ်တစ်ခုထည့်ပြီး PBR Platform ကို စတင်အသုံးပြုနိုင်ပါတယ်။
+                </div>
             @endforelse
         </div>
-    </div>
-</section>
+    </section>
+
+    @if($invited->isNotEmpty())
+        <section class="pbr2-section">
+            <div class="pbr2-section-head">
+                <div>
+                    <h2>Partner အဖြစ် ဝင်ထားသော Business များ</h2>
+                    <p>အခြား Owner တွေက သင့်ကို ဖိတ်ကြားထားတဲ့ Workspace များ</p>
+                </div>
+            </div>
+
+            <div class="pbr2-business-grid">
+                @foreach($invited as $workspace)
+                    <article class="pbr2-card pbr2-business-card">
+                        <div class="pbr2-meta">
+                            <span class="pbr2-badge orange">PARTNER ACCESS</span>
+                        </div>
+                        <h3 class="pbr2-business-name">{{ $workspace->business_name ?: $workspace->name }}</h3>
+                        <div class="pbr2-data-row"><span>Owner</span><strong>{{ $workspace->owner?->name ?? 'မသိရှိရသေး' }}</strong></div>
+                        <div class="pbr2-data-row"><span>Currency</span><strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong></div>
+                        <div class="pbr2-actions">
+                            <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business ကိုဖွင့်ရန်</a>
+                        </div>
+                    </article>
+                @endforeach
+            </div>
+        </section>
+    @endif
+
+    <section class="pbr2-section">
+        <details class="pbr2-details">
+            <summary>Partner Invitation Link ရှိပါသလား?</summary>
+            <div class="pbr2-details-body">
+                <p style="margin-top:0;color:var(--pbr2-muted);font-size:14px;">Partner ဆီကရထားတဲ့ Invitation Link ကို အောက်မှာထည့်ပြီး Business Workspace ကို ချိတ်ဆက်နိုင်ပါတယ်။</p>
+                <form method="POST" action="{{ route('workspace-invitations.connect') }}">
+                    @csrf
+                    <div class="pbr2-field">
+                        <label for="invitation_link">Invitation Link</label>
+                        <input id="invitation_link" name="invitation_link" type="text" value="{{ old('invitation_link') }}" placeholder="https://thepbr.io/workspace-invitations/..." required>
+                        @error('invitation_link')<small class="pbr2-error">{{ $message }}</small>@enderror
+                    </div>
+                    <button class="pbr2-btn" type="submit">Link ကိုစစ်ပြီး ချိတ်ဆက်ရန်</button>
+                </form>
+            </div>
+        </details>
+    </section>
+</div>
 @endsection
