@@ -23,6 +23,26 @@ run_artisan() {
         php artisan "$@"
 }
 
+run_isolated_artisan() {
+    env \
+        APP_ENV=testing \
+        APP_KEY="$APP_KEY_VALUE" \
+        APP_MAINTENANCE_DRIVER=file \
+        BCRYPT_ROUNDS=4 \
+        BROADCAST_CONNECTION=null \
+        CACHE_STORE=array \
+        DB_CONNECTION=sqlite \
+        DB_DATABASE=:memory: \
+        DB_URL="" \
+        MAIL_MAILER=array \
+        QUEUE_CONNECTION=sync \
+        SESSION_DRIVER=array \
+        PULSE_ENABLED=false \
+        TELESCOPE_ENABLED=false \
+        NIGHTWATCH_ENABLED=false \
+        php artisan "$@"
+}
+
 cleanup() {
     if [[ "$MAINTENANCE" == "1" && -d "$PROD" ]]; then
         echo
@@ -123,26 +143,20 @@ echo "PBR operating JavaScript: PASS"
 
 echo
 echo "=== LARAVEL BOOT / CONFIG / VIEW VALIDATION ==="
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan optimize:clear >/dev/null
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan config:cache >/dev/null
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan view:cache >/dev/null
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan route:list --name=workspaces.tools.operating >/dev/null
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan route:list --name=workspaces.tools.scenarios.approve >/dev/null
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan route:list --name=workspaces.partner-roster >/dev/null
+run_isolated_artisan optimize:clear
+run_isolated_artisan config:cache
+run_isolated_artisan view:cache
+run_isolated_artisan route:list --name=workspaces.tools.operating
+run_isolated_artisan route:list --name=workspaces.tools.scenarios.approve
+run_isolated_artisan route:list --name=workspaces.partner-roster
 echo "Laravel config / Blade / routes: PASS"
 
 echo
 echo "=== RUN ISOLATED OPERATING-SYSTEM TEST SUITE ==="
-env APP_ENV=testing APP_KEY="$APP_KEY_VALUE" DB_CONNECTION=sqlite DB_DATABASE=:memory: \
-    php artisan test \
-        tests/Feature/PbrOperatingToolEngineTest.php \
-        tests/Feature/PbrOperatingSystemLifecycleTest.php
+run_isolated_artisan test \
+    tests/Feature/PbrOperatingToolEngineTest.php \
+    tests/Feature/PbrOperatingSystemLifecycleTest.php \
+    tests/Feature/PbrCourseCatalogIntegrityTest.php
 
 echo
 echo "=== PREDEPLOY VALIDATION COMPLETE ==="
