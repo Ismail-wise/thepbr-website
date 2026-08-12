@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\CourseChapter;
 use App\Models\PartnershipWorkspace;
+use App\Models\ToolSession;
 use App\Models\WorkspaceToolOutput;
 use App\Services\PbrTools\ChapterOneIntegrationService;
 use App\Services\PbrTools\PbrOperatingSystemService;
@@ -58,6 +59,8 @@ class WorkspaceToolsController extends Controller
             $operatingSystem->syncWorkspacePartners($workspace);
         }
 
+        $workspace->loadMissing('partnerProfiles');
+
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
 
@@ -83,6 +86,16 @@ class WorkspaceToolsController extends Controller
             ->unique()
             ->map(fn ($id) => (int) $id)
             ->flip();
+
+        $draftToolIds = $canManageContext
+            ? ToolSession::query()
+                ->where('workspace_id', $workspace->id)
+                ->where('status', 'draft')
+                ->pluck('chapter_tool_id')
+                ->unique()
+                ->map(fn ($id) => (int) $id)
+                ->flip()
+            : collect();
 
         $chapterProgress = [];
         foreach ($chapters as $chapter) {
@@ -127,7 +140,8 @@ class WorkspaceToolsController extends Controller
             'toolDefinitions',
             'chapterProgress',
             'operatingDomains',
-            'agreedToolIds'
+            'agreedToolIds',
+            'draftToolIds'
         ));
     }
 
