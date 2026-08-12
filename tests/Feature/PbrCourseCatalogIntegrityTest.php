@@ -193,3 +193,19 @@ test('startup capital screen explains actions without requiring English fluency'
         ->assertDontSee('Build Your Own Cost List')
         ->assertDontSee('Calculate Startup Capital');
 });
+
+test('dashboard polish keeps draft KPIs and partner roster semantics clear', function () {
+    $javascript = file_get_contents(public_path('js/pbr-operating-system.js'));
+    $styles = file_get_contents(public_path('css/pbr-operating-fixes.css'));
+
+    expect($javascript)
+        ->toContain('function polishBusinessDashboard()')
+        ->toContain('Draft ခန့်မှန်းချက်')
+        ->toContain('Partner Profile အရေအတွက်')
+        ->toContain('အခု စစ်ဆေးရမည့်အချက်များ')
+        ->toContain("value.textContent = '—'")
+        ->and($styles)
+        ->toContain('Executive dashboard final polish')
+        ->toContain('.pbr-business-page-polished .pbr-business-hero h1')
+        ->toContain('.pbr-business-metric.setup');
+});
