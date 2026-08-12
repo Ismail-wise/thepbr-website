@@ -17,18 +17,9 @@ class WorkspaceToolScenarioController extends Controller
         int $session,
         ToolScenarioService $scenarios
     ): RedirectResponse {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
-
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
         $validated = $request->validate([
-            'scenario_name' => [
-                'required',
-                'string',
-                'max:120',
-            ],
+            'scenario_name' => ['required', 'string', 'max:120'],
         ]);
 
         $draft = $scenarios->renameDraft(
@@ -43,7 +34,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Scenario renamed.'
+            'Scenario အမည်ပြောင်းပြီးပါပြီ။'
         );
     }
 
@@ -54,11 +45,7 @@ class WorkspaceToolScenarioController extends Controller
         int $session,
         ToolScenarioService $scenarios
     ): RedirectResponse {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
 
         $draft = $scenarios->duplicateDraft(
             $request->user(),
@@ -71,7 +58,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Scenario duplicated.'
+            'Scenario copy အသစ်ဖန်တီးပြီးပါပြီ။'
         );
     }
 
@@ -82,11 +69,7 @@ class WorkspaceToolScenarioController extends Controller
         int $session,
         ToolScenarioService $scenarios
     ): RedirectResponse {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
 
         $scenarios->deleteDraft(
             $request->user(),
@@ -95,15 +78,8 @@ class WorkspaceToolScenarioController extends Controller
             $session
         );
 
-        return redirect(
-            $this->toolUrl(
-                $workspace,
-                $tool
-            )
-        )->with(
-            'status',
-            'Scenario deleted.'
-        );
+        return redirect($this->toolUrl($workspace, $tool))
+            ->with('status', 'Scenario Draft ကိုဖျက်ပြီးပါပြီ။');
     }
 
     public function output(
@@ -113,12 +89,7 @@ class WorkspaceToolScenarioController extends Controller
         int $session,
         ToolScenarioService $scenarios
     ): RedirectResponse {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
-
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
         $draft = $scenarios->ownedDraft(
             $request->user(),
             $workspace,
@@ -137,9 +108,37 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Workspace output revision '
-                .$output->revision
-                .' created.'
+            'Workspace Draft Output revision '.$output->revision.' ဖန်တီးပြီးပါပြီ။'
+        );
+    }
+
+    public function approve(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        string $toolSlug,
+        int $session,
+        ToolScenarioService $scenarios
+    ): RedirectResponse {
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
+        $draft = $scenarios->ownedDraft(
+            $request->user(),
+            $workspace,
+            $tool,
+            $session
+        );
+
+        $output = $scenarios->publishAgreedOutput(
+            $request->user(),
+            $workspace,
+            $tool,
+            $draft
+        );
+
+        return $this->toolRedirect(
+            $workspace,
+            $tool,
+            $draft->id,
+            'Agreed Business Rule revision '.$output->revision.' အဖြစ်အတည်ပြုပြီးပါပြီ။ နောက် Chapter တွေနဲ့ AI Advisor မှာ ဒီ agreed data ကိုအသုံးပြုနိုင်ပါပြီ။'
         );
     }
 
@@ -155,12 +154,12 @@ class WorkspaceToolScenarioController extends Controller
 
         $tool = ChapterTool::query()
             ->where('slug', $toolSlug)
+            ->with('chapter:id,chapter_number')
             ->firstOrFail();
 
-        $supported =
-            $workspace->business_stage === 'new'
-                ? $tool->supports_new_business
-                : $tool->supports_existing_business;
+        $supported = $workspace->business_stage === 'new'
+            ? $tool->supports_new_business
+            : $tool->supports_existing_business;
 
         abort_unless($supported, 404);
 
@@ -174,14 +173,8 @@ class WorkspaceToolScenarioController extends Controller
         string $message
     ): RedirectResponse {
         return redirect(
-            $this->toolUrl(
-                $workspace,
-                $tool
-            ).'?session='.$sessionId
-        )->with(
-            'status',
-            $message
-        );
+            $this->toolUrl($workspace, $tool).'?session='.$sessionId
+        )->with('status', $message);
     }
 
     private function toolUrl(
@@ -189,10 +182,7 @@ class WorkspaceToolScenarioController extends Controller
         ChapterTool $tool
     ): string {
         return url(
-            '/workspaces/'
-            .$workspace->id
-            .'/tools/'
-            .$tool->slug
+            '/workspaces/'.$workspace->id.'/tools/'.$tool->slug
         );
     }
 }
