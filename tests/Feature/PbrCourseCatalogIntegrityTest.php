@@ -160,7 +160,7 @@ test('capital business screen uses clear operational language instead of classro
         ->assertDontSee('Save Draft');
 });
 
-test('startup capital screen explains actions without requiring English fluency', function () {
+test('startup capital screen is an operational planning workspace not a simple calculator', function () {
     app(CourseCatalogSeeder::class)->run();
 
     $user = User::factory()->create([
@@ -185,10 +185,13 @@ test('startup capital screen explains actions without requiring English fluency'
     $response
         ->assertOk()
         ->assertSee('စတင်မတည်ငွေ အစီအစဉ်')
-        ->assertSee('ကိုယ့်လုပ်ငန်းအတွက် တကယ်လိုအပ်တာတွေကို ထည့်ပါ')
-        ->assertSee('ကုန်ကျစရိတ်အုပ်စု')
+        ->assertSee('အသုံးများတဲ့ ကုန်ကျစရိတ်အုပ်စုကို တစ်ချက်နဲ့ထည့်ပါ')
+        ->assertSee('Funding, timing နဲ့ အသေးစိတ် ထည့်ရန်')
+        ->assertSee('30 ရက်အတွင်းလို')
+        ->assertSee('Plan အနှစ်ချုပ်')
+        ->assertSee('Plan Result စစ်ရန်')
         ->assertSee('Draft သိမ်းရန်')
-        ->assertSee('မတည်ငွေ Result စစ်ရန်')
+        ->assertSee('pbr-capital-workspace-grid', false)
         ->assertDontSee('Chapter 1')
         ->assertDontSee('Build Your Own Cost List')
         ->assertDontSee('Calculate Startup Capital');
