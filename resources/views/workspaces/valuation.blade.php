@@ -9,6 +9,7 @@
     $value = fn ($key, $default = '') => old($key, $saved[$key] ?? $default);
     $currency = $workspace->currency_code ?? 'THB';
     $businessName = $workspace->business_name ?: $workspace->name;
+    $ownership = $result['ownership'] ?? null;
     $confidenceMm = ['HIGH' => 'Data ယုံကြည်မှု မြင့်', 'MEDIUM' => 'Data ယုံကြည်မှု အလယ်အလတ်', 'LOW' => 'Data ယုံကြည်မှု နည်း'];
     $methodMm = [
         'EBITDA Multiple' => 'EBITDA Multiple Method',
@@ -55,6 +56,100 @@
                     <strong>{{ $currency }} {{ number_format($result['optimistic'], 2) }}</strong>
                 </div>
             </div>
+
+            @if($ownership)
+                <div class="pbr2-panel" style="margin-top:20px;">
+                    <div class="pbr2-section-head">
+                        <div>
+                            <span class="pbr2-eyebrow">Share / Ownership Value</span>
+                            <h2>Share တစ်ခု / Ownership Unit တစ်ခုရဲ့ ခန့်မှန်းတန်ဖိုး</h2>
+                            <p>Total Ownership Units: <strong>{{ number_format($ownership['total_units']) }}</strong></p>
+                        </div>
+                    </div>
+
+                    <div class="pbr2-result-grid">
+                        <div class="pbr2-value-card">
+                            <span>Conservative • တစ် Unit</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['conservative_per_unit'], 4) }}</strong>
+                        </div>
+                        <div class="pbr2-value-card" style="border-color:#9fc8a7;background:#f4faf4;">
+                            <span>Base Value • တစ် Unit</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['base_per_unit'], 4) }}</strong>
+                        </div>
+                        <div class="pbr2-value-card">
+                            <span>Optimistic • တစ် Unit</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['optimistic_per_unit'], 4) }}</strong>
+                        </div>
+                    </div>
+
+                    <div class="pbr2-panel" style="margin-top:18px;background:#fafafa;">
+                        <h3>1% Ownership ရဲ့ ခန့်မှန်းတန်ဖိုး</h3>
+                        <div class="pbr2-data-row">
+                            <span>Conservative</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['conservative_one_percent'], 2) }}</strong>
+                        </div>
+                        <div class="pbr2-data-row">
+                            <span>Base Estimate</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['base_one_percent'], 2) }}</strong>
+                        </div>
+                        <div class="pbr2-data-row">
+                            <span>Optimistic</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['optimistic_one_percent'], 2) }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div
+                    id="partner-stake-calculator"
+                    class="pbr2-panel"
+                    style="margin-top:20px;"
+                    data-currency="{{ $currency }}"
+                    data-total-units="{{ $ownership['total_units'] }}"
+                    data-conservative="{{ $result['conservative'] }}"
+                    data-base="{{ $result['base'] }}"
+                    data-optimistic="{{ $result['optimistic'] }}"
+                >
+                    <span class="pbr2-eyebrow">Partner Stake Calculator</span>
+                    <h2>Partner တစ်ယောက်ရဲ့ Ownership Value ကိုတွက်ပါ</h2>
+                    <p>Ownership % သို့မဟုတ် Share / Unit အရေအတွက် တစ်ခုခုထည့်ပါ။ နှစ်ခုက အလိုအလျောက်ချိတ်ဆက်တွက်ပေးပါမယ်။</p>
+
+                    <div class="pbr2-form-grid">
+                        <div class="pbr2-field">
+                            <label for="stake_percent">Partner Ownership %</label>
+                            <input id="stake_percent" type="number" min="0" max="100" step="0.01" value="25">
+                        </div>
+                        <div class="pbr2-field">
+                            <label for="stake_units">Partner Share / Ownership Units</label>
+                            <input id="stake_units" type="number" min="0" max="{{ $ownership['total_units'] }}" step="0.01" value="{{ $ownership['total_units'] * .25 }}">
+                        </div>
+                    </div>
+
+                    <div class="pbr2-result-grid" style="margin-top:18px;">
+                        <div class="pbr2-value-card">
+                            <span>Conservative Stake Value</span>
+                            <strong id="stake_conservative">—</strong>
+                        </div>
+                        <div class="pbr2-value-card" style="border-color:#9fc8a7;background:#f4faf4;">
+                            <span>Base Stake Value</span>
+                            <strong id="stake_base">—</strong>
+                        </div>
+                        <div class="pbr2-value-card">
+                            <span>Optimistic Stake Value</span>
+                            <strong id="stake_optimistic">—</strong>
+                        </div>
+                    </div>
+
+                    <p style="margin:16px 0 0;color:var(--pbr2-muted);font-size:12px;">
+                        ဒီတန်ဖိုးက PBR Valuation Estimate ပေါ်မူတည်တဲ့ indicative ownership value ဖြစ်ပြီး legal share price, market transaction price သို့မဟုတ် certified valuation မဟုတ်ပါ။
+                    </p>
+                </div>
+            @else
+                <div class="pbr2-panel" style="margin-top:20px;">
+                    <span class="pbr2-eyebrow">Ownership Value အသစ်</span>
+                    <h3>Share / Ownership Value ကိုရဖို့ Valuation ပြန်တွက်ပါ</h3>
+                    <p>ဒီ Result က အရင် version မှာတွက်ထားတာဖြစ်လို့ Total Share / Ownership Units မပါသေးပါဘူး။ အောက်က Form မှာ Units ထည့်ပြီး Valuation ပြန်တွက်လိုက်ရင် Per Share Value နဲ့ Partner Stake Calculator ပေါ်လာပါမယ်။</p>
+                </div>
+            @endif
 
             <div class="pbr2-grid">
                 <div class="pbr2-panel">
@@ -183,6 +278,18 @@
                         </div>
                     </section>
 
+                    <section class="pbr2-form-card">
+                        <span class="pbr2-eyebrow">အပိုင်း ၄</span>
+                        <h2>Share / Ownership Structure</h2>
+                        <p>Business ရဲ့ စုစုပေါင်း Share သို့မဟုတ် Ownership Units အရေအတွက်ကို ထည့်ပါ။</p>
+
+                        <div class="pbr2-field">
+                            <label>Total Share / Ownership Units</label>
+                            <input name="total_ownership_units" type="number" step="1" min="1" max="1000000000" value="{{ $value('total_ownership_units', 100) }}" required>
+                            <small class="pbr2-help">Official shares မရှိတဲ့ Partnership ဆိုရင် 100 Units သုံးနိုင်ပါတယ် — 1 Unit = 1% Ownership ဖြစ်ပါမယ်။ Official shares ရှိရင် အမှန်တကယ် Total Shares ကိုထည့်ပါ။</small>
+                        </div>
+                    </section>
+
                     <details class="pbr2-details">
                         <summary>Advanced Valuation Assumptions ကို ကြည့်ရန်</summary>
                         <div class="pbr2-details-body">
@@ -216,7 +323,7 @@
                         </div>
                     </details>
 
-                    <button class="pbr2-btn" style="width:100%;margin-top:18px;" type="submit">Business Valuation တွက်ရန်</button>
+                    <button class="pbr2-btn" style="width:100%;margin-top:18px;" type="submit">Business Valuation + Ownership Value တွက်ရန်</button>
                 </form>
             </div>
         @else
@@ -228,4 +335,49 @@
         @endif
     </section>
 </div>
+
+@if($ownership)
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calculator = document.getElementById('partner-stake-calculator');
+    if (!calculator) return;
+
+    const percentInput = document.getElementById('stake_percent');
+    const unitsInput = document.getElementById('stake_units');
+    const totalUnits = Number(calculator.dataset.totalUnits || 0);
+    const conservative = Number(calculator.dataset.conservative || 0);
+    const base = Number(calculator.dataset.base || 0);
+    const optimistic = Number(calculator.dataset.optimistic || 0);
+    const currency = calculator.dataset.currency || '';
+
+    const money = (amount) => currency + ' ' + new Intl.NumberFormat('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(amount);
+
+    const render = (percent) => {
+        const safePercent = Math.max(0, Math.min(100, Number(percent) || 0));
+        const ratio = safePercent / 100;
+        document.getElementById('stake_conservative').textContent = money(conservative * ratio);
+        document.getElementById('stake_base').textContent = money(base * ratio);
+        document.getElementById('stake_optimistic').textContent = money(optimistic * ratio);
+    };
+
+    percentInput.addEventListener('input', function () {
+        const percent = Math.max(0, Math.min(100, Number(this.value) || 0));
+        unitsInput.value = totalUnits > 0 ? (totalUnits * percent / 100).toFixed(2) : 0;
+        render(percent);
+    });
+
+    unitsInput.addEventListener('input', function () {
+        const units = Math.max(0, Math.min(totalUnits, Number(this.value) || 0));
+        const percent = totalUnits > 0 ? (units / totalUnits) * 100 : 0;
+        percentInput.value = percent.toFixed(2);
+        render(percent);
+    });
+
+    render(percentInput.value);
+});
+</script>
+@endif
 @endsection
