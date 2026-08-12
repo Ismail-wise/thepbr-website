@@ -224,6 +224,55 @@ class ChapterOneIntegrationService
         ];
     }
 
+    public function operatingSnapshot(
+        PartnershipWorkspace $workspace
+    ): array {
+        $summary = $this->summary($workspace);
+        $sources = [];
+
+        foreach ($summary['outputs'] ?? [] as $toolKey => $entry) {
+            $output = $entry['output'] ?? null;
+
+            if (! $output instanceof WorkspaceToolOutput) {
+                continue;
+            }
+
+            $sources[$toolKey] = [
+                'workspace_tool_output_id' => $output->id,
+                'revision' => $output->revision,
+                'status' => $output->status,
+                'result' => $entry['data'] ?? [],
+                'generated_at' => $output->generated_at?->toIso8601String(),
+                'agreed_at' => $output->agreed_at?->toIso8601String(),
+            ];
+        }
+
+        $capitalSummary = [
+            'startup_capital' => $summary['startup_capital'],
+            'current_net_capital_position' => $summary['current_net_capital_position'],
+            'working_capital' => $summary['working_capital'],
+            'monthly_operating_cost' => $summary['monthly_operating_cost'],
+            'contingency_fund' => $summary['contingency_fund'],
+            'partner_capital' => $summary['partner_capital'],
+            'other_funding' => $summary['other_funding'],
+            'capital_required' => $summary['capital_required'],
+            'capital_secured' => $summary['capital_secured'],
+            'funding_gap' => $summary['funding_gap'],
+            'funding_surplus' => $summary['funding_surplus'],
+        ];
+
+        return [
+            'payload' => [
+                'business_stage' => $workspace->business_stage,
+                'currency_code' => $workspace->currency_code,
+                'capital' => $capitalSummary,
+                'allocations' => $summary['allocations'],
+                'source_outputs' => $sources,
+            ],
+            'summary' => $capitalSummary,
+        ];
+    }
+
     public function prefill(
         PartnershipWorkspace $workspace,
         string $toolKey,
