@@ -265,3 +265,5 @@ Route::middleware('auth')->group(function () {
         'workspaces.tools.chapter-one.save'
     );
 });
+
+require __DIR__.'/ai.php';
