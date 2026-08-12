@@ -168,7 +168,11 @@ class WorkspaceStartupCapitalController extends Controller
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
 
-        return view('workspaces.tools.startup-capital', compact(
+        $view = $canManage
+            ? 'workspaces.tools.startup-capital'
+            : 'workspaces.tools.startup-capital-readonly';
+
+        return view($view, compact(
             'workspace',
             'tool',
             'categories',
