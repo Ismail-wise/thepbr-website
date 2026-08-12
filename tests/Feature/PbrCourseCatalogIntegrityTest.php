@@ -63,13 +63,13 @@ test('active student portal separates learning from the real business operating 
         ->assertSee('10 Learning Chapters')
         ->assertSee('Business Operating System')
         ->assertSee('Portal Test Business')
-        ->assertSee('Open Business Operating System')
+        ->assertSee('Business Operating System ဖွင့်ရန်')
         ->assertSee(route('workspaces.tools.index', $workspace), false)
         ->assertDontSee('Open 64 Tools')
         ->assertDontSee('Coming Next');
 });
 
-test('workspace operating system is business focused and keeps tool routes separate', function () {
+test('workspace operating system is Burmese first business focused and keeps tool routes separate', function () {
     app(CourseCatalogSeeder::class)->run();
 
     expect(Route::has('workspaces.tools.chapter-one.show'))->toBeTrue()
@@ -105,16 +105,20 @@ test('workspace operating system is business focused and keeps tool routes separ
 
     $response
         ->assertOk()
-        ->assertSee('PBR Business Operating System')
-        ->assertSee('Business Health')
-        ->assertSee('Capital & Funding')
-        ->assertSee('Ownership & Equity')
-        ->assertSee('Governance & Decision Making')
-        ->assertSee('Needs Setup')
-        ->assertSee('Active Business Rules')
+        ->assertSee('PBR BUSINESS OPERATING SYSTEM')
+        ->assertSee('အခုအရင်ဆုံး သတိထားစီမံရမယ့်အရာများ')
+        ->assertSee('မတည်ငွေနှင့် ရင်းနှီးငွေ')
+        ->assertSee('ပိုင်ဆိုင်မှုနှင့် အစုရှယ်ယာ')
+        ->assertSee('အုပ်ချုပ်မှုနှင့် ဆုံးဖြတ်ချက် စနစ်')
+        ->assertSee('မသတ်မှတ်ရသေး')
+        ->assertSee('အသုံးပြုနေသော စည်းမျဉ်းများ')
         ->assertSee($chapterOneUrl, false)
         ->assertSee('/tools/operating/', false)
         ->assertDontSee('Operating System Completion')
         ->assertDontSee('Practical Tools')
-        ->assertDontSee('Chapter 1');
+        ->assertDontSee('Chapter 1')
+        ->assertDontSee('CALCULATOR')
+        ->assertDontSee('PLANNER')
+        ->assertDontSee('MATRIX')
+        ->assertDontSee('CHART');
 });
