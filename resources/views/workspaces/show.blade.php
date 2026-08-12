@@ -21,7 +21,7 @@
             <div>
                 <span class="pbr2-eyebrow">Business Control Center</span>
                 <h1>{{ $businessName }}</h1>
-                <p>{{ $stageMm }}။ ဒီနေရာကနေ Partner Alignment, Business Tools, Feasibility, Valuation နဲ့ Workspace Management ကို တစ်နေရာတည်းမှာ စီမံနိုင်ပါတယ်။</p>
+                <p>{{ $stageMm }}။ ဒီနေရာကနေ PBR AI Advisor, Partner Alignment, Business Tools, Feasibility, Valuation နဲ့ Workspace Management ကို တစ်နေရာတည်းမှာ စီမံနိုင်ပါတယ်။</p>
                 <div class="pbr2-meta">
                     <span class="pbr2-badge">{{ $workspace->currency_code ?? 'Currency မသတ်မှတ်ရသေး' }}</span>
                     <span class="pbr2-badge {{ $workspace->business_stage === 'existing' ? 'orange' : 'gray' }}">{{ $workspace->business_stage === 'existing' ? 'EXISTING BUSINESS' : 'NEW BUSINESS' }}</span>
@@ -61,6 +61,16 @@
         </div>
 
         <div class="pbr2-grid">
+            <article class="pbr2-card feature" style="border-color:#a7cfae;background:linear-gradient(145deg,#fff,#f2faf3);">
+                <div class="pbr2-icon">✦</div>
+                <span class="pbr2-eyebrow">PBR AI Advisor</span>
+                <h3>သင့် Business Data ကိုသိတဲ့ AI Advisor</h3>
+                <p>PBR ရဲ့ မူလ Partnership Knowledge + RAG Data နဲ့ ဒီ Business ရဲ့ Feasibility, Valuation, Ownership, Partner Data နဲ့ Tool Outputs တွေကိုတွဲသုံးပြီး မေးခွန်းတွေကို ဖြေပေးပါတယ်။</p>
+                <div class="pbr2-actions">
+                    <a class="pbr2-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">AI Advisor ကိုဖွင့်ရန်</a>
+                </div>
+            </article>
+
             <article class="pbr2-card feature">
                 <div class="pbr2-icon">◎</div>
                 <span class="pbr2-eyebrow">Partner Dynamics</span>
