@@ -35,43 +35,42 @@ class PartnershipWorkspace extends Model
 
     public function owner(): BelongsTo
     {
-        return $this->belongsTo(
-            User::class,
-            'owner_user_id'
-        );
+        return $this->belongsTo(User::class, 'owner_user_id');
     }
 
     public function memberships(): HasMany
     {
-        return $this->hasMany(
-            WorkspaceMember::class,
-            'workspace_id'
-        );
+        return $this->hasMany(WorkspaceMember::class, 'workspace_id');
     }
 
     public function acceptedMemberships(): HasMany
     {
-        return $this->memberships()
-            ->where(
-                'invitation_status',
-                'accepted'
-            );
+        return $this->memberships()->where('invitation_status', 'accepted');
     }
 
     public function toolSessions(): HasMany
     {
-        return $this->hasMany(
-            ToolSession::class,
-            'workspace_id'
-        );
+        return $this->hasMany(ToolSession::class, 'workspace_id');
     }
 
     public function toolOutputs(): HasMany
     {
-        return $this->hasMany(
-            WorkspaceToolOutput::class,
-            'workspace_id'
-        );
+        return $this->hasMany(WorkspaceToolOutput::class, 'workspace_id');
+    }
+
+    public function partnerProfiles(): HasMany
+    {
+        return $this->hasMany(WorkspacePartnerProfile::class, 'workspace_id');
+    }
+
+    public function operatingSnapshots(): HasMany
+    {
+        return $this->hasMany(WorkspaceOperatingSnapshot::class, 'workspace_id');
+    }
+
+    public function operatingRecords(): HasMany
+    {
+        return $this->hasMany(WorkspaceOperatingRecord::class, 'workspace_id');
     }
 
     public function isNewPartnership(): bool
