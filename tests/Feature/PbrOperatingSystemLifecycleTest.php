@@ -99,7 +99,7 @@ test('owner can publish an agreed rule and operating snapshot is revisioned', fu
         ->first();
 
     expect($snapshot)->not->toBeNull()
-        ->and($snapshot->summary['total_units'])->toBe(100.0)
+        ->and((float) $snapshot->summary['total_units'])->toBe(100.0)
         ->and($snapshot->summary['holders'])->toHaveCount(2);
 });
 
@@ -250,5 +250,5 @@ test('partner AI context receives agreed output but never later draft output', f
     $capOutput = $outputs->firstWhere('tool.key', 'cap_table_builder');
     $holders = $capOutput['output']['data']['holders'] ?? [];
 
-    expect($holders[0]['ownership_percentage'] ?? null)->toBe(60.0);
+    expect((float) ($holders[0]['ownership_percentage'] ?? 0))->toBe(60.0);
 });
