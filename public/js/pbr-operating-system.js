@@ -8,6 +8,15 @@
         });
     }
 
+    function cleanBusinessModuleNames() {
+        const technicalSuffix = /\s+(Calculator|Planner|Matrix|Chart|Builder|Simulator|Dashboard|Checklist|Tracker|Scorecard|Timeline|Log|Detector|Analysis)$/i;
+
+        document.querySelectorAll('.pbr-business-module-en,.pbr-business-module h4').forEach((element) => {
+            const text = element.textContent.trim();
+            element.textContent = text.replace(technicalSuffix, '');
+        });
+    }
+
     function replaceBusinessLanguage(root) {
         if (!root) return;
 
@@ -93,6 +102,7 @@
         replaceBusinessLanguage(page);
     }
 
+    cleanBusinessModuleNames();
     professionalizeOperatingToolPage();
     professionalizeCapitalToolPage();
 
