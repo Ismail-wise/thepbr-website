@@ -160,7 +160,7 @@ class WorkspaceStartupCapitalController extends Controller
             : collect([$latestAgreedOutput])->filter();
 
         $scenarioComparisons = $drafts
-            ->map(function (ToolSession $draft): array {
+            ->map(function (ToolSession $draft) use ($activeSession): array {
                 $data = is_array($draft->result_data) ? $draft->result_data : [];
                 $total = (float) ($data['total_startup_capital'] ?? 0);
                 $funded = (float) ($data['funded_total'] ?? 0);
