@@ -129,6 +129,26 @@ Route::middleware('auth')->group(function (): void {
         [\App\Http\Controllers\WorkspaceToolsController::class, 'updateContext']
     )->name('workspaces.business-context.update');
 
+    Route::get(
+        '/workspaces/{workspace}/partner-roster',
+        [\App\Http\Controllers\WorkspacePartnerProfileController::class, 'index']
+    )->name('workspaces.partner-roster.index');
+
+    Route::post(
+        '/workspaces/{workspace}/partner-roster',
+        [\App\Http\Controllers\WorkspacePartnerProfileController::class, 'store']
+    )->name('workspaces.partner-roster.store');
+
+    Route::put(
+        '/workspaces/{workspace}/partner-roster/{profile}',
+        [\App\Http\Controllers\WorkspacePartnerProfileController::class, 'update']
+    )->name('workspaces.partner-roster.update');
+
+    Route::delete(
+        '/workspaces/{workspace}/partner-roster/{profile}',
+        [\App\Http\Controllers\WorkspacePartnerProfileController::class, 'destroy']
+    )->name('workspaces.partner-roster.destroy');
+
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
 
@@ -235,11 +255,6 @@ Route::middleware('auth')->group(function (): void {
 |--------------------------------------------------------------------------
 | Chapter 1 Shared Capital Tools
 |--------------------------------------------------------------------------
-|
-| Startup Capital has its existing richer two-level cost builder above.
-| The other six Chapter 1 tools stay on the specialized capital controller.
-| The slug constraint prevents these routes from swallowing Chapter 2–10.
-|
 */
 Route::middleware('auth')->group(function (): void {
     $chapterOneSlugs = implode('|', [
