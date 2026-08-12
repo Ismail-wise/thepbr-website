@@ -4,6 +4,7 @@ use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceMember;
+use App\Models\WorkspaceOperatingSnapshot;
 use App\Services\PbrTools\StartupCapitalCalculator;
 use App\Services\PbrTools\ToolScenarioService;
 use Database\Seeders\CourseCatalogSeeder;
@@ -190,7 +191,7 @@ test('startup capital screen is an operational planning workspace not a simple c
         ->assertOk()
         ->assertSee('စတင်မတည်ငွေ အစီအစဉ်')
         ->assertSee('အသုံးများတဲ့ ကုန်ကျစရိတ်အုပ်စုကို တစ်ချက်နဲ့ထည့်ပါ')
-        ->assertSee('Funding, timing နဲ့ အသေးစိတ် ထည့်ရန်')
+        ->assertSee('Funding နဲ့ Due Date')
         ->assertSee('30 ရက်အတွင်းလို')
         ->assertSee('Plan အနှစ်ချုပ်')
         ->assertSee('Plan Result စစ်ရန်')
@@ -260,6 +261,16 @@ test('partner sees only the active startup capital plan in a professional read o
         $result
     );
     $scenarios->publishAgreedOutput($owner, $workspace, $tool, $session);
+
+    $snapshot = WorkspaceOperatingSnapshot::query()
+        ->where('workspace_id', $workspace->id)
+        ->where('domain_key', 'capital')
+        ->where('status', 'agreed')
+        ->latest('revision')
+        ->firstOrFail();
+
+    expect((float) ($snapshot->summary['capital_secured'] ?? 0))->toBe(20000.0)
+        ->and((float) ($snapshot->summary['funding_gap'] ?? 0))->toBe(10000.0);
 
     $response = $this
         ->actingAs($partner)
