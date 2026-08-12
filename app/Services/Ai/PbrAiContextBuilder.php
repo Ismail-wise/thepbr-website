@@ -74,7 +74,7 @@ class PbrAiContextBuilder
                 ],
                 'revision' => $output->revision,
                 'status' => $output->status,
-                'output' => $this->limitValue($output->output_data, 9000),
+                'output' => $this->limitValue($output->output_data, 6000),
                 'generated_at' => $output->generated_at?->toIso8601String(),
                 'agreed_at' => $output->agreed_at?->toIso8601String(),
             ])
@@ -111,16 +111,16 @@ class PbrAiContextBuilder
             ] : null,
             'feasibility' => $latestFeasibility ? [
                 'project_name' => $latestFeasibility->project_name,
-                'result' => $this->limitValue($latestFeasibility->result, 12000),
+                'result' => $this->limitValue($latestFeasibility->result, 9000),
                 'inputs' => $canManage
-                    ? $this->limitValue($latestFeasibility->inputs, 12000)
+                    ? $this->limitValue($latestFeasibility->inputs, 9000)
                     : null,
                 'calculated_at' => $latestFeasibility->created_at?->toIso8601String(),
             ] : null,
             'valuation' => $latestValuation ? [
-                'result' => $this->limitValue($latestValuation->result, 14000),
+                'result' => $this->limitValue($latestValuation->result, 10000),
                 'inputs' => $canManage
-                    ? $this->limitValue($latestValuation->inputs, 14000)
+                    ? $this->limitValue($latestValuation->inputs, 10000)
                     : null,
                 'calculated_at' => $latestValuation->created_at?->toIso8601String(),
             ] : null,
@@ -134,7 +134,7 @@ class PbrAiContextBuilder
                 ->latest('id')
                 ->first();
 
-            $context['partner_dynamics'] = $report ? [
+            $context['partner_dynamics'] = $report ? $this->limitValue([
                 'participants' => $report->participants,
                 'alignment_summary' => $report->alignment_summary,
                 'shared_strengths' => $report->shared_strengths,
@@ -145,7 +145,7 @@ class PbrAiContextBuilder
                 'decision_recommendations' => $report->decision_recommendations,
                 'discussion_priorities' => $report->discussion_priorities,
                 'generated_at' => $report->generated_at?->toIso8601String(),
-            ] : null;
+            ], 12000) : null;
         }
 
         return $this->limitWholeContext($context);
@@ -175,22 +175,56 @@ class PbrAiContextBuilder
     private function limitWholeContext(array $context): array
     {
         $maxChars = max(12000, (int) config('pbr_ai.max_context_chars', 60000));
+
+        if ($this->encodedLength($context) <= $maxChars) {
+            return $context;
+        }
+
+        // Keep current business results first; reduce the number of detailed tool outputs progressively.
+        foreach ([6, 4, 3, 2] as $toolLimit) {
+            $context['business_tool_outputs'] = collect($context['business_tool_outputs'] ?? [])
+                ->take($toolLimit)
+                ->values()
+                ->all();
+
+            if ($this->encodedLength($context) <= $maxChars) {
+                $context['_pbr_context_note'] = 'Older saved tool outputs were omitted because this workspace contains a large amount of data.';
+                return $context;
+            }
+        }
+
+        // Results matter more than raw form inputs for the first AI pass.
+        if (is_array($context['feasibility'] ?? null)) {
+            $context['feasibility']['inputs'] = null;
+            $context['feasibility']['inputs_note'] = 'Detailed feasibility inputs were omitted for context size; the latest result remains available.';
+        }
+
+        if (is_array($context['valuation'] ?? null)) {
+            $context['valuation']['inputs'] = null;
+            $context['valuation']['inputs_note'] = 'Detailed valuation inputs were omitted for context size; the latest result remains available.';
+        }
+
+        if ($this->encodedLength($context) <= $maxChars) {
+            $context['_pbr_context_note'] = 'Some detailed inputs and older tool outputs were omitted because this workspace contains a large amount of data.';
+            return $context;
+        }
+
+        $context['business_tool_outputs'] = collect($context['business_tool_outputs'] ?? [])
+            ->take(1)
+            ->values()
+            ->all();
+        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results and the most recent saved tool output.';
+
+        return $context;
+    }
+
+    private function encodedLength(array $context): int
+    {
         $json = json_encode(
             $context,
             JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE
         );
 
-        if ($json === false || mb_strlen($json) <= $maxChars) {
-            return $context;
-        }
-
-        // Keep the highest-value sections intact first and shorten tool outputs last.
-        $context['business_tool_outputs'] = collect($context['business_tool_outputs'] ?? [])
-            ->take(12)
-            ->values()
-            ->all();
-        $context['_pbr_context_note'] = 'Some older tool outputs were omitted because this workspace has a large amount of saved data. Latest high-value data remains included.';
-
-        return $context;
+        return $json === false ? 0 : mb_strlen($json);
     }
 }
