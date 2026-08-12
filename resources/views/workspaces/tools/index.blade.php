@@ -7,9 +7,11 @@
     $currency = $workspace->currency_code ?? 'THB';
     $activeRuleCount = $agreedToolIds->count();
     $draftCount = $draftToolIds->count();
+
     $profileCount = $workspace->partnerProfiles
         ->whereIn('status', ['active', 'planned'])
         ->count();
+
     $peopleCount = $profileCount > 0
         ? $profileCount
         : collect([$workspace->owner_user_id])
@@ -18,7 +20,7 @@
             ->unique()
             ->count();
 
-    $systems = [
+    $systemDefinitions = [
         1 => [
             'key' => 'capital',
             'name' => 'Capital & Funding',
@@ -81,7 +83,13 @@
         ],
     ];
 
-    $statusForSystem = static function ($chapter, $domain, $agreedToolIds, $draftToolIds): array {
+    $businessSystems = [];
+
+    foreach ($chapters as $chapter) {
+        $number = (int) $chapter->chapter_number;
+        $meta = $systemDefinitions[$number];
+        $domain = $operatingDomains[$number] ?? null;
+
         $hasActive = $chapter->tools->contains(
             fn ($tool) => $agreedToolIds->has((int) $tool->id)
         ) || (($domain['status'] ?? null) === 'agreed');
@@ -90,27 +98,59 @@
             fn ($tool) => $draftToolIds->has((int) $tool->id)
         ) || (($domain['status'] ?? null) === 'draft');
 
-        if ($hasActive) {
-            return ['key' => 'active', 'label' => 'Active'];
+        $systemState = $hasActive
+            ? ['key' => 'active', 'label' => 'Active']
+            : ($hasDraft
+                ? ['key' => 'draft', 'label' => 'Draft in Progress']
+                : ['key' => 'setup', 'label' => 'Needs Setup']);
+
+        $capabilities = [];
+
+        foreach ($chapter->tools as $tool) {
+            $definition = $toolDefinitions[$tool->tool_key] ?? null;
+            $titleMm = $definition['title_mm'] ?? $tool->title_mm ?? $tool->title_en;
+            $purpose = $definition['purpose_mm'] ?? $tool->description;
+            $isActive = $agreedToolIds->has((int) $tool->id);
+            $hasToolDraft = $draftToolIds->has((int) $tool->id);
+
+            $toolState = $isActive
+                ? ['key' => 'active', 'label' => 'Active Rule']
+                : ($hasToolDraft
+                    ? ['key' => 'draft', 'label' => 'Draft']
+                    : ['key' => 'setup', 'label' => 'Needs Setup']);
+
+            if ($tool->tool_key === 'startup_capital_planner' && $workspace->business_stage === 'new') {
+                $toolUrl = route('workspaces.tools.startup-capital.show', $workspace);
+            } elseif ($number === 1) {
+                $toolUrl = route('workspaces.tools.chapter-one.show', [$workspace, $tool->slug]);
+            } else {
+                $toolUrl = route('workspaces.tools.operating.show', [$workspace, $tool->slug]);
+            }
+
+            $capabilities[] = [
+                'type' => ucfirst($tool->tool_type),
+                'title' => $titleMm,
+                'title_en' => $tool->title_en,
+                'purpose' => $purpose,
+                'state' => $toolState,
+                'url' => $toolUrl,
+            ];
         }
 
-        if ($hasDraft) {
-            return ['key' => 'draft', 'label' => 'Draft in Progress'];
-        }
-
-        return ['key' => 'setup', 'label' => 'Needs Setup'];
-    };
-
-    $systemStates = [];
-    foreach ($chapters as $chapter) {
-        $number = (int) $chapter->chapter_number;
-        $systemStates[$number] = $statusForSystem(
-            $chapter,
-            $operatingDomains[$number] ?? null,
-            $agreedToolIds,
-            $draftToolIds
-        );
+        $businessSystems[] = [
+            'number' => $number,
+            'key' => $meta['key'],
+            'name' => $meta['name'],
+            'mm' => $meta['mm'],
+            'summary' => $meta['summary'],
+            'state' => $systemState,
+            'capabilities' => $capabilities,
+        ];
     }
+
+    $attentionSystems = collect($businessSystems)
+        ->whereIn('number', [2, 3, 4, 5, 6])
+        ->values();
 
     $fundingGap = (float) ($chapterOneSummary['funding_gap'] ?? 0);
     $capitalRequired = (float) ($chapterOneSummary['capital_required'] ?? 0);
@@ -152,16 +192,19 @@
                 <strong>{{ $currency }} {{ number_format($capitalRequired, 2) }}</strong>
                 <small>Current capital plan</small>
             </article>
+
             <article class="pbr-business-metric {{ $fundingGap > 0 ? 'attention' : 'healthy' }}">
                 <span>Funding Gap</span>
                 <strong>{{ $currency }} {{ number_format($fundingGap, 2) }}</strong>
                 <small>{{ $fundingGap > 0 ? 'Needs attention' : 'Funding requirement covered' }}</small>
             </article>
+
             <article class="pbr-business-metric">
                 <span>Partners</span>
                 <strong>{{ $peopleCount }}</strong>
                 <small>Current and planned partner profiles</small>
             </article>
+
             <article class="pbr-business-metric">
                 <span>Active Business Rules</span>
                 <strong>{{ $activeRuleCount }}</strong>
@@ -174,7 +217,7 @@
                 <div>
                     <span class="pbr-business-eyebrow">Business Health</span>
                     <h2>Needs Attention</h2>
-                    <p>ဒီ Business မှာ မသတ်မှတ်ရသေးတာ၊ draft ဖြစ်နေတာ၊ ဒါမှမဟုတ် action လိုနေတာတွေကို အရင်ပြပါတယ်။</p>
+                    <p>မသတ်မှတ်ရသေးတာ၊ draft ဖြစ်နေတာ၊ ဒါမှမဟုတ် action လိုနေတာတွေကို အရင်ပြပါတယ်။</p>
                 </div>
             </div>
 
@@ -185,12 +228,17 @@
                     <small>{{ $fundingGap > 0 ? 'Review funding plan' : 'No immediate funding gap' }}</small>
                 </a>
 
-                @foreach([2 => 'Ownership Structure', 3 => 'Partner Responsibilities', 4 => 'Profit Distribution', 5 => 'Financial Controls', 6 => 'Governance'] as $systemNumber => $label)
-                    @php($state = $systemStates[$systemNumber] ?? ['key' => 'setup', 'label' => 'Needs Setup'])
-                    <a href="#system-{{ $systems[$systemNumber]['key'] }}" class="pbr-business-attention-card {{ $state['key'] }}">
-                        <span>{{ $label }}</span>
-                        <strong>{{ $state['label'] }}</strong>
-                        <small>{{ $state['key'] === 'active' ? 'Current business rule available' : ($state['key'] === 'draft' ? 'Review and activate when ready' : 'Set this up for the business') }}</small>
+                @foreach($attentionSystems as $attentionSystem)
+                    <a href="#system-{{ $attentionSystem['key'] }}" class="pbr-business-attention-card {{ $attentionSystem['state']['key'] }}">
+                        <span>{{ $attentionSystem['name'] }}</span>
+                        <strong>{{ $attentionSystem['state']['label'] }}</strong>
+                        <small>
+                            {{ $attentionSystem['state']['key'] === 'active'
+                                ? 'Current business rule available'
+                                : ($attentionSystem['state']['key'] === 'draft'
+                                    ? 'Review and activate when ready'
+                                    : 'Set this up for the business') }}
+                        </small>
                     </a>
                 @endforeach
             </div>
@@ -212,6 +260,7 @@
                 <form method="POST" action="{{ route('workspaces.business-context.update', $workspace) }}">
                     @csrf
                     @method('PUT')
+
                     <div class="pbr-context-grid">
                         <div class="pbr-tools-field">
                             <label for="business_stage">Partnership Stage</label>
@@ -222,6 +271,7 @@
                             </select>
                             <small>Business အသစ်စတင်နေတာလား၊ ရှိပြီးသား partnership ကို စီမံနေတာလား ရွေးပါ။</small>
                         </div>
+
                         <div class="pbr-tools-field">
                             <label for="currency_code">Primary Currency</label>
                             <select id="currency_code" name="currency_code" required>
@@ -232,14 +282,21 @@
                             <small>Financial systems အားလုံးအတွက် default currency ဖြစ်ပါတယ်။</small>
                         </div>
                     </div>
+
                     <div class="pbr-context-actions">
                         <button type="submit" class="pbr-tools-primary-button">Save Business Settings</button>
                     </div>
                 </form>
             @else
                 <div class="pbr-context-readonly">
-                    <div><span>Partnership Stage</span><strong>{{ $businessStages[$workspace->business_stage] ?? 'Not selected' }}</strong></div>
-                    <div><span>Primary Currency</span><strong>{{ $workspace->currency_code ?? 'Not selected' }}</strong></div>
+                    <div>
+                        <span>Partnership Stage</span>
+                        <strong>{{ $businessStages[$workspace->business_stage] ?? 'Not selected' }}</strong>
+                    </div>
+                    <div>
+                        <span>Primary Currency</span>
+                        <strong>{{ $workspace->currency_code ?? 'Not selected' }}</strong>
+                    </div>
                 </div>
             @endif
         </section>
@@ -254,61 +311,40 @@
             </div>
 
             <div class="pbr-business-system-list">
-                @foreach($chapters as $chapter)
-                    @php
-                        $systemNumber = (int) $chapter->chapter_number;
-                        $system = $systems[$systemNumber];
-                        $state = $systemStates[$systemNumber];
-                    @endphp
-
-                    <details id="system-{{ $system['key'] }}" class="pbr-business-system" @if($systemNumber === 1) open @endif>
+                @foreach($businessSystems as $businessSystem)
+                    <details id="system-{{ $businessSystem['key'] }}" class="pbr-business-system" @if($businessSystem['number'] === 1) open @endif>
                         <summary>
                             <div class="pbr-business-system-title">
-                                <span class="pbr-business-system-dot {{ $state['key'] }}"></span>
+                                <span class="pbr-business-system-dot {{ $businessSystem['state']['key'] }}"></span>
                                 <div>
-                                    <h3>{{ $system['name'] }}</h3>
-                                    <p>{{ $system['mm'] }}</p>
+                                    <h3>{{ $businessSystem['name'] }}</h3>
+                                    <p>{{ $businessSystem['mm'] }}</p>
                                 </div>
                             </div>
-                            <div class="pbr-business-system-state {{ $state['key'] }}">{{ $state['label'] }}</div>
+                            <div class="pbr-business-system-state {{ $businessSystem['state']['key'] }}">
+                                {{ $businessSystem['state']['label'] }}
+                            </div>
                         </summary>
 
                         <div class="pbr-business-system-body">
-                            <p class="pbr-business-system-summary">{{ $system['summary'] }}</p>
+                            <p class="pbr-business-system-summary">{{ $businessSystem['summary'] }}</p>
 
                             <div class="pbr-business-capability-grid">
-                                @foreach($chapter->tools as $tool)
-                                    @php
-                                        $definition = $toolDefinitions[$tool->tool_key] ?? null;
-                                        $titleMm = $definition['title_mm'] ?? $tool->title_mm ?? $tool->title_en;
-                                        $purpose = $definition['purpose_mm'] ?? $tool->description;
-                                        $isActive = $agreedToolIds->has((int) $tool->id);
-                                        $hasDraft = $draftToolIds->has((int) $tool->id);
-                                        $toolState = $isActive
-                                            ? ['key' => 'active', 'label' => 'Active Rule']
-                                            : ($hasDraft
-                                                ? ['key' => 'draft', 'label' => 'Draft']
-                                                : ['key' => 'setup', 'label' => 'Needs Setup']);
-                                    @endphp
-
-                                    <article class="pbr-business-capability {{ $toolState['key'] }}">
+                                @foreach($businessSystem['capabilities'] as $capability)
+                                    <article class="pbr-business-capability {{ $capability['state']['key'] }}">
                                         <div class="pbr-business-capability-top">
-                                            <span>{{ ucfirst($tool->tool_type) }}</span>
-                                            <b class="{{ $toolState['key'] }}">{{ $toolState['label'] }}</b>
+                                            <span>{{ $capability['type'] }}</span>
+                                            <b class="{{ $capability['state']['key'] }}">{{ $capability['state']['label'] }}</b>
                                         </div>
-                                        <h4>{{ $titleMm }}</h4>
-                                        @if($titleMm !== $tool->title_en)
-                                            <small class="pbr-business-capability-en">{{ $tool->title_en }}</small>
-                                        @endif
-                                        <p>{{ $purpose }}</p>
 
-                                        @if($tool->tool_key === 'startup_capital_planner' && $workspace->business_stage === 'new')
-                                            <a href="{{ route('workspaces.tools.startup-capital.show', $workspace) }}">{{ $canManageContext ? 'Manage →' : 'View →' }}</a>
-                                        @elseif($systemNumber === 1)
-                                            <a href="{{ route('workspaces.tools.chapter-one.show', [$workspace, $tool->slug]) }}">{{ $canManageContext ? 'Manage →' : 'View →' }}</a>
-                                        @else
-                                            <a href="{{ route('workspaces.tools.operating.show', [$workspace, $tool->slug]) }}">{{ $canManageContext ? 'Manage →' : 'View →' }}</a>
+                                        <h4>{{ $capability['title'] }}</h4>
+
+                                        @if($capability['title'] !== $capability['title_en'])
+                                            <small class="pbr-business-capability-en">{{ $capability['title_en'] }}</small>
                                         @endif
+
+                                        <p>{{ $capability['purpose'] }}</p>
+                                        <a href="{{ $capability['url'] }}">{{ $canManageContext ? 'Manage →' : 'View →' }}</a>
                                     </article>
                                 @endforeach
                             </div>
