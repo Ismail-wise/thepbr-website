@@ -48,11 +48,26 @@ class BusinessValuationService
         $values = array_values(array_filter($methods, fn ($value) => $value > 0));
         sort($values);
         $base = $this->median($values);
+        $conservative = $base * .85;
+        $optimistic = $base * 1.15;
+
         $confidence = match (true) {
             count($values) >= 3 => 'HIGH',
             count($values) === 2 => 'MEDIUM',
             default => 'LOW',
         };
+
+        $totalOwnershipUnits = max(1, (int) $input['total_ownership_units']);
+
+        $ownership = [
+            'total_units' => $totalOwnershipUnits,
+            'conservative_per_unit' => round($conservative / $totalOwnershipUnits, 4),
+            'base_per_unit' => round($base / $totalOwnershipUnits, 4),
+            'optimistic_per_unit' => round($optimistic / $totalOwnershipUnits, 4),
+            'conservative_one_percent' => round($conservative * .01, 2),
+            'base_one_percent' => round($base * .01, 2),
+            'optimistic_one_percent' => round($optimistic * .01, 2),
+        ];
 
         $risks = [];
         $actions = [];
@@ -89,10 +104,11 @@ class BusinessValuationService
 
         return [
             'methods' => array_map(fn ($value) => round($value, 2), $methods),
-            'conservative' => round($base * .85, 2),
+            'conservative' => round($conservative, 2),
             'base' => round($base, 2),
-            'optimistic' => round($base * 1.15, 2),
+            'optimistic' => round($optimistic, 2),
             'confidence' => $confidence,
+            'ownership' => $ownership,
             'risks' => array_values(array_unique($risks)),
             'actions' => array_values(array_unique($actions)),
             'note' => 'ဒီရလဒ်က Management Planning အတွက် indicative estimate ဖြစ်ပြီး formal independent valuation report မဟုတ်ပါ။',
