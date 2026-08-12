@@ -14,6 +14,8 @@
     <link rel="stylesheet" href="{{ asset('css/partner-dynamics.css') }}?v={{ filemtime(public_path('css/partner-dynamics.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-tools.css') }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-platform-v2.css') }}?v={{ filemtime(public_path('css/pbr-platform-v2.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-operating-system.css') }}?v={{ filemtime(public_path('css/pbr-operating-system.css')) }}">
+    <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
 </head>
 <body>
     <header class="portal-header">
