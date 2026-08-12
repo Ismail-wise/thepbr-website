@@ -21,48 +21,22 @@ class WorkspaceStartupCapitalDraftController extends Controller
             $request->user()->canAccessWorkspace($workspace),
             403
         );
-
+        abort_unless(
+            $scenarios->canManage($request->user(), $workspace),
+            403
+        );
         abort_unless(
             $workspace->business_stage === 'new',
             404
         );
 
         $validated = $request->validate([
-            'scenario_name' => [
-                'required',
-                'string',
-                'max:120',
-            ],
-
-            'tool_session_id' => [
-                'nullable',
-                'integer',
-            ],
-
-            'categories' => [
-                'required',
-                'array',
-                'max:30',
-            ],
-
-            'categories.*.name' => [
-                'required',
-                'string',
-                'max:120',
-            ],
-
-            'categories.*.items' => [
-                'nullable',
-                'array',
-                'max:100',
-            ],
-
-            'categories.*.items.*.name' => [
-                'nullable',
-                'string',
-                'max:150',
-            ],
-
+            'scenario_name' => ['required', 'string', 'max:120'],
+            'tool_session_id' => ['nullable', 'integer'],
+            'categories' => ['required', 'array', 'max:30'],
+            'categories.*.name' => ['required', 'string', 'max:120'],
+            'categories.*.items' => ['nullable', 'array', 'max:100'],
+            'categories.*.items.*.name' => ['nullable', 'string', 'max:150'],
             'categories.*.items.*.amount' => [
                 'nullable',
                 'numeric',
@@ -72,24 +46,13 @@ class WorkspaceStartupCapitalDraftController extends Controller
         ]);
 
         $tool = ChapterTool::query()
-            ->where(
-                'tool_key',
-                'startup_capital_planner'
-            )
-            ->where(
-                'supports_new_business',
-                true
-            )
+            ->where('tool_key', 'startup_capital_planner')
+            ->where('supports_new_business', true)
+            ->whereHas('chapter', fn ($query) => $query->where('chapter_number', 1))
             ->firstOrFail();
 
-        $inputData = [
-            'categories' =>
-                $validated['categories'],
-        ];
-
-        $resultData = $calculator->calculate(
-            $inputData
-        );
+        $inputData = ['categories' => $validated['categories']];
+        $resultData = $calculator->calculate($inputData);
 
         $session = $scenarios->saveDraft(
             $request->user(),
@@ -98,22 +61,16 @@ class WorkspaceStartupCapitalDraftController extends Controller
             $validated['scenario_name'],
             $inputData,
             $resultData,
-            isset($validated['tool_session_id'])
+            ! empty($validated['tool_session_id'])
                 ? (int) $validated['tool_session_id']
                 : null
         );
 
         return redirect()
-            ->route(
-                'workspaces.tools.startup-capital.show',
-                [
-                    'workspace' => $workspace,
-                    'session' => $session->id,
-                ]
-            )
-            ->with(
-                'status',
-                'Scenario saved successfully.'
-            );
+            ->route('workspaces.tools.startup-capital.show', [
+                'workspace' => $workspace,
+                'session' => $session->id,
+            ])
+            ->with('status', 'Scenario ကို Draft အဖြစ်သိမ်းပြီးပါပြီ။');
     }
 }
