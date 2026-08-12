@@ -79,23 +79,35 @@ class WorkspaceToolsController extends Controller
 
         $toolDefinitions = config('pbr_operating_tools.definitions', []);
 
-        $agreedToolIds = WorkspaceToolOutput::query()
+        $latestAgreedOutputs = WorkspaceToolOutput::query()
             ->where('workspace_id', $workspace->id)
             ->where('status', 'agreed')
-            ->pluck('chapter_tool_id')
-            ->unique()
+            ->orderByDesc('revision')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('chapter_tool_id')
+            ->keyBy(fn ($output) => (int) $output->chapter_tool_id);
+
+        $agreedToolIds = $latestAgreedOutputs
+            ->keys()
             ->map(fn ($id) => (int) $id)
             ->flip();
 
-        $draftToolIds = $canManageContext
+        $latestDraftSessions = $canManageContext
             ? ToolSession::query()
                 ->where('workspace_id', $workspace->id)
                 ->where('status', 'draft')
-                ->pluck('chapter_tool_id')
-                ->unique()
-                ->map(fn ($id) => (int) $id)
-                ->flip()
+                ->orderByDesc('last_saved_at')
+                ->orderByDesc('id')
+                ->get()
+                ->unique('chapter_tool_id')
+                ->keyBy(fn ($session) => (int) $session->chapter_tool_id)
             : collect();
+
+        $draftToolIds = $latestDraftSessions
+            ->keys()
+            ->map(fn ($id) => (int) $id)
+            ->flip();
 
         $chapterProgress = [];
         foreach ($chapters as $chapter) {
@@ -141,7 +153,9 @@ class WorkspaceToolsController extends Controller
             'chapterProgress',
             'operatingDomains',
             'agreedToolIds',
-            'draftToolIds'
+            'draftToolIds',
+            'latestAgreedOutputs',
+            'latestDraftSessions'
         ));
     }
 
@@ -175,6 +189,6 @@ class WorkspaceToolsController extends Controller
 
         return redirect()
             ->route('workspaces.tools.index', $workspace)
-            ->with('success', 'Partnership settings ကိုသိမ်းပြီးပါပြီ။');
+            ->with('success', 'Business settings ကို သိမ်းပြီးပါပြီ။');
     }
 }
