@@ -9,7 +9,7 @@
             <div>
                 <span class="portal-kicker">My PBR Workspace</span>
                 <h1>Welcome, {{ $user->name }}</h1>
-                <p>Your student account is active. Your PBR 10-chapter operating system and connected business tools are ready below.</p>
+                <p>Your course access and real Business Operating System are available from the same account.</p>
             </div>
             <div class="status-pill">Active Student</div>
         </div>
@@ -24,9 +24,9 @@
             </article>
 
             <article class="workspace-card">
-                <span>PBR Operating System</span>
-                <h2>{{ $chapterCount }} Chapters · {{ $toolCount }} Tools</h2>
-                <p>Capital, ownership, contribution, distribution, financial controls, governance, exit, continuity, share transfer and dispute-resolution tools are connected.</p>
+                <span>Course Structure</span>
+                <h2>{{ $chapterCount }} Learning Chapters</h2>
+                <p>The course teaches the partnership concepts. Your Business Workspace below is where you apply them to the real business.</p>
             </article>
 
             <article class="workspace-card">
@@ -43,16 +43,16 @@
             </article>
 
             <article class="workspace-card">
-                <span>Business Workspaces</span>
-                <h2>{{ $workspaces->count() }} Connected</h2>
+                <span>Business Operating System</span>
+                <h2>{{ $workspaces->count() }} Business{{ $workspaces->count() === 1 ? '' : 'es' }} Connected</h2>
                 @if($workspaces->isNotEmpty())
                     @php($firstWorkspace = $workspaces->first())
-                    <p>Open your business workspace to use the full chapter and tool library.</p>
+                    <p>Manage real partner rules, finance, ownership, governance, risks and decisions inside the business workspace.</p>
                     <a class="pd-inline-link" href="{{ route('workspaces.tools.index', $firstWorkspace) }}">
-                        Open {{ $toolCount }} Tools →
+                        Open Business Operating System →
                     </a>
                 @else
-                    <p>Create a Business Workspace first, then the chapter tools will connect to that business data.</p>
+                    <p>Create a Business Workspace to start managing real partnership data and operating rules.</p>
                     <a class="pd-inline-link" href="{{ route('workspaces.create') }}">
                         Create Business Workspace →
                     </a>
@@ -62,11 +62,11 @@
 
         <div class="coming-panel">
             <div style="width:100%;">
-                <span class="portal-kicker">PBR Operating System Live</span>
+                <span class="portal-kicker">Your Businesses</span>
 
                 @if($workspaces->isNotEmpty())
-                    <h2>Choose a Business and open its 10-chapter tool system</h2>
-                    <p>Each Business Workspace keeps its own partner data, calculations, drafts, agreed outputs and operating snapshots.</p>
+                    <h2>Choose the business you want to manage</h2>
+                    <p>Each Business Workspace keeps its own partners, financial data, drafts, active business rules and operating records.</p>
 
                     <div style="display:grid;gap:12px;margin-top:18px;">
                         @foreach($workspaces as $workspace)
@@ -75,18 +75,18 @@
                                 <div>
                                     <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
                                     <div style="margin-top:4px;font-size:13px;opacity:.72;">
-                                        {{ strtoupper($workspace->currency_code ?? 'THB') }} · {{ $agreedCount }} agreed tool{{ $agreedCount === 1 ? '' : 's' }}
+                                        {{ strtoupper($workspace->currency_code ?? 'THB') }} · {{ $agreedCount }} active business rule{{ $agreedCount === 1 ? '' : 's' }}
                                     </div>
                                 </div>
                                 <a class="pd-inline-link" href="{{ route('workspaces.tools.index', $workspace) }}">
-                                    Open Chapters & Tools →
+                                    Open Business System →
                                 </a>
                             </div>
                         @endforeach
                     </div>
                 @else
-                    <h2>Your tool library is ready — connect a Business Workspace</h2>
-                    <p>The PBR tools store calculations and agreed rules by business, so a Business Workspace is required before using them.</p>
+                    <h2>Create your first Business Workspace</h2>
+                    <p>The Business Operating System stores real calculations, partner rules and operating data separately for each business.</p>
                     <a class="pd-inline-link" href="{{ route('workspaces.create') }}">Create Business Workspace →</a>
                 @endif
             </div>
