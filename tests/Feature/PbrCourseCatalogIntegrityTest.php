@@ -1,7 +1,11 @@
 <?php
 
+use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
+use App\Models\WorkspaceMember;
+use App\Services\PbrTools\StartupCapitalCalculator;
+use App\Services\PbrTools\ToolScenarioService;
 use Database\Seeders\CourseCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Route;
@@ -195,6 +199,82 @@ test('startup capital screen is an operational planning workspace not a simple c
         ->assertDontSee('Chapter 1')
         ->assertDontSee('Build Your Own Cost List')
         ->assertDontSee('Calculate Startup Capital');
+});
+
+test('partner sees only the active startup capital plan in a professional read only view', function () {
+    app(CourseCatalogSeeder::class)->run();
+
+    $owner = User::factory()->create([
+        'role' => 'student',
+        'account_status' => 'active',
+        'portal_access_expires_at' => now()->addDay(),
+    ]);
+    $partner = User::factory()->create([
+        'role' => 'public',
+        'account_status' => 'active',
+    ]);
+
+    $workspace = PartnershipWorkspace::create([
+        'owner_user_id' => $owner->id,
+        'name' => 'Partner Startup View Business',
+        'business_name' => 'Partner Startup View Business',
+        'business_stage' => 'new',
+        'currency_code' => 'THB',
+        'status' => 'active',
+    ]);
+
+    WorkspaceMember::create([
+        'workspace_id' => $workspace->id,
+        'user_id' => $partner->id,
+        'member_role' => 'partner',
+        'invitation_status' => 'accepted',
+        'invited_email' => $partner->email,
+        'invited_by_user_id' => $owner->id,
+        'invited_at' => now(),
+        'accepted_at' => now(),
+    ]);
+
+    $tool = ChapterTool::query()
+        ->where('tool_key', 'startup_capital_planner')
+        ->firstOrFail();
+    $input = [
+        'categories' => [[
+            'name' => 'Premises',
+            'items' => [[
+                'name' => 'Shop Deposit',
+                'amount' => 30000,
+                'priority' => 'essential',
+                'funded_amount' => 20000,
+                'funding_source' => 'Partner A',
+            ]],
+        ]],
+    ];
+    $result = app(StartupCapitalCalculator::class)->calculate($input);
+    $scenarios = app(ToolScenarioService::class);
+    $session = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $tool,
+        'Approved Launch Plan',
+        $input,
+        $result
+    );
+    $scenarios->publishAgreedOutput($owner, $workspace, $tool, $session);
+
+    $response = $this
+        ->actingAs($partner)
+        ->get(route('workspaces.tools.startup-capital.show', $workspace));
+
+    $response
+        ->assertOk()
+        ->assertSee('လက်ရှိအတည်ပြုထားသော ကုန်ကျစရိတ် Plan')
+        ->assertSee('Shop Deposit')
+        ->assertSee('Funding ရပြီး')
+        ->assertSee('လိုနေသေး')
+        ->assertSee('Active Rule')
+        ->assertDontSee('Draft သိမ်းရန်')
+        ->assertDontSee('Chapter 1')
+        ->assertDontSee('Partner Read-Only View');
 });
 
 test('dashboard polish keeps draft KPIs and partner roster semantics clear', function () {
