@@ -295,17 +295,17 @@ Route::middleware('auth')->group(function (): void {
 */
 Route::middleware('auth')->group(function (): void {
     Route::get(
-        '/workspaces/{workspace}/tools/{toolSlug}',
+        '/workspaces/{workspace}/tools/operating/{toolSlug}',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'show']
     )->name('workspaces.tools.operating.show');
 
     Route::post(
-        '/workspaces/{workspace}/tools/{toolSlug}',
+        '/workspaces/{workspace}/tools/operating/{toolSlug}',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'calculate']
     )->name('workspaces.tools.operating.calculate');
 
     Route::post(
-        '/workspaces/{workspace}/tools/{toolSlug}/save-draft',
+        '/workspaces/{workspace}/tools/operating/{toolSlug}/save-draft',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'save']
     )->name('workspaces.tools.operating.save');
 });
