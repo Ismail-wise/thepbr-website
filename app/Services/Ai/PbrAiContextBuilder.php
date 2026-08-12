@@ -9,13 +9,18 @@ use App\Models\PartnerDynamicsReport;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceToolOutput;
+use App\Services\PbrTools\PbrOperatingSystemService;
 
 class PbrAiContextBuilder
 {
+    public function __construct(
+        private readonly PbrOperatingSystemService $operatingSystem
+    ) {
+    }
+
     public function build(User $actor, PartnershipWorkspace $workspace): array
     {
-        $canManage = $actor->isAdmin()
-            || (int) $workspace->owner_user_id === (int) $actor->id;
+        $canManage = $this->operatingSystem->canManage($actor, $workspace);
 
         $workspace->loadMissing([
             'owner:id,name,email',
@@ -80,8 +85,10 @@ class PbrAiContextBuilder
             ])
             ->all();
 
+        $operatingSystem = $this->operatingSystem->latestDomainMap($actor, $workspace);
+
         $context = [
-            'context_version' => 'pbr-ai-v1',
+            'context_version' => 'pbr-ai-v2',
             'access_scope' => [
                 'actor_type' => $canManage ? 'owner_or_admin' : 'accepted_partner',
                 'manager_sensitive_context_included' => $canManage,
@@ -124,6 +131,7 @@ class PbrAiContextBuilder
                     : null,
                 'calculated_at' => $latestValuation->created_at?->toIso8601String(),
             ] : null,
+            'operating_system' => $this->limitValue($operatingSystem, 26000),
             'business_tool_outputs' => $latestOutputs,
         ];
 
@@ -180,7 +188,6 @@ class PbrAiContextBuilder
             return $context;
         }
 
-        // Keep current business results first; reduce the number of detailed tool outputs progressively.
         foreach ([6, 4, 3, 2] as $toolLimit) {
             $context['business_tool_outputs'] = collect($context['business_tool_outputs'] ?? [])
                 ->take($toolLimit)
@@ -193,7 +200,6 @@ class PbrAiContextBuilder
             }
         }
 
-        // Results matter more than raw form inputs for the first AI pass.
         if (is_array($context['feasibility'] ?? null)) {
             $context['feasibility']['inputs'] = null;
             $context['feasibility']['inputs_note'] = 'Detailed feasibility inputs were omitted for context size; the latest result remains available.';
@@ -213,7 +219,7 @@ class PbrAiContextBuilder
             ->take(1)
             ->values()
             ->all();
-        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results and the most recent saved tool output.';
+        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent saved tool output.';
 
         return $context;
     }
