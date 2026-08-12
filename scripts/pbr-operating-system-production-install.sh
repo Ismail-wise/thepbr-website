@@ -60,15 +60,17 @@ cleanup() {
 
 on_error() {
     local line="$1"
+    local command="${2:-unknown}"
     echo
     echo "=== PBR OPERATING SYSTEM DEPLOY STOPPED SAFELY ==="
     echo "A command failed near script line ${line}."
+    echo "Failed command: ${command}"
     echo "Production rollback branch (if created): ${ROLLBACK_BRANCH}"
     echo "Website maintenance mode will be released automatically."
     echo "Do not run random repair commands. Send this terminal output back for review."
 }
 
-trap 'on_error "$LINENO"' ERR
+trap 'on_error "$LINENO" "$BASH_COMMAND"' ERR
 trap cleanup EXIT
 
 fail() {
@@ -84,6 +86,8 @@ echo "Production stays unchanged until isolated validation passes."
 [[ -f artisan ]] || fail "Laravel production directory was not found."
 [[ -f "$DB_PASSWORD_FILE" ]] || fail "Database password file is missing."
 [[ -d .git ]] || fail "Production directory is not a Git repository."
+[[ -d vendor ]] || fail "Production vendor directory is missing."
+command -v composer >/dev/null 2>&1 || fail "Composer is required for isolated autoload validation."
 
 if [[ -n "$(git status --porcelain)" ]]; then
     echo "Working tree has changes:"
@@ -118,7 +122,11 @@ echo "Test DB isolation: PASS (SQLite :memory:)"
 echo
 echo "=== PREPARE ISOLATED FEATURE WORKTREE ==="
 git worktree add --detach "$WORKTREE" "$TARGET"
-ln -s "$PROD/vendor" "$WORKTREE/vendor"
+
+# Never symlink production/vendor into the worktree. Composer's generated
+# PSR-4 paths are rooted to the directory where the autoloader was generated;
+# a symlink would make feature App\\ classes resolve against production code.
+cp -a "$PROD/vendor" "$WORKTREE/vendor"
 mkdir -p \
     "$WORKTREE/storage/framework/cache/data" \
     "$WORKTREE/storage/framework/sessions" \
@@ -127,6 +135,27 @@ mkdir -p \
     "$WORKTREE/bootstrap/cache"
 
 cd "$WORKTREE"
+
+echo
+echo "=== BUILD ISOLATED COMPOSER AUTOLOAD ==="
+composer dump-autoload --no-scripts --no-interaction --optimize
+php -r '
+require "vendor/autoload.php";
+$required = [
+    "App\\Http\\Controllers\\WorkspacePartnerProfileController",
+    "App\\Http\\Controllers\\WorkspaceOperatingToolController",
+    "App\\Services\\PbrTools\\PbrOperatingSystemService",
+    "App\\Services\\PbrTools\\PbrOperatingToolEngine",
+    "App\\Models\\WorkspacePartnerProfile",
+];
+foreach ($required as $class) {
+    if (! class_exists($class)) {
+        fwrite(STDERR, "Feature autoload failed: {$class}\n");
+        exit(1);
+    }
+}
+echo "Feature application autoload: PASS\n";
+'
 
 echo
 echo "=== STATIC PHP VALIDATION ==="
