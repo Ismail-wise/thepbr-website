@@ -6,7 +6,6 @@ use App\Models\AiConversation;
 use App\Models\AiMessage;
 use App\Models\PartnershipWorkspace;
 use App\Services\Ai\PbrAiContextBuilder;
-use GuzzleHttp\Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -164,30 +163,41 @@ class WorkspaceAiAdvisorController extends Controller
             $ragMode = null;
             $topScore = null;
             $streamHadError = false;
+            $upstream = null;
 
             try {
-                $client = new Client([
-                    'timeout' => max(30, (int) config('pbr_ai.timeout', 180)),
-                    'connect_timeout' => max(2, (int) config('pbr_ai.connect_timeout', 5)),
-                    'http_errors' => false,
+                $payload = json_encode([
+                    'message' => trim($validated['message']),
+                    'history' => $history,
+                    'workspaceContext' => $context,
+                    'actor' => $actor,
+                ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_THROW_ON_ERROR);
+
+                $timeout = max(30, (int) config('pbr_ai.timeout', 180));
+                $streamContext = stream_context_create([
+                    'http' => [
+                        'method' => 'POST',
+                        'header' => implode("\r\n", [
+                            'Accept: text/event-stream',
+                            'Content-Type: application/json',
+                            'X-PBR-Internal-Secret: '.$secret,
+                            'Connection: close',
+                        ]),
+                        'content' => $payload,
+                        'timeout' => $timeout,
+                        'ignore_errors' => true,
+                        'protocol_version' => 1.1,
+                    ],
                 ]);
 
-                $upstream = $client->post($baseUrl.'/internal/pbr/chat', [
-                    'stream' => true,
-                    'headers' => [
-                        'Accept' => 'text/event-stream',
-                        'Content-Type' => 'application/json',
-                        'X-PBR-Internal-Secret' => $secret,
-                    ],
-                    'json' => [
-                        'message' => trim($validated['message']),
-                        'history' => $history,
-                        'workspaceContext' => $context,
-                        'actor' => $actor,
-                    ],
-                ]);
+                $upstream = @fopen(
+                    $baseUrl.'/internal/pbr/chat',
+                    'rb',
+                    false,
+                    $streamContext
+                );
 
-                if ($upstream->getStatusCode() !== 200) {
+                if (! is_resource($upstream)) {
                     $userMessage->delete();
                     $send([
                         'type' => 'error',
@@ -197,12 +207,40 @@ class WorkspaceAiAdvisorController extends Controller
                     return;
                 }
 
-                $body = $upstream->getBody();
+                $statusCode = 0;
+                foreach ($http_response_header ?? [] as $headerLine) {
+                    if (preg_match('/^HTTP\/\S+\s+(\d{3})/', $headerLine, $matches)) {
+                        $statusCode = (int) $matches[1];
+                        break;
+                    }
+                }
+
+                if ($statusCode !== 200) {
+                    $userMessage->delete();
+                    $send([
+                        'type' => 'error',
+                        'text' => 'AI Advisor Service ကို ခဏဆက်သွယ်လို့မရသေးပါ။ ခဏနေရင် ထပ်စမ်းပါ။',
+                    ]);
+                    $send(['type' => 'done']);
+                    return;
+                }
+
+                stream_set_timeout($upstream, $timeout);
                 $buffer = '';
 
-                while (! $body->eof()) {
-                    $chunk = $body->read(2048);
+                while (! feof($upstream)) {
+                    $chunk = fread($upstream, 2048);
+                    if ($chunk === false) {
+                        $streamHadError = true;
+                        break;
+                    }
+
                     if ($chunk === '') {
+                        $meta = stream_get_meta_data($upstream);
+                        if (($meta['timed_out'] ?? false) === true) {
+                            $streamHadError = true;
+                            break;
+                        }
                         usleep(20000);
                         continue;
                     }
@@ -241,6 +279,13 @@ class WorkspaceAiAdvisorController extends Controller
                     }
                 }
 
+                if ($streamHadError && trim($assistantText) === '') {
+                    $send([
+                        'type' => 'error',
+                        'text' => 'AI Response မပြီးဆုံးသေးပါ။ ထပ်စမ်းပေးပါ။',
+                    ]);
+                }
+
                 if (trim($assistantText) !== '') {
                     $conversation->messages()->create([
                         'user_id' => null,
@@ -268,6 +313,10 @@ class WorkspaceAiAdvisorController extends Controller
                     'text' => 'AI Advisor Service မှာ ခဏတာ အခက်အခဲရှိနေပါတယ်။ ထပ်စမ်းပေးပါ။',
                 ]);
                 $send(['type' => 'done']);
+            } finally {
+                if (is_resource($upstream)) {
+                    fclose($upstream);
+                }
             }
         }, 200, [
             'Content-Type' => 'text/event-stream; charset=UTF-8',
