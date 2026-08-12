@@ -20,11 +20,11 @@
             if (!value) return;
 
             value = value
-                .replaceAll('Agreed Business Rule', 'Active Business Rule')
+                .replaceAll('Agreed Business Rule', 'အသုံးပြုမည့် Business Rule')
                 .replaceAll('Agreed Rule', 'Active Rule')
                 .replaceAll('နောက် Chapters', 'အခြား Business Systems')
                 .replaceAll('နောက် Chapter', 'အခြား Business System')
-                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ active operating data');
+                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ အသုံးပြုနေသော data');
 
             node.nodeValue = value;
         });
@@ -35,16 +35,16 @@
         if (!page) return;
 
         const systemNames = {
-            1: 'Capital & Funding',
-            2: 'Ownership & Equity',
-            3: 'Partner Roles & Contributions',
-            4: 'Profit & Distribution',
-            5: 'Financial Controls',
-            6: 'Governance & Decision Making',
-            7: 'Exit & Buyout',
-            8: 'Continuity & Risk',
-            9: 'Share Transfers',
-            10: 'Dispute Management',
+            1: 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
+            2: 'ပိုင်ဆိုင်မှုနှင့် အစုရှယ်ယာ',
+            3: 'Partner တာဝန်နှင့် တန်ဖိုးထည့်ဝင်မှု',
+            4: 'အမြတ်၊ လစာနှင့် အရှုံး ခွဲဝေမှု',
+            5: 'ငွေကြေး ထိန်းချုပ်မှု',
+            6: 'အုပ်ချုပ်မှုနှင့် ဆုံးဖြတ်ချက် စနစ်',
+            7: 'Partner ထွက်ခွာမှုနှင့် Buyout',
+            8: 'လုပ်ငန်းဆက်လက်မှုနှင့် Risk',
+            9: 'အစုရှယ်ယာ လွှဲပြောင်းမှု',
+            10: 'Partner အငြင်းပွားမှု ဖြေရှင်းရေး',
         };
 
         const chapterPill = page.querySelector('.pbr-os-chapter-pill');
@@ -60,7 +60,7 @@
         if (breadcrumb) {
             breadcrumb.querySelectorAll('a').forEach((link) => {
                 if (link.textContent.includes('10-Chapter System')) {
-                    link.textContent = 'Business Operating System';
+                    link.textContent = 'Business Operating System သို့ ပြန်ရန်';
                 }
             });
 
@@ -80,13 +80,13 @@
 
         page.querySelectorAll('.pbr-tools-back').forEach((link) => {
             if (link.textContent.includes('PBR Business Tools') || link.textContent.includes('10-Chapter')) {
-                link.textContent = '← Back to Business Operating System';
+                link.textContent = '← Business Operating System သို့ ပြန်ရန်';
             }
         });
 
         page.querySelectorAll('.portal-kicker').forEach((kicker) => {
             if (/Chapter\s*1/i.test(kicker.textContent)) {
-                kicker.textContent = 'Capital & Funding';
+                kicker.textContent = 'မတည်ငွေနှင့် ရင်းနှီးငွေ · Capital & Funding';
             }
         });
 
@@ -141,8 +141,8 @@
     document.querySelectorAll('[data-confirm-agreed]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             const accepted = window.confirm(
-                'ဒီ Scenario ကို Active Business Rule အဖြစ် အတည်ပြုမလား?\n\n' +
-                'အတည်ပြုပြီးရင် အခြား Business Systems နဲ့ PBR AI Advisor က current business rule အဖြစ်အသုံးပြုနိုင်ပါမယ်။'
+                'ဒီ Scenario ကို Business မှာ တကယ်အသုံးပြုမယ့် Rule အဖြစ် အတည်ပြုမလား?\n\n' +
+                'အတည်ပြုပြီးရင် အခြား Business Systems နဲ့ PBR AI Advisor က လက်ရှိ Business Rule အဖြစ် အသုံးပြုနိုင်ပါမယ်။'
             );
 
             if (!accepted) event.preventDefault();
