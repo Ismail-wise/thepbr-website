@@ -113,7 +113,8 @@ class WorkspaceToolsController extends Controller
             'chapterOneSummary',
             'toolDefinitions',
             'chapterProgress',
-            'operatingDomains'
+            'operatingDomains',
+            'agreedToolIds'
         ));
     }
 
