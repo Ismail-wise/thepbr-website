@@ -54,12 +54,20 @@ class PbrAiContextBuilder
             ->latest('id')
             ->first();
 
-        $latestOutputs = WorkspaceToolOutput::query()
+        $outputQuery = WorkspaceToolOutput::query()
             ->with([
                 'tool:id,course_chapter_id,tool_key,slug,title_en,title_mm',
                 'tool.chapter:id,chapter_number,title_en,title_mm',
             ])
-            ->where('workspace_id', $workspace->id)
+            ->where('workspace_id', $workspace->id);
+
+        // Owner/Admin may use the latest working outputs. Accepted partners must
+        // never receive draft workspace outputs through AI context.
+        if (! $canManage) {
+            $outputQuery->where('status', 'agreed');
+        }
+
+        $latestOutputs = $outputQuery
             ->orderByDesc('revision')
             ->orderByDesc('id')
             ->get()
@@ -92,9 +100,10 @@ class PbrAiContextBuilder
             'access_scope' => [
                 'actor_type' => $canManage ? 'owner_or_admin' : 'accepted_partner',
                 'manager_sensitive_context_included' => $canManage,
+                'workspace_tool_output_scope' => $canManage ? 'latest_authorized' : 'agreed_only',
                 'instruction' => $canManage
                     ? 'This actor may receive owner/admin business context included in this snapshot.'
-                    : 'This actor is an accepted partner. Do not infer, request, or reveal owner/admin-only data that is absent from this snapshot.',
+                    : 'This actor is an accepted partner. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot.',
             ],
             'business' => [
                 'workspace_id' => $workspace->id,
@@ -219,7 +228,7 @@ class PbrAiContextBuilder
             ->take(1)
             ->values()
             ->all();
-        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent saved tool output.';
+        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent authorized tool output.';
 
         return $context;
     }
