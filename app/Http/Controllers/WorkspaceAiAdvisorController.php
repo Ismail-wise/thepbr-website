@@ -163,6 +163,8 @@ class WorkspaceAiAdvisorController extends Controller
             $ragMode = null;
             $topScore = null;
             $streamHadError = false;
+            $errorEventSent = false;
+            $receivedDone = false;
             $upstream = null;
 
             try {
@@ -272,6 +274,11 @@ class WorkspaceAiAdvisorController extends Controller
 
                             if (($data['type'] ?? null) === 'error') {
                                 $streamHadError = true;
+                                $errorEventSent = true;
+                            }
+
+                            if (($data['type'] ?? null) === 'done') {
+                                $receivedDone = true;
                             }
 
                             $send($data);
@@ -279,11 +286,16 @@ class WorkspaceAiAdvisorController extends Controller
                     }
                 }
 
-                if ($streamHadError && trim($assistantText) === '') {
+                if ($streamHadError && ! $errorEventSent) {
                     $send([
                         'type' => 'error',
                         'text' => 'AI Response မပြီးဆုံးသေးပါ။ ထပ်စမ်းပေးပါ။',
                     ]);
+                    $errorEventSent = true;
+                }
+
+                if (! $receivedDone) {
+                    $send(['type' => 'done']);
                 }
 
                 if (trim($assistantText) !== '') {
