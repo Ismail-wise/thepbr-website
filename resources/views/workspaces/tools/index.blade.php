@@ -1,973 +1,249 @@
 @extends('layouts.student-portal')
 
-@section('title', 'PBR Business Tools')
+@section('title', 'PBR Partnership Operating System')
 
 @section('content')
+@php
+    $capitalCurrency = $workspace->currency_code ?? 'THB';
+    $totalTools = $chapters->sum(fn ($chapter) => $chapter->tools->count());
+    $totalAgreed = collect($chapterProgress)->sum('agreed');
+    $overallPercent = $totalTools > 0 ? round(($totalAgreed / $totalTools) * 100) : 0;
+    $chapterMeta = [
+        1 => ['mm' => 'မတည်ငွေ ထည့်ဝင်ခြင်း', 'icon' => '01'],
+        2 => ['mm' => 'ပိုင်ဆိုင်မှုနှင့် Share Structure', 'icon' => '02'],
+        3 => ['mm' => 'လုပ်အားနှင့် တန်ဖိုး ထည့်ဝင်မှု', 'icon' => '03'],
+        4 => ['mm' => 'အမြတ်အရှုံး ခွဲဝေမှု', 'icon' => '04'],
+        5 => ['mm' => 'ငွေကြေး စီမံခန့်ခွဲမှု', 'icon' => '05'],
+        6 => ['mm' => 'ဦးဆောင်မှုနှင့် Governance', 'icon' => '06'],
+        7 => ['mm' => 'Withdrawal & Exit', 'icon' => '07'],
+        8 => ['mm' => 'Death, Disability & Continuity', 'icon' => '08'],
+        9 => ['mm' => 'Share Transfer', 'icon' => '09'],
+        10 => ['mm' => 'Dispute Resolution', 'icon' => '10'],
+    ];
+@endphp
 
-<section class="pbr-tools-section">
-    <div class="portal-wrap">
+<section class="pbr-os-page">
+    <div class="portal-wrap pbr-os-wrap">
+        <nav class="pbr-os-breadcrumb">
+            <a href="{{ route('workspaces.show', $workspace) }}">Business Control Center</a>
+            <span>›</span>
+            <span>Partnership Operating System</span>
+        </nav>
 
-        <div class="pbr-tools-hero">
-
-            <div class="pbr-tools-hero-copy">
-
-                <a
-                    href="{{ route('workspaces.show', $workspace) }}"
-                    class="pbr-tools-back"
-                >
-                    ← Back to Workspace
-                </a>
-
-                <span class="portal-kicker">
-                    PBR Business System
-                </span>
-
-                <h1>
-                    Partnership Business Tools
-                </h1>
-
-                <p>
-                    Partnership စတင်ဖို့၊ ရှိပြီးသား Partnership ကို
-                    control လုပ်ဖို့နဲ့ partners တွေကြား
-                    financial, ownership, governance,
-                    exit နဲ့ dispute rules တွေကို
-                    practical tools တွေနဲ့ တည်ဆောက်ပါ။
-                </p>
-
-            </div>
-
-            <div class="pbr-workspace-badge">
-
-                <span>Current Workspace</span>
-
-                <strong>
-                    {{ $workspace->business_name ?: $workspace->name }}
-                </strong>
-
-            </div>
-
-        </div>
-
-
-        <section class="pbr-context-card">
-
-            <div class="pbr-context-header">
-
-                <div>
-
-                    <span class="portal-kicker">
-                        Business Context
-                    </span>
-
-                    <h2>
-                        Partnership Settings
-                    </h2>
-
-                    <p>
-                        ဒီ settings ကို Chapter tools တွေအားလုံးမှာ
-                        default အနေနဲ့ ပြန်အသုံးပြုပါမယ်။
-                    </p>
-
+        <header class="pbr-os-hero pbr-system-dashboard-hero">
+            <div class="pbr-os-hero-copy">
+                <div class="pbr-os-kickers">
+                    <span class="pbr-os-chapter-pill">10 Chapters</span>
+                    <span class="pbr-os-type-pill">{{ $totalTools }} Practical Tools</span>
+                    <span class="pbr-os-agreed-pill">{{ $totalAgreed }} Agreed Rules</span>
                 </div>
-
-
-                @if($workspace->hasBusinessContext())
-
-                    <span class="pbr-ready-badge">
-                        Ready
-                    </span>
-
-                @else
-
-                    <span class="pbr-setup-badge">
-                        Setup Required
-                    </span>
-
-                @endif
-
+                <h1>Partnership Business Operating System</h1>
+                <p class="pbr-os-en-title">Learn → Plan → Agree → Operate → Protect → Exit</p>
+                <p class="pbr-os-purpose">
+                    Business တစ်ခုထဲမှာ Capital, Ownership, Work Contribution, Profit/Loss,
+                    Financial Controls, Governance, Exit, Continuity, Share Transfer နဲ့
+                    Dispute Resolution ကို တစ်ဆက်တည်းတည်ဆောက်ပါ။ Tool တစ်ခုချင်းစီရဲ့
+                    <b>Agreed Business Rule</b> က နောက် Chapter တွေနဲ့ PBR AI Advisor ကို data feed လုပ်ပေးပါတယ်။
+                </p>
             </div>
 
+            <aside class="pbr-os-business-context">
+                <span>လက်ရှိ Business</span>
+                <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
+                <div>
+                    <small>{{ $businessStages[$workspace->business_stage] ?? 'Stage not set' }}</small>
+                    <small>{{ $capitalCurrency }}</small>
+                    <small>{{ $workspace->acceptedMemberships->count() + 1 }} People</small>
+                </div>
+            </aside>
+        </header>
+
+        <section class="pbr-system-health-grid">
+            <article class="pbr-system-health-card primary">
+                <span>Operating System Completion</span>
+                <strong>{{ $overallPercent }}%</strong>
+                <div class="pbr-system-progress"><i style="width: {{ $overallPercent }}%"></i></div>
+                <small>{{ $totalAgreed }} / {{ $totalTools }} tools have an agreed rule</small>
+            </article>
+            <article class="pbr-system-health-card">
+                <span>Capital Required</span>
+                <strong>{{ $capitalCurrency }} {{ number_format($chapterOneSummary['capital_required'] ?? 0, 2) }}</strong>
+                <small>Chapter 1 connected summary</small>
+            </article>
+            <article class="pbr-system-health-card">
+                <span>Funding Gap</span>
+                <strong>{{ $capitalCurrency }} {{ number_format($chapterOneSummary['funding_gap'] ?? 0, 2) }}</strong>
+                <small>{{ ($chapterOneSummary['funding_gap'] ?? 0) > 0 ? 'Attention required' : 'Current requirement covered' }}</small>
+            </article>
+            <article class="pbr-system-health-card">
+                <span>Connected Domains</span>
+                <strong>{{ collect($operatingDomains)->filter()->count() }} / 10</strong>
+                <small>Capital → Dispute Resolution</small>
+            </article>
+        </section>
+
+        <section class="pbr-context-card pbr-system-context-card">
+            <div class="pbr-context-header">
+                <div>
+                    <span class="portal-kicker">Business Context</span>
+                    <h2>ဒီ Business အတွက် default settings</h2>
+                    <p>Chapter 1–10 tools, Valuation နဲ့ AI Advisor တွေက ဒီ Business Stage နဲ့ Currency ကိုအသုံးပြုပါတယ်။</p>
+                </div>
+                <span class="{{ $workspace->hasBusinessContext() ? 'pbr-ready-badge' : 'pbr-setup-badge' }}">
+                    {{ $workspace->hasBusinessContext() ? 'Ready' : 'Setup Required' }}
+                </span>
+            </div>
 
             @if($canManageContext)
-
-                <form
-                    method="POST"
-                    action="{{ route(
-                        'workspaces.business-context.update',
-                        $workspace
-                    ) }}"
-                >
-
+                <form method="POST" action="{{ route('workspaces.business-context.update', $workspace) }}">
                     @csrf
                     @method('PUT')
-
                     <div class="pbr-context-grid">
-
                         <div class="pbr-tools-field">
-
-                            <label for="business_stage">
-                                Partnership Stage
-                            </label>
-
-                            <select
-                                id="business_stage"
-                                name="business_stage"
-                                required
-                            >
-
-                                <option value="">
-                                    Select your current stage
-                                </option>
-
-                                @foreach(
-                                    $businessStages as $value => $label
-                                )
-
-                                    <option
-                                        value="{{ $value }}"
-                                        @selected(
-                                            old(
-                                                'business_stage',
-                                                $workspace->business_stage
-                                            ) === $value
-                                        )
-                                    >
-                                        {{ $label }}
-                                    </option>
-
+                            <label for="business_stage">Partnership Stage</label>
+                            <select id="business_stage" name="business_stage" required>
+                                @foreach($businessStages as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('business_stage', $workspace->business_stage) === $value)>{{ $label }}</option>
                                 @endforeach
-
                             </select>
-
-                            <small>
-                                Partnership အသစ်စတင်ဖို့လား၊
-                                ရှိပြီးသား Partnership ကို
-                                manage လုပ်ဖို့လား ရွေးပါ။
-                            </small>
-
+                            <small>Planning အသစ်လား၊ ရှိပြီးသား Business ကို manage လုပ်နေတာလားရွေးပါ။</small>
                         </div>
-
-
                         <div class="pbr-tools-field">
-
-                            <label for="currency_code">
-                                Primary Currency
-                            </label>
-
-                            <select
-                                id="currency_code"
-                                name="currency_code"
-                                required
-                            >
-
-                                <option value="">
-                                    Select your currency
-                                </option>
-
-                                @foreach(
-                                    $currencies as $value => $label
-                                )
-
-                                    <option
-                                        value="{{ $value }}"
-                                        @selected(
-                                            old(
-                                                'currency_code',
-                                                $workspace->currency_code
-                                            ) === $value
-                                        )
-                                    >
-                                        {{ $label }}
-                                    </option>
-
+                            <label for="currency_code">Primary Currency</label>
+                            <select id="currency_code" name="currency_code" required>
+                                @foreach($currencies as $value => $label)
+                                    <option value="{{ $value }}" @selected(old('currency_code', $workspace->currency_code) === $value)>{{ $label }}</option>
                                 @endforeach
-
                             </select>
-
-                            <small>
-                                Financial calculators နဲ့ charts တွေအတွက်
-                                default currency ဖြစ်ပါတယ်။
-                            </small>
-
+                            <small>Financial tools အားလုံးအတွက် default currency ဖြစ်ပါတယ်။</small>
                         </div>
-
                     </div>
-
-
                     <div class="pbr-context-actions">
-
-                        <button
-                            type="submit"
-                            class="pbr-tools-primary-button"
-                        >
-                            Save Partnership Settings
-                        </button>
-
+                        <button type="submit" class="pbr-tools-primary-button">Save Partnership Settings</button>
                     </div>
-
                 </form>
-
             @else
-
                 <div class="pbr-context-readonly">
-
-                    <div>
-                        <span>Partnership Stage</span>
-
-                        <strong>
-                            {{
-                                $businessStages[
-                                    $workspace->business_stage
-                                ] ?? 'Not selected'
-                            }}
-                        </strong>
-                    </div>
-
-
-                    <div>
-                        <span>Primary Currency</span>
-
-                        <strong>
-                            {{
-                                $workspace->currency_code
-                                ?? 'Not selected'
-                            }}
-                        </strong>
-                    </div>
-
+                    <div><span>Partnership Stage</span><strong>{{ $businessStages[$workspace->business_stage] ?? 'Not selected' }}</strong></div>
+                    <div><span>Primary Currency</span><strong>{{ $workspace->currency_code ?? 'Not selected' }}</strong></div>
                 </div>
-
-                <p class="pbr-owner-note">
-                    Workspace Owner က Partnership Settings ကို
-                    manage လုပ်နိုင်ပါတယ်။
-                </p>
-
+                <p class="pbr-owner-note">Partner account က agreed operating data ကို read-only အသုံးပြုနိုင်ပါတယ်။ Business settings ကို Owner/Admin ကပဲပြင်နိုင်ပါတယ်။</p>
             @endif
-
         </section>
-
-
-        @php
-            $capitalCurrency =
-                $workspace->currency_code ?? 'THB';
-
-            $chapterOneOutputs =
-                $chapterOneSummary['outputs'] ?? [];
-
-            $hasChapterOneOutputs =
-                count($chapterOneOutputs) > 0;
-
-            $capitalGap =
-                $chapterOneSummary['funding_gap'] ?? 0;
-
-            $capitalSurplus =
-                $chapterOneSummary['funding_surplus'] ?? 0;
-        @endphp
-
-
-        <section class="pbr-capital-overview">
-
-            <div class="pbr-capital-overview-head">
-
-                <div>
-                    <span class="portal-kicker">
-                        Chapter 1 · Capital Overview
-                    </span>
-
-                    <h2>
-                        Partnership Capital Position
-                    </h2>
-
-                    <p>
-                        Saved scenarios ထဲက Workspace Output
-                        အဖြစ်ရွေးထားတဲ့ data တွေကိုပဲ
-                        ဒီ Overview မှာ ချိတ်ဆက်အသုံးပြုထားပါတယ်။
-                    </p>
-                </div>
-
-                @if($hasChapterOneOutputs)
-
-                    <span class="pbr-ready-badge">
-                        Connected
-                    </span>
-
-                @else
-
-                    <span class="pbr-setup-badge">
-                        No Outputs Yet
-                    </span>
-
-                @endif
-
-            </div>
-
-
-            <div class="pbr-capital-main-grid">
-
-                <article class="pbr-capital-main-card">
-
-                    <span>
-                        Total Capital Required
-                    </span>
-
-                    <strong>
-                        {{ $capitalCurrency }}
-                        {{
-                            number_format(
-                                $chapterOneSummary[
-                                    'capital_required'
-                                ] ?? 0,
-                                2
-                            )
-                        }}
-                    </strong>
-
-                    <small>
-                        Startup + Working Capital +
-                        Contingency Reserve
-                    </small>
-
-                </article>
-
-
-                <article class="pbr-capital-main-card">
-
-                    <span>
-                        Partner Capital Committed
-                    </span>
-
-                    <strong>
-                        {{ $capitalCurrency }}
-                        {{
-                            number_format(
-                                $chapterOneSummary[
-                                    'partner_capital'
-                                ] ?? 0,
-                                2
-                            )
-                        }}
-                    </strong>
-
-                    <small>
-                        From Partner Contribution Matrix
-                    </small>
-
-                </article>
-
-
-                <article class="pbr-capital-main-card">
-
-                    <span>
-                        Other Funding
-                    </span>
-
-                    <strong>
-                        {{ $capitalCurrency }}
-                        {{
-                            number_format(
-                                $chapterOneSummary[
-                                    'other_funding'
-                                ] ?? 0,
-                                2
-                            )
-                        }}
-                    </strong>
-
-                    <small>
-                        Loans or other confirmed funding
-                    </small>
-
-                </article>
-
-
-                <article
-                    class="pbr-capital-main-card
-                    {{ $capitalGap > 0
-                        ? 'pbr-capital-gap'
-                        : 'pbr-capital-covered'
-                    }}"
-                >
-
-                    <span>
-                        {{
-                            $capitalGap > 0
-                                ? 'Funding Gap'
-                                : (
-                                    $capitalSurplus > 0
-                                        ? 'Funding Surplus'
-                                        : 'Funding Position'
-                                )
-                        }}
-                    </span>
-
-                    <strong>
-                        {{ $capitalCurrency }}
-                        {{
-                            number_format(
-                                $capitalGap > 0
-                                    ? $capitalGap
-                                    : $capitalSurplus,
-                                2
-                            )
-                        }}
-                    </strong>
-
-                    <small>
-                        {{
-                            $capitalGap > 0
-                                ? 'Additional funding still required'
-                                : (
-                                    $capitalSurplus > 0
-                                        ? 'Capital exceeds current requirement'
-                                        : 'Current requirement and funding are balanced'
-                                )
-                        }}
-                    </small>
-
-                </article>
-
-            </div>
-
-
-            <div class="pbr-capital-breakdown-head">
-
-                <div>
-                    <h3>
-                        Capital Requirement Breakdown
-                    </h3>
-
-                    <p>
-                        Tool တစ်ခုချင်းစီက selected
-                        Workspace Output ကိုစုပြထားပါတယ်။
-                    </p>
-                </div>
-
-            </div>
-
-
-            <div class="pbr-capital-breakdown-grid">
-
-                @if($workspace->business_stage === 'new')
-
-                    <article class="pbr-capital-source-card">
-
-                        <div>
-                            <span>
-                                Startup Capital
-                            </span>
-
-                            <strong>
-                                {{ $capitalCurrency }}
-                                {{
-                                    number_format(
-                                        $chapterOneSummary[
-                                            'startup_capital'
-                                        ] ?? 0,
-                                        2
-                                    )
-                                }}
-                            </strong>
-                        </div>
-
-                        @if(
-                            isset(
-                                $chapterOneOutputs[
-                                    'startup_capital_planner'
-                                ]
-                            )
-                        )
-
-                            <span class="pbr-output-connected">
-                                Workspace Output
-                            </span>
-
-                        @else
-
-                            <span class="pbr-output-missing">
-                                Select a Scenario
-                            </span>
-
-                        @endif
-
-                    </article>
-
-                @endif
-
-
-                @if($workspace->business_stage === 'existing')
-
-                    <article class="pbr-capital-source-card">
-
-                        <div>
-                            <span>
-                                Current Net Capital Position
-                            </span>
-
-                            <strong>
-                                {{ $capitalCurrency }}
-                                {{
-                                    number_format(
-                                        $chapterOneSummary[
-                                            'current_net_capital_position'
-                                        ] ?? 0,
-                                        2
-                                    )
-                                }}
-                            </strong>
-                        </div>
-
-                        @if(
-                            isset(
-                                $chapterOneOutputs[
-                                    'current_capital_position'
-                                ]
-                            )
-                        )
-
-                            <span class="pbr-output-connected">
-                                Workspace Output
-                            </span>
-
-                        @else
-
-                            <span class="pbr-output-missing">
-                                Select a Scenario
-                            </span>
-
-                        @endif
-
-                    </article>
-
-                @endif
-
-
-                <article class="pbr-capital-source-card">
-
-                    <div>
-                        <span>
-                            Working Capital
-                        </span>
-
-                        <strong>
-                            {{ $capitalCurrency }}
-                            {{
-                                number_format(
-                                    $chapterOneSummary[
-                                        'working_capital'
-                                    ] ?? 0,
-                                    2
-                                )
-                            }}
-                        </strong>
-                    </div>
-
-                    @if(
-                        isset(
-                            $chapterOneOutputs[
-                                'working_capital_calculator'
-                            ]
-                        )
-                    )
-
-                        <span class="pbr-output-connected">
-                            Workspace Output
-                        </span>
-
-                    @else
-
-                        <span class="pbr-output-missing">
-                            Select a Scenario
-                        </span>
-
-                    @endif
-
-                </article>
-
-
-                <article class="pbr-capital-source-card">
-
-                    <div>
-                        <span>
-                            Contingency Reserve
-                        </span>
-
-                        <strong>
-                            {{ $capitalCurrency }}
-                            {{
-                                number_format(
-                                    $chapterOneSummary[
-                                        'contingency_fund'
-                                    ] ?? 0,
-                                    2
-                                )
-                            }}
-                        </strong>
-                    </div>
-
-                    @if(
-                        isset(
-                            $chapterOneOutputs[
-                                'contingency_fund_calculator'
-                            ]
-                        )
-                    )
-
-                        <span class="pbr-output-connected">
-                            Workspace Output
-                        </span>
-
-                    @else
-
-                        <span class="pbr-output-missing">
-                            Select a Scenario
-                        </span>
-
-                    @endif
-
-                </article>
-
-
-                <article class="pbr-capital-source-card">
-
-                    <div>
-                        <span>
-                            Partner Contributions
-                        </span>
-
-                        <strong>
-                            {{ $capitalCurrency }}
-                            {{
-                                number_format(
-                                    $chapterOneSummary[
-                                        'partner_capital'
-                                    ] ?? 0,
-                                    2
-                                )
-                            }}
-                        </strong>
-                    </div>
-
-                    @if(
-                        isset(
-                            $chapterOneOutputs[
-                                'partner_contribution_matrix'
-                            ]
-                        )
-                    )
-
-                        <span class="pbr-output-connected">
-                            Workspace Output
-                        </span>
-
-                    @else
-
-                        <span class="pbr-output-missing">
-                            Select a Scenario
-                        </span>
-
-                    @endif
-
-                </article>
-
-            </div>
-
-
-            @unless($hasChapterOneOutputs)
-
-                <div class="pbr-capital-empty-note">
-
-                    <strong>
-                        Start by creating a scenario.
-                    </strong>
-
-                    <p>
-                        Tool တစ်ခုမှာ Scenario ကို Save Draft
-                        လုပ်ပြီးနောက် Workspace Output
-                        အဖြစ်ရွေးလိုက်ရင် ဒီ Overview ထဲမှာ
-                        automatically ချိတ်ဆက်ပေးပါမယ်။
-                    </p>
-
-                </div>
-
-            @endunless
-
-        </section>
-
-
-        <div class="pbr-tools-stats">
-
-            <div class="pbr-stat-card">
-
-                <strong>
-                    {{ $chapters->count() }}
-                </strong>
-
-                <span>
-                    Business Chapters
-                </span>
-
-            </div>
-
-
-            <div class="pbr-stat-card">
-
-                <strong>
-                    {{
-                        $chapters->sum(
-                            fn ($chapter) =>
-                                $chapter->tools->count()
-                        )
-                    }}
-                </strong>
-
-                <span>
-                    Practical Tools
-                </span>
-
-            </div>
-
-
-            <div class="pbr-stat-card">
-
-                <strong>
-                    {{
-                        $workspace
-                            ->acceptedMemberships
-                            ->count() + 1
-                    }}
-                </strong>
-
-                <span>
-                    Workspace Partners
-                </span>
-
-            </div>
-
-        </div>
-
 
         <div class="pbr-system-heading">
-
-            <span class="portal-kicker">
-                10-Chapter Business System
-            </span>
-
-            <h2>
-                Build, Control & Protect Your Partnership
-            </h2>
-
-            <p>
-                Calculator, planner, simulator, matrix,
-                dashboard နဲ့ tracker တွေကို
-                Chapter တစ်ခုချင်းစီအလိုက် အသုံးပြုနိုင်ပါတယ်။
-            </p>
-
+            <span class="portal-kicker">Connected Business Architecture</span>
+            <h2>Chapter 1 ကနေ Chapter 10 အထိ</h2>
+            <p>Chapter တစ်ခန်းစီမှာ Scenario ကိုစမ်း → Review → Save Draft → Approve as Agreed Business Rule လုပ်ပြီး နောက် Chapter ဆီ data ဆက်သွားပါမယ်။</p>
         </div>
 
-
-        <div class="pbr-chapter-list">
-
+        <div class="pbr-system-flow-strip" aria-label="Chapter flow">
             @foreach($chapters as $chapter)
+                @php
+                    $num = (int) $chapter->chapter_number;
+                    $progress = $chapterProgress[$num] ?? ['percentage' => 0];
+                @endphp
+                <a href="#chapter-{{ $num }}" class="{{ $progress['percentage'] >= 100 ? 'complete' : ($progress['percentage'] > 0 ? 'active' : '') }}">
+                    <b>{{ str_pad((string) $num, 2, '0', STR_PAD_LEFT) }}</b>
+                    <span>{{ $progress['percentage'] }}%</span>
+                </a>
+            @endforeach
+        </div>
+
+        <div class="pbr-chapter-list pbr-system-chapters">
+            @foreach($chapters as $chapter)
+                @php
+                    $chapterNumber = (int) $chapter->chapter_number;
+                    $progress = $chapterProgress[$chapterNumber] ?? ['total' => $chapter->tools->count(), 'agreed' => 0, 'percentage' => 0];
+                    $domain = $operatingDomains[$chapterNumber] ?? null;
+                @endphp
 
                 <details
-                    class="pbr-chapter-card"
-                    @if($chapter->chapter_number === 1)
-                        open
-                    @endif
+                    id="chapter-{{ $chapterNumber }}"
+                    class="pbr-chapter-card pbr-system-chapter-card"
+                    @if($chapterNumber === 1 || $progress['percentage'] > 0) open @endif
                 >
-
                     <summary>
-
-                        <div class="pbr-chapter-number">
-
-                            {{
-                                str_pad(
-                                    (string) $chapter->chapter_number,
-                                    2,
-                                    '0',
-                                    STR_PAD_LEFT
-                                )
-                            }}
-
-                        </div>
-
-
+                        <div class="pbr-chapter-number">{{ str_pad((string) $chapterNumber, 2, '0', STR_PAD_LEFT) }}</div>
                         <div class="pbr-chapter-title">
-
-                            <span>
-                                {{
-                                    str_replace(
-                                        '_',
-                                        ' ',
-                                        strtoupper($chapter->phase)
-                                    )
-                                }}
-                            </span>
-
-                            <h3>
-                                {{ $chapter->title_en }}
-                            </h3>
-
-                            <p>
-                                {{ $chapter->title_mm }}
-                            </p>
-
+                            <span>{{ strtoupper(str_replace('_', ' ', $chapter->phase)) }}</span>
+                            <h3>{{ $chapterMeta[$chapterNumber]['mm'] ?? $chapter->title_mm }}</h3>
+                            <p>{{ $chapter->title_en }}</p>
                         </div>
-
-
-                        <div class="pbr-tool-count">
-
-                            {{ $chapter->tools->count() }}
-                            Tools
-
+                        <div class="pbr-system-chapter-progress">
+                            <div><strong>{{ $progress['agreed'] }}/{{ $progress['total'] }}</strong><span>Agreed</span></div>
+                            <div class="pbr-system-mini-progress"><i style="width: {{ $progress['percentage'] }}%"></i></div>
+                            @if($domain && ($domain['status'] ?? null) === 'agreed')
+                                <small class="connected">Connected · Rev {{ $domain['revision'] }}</small>
+                            @elseif($domain)
+                                <small>Draft data exists</small>
+                            @else
+                                <small>Not configured yet</small>
+                            @endif
                         </div>
-
                     </summary>
 
-
                     <div class="pbr-chapter-body">
+                        <p class="pbr-chapter-description">{{ $chapter->description }}</p>
 
-                        <p class="pbr-chapter-description">
-                            {{ $chapter->description }}
-                        </p>
-
-
-                        <div class="pbr-tool-grid">
-
+                        <div class="pbr-tool-grid pbr-system-tool-grid">
                             @foreach($chapter->tools as $tool)
+                                @php
+                                    $definition = $toolDefinitions[$tool->tool_key] ?? null;
+                                    $toolTitleMm = $definition['title_mm'] ?? $tool->title_mm ?? $tool->title_en;
+                                    $purpose = $definition['purpose_mm'] ?? ($chapterNumber === 1
+                                        ? 'Capital planning အတွက် calculate, compare, save scenario နဲ့ workspace output ကိုအသုံးပြုပါ။'
+                                        : $tool->description);
+                                    $isAgreed = $progress['agreed'] > 0 && \App\Models\WorkspaceToolOutput::query()
+                                        ->where('workspace_id', $workspace->id)
+                                        ->where('chapter_tool_id', $tool->id)
+                                        ->where('status', 'agreed')
+                                        ->exists();
+                                @endphp
 
-                                <article class="pbr-tool-card">
-
+                                <article class="pbr-tool-card pbr-system-tool-card {{ $isAgreed ? 'agreed' : '' }}">
                                     <div class="pbr-tool-top">
-
-                                        <span class="pbr-tool-type">
-                                            {{
-                                                ucfirst(
-                                                    $tool->tool_type
-                                                )
-                                            }}
-                                        </span>
-
-
-                                        @if(
-                                            $chapter->chapter_number === 1
-                                        )
-
-                                            <span class="pbr-tool-status ready">
-                                                Ready
-                                            </span>
-
-                                        @else
-
-                                            <span class="pbr-tool-status">
-                                                Planned
-                                            </span>
-
-                                        @endif
-
+                                        <span class="pbr-tool-type">{{ ucfirst($tool->tool_type) }}</span>
+                                        <span class="pbr-tool-status {{ $isAgreed ? 'ready' : '' }}">{{ $isAgreed ? 'Agreed' : 'Ready' }}</span>
                                     </div>
-
-
-                                    <h4>
-                                        {{ $tool->title_en }}
-                                    </h4>
-
-
-                                    <div class="pbr-stage-tags">
-
-                                        @if(
-                                            $tool->supports_new_business
-                                        )
-
-                                            <span>
-                                                New Partnership
-                                            </span>
-
-                                        @endif
-
-
-                                        @if(
-                                            $tool->supports_existing_business
-                                        )
-
-                                            <span>
-                                                Existing Business
-                                            </span>
-
-                                        @endif
-
-                                    </div>
-
-
-                                    @if(
-                                        $tool->tool_key
-                                        === 'startup_capital_planner'
-                                        && $workspace->business_stage === 'new'
-                                    )
-
-                                        <p>
-                                            Plan one-time startup costs
-                                            and calculate the estimated
-                                            startup capital requirement.
-                                        </p>
-
-                                        <a
-                                            class="pbr-open-tool"
-                                            href="{{ route(
-                                                'workspaces.tools.startup-capital.show',
-                                                $workspace
-                                            ) }}"
-                                        >
-                                            Open Tool →
-                                        </a>
-
-                                    @elseif(
-                                        $chapter->chapter_number === 1
-                                    )
-
-                                        <p>
-                                        Open this Chapter 1 capital
-                                        tool to calculate, compare,
-                                        and save different scenarios.
-                                    </p>
-
-                                    <a
-                                        class="pbr-open-tool"
-                                        href="{{ route(
-                                            'workspaces.tools.chapter-one.show',
-                                            [
-                                                $workspace,
-                                                $tool->slug
-                                            ]
-                                        ) }}"
-                                    >
-                                        Open Tool →
-                                    </a>
-
-                                    @else
-
-                                        <p>
-                                            Planned tool in the
-                                            PBR Business System.
-                                        </p>
-
+                                    <h4>{{ $toolTitleMm }}</h4>
+                                    @if($toolTitleMm !== $tool->title_en)
+                                        <small class="pbr-system-tool-en">{{ $tool->title_en }}</small>
                                     @endif
+                                    <p>{{ $purpose }}</p>
+                                    <div class="pbr-stage-tags">
+                                        @if($tool->supports_new_business)<span>New Partnership</span>@endif
+                                        @if($tool->supports_existing_business)<span>Existing Business</span>@endif
+                                    </div>
 
+                                    @if($tool->tool_key === 'startup_capital_planner' && $workspace->business_stage === 'new')
+                                        <a class="pbr-open-tool" href="{{ route('workspaces.tools.startup-capital.show', $workspace) }}">Open Tool →</a>
+                                    @elseif($chapterNumber === 1)
+                                        <a class="pbr-open-tool" href="{{ route('workspaces.tools.chapter-one.show', [$workspace, $tool->slug]) }}">Open Tool →</a>
+                                    @else
+                                        <a class="pbr-open-tool" href="{{ route('workspaces.tools.operating.show', [$workspace, $tool->slug]) }}">Open Tool →</a>
+                                    @endif
                                 </article>
-
                             @endforeach
-
                         </div>
-
                     </div>
-
                 </details>
-
             @endforeach
-
         </div>
 
+        <section class="pbr-system-ai-bridge">
+            <div>
+                <span class="portal-kicker">Connected Intelligence</span>
+                <h2>Agreed Rules → PBR AI Advisor</h2>
+                <p>Approved operating data ကို AI Advisor က Old RAG Knowledge, Feasibility, Valuation နဲ့ Partner Dynamics data တို့နဲ့ပေါင်းပြီး Business-specific guidance ပေးနိုင်ပါတယ်။</p>
+            </div>
+            <a href="{{ route('workspaces.ai-advisor.index', $workspace) }}">PBR AI Advisor ဖွင့်ရန် →</a>
+        </section>
+
+        <div class="pbr-os-legal-note">
+            <strong>Important</strong>
+            <p>ဒီ operating tools တွေက planning, internal controls နဲ့ partner discussion support အတွက်ဖြစ်ပါတယ်။ Legal document, tax/accounting advice, certified valuation သို့မဟုတ် insurance advice ကို အစားမထိုးပါ။</p>
+        </div>
     </div>
 </section>
-
 @endsection
