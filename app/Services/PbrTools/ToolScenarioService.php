@@ -7,6 +7,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
 use App\Models\User;
 use App\Models\WorkspaceToolOutput;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
@@ -14,9 +15,14 @@ use Illuminate\Validation\ValidationException;
 class ToolScenarioService
 {
     public function __construct(
-        private readonly ChapterOneIntegrationService $chapterOneIntegration,
-        private readonly PbrOperatingSystemService $operatingSystem
+        private readonly PbrOperatingSystemService $operatingSystem,
+        private readonly PbrChapterStateService $chapterState
     ) {
+    }
+
+    public function canManage(User $user, PartnershipWorkspace $workspace): bool
+    {
+        return $this->operatingSystem->canManage($user, $workspace);
     }
 
     public function saveDraft(
@@ -29,18 +35,15 @@ class ToolScenarioService
         ?int $sessionId = null
     ): ToolSession {
         $this->authorizeManagement($user, $workspace);
-
-        if (! array_key_exists(
-            (string) $workspace->business_stage,
-            PartnershipWorkspace::BUSINESS_STAGES
-        )) {
-            throw ValidationException::withMessages([
-                'business_stage' =>
-                    'Please set Partnership Stage in PBR Business Tools before saving a scenario.',
-            ]);
-        }
+        $this->assertBusinessContext($workspace);
 
         $scenarioName = trim($scenarioName);
+
+        if ($scenarioName === '') {
+            throw ValidationException::withMessages([
+                'scenario_name' => 'Scenario အမည်ထည့်ပါ။',
+            ]);
+        }
 
         if ($sessionId !== null) {
             $session = $this->ownedDraft(
@@ -51,21 +54,18 @@ class ToolScenarioService
             );
         } else {
             $session = new ToolSession();
-
             $session->user_id = $user->id;
             $session->workspace_id = $workspace->id;
             $session->chapter_tool_id = $tool->id;
-            $session->business_stage =
-                $workspace->business_stage;
+            $session->business_stage = $workspace->business_stage;
             $session->status = 'draft';
             $session->started_at = now();
         }
 
-        $session->scenario_name = $scenarioName;
+        $session->scenario_name = Str::limit($scenarioName, 120, '');
         $session->input_data = $inputData;
         $session->result_data = $resultData;
         $session->last_saved_at = now();
-
         $session->save();
 
         return $session->fresh();
@@ -90,7 +90,11 @@ class ToolScenarioService
         User $user,
         PartnershipWorkspace $workspace,
         ChapterTool $tool
-    ) {
+    ): Collection {
+        if (! $this->canManage($user, $workspace)) {
+            return collect();
+        }
+
         return ToolSession::query()
             ->where('user_id', $user->id)
             ->where('workspace_id', $workspace->id)
@@ -117,7 +121,7 @@ class ToolScenarioService
             $sessionId
         );
 
-        $session->scenario_name = trim($scenarioName);
+        $session->scenario_name = Str::limit(trim($scenarioName), 120, '');
         $session->last_saved_at = now();
         $session->save();
 
@@ -140,24 +144,16 @@ class ToolScenarioService
         );
 
         $copy = new ToolSession();
-
         $copy->user_id = $user->id;
         $copy->workspace_id = $workspace->id;
         $copy->chapter_tool_id = $tool->id;
-        $copy->business_stage =
-            $source->business_stage;
-
-        $copy->scenario_name =
-            $this->copyName(
-                $source->scenario_name ?: 'Scenario'
-            );
-
+        $copy->business_stage = $source->business_stage;
+        $copy->scenario_name = $this->copyName($source->scenario_name ?: 'Scenario');
         $copy->status = 'draft';
         $copy->input_data = $source->input_data;
         $copy->result_data = $source->result_data;
         $copy->started_at = now();
         $copy->last_saved_at = now();
-
         $copy->save();
 
         return $copy->fresh();
@@ -188,98 +184,225 @@ class ToolScenarioService
         ToolSession $session
     ): WorkspaceToolOutput {
         $this->authorizeManagement($user, $workspace);
-
-        abort_unless(
-            $session->workspace_id === $workspace->id
-            && $session->chapter_tool_id === $tool->id,
-            403
-        );
+        $this->assertSessionMatches($workspace, $tool, $session);
 
         $tool->loadMissing('chapter:id,chapter_number');
+        $chapterNumber = (int) $tool->chapter?->chapter_number;
 
-        return DB::transaction(
-            function () use (
+        return DB::transaction(function () use (
+            $user,
+            $workspace,
+            $tool,
+            $session,
+            $chapterNumber
+        ): WorkspaceToolOutput {
+            $output = $this->createOutputRow(
                 $user,
                 $workspace,
                 $tool,
-                $session
-            ): WorkspaceToolOutput {
-                $latest = WorkspaceToolOutput::query()
-                    ->where(
-                        'workspace_id',
-                        $workspace->id
-                    )
-                    ->where(
-                        'chapter_tool_id',
-                        $tool->id
-                    )
-                    ->orderByDesc('revision')
-                    ->lockForUpdate()
-                    ->first();
+                $session,
+                'draft'
+            );
 
-                $revision =
-                    ($latest?->revision ?? 0) + 1;
+            $state = $this->chapterState->build(
+                $workspace,
+                $chapterNumber,
+                'draft'
+            );
 
-                $output = WorkspaceToolOutput::create([
-                    'workspace_id' =>
-                        $workspace->id,
+            $this->operatingSystem->saveSnapshot(
+                $user,
+                $workspace,
+                $this->operatingSystem->domainForChapter($chapterNumber),
+                $state['payload'],
+                $state['summary'],
+                'draft'
+            );
 
-                    'chapter_tool_id' =>
-                        $tool->id,
+            return $output;
+        });
+    }
 
-                    'source_tool_session_id' =>
-                        $session->id,
+    public function publishAgreedOutput(
+        User $user,
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool,
+        ToolSession $session
+    ): WorkspaceToolOutput {
+        $this->authorizeManagement($user, $workspace);
+        $this->assertSessionMatches($workspace, $tool, $session);
 
-                    'revision' => $revision,
+        $tool->loadMissing('chapter:id,chapter_number');
+        $chapterNumber = (int) $tool->chapter?->chapter_number;
 
-                    'status' => 'draft',
+        return DB::transaction(function () use (
+            $user,
+            $workspace,
+            $tool,
+            $session,
+            $chapterNumber
+        ): WorkspaceToolOutput {
+            $output = $this->createOutputRow(
+                $user,
+                $workspace,
+                $tool,
+                $session,
+                'agreed'
+            );
 
-                    'output_data' =>
-                        $session->result_data ?? [],
+            $definition = config(
+                'pbr_operating_tools.definitions.'.$tool->tool_key,
+                []
+            );
 
-                    'generated_by_user_id' =>
-                        $user->id,
+            if (is_array($definition) && filled($definition['record_type'] ?? null)) {
+                $recordData = is_array($session->result_data['data'] ?? null)
+                    ? $session->result_data['data']
+                    : ($session->result_data ?? []);
 
-                    'generated_at' => now(),
-                ]);
-
-                if ((int) $tool->chapter?->chapter_number === 1) {
-                    $capital = $this->chapterOneIntegration
-                        ->operatingSnapshot($workspace);
-
-                    $this->operatingSystem->saveSnapshot(
-                        $user,
-                        $workspace,
-                        'capital',
-                        $capital['payload'],
-                        $capital['summary'],
-                        'draft'
-                    );
-                }
-
-                return $output;
+                $this->operatingSystem->saveRecord(
+                    $user,
+                    $workspace,
+                    $tool,
+                    (string) $definition['record_type'],
+                    $recordData,
+                    $session->scenario_name,
+                    $this->recordDateFrom($recordData),
+                    [
+                        'workspace_tool_output_id' => $output->id,
+                        'source_tool_session_id' => $session->id,
+                        'chapter_number' => $chapterNumber,
+                    ]
+                );
             }
+
+            $state = $this->chapterState->build(
+                $workspace,
+                $chapterNumber,
+                'agreed'
+            );
+
+            $this->operatingSystem->saveSnapshot(
+                $user,
+                $workspace,
+                $this->operatingSystem->domainForChapter($chapterNumber),
+                $state['payload'],
+                $state['summary'],
+                'agreed'
+            );
+
+            return $output;
+        });
+    }
+
+    public function latestAgreedOutput(
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool
+    ): ?WorkspaceToolOutput {
+        return WorkspaceToolOutput::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('chapter_tool_id', $tool->id)
+            ->where('status', 'agreed')
+            ->orderByDesc('revision')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    public function outputHistory(
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool,
+        int $limit = 12
+    ): Collection {
+        return WorkspaceToolOutput::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('chapter_tool_id', $tool->id)
+            ->orderByDesc('revision')
+            ->orderByDesc('id')
+            ->limit(max(1, min(50, $limit)))
+            ->get();
+    }
+
+    private function createOutputRow(
+        User $user,
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool,
+        ToolSession $session,
+        string $status
+    ): WorkspaceToolOutput {
+        $latest = WorkspaceToolOutput::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('chapter_tool_id', $tool->id)
+            ->orderByDesc('revision')
+            ->lockForUpdate()
+            ->first();
+
+        $revision = ($latest?->revision ?? 0) + 1;
+        $now = now();
+
+        return WorkspaceToolOutput::create([
+            'workspace_id' => $workspace->id,
+            'chapter_tool_id' => $tool->id,
+            'source_tool_session_id' => $session->id,
+            'revision' => $revision,
+            'status' => $status,
+            'output_data' => $session->result_data ?? [],
+            'generated_by_user_id' => $user->id,
+            'generated_at' => $now,
+            'agreed_at' => $status === 'agreed' ? $now : null,
+        ]);
+    }
+
+    private function assertSessionMatches(
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool,
+        ToolSession $session
+    ): void {
+        abort_unless(
+            (int) $session->workspace_id === (int) $workspace->id
+            && (int) $session->chapter_tool_id === (int) $tool->id
+            && $session->status === 'draft',
+            403
         );
     }
 
-    private function authorizeManagement(
-        User $user,
-        PartnershipWorkspace $workspace
-    ): void {
-        abort_unless(
-            $this->operatingSystem->canManage($user, $workspace),
-            403
-        );
+    private function assertBusinessContext(PartnershipWorkspace $workspace): void
+    {
+        if (! array_key_exists(
+            (string) $workspace->business_stage,
+            PartnershipWorkspace::BUSINESS_STAGES
+        )) {
+            throw ValidationException::withMessages([
+                'business_stage' => 'PBR Business Tools မှာ Partnership Stage ကိုအရင်ရွေးပါ။',
+            ]);
+        }
+    }
+
+    private function authorizeManagement(User $user, PartnershipWorkspace $workspace): void
+    {
+        abort_unless($this->canManage($user, $workspace), 403);
+    }
+
+    private function recordDateFrom(array $data): ?string
+    {
+        foreach ([
+            'decision_date',
+            'transfer_date',
+            'issue_date',
+            'target_date',
+            'offer_date',
+            'notice_date',
+            'start_date',
+        ] as $key) {
+            if (filled($data[$key] ?? null)) {
+                return (string) $data[$key];
+            }
+        }
+
+        return null;
     }
 
     private function copyName(string $name): string
     {
-        $base = 'Copy of '.$name;
-
-        return Str::limit(
-            $base,
-            120,
-            ''
-        );
+        return Str::limit('Copy of '.$name, 120, '');
     }
 }
