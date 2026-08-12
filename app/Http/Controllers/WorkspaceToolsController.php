@@ -60,7 +60,20 @@ class WorkspaceToolsController extends Controller
 
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
-        $chapterOneSummary = $integration->summary($workspace);
+
+        if ($canManageContext) {
+            $chapterOneSummary = $integration->summary($workspace);
+        } else {
+            $capitalSnapshot = $operatingSystem->readableSnapshot(
+                $request->user(),
+                $workspace,
+                'capital'
+            );
+            $chapterOneSummary = is_array($capitalSnapshot?->summary)
+                ? $capitalSnapshot->summary
+                : [];
+        }
+
         $toolDefinitions = config('pbr_operating_tools.definitions', []);
 
         $agreedToolIds = WorkspaceToolOutput::query()
