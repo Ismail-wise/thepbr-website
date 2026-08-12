@@ -163,6 +163,7 @@ class WorkspaceAiAdvisorController extends Controller
             $assistantText = '';
             $ragMode = null;
             $topScore = null;
+            $streamHadError = false;
 
             try {
                 $client = new Client([
@@ -187,6 +188,7 @@ class WorkspaceAiAdvisorController extends Controller
                 ]);
 
                 if ($upstream->getStatusCode() !== 200) {
+                    $userMessage->delete();
                     $send([
                         'type' => 'error',
                         'text' => 'AI Advisor Service ကို ခဏဆက်သွယ်လို့မရသေးပါ။ ခဏနေရင် ထပ်စမ်းပါ။',
@@ -230,6 +232,10 @@ class WorkspaceAiAdvisorController extends Controller
                                 $topScore = $data['topScore'] ?? null;
                             }
 
+                            if (($data['type'] ?? null) === 'error') {
+                                $streamHadError = true;
+                            }
+
                             $send($data);
                         }
                     }
@@ -244,18 +250,18 @@ class WorkspaceAiAdvisorController extends Controller
                             'rag_mode' => $ragMode,
                             'top_score' => $topScore,
                             'engine' => 'partner-ai-rag',
+                            'incomplete' => $streamHadError,
                         ],
                     ]);
                     $conversation->touch();
+                } else {
+                    // Never leave a failed user-only turn in persisted history because
+                    // Gemini chat history must remain a clean user/model sequence.
+                    $userMessage->delete();
                 }
             } catch (Throwable $e) {
                 report($e);
-
-                $userMessage->update([
-                    'metadata' => array_merge($userMessage->metadata ?? [], [
-                        'upstream_failed' => true,
-                    ]),
-                ]);
+                $userMessage->delete();
 
                 $send([
                     'type' => 'error',
