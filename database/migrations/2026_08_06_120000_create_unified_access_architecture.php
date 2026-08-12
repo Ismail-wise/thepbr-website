@@ -13,7 +13,13 @@ return new class extends Migration
             $table->boolean('is_admin')->default(false)->after('password')->index();
         });
 
-        DB::statement("ALTER TABLE users MODIFY role VARCHAR(30) NOT NULL DEFAULT 'public'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table): void {
+                $table->string('role', 30)->default('public')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY role VARCHAR(30) NOT NULL DEFAULT 'public'");
+        }
 
         DB::table('users')
             ->where('role', 'admin')
@@ -142,7 +148,13 @@ return new class extends Migration
         Schema::dropIfExists('partnership_workspaces');
         Schema::dropIfExists('student_enrollments');
 
-        DB::statement("ALTER TABLE users MODIFY role VARCHAR(30) NOT NULL DEFAULT 'student'");
+        if (DB::getDriverName() === 'sqlite') {
+            Schema::table('users', function (Blueprint $table): void {
+                $table->string('role', 30)->default('student')->change();
+            });
+        } else {
+            DB::statement("ALTER TABLE users MODIFY role VARCHAR(30) NOT NULL DEFAULT 'student'");
+        }
 
         Schema::table('users', function (Blueprint $table): void {
             $table->dropIndex(['is_admin']);
