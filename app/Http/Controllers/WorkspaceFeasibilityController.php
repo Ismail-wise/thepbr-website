@@ -20,12 +20,25 @@ class WorkspaceFeasibilityController extends Controller
             ->latest()
             ->first();
 
-        return view('workspaces.feasibility', compact('workspace', 'latest'));
+        $canManageBusiness = $request->user()->isAdmin()
+            || $workspace->owner_user_id === $request->user()->id;
+
+        return view(
+            'workspaces.feasibility',
+            compact('workspace', 'latest', 'canManageBusiness')
+        );
     }
 
-    public function calculate(Request $request, PartnershipWorkspace $workspace, BusinessFeasibilityService $service): RedirectResponse
-    {
-        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+    public function calculate(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        BusinessFeasibilityService $service
+    ): RedirectResponse {
+        abort_unless(
+            $request->user()->isAdmin()
+                || $workspace->owner_user_id === $request->user()->id,
+            403
+        );
 
         $validated = $request->validate([
             'project_name' => ['nullable', 'string', 'max:160'],
