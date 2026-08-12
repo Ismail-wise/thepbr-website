@@ -103,6 +103,7 @@ Route::middleware('auth')->group(function (): void {
         ->name('workspace-invitations.connect');
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
+
     Route::get(
         '/workspaces/{workspace}/tools/startup-capital-planner',
         [\App\Http\Controllers\WorkspaceStartupCapitalController::class, 'show']
@@ -158,10 +159,6 @@ Route::middleware(['auth', EnsureStudentPortalAccess::class])
 |--------------------------------------------------------------------------
 | PBR Partner Dynamics
 |--------------------------------------------------------------------------
-|
-| Available to Admins, Students and accepted Student Partners.
-| Public-only accounts cannot access the assessment.
-|
 */
 Route::middleware('auth')
     ->prefix('partner-dynamics')
@@ -204,10 +201,10 @@ Route::middleware('auth')
 
 /*
 |--------------------------------------------------------------------------
-| Shared PBR Tool Scenario Actions
+| Shared PBR Tool Scenario Actions — Chapters 1–10
 |--------------------------------------------------------------------------
 */
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (): void {
     Route::post(
         '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/rename',
         [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'rename']
@@ -227,43 +224,75 @@ Route::middleware('auth')->group(function () {
         '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/output',
         [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'output']
     )->name('workspaces.tools.scenarios.output');
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/scenarios/{session}/approve',
+        [\App\Http\Controllers\WorkspaceToolScenarioController::class, 'approve']
+    )->name('workspaces.tools.scenarios.approve');
 });
 
 /*
 |--------------------------------------------------------------------------
 | Chapter 1 Shared Capital Tools
 |--------------------------------------------------------------------------
+|
+| Startup Capital has its existing richer two-level cost builder above.
+| The other six Chapter 1 tools stay on the specialized capital controller.
+| The slug constraint prevents these routes from swallowing Chapter 2–10.
+|
 */
-Route::middleware('auth')->group(function () {
+Route::middleware('auth')->group(function (): void {
+    $chapterOneSlugs = implode('|', [
+        'current-capital-position',
+        'working-capital-calculator',
+        'contingency-fund-calculator',
+        'partner-contribution-matrix',
+        'funding-gap-calculator',
+        'capital-allocation-chart',
+    ]);
+
     Route::get(
         '/workspaces/{workspace}/tools/{toolSlug}',
-        [
-            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
-            'show'
-        ]
-    )->name(
-        'workspaces.tools.chapter-one.show'
-    );
+        [\App\Http\Controllers\WorkspaceChapterOneToolController::class, 'show']
+    )
+        ->where('toolSlug', $chapterOneSlugs)
+        ->name('workspaces.tools.chapter-one.show');
 
     Route::post(
         '/workspaces/{workspace}/tools/{toolSlug}',
-        [
-            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
-            'calculate'
-        ]
-    )->name(
-        'workspaces.tools.chapter-one.calculate'
-    );
+        [\App\Http\Controllers\WorkspaceChapterOneToolController::class, 'calculate']
+    )
+        ->where('toolSlug', $chapterOneSlugs)
+        ->name('workspaces.tools.chapter-one.calculate');
 
     Route::post(
         '/workspaces/{workspace}/tools/{toolSlug}/save-draft',
-        [
-            \App\Http\Controllers\WorkspaceChapterOneToolController::class,
-            'save'
-        ]
-    )->name(
-        'workspaces.tools.chapter-one.save'
-    );
+        [\App\Http\Controllers\WorkspaceChapterOneToolController::class, 'save']
+    )
+        ->where('toolSlug', $chapterOneSlugs)
+        ->name('workspaces.tools.chapter-one.save');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Chapters 2–10 Connected Operating Tools
+|--------------------------------------------------------------------------
+*/
+Route::middleware('auth')->group(function (): void {
+    Route::get(
+        '/workspaces/{workspace}/tools/{toolSlug}',
+        [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'show']
+    )->name('workspaces.tools.operating.show');
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}',
+        [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'calculate']
+    )->name('workspaces.tools.operating.calculate');
+
+    Route::post(
+        '/workspaces/{workspace}/tools/{toolSlug}/save-draft',
+        [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'save']
+    )->name('workspaces.tools.operating.save');
 });
 
 require __DIR__.'/ai.php';
