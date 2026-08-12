@@ -22,12 +22,25 @@ class WorkspaceValuationController extends Controller
             ->latest()
             ->first();
 
-        return view('workspaces.valuation', compact('workspace', 'latest'));
+        $canManageBusiness = $request->user()->isAdmin()
+            || $workspace->owner_user_id === $request->user()->id;
+
+        return view(
+            'workspaces.valuation',
+            compact('workspace', 'latest', 'canManageBusiness')
+        );
     }
 
-    public function calculate(Request $request, PartnershipWorkspace $workspace, BusinessValuationService $service): RedirectResponse
-    {
-        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+    public function calculate(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        BusinessValuationService $service
+    ): RedirectResponse {
+        abort_unless(
+            $request->user()->isAdmin()
+                || $workspace->owner_user_id === $request->user()->id,
+            403
+        );
         abort_unless($workspace->isExistingPartnership(), 422);
 
         $validated = $request->validate([
