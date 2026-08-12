@@ -1,6 +1,19 @@
 (() => {
     'use strict';
 
+    const systemNames = {
+        1: { mm: 'မတည်ငွေနှင့် ရင်းနှီးငွေ', en: 'Capital & Funding' },
+        2: { mm: 'ပိုင်ဆိုင်မှုနှင့် အစုရှယ်ယာ', en: 'Ownership & Equity' },
+        3: { mm: 'Partner တာဝန်နှင့် တန်ဖိုးထည့်ဝင်မှု', en: 'Partner Roles & Contributions' },
+        4: { mm: 'အမြတ်၊ လစာနှင့် အရှုံး ခွဲဝေမှု', en: 'Profit & Distribution' },
+        5: { mm: 'ငွေကြေး ထိန်းချုပ်မှု', en: 'Financial Controls' },
+        6: { mm: 'အုပ်ချုပ်မှုနှင့် ဆုံးဖြတ်ချက် စနစ်', en: 'Governance & Decision Making' },
+        7: { mm: 'Partner ထွက်ခွာမှုနှင့် Buyout', en: 'Exit & Buyout' },
+        8: { mm: 'လုပ်ငန်းဆက်လက်မှုနှင့် အန္တရာယ်ကာကွယ်မှု', en: 'Continuity & Risk' },
+        9: { mm: 'အစုရှယ်ယာ လွှဲပြောင်းမှု', en: 'Share Transfers' },
+        10: { mm: 'Partner အငြင်းပွားမှု ဖြေရှင်းရေး', en: 'Dispute Management' },
+    };
+
     function refreshNumbers(repeater) {
         repeater.querySelectorAll('[data-repeater-row]').forEach((row, index) => {
             const badge = row.querySelector('.pbr-os-row-number');
@@ -17,70 +30,131 @@
         });
     }
 
-    function replaceBusinessLanguage(root) {
+    function replaceText(root, replacements) {
         if (!root) return;
 
         const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
-        const textNodes = [];
-        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        const nodes = [];
+        while (walker.nextNode()) nodes.push(walker.currentNode);
 
-        textNodes.forEach((node) => {
+        nodes.forEach((node) => {
             let value = node.nodeValue;
             if (!value) return;
 
-            value = value
-                .replaceAll('Agreed Business Rule', 'အသုံးပြုမည့် Business Rule')
-                .replaceAll('Agreed Rule', 'Active Rule')
-                .replaceAll('နောက် Chapters', 'အခြား Business Systems')
-                .replaceAll('နောက် Chapter', 'အခြား Business System')
-                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ အသုံးပြုနေသော data');
+            replacements.forEach(([from, to]) => {
+                value = typeof from === 'string'
+                    ? value.replaceAll(from, to)
+                    : value.replace(from, to);
+            });
 
             node.nodeValue = value;
         });
+    }
+
+    function clarityFirstBusinessLanguage(root) {
+        replaceText(root, [
+            ['Agreed Business Rule', 'Active Business Rule'],
+            ['Agreed Rule', 'Active Rule'],
+            ['Current Agreed Business Rule', 'လက်ရှိ အသုံးပြုနေသော Business Rule'],
+            ['Partner Read-Only View', 'Partner ကြည့်ရှုရန်သာ'],
+            ['Permission Safe', 'Read-only'],
+            ['Workflow', 'အသုံးပြုပုံ'],
+            ['Actual business information', 'တကယ်အသုံးပြုမည့် Business Data'],
+            ['Calculate / Review', 'Result စစ်ရန်'],
+            ['Logic + warnings + comparison', 'တွက်ချက်မှု၊ သတိပေးချက်နဲ့ နှိုင်းယှဉ်မှု'],
+            ['Save Draft', 'Draft သိမ်းရန်'],
+            ['Scenario မပျောက်အောင်သိမ်း', 'အပြီးမသတ်သေးဘဲ သိမ်းထားရန်'],
+            ['Saved Scenarios', 'သိမ်းထားသော Draft များ'],
+            ['Rule History', 'Rule History · မှတ်တမ်း'],
+            ['Business Inputs', 'လိုအပ်သော Business Data'],
+            ['Scenario ကိုပြင်နေပါတယ်', 'သိမ်းထားသော Draft ကို ပြင်နေသည်'],
+            ['Scenario အသစ်တည်ဆောက်ပါ', 'အချက်အလက်အသစ် ထည့်ပါ'],
+            ['Tool တစ်ခုချင်းစီမှာ လိုအပ်တဲ့ data ပဲမေးထားပါတယ်။ Empty field မဖြည့်ချင်ရင် 0 / blank ထားနိုင်တဲ့နေရာတွေရှိပါတယ်။', 'ဒီ Business ဆုံးဖြတ်ချက်အတွက် လိုအပ်တဲ့အချက်အလက်ပဲ ထည့်ပါ။ မသေချာတဲ့ field ရှိရင် အောက်ကရှင်းလင်းချက်ကို ကြည့်ပြီးမှ ဖြည့်ပါ။'],
+            ['Scenario အမည်', 'Draft အမည်'],
+            ['Based on the information entered for this scenario', 'ထည့်ထားသော အချက်အလက်များအပေါ် အခြေခံထားသည်'],
+            ['Business Note', 'Business အကြံပြုချက်'],
+            ['Create Draft Output', 'Draft Result သိမ်းရန်'],
+            ['Approve as Agreed Business Rule', 'Rule အဖြစ် အတည်ပြုအသုံးပြုရန်'],
+            ['နောက် Chapters', 'အခြား Business Systems'],
+            ['နောက် Chapter', 'အခြား Business System'],
+            [/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ အသုံးပြုနေသော data'],
+            ['Important', 'သတိပြုရန်'],
+        ]);
     }
 
     function professionalizeOperatingToolPage() {
         const page = document.querySelector('.pbr-os-page');
         if (!page) return;
 
-        const systemNames = {
-            1: 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
-            2: 'ပိုင်ဆိုင်မှုနှင့် အစုရှယ်ယာ',
-            3: 'Partner တာဝန်နှင့် တန်ဖိုးထည့်ဝင်မှု',
-            4: 'အမြတ်၊ လစာနှင့် အရှုံး ခွဲဝေမှု',
-            5: 'ငွေကြေး ထိန်းချုပ်မှု',
-            6: 'အုပ်ချုပ်မှုနှင့် ဆုံးဖြတ်ချက် စနစ်',
-            7: 'Partner ထွက်ခွာမှုနှင့် Buyout',
-            8: 'လုပ်ငန်းဆက်လက်မှုနှင့် Risk',
-            9: 'အစုရှယ်ယာ လွှဲပြောင်းမှု',
-            10: 'Partner အငြင်းပွားမှု ဖြေရှင်းရေး',
-        };
-
         const chapterPill = page.querySelector('.pbr-os-chapter-pill');
-        let systemName = null;
+        let system = null;
 
         if (chapterPill) {
             const match = chapterPill.textContent.match(/Chapter\s*0?(\d+)/i);
-            if (match) systemName = systemNames[Number(match[1])] ?? 'Business System';
-            chapterPill.textContent = systemName ?? 'Business System';
+            if (match) system = systemNames[Number(match[1])] ?? null;
+            chapterPill.textContent = system
+                ? `${system.mm} · ${system.en}`
+                : 'Business System';
         }
+
+        const typePill = page.querySelector('.pbr-os-type-pill');
+        if (typePill) typePill.hidden = true;
 
         const breadcrumb = page.querySelector('.pbr-os-breadcrumb');
         if (breadcrumb) {
             breadcrumb.querySelectorAll('a').forEach((link) => {
                 if (link.textContent.includes('10-Chapter System')) {
-                    link.textContent = 'Business Operating System သို့ ပြန်ရန်';
+                    link.textContent = 'Business Operating System';
                 }
             });
 
             breadcrumb.querySelectorAll('span').forEach((span) => {
                 if (/^Chapter\s+\d+$/i.test(span.textContent.trim())) {
-                    span.textContent = systemName ?? 'Business System';
+                    span.textContent = system ? system.mm : 'Business System';
                 }
             });
         }
 
-        replaceBusinessLanguage(page);
+        const businessContext = page.querySelector('.pbr-os-business-context');
+        if (businessContext) {
+            replaceText(businessContext, [
+                ['Planning a New Partnership', 'Partnership အသစ် စီစဉ်နေသည်'],
+                ['Managing an Existing Partnership', 'ရှိပြီးသား Partnership ကို စီမံနေသည်'],
+            ]);
+        }
+
+        clarityFirstBusinessLanguage(page);
+
+        const sideNew = page.querySelector('.pbr-os-side-head a');
+        if (sideNew && sideNew.textContent.trim() === 'New') sideNew.textContent = 'အသစ်';
+
+        const primaryAction = page.querySelector('.pbr-os-form-actions .pbr-os-btn.primary');
+        if (primaryAction) primaryAction.textContent = 'Result စစ်ရန်';
+
+        const resultLabel = page.querySelector('.pbr-os-result-hero > span');
+        if (resultLabel && resultLabel.textContent.trim() === 'Result') {
+            resultLabel.textContent = 'တွက်ချက်ရလဒ်';
+        }
+
+        page.querySelectorAll('.pbr-os-table-head > span').forEach((label) => {
+            label.textContent = label.textContent.replace(/\brows\b/i, 'အတန်း');
+        });
+
+        const approval = page.querySelector('.pbr-os-approval-zone');
+        if (approval) {
+            const heading = approval.querySelector('h3');
+            const paragraph = approval.querySelector('p');
+            if (heading) heading.textContent = 'ဒီ Draft ကို လုပ်ငန်းမှာ တကယ်အသုံးပြုမလား?';
+            if (paragraph) paragraph.innerHTML = 'Draft က စမ်းသပ်/ပြင်ဆင်နိုင်တဲ့ version ဖြစ်ပါတယ်။ <b>Rule အဖြစ် အတည်ပြုအသုံးပြုရန်</b> ကိုရွေးမှ PBR AI နဲ့ အခြား Business Systems တွေက လက်ရှိ official business data အဖြစ်ယူသုံးပါမယ်။';
+        }
+
+        const emptyState = page.querySelector('.pbr-os-empty-state');
+        if (emptyState) {
+            const heading = emptyState.querySelector('h2');
+            const paragraph = emptyState.querySelector('p');
+            if (heading) heading.textContent = 'ဒီ Business System အတွက် အသုံးပြုနေသော Rule မရှိသေးပါ';
+            if (paragraph) paragraph.textContent = 'Owner/Admin က Rule တစ်ခုအတည်ပြုပြီး အသုံးပြုလာတဲ့အခါ ဒီနေရာမှာ လက်ရှိ business data ကိုမြင်ရပါမယ်။ Draft တွေကို Partner account မှာ မပြပါဘူး။';
+        }
     }
 
     function professionalizeCapitalToolPage() {
@@ -99,7 +173,7 @@
             }
         });
 
-        replaceBusinessLanguage(page);
+        clarityFirstBusinessLanguage(page);
     }
 
     cleanBusinessModuleNames();
@@ -151,8 +225,8 @@
     document.querySelectorAll('[data-confirm-agreed]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             const accepted = window.confirm(
-                'ဒီ Scenario ကို Business မှာ တကယ်အသုံးပြုမယ့် Rule အဖြစ် အတည်ပြုမလား?\n\n' +
-                'အတည်ပြုပြီးရင် အခြား Business Systems နဲ့ PBR AI Advisor က လက်ရှိ Business Rule အဖြစ် အသုံးပြုနိုင်ပါမယ်။'
+                'ဒီ Draft ကို လက်ရှိအသုံးပြုမယ့် Business Rule အဖြစ် အတည်ပြုမလား?\n\n' +
+                'အတည်ပြုပြီးရင် PBR AI နဲ့ အခြား Business Systems တွေက ဒီ data ကို current business rule အဖြစ်အသုံးပြုနိုင်ပါမယ်။'
             );
 
             if (!accepted) event.preventDefault();
