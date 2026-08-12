@@ -50,7 +50,10 @@ return new class extends Migration
                 ['workspace_id', 'domain_key', 'revision'],
                 'workspace_domain_revision_unique'
             );
-            $table->index(['workspace_id', 'domain_key', 'status']);
+            $table->index(
+                ['workspace_id', 'domain_key', 'status'],
+                'ws_snapshot_domain_status_idx'
+            );
         });
 
         Schema::create('workspace_operating_records', function (Blueprint $table): void {
@@ -75,7 +78,10 @@ return new class extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
 
-            $table->index(['workspace_id', 'record_type', 'status']);
+            $table->index(
+                ['workspace_id', 'record_type', 'status'],
+                'ws_record_type_status_idx'
+            );
             $table->index(['workspace_id', 'chapter_tool_id']);
         });
     }
