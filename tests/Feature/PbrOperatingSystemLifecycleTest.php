@@ -7,6 +7,7 @@ use App\Models\WorkspaceMember;
 use App\Models\WorkspaceOperatingSnapshot;
 use App\Models\WorkspaceToolOutput;
 use App\Services\Ai\PbrAiContextBuilder;
+use App\Services\PbrTools\PbrChapterStateService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\ToolScenarioService;
 use Database\Seeders\CourseCatalogSeeder;
@@ -110,6 +111,74 @@ test('accepted partner is not a workspace manager', function () {
     expect($scenarios->canManage($owner, $workspace))->toBeTrue()
         ->and($scenarios->canManage($partner, $workspace))->toBeFalse()
         ->and($partner->canAccessWorkspace($workspace))->toBeTrue();
+});
+
+test('working chapter state combines a new draft with unchanged agreed tools', function () {
+    extract(pbrLifecycleFixture());
+
+    $engine = app(PbrOperatingToolEngine::class);
+    $scenarios = app(ToolScenarioService::class);
+
+    $capInput = [
+        'partners' => [
+            ['name' => 'Owner', 'units' => 60, 'voting_units' => 60],
+            ['name' => 'Partner', 'units' => 40, 'voting_units' => 40],
+        ],
+        'reserved_units' => 0,
+    ];
+    $capSession = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $tool,
+        'Agreed Cap Table',
+        $capInput,
+        $engine->calculate($tool->tool_key, $capInput, $workspace)
+    );
+    $scenarios->publishAgreedOutput($owner, $workspace, $tool, $capSession);
+
+    $shareTool = ChapterTool::query()
+        ->where('tool_key', 'share_value_calculator')
+        ->firstOrFail();
+    $shareInput = [
+        'equity_value' => 2400000,
+        'total_units' => 100,
+        'stake_percentage' => 25,
+    ];
+    $shareSession = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $shareTool,
+        'Working Share Value',
+        $shareInput,
+        $engine->calculate($shareTool->tool_key, $shareInput, $workspace)
+    );
+    $scenarios->createWorkspaceOutput(
+        $owner,
+        $workspace,
+        $shareTool,
+        $shareSession
+    );
+
+    $working = app(PbrChapterStateService::class)->build(
+        $workspace,
+        2,
+        'draft'
+    );
+    $agreed = app(PbrChapterStateService::class)->build(
+        $workspace,
+        2,
+        'agreed'
+    );
+
+    expect($working['payload']['source_status'])->toBe('working_latest_draft_or_agreed')
+        ->and($working['payload']['tools'])->toHaveKeys([
+            'cap_table_builder',
+            'share_value_calculator',
+        ])
+        ->and($working['payload']['tools']['cap_table_builder']['status'])->toBe('agreed')
+        ->and($working['payload']['tools']['share_value_calculator']['status'])->toBe('draft')
+        ->and($agreed['payload']['tools'])->toHaveKey('cap_table_builder')
+        ->and($agreed['payload']['tools'])->not->toHaveKey('share_value_calculator');
 });
 
 test('partner AI context receives agreed output but never later draft output', function () {
