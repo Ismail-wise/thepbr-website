@@ -169,8 +169,10 @@ require "vendor/autoload.php";
 $required = [
     "App\\Http\\Controllers\\WorkspacePartnerProfileController",
     "App\\Http\\Controllers\\WorkspaceOperatingToolController",
+    "App\\Http\\Controllers\\WorkspaceStartupCapitalController",
     "App\\Services\\PbrTools\\PbrOperatingSystemService",
     "App\\Services\\PbrTools\\PbrOperatingToolEngine",
+    "App\\Services\\PbrTools\\StartupCapitalCalculator",
     "App\\Models\\WorkspacePartnerProfile",
 ];
 foreach ($required as $class) {
@@ -194,6 +196,8 @@ echo
 echo "=== JAVASCRIPT VALIDATION ==="
 node --check public/js/pbr-operating-system.js
 echo "PBR operating JavaScript: PASS"
+node --check public/js/startup-capital-planner.js
+echo "Startup capital planner JavaScript: PASS"
 
 echo
 echo "=== LARAVEL BOOT / CONFIG / VIEW VALIDATION ==="
@@ -281,8 +285,11 @@ chmod 644 \
     public/css/pbr-operating-system.css \
     public/css/pbr-operating-dashboard.css \
     public/css/pbr-operating-fixes.css \
+    public/css/pbr-startup-capital.css \
+    public/css/pbr-startup-capital-readonly.css \
     public/css/pbr-roster.css \
     public/js/pbr-operating-system.js \
+    public/js/startup-capital-planner.js \
     database/migrations/2026_08_12_120000_create_pbr_operating_system_tables.php \
     scripts/pbr-operating-system-production-install.sh
 chown -R www-data:www-data storage bootstrap/cache
