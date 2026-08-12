@@ -139,19 +139,31 @@ cd "$WORKTREE"
 echo
 echo "=== PREPARE ISOLATED TEST DEPENDENCIES ==="
 if [[ ! -x vendor/bin/pest ]]; then
-    echo "Production vendor has no development test runner; installing locked dev dependencies in the temporary worktree only."
-    COMPOSER_ALLOW_SUPERUSER=1 composer install \
+    echo "Installing locked dev dependencies in the temporary worktree only..."
+    COMPOSER_LOG="$WORKTREE/composer-install.log"
+    if ! COMPOSER_ALLOW_SUPERUSER=1 composer install \
         --no-interaction \
         --prefer-dist \
         --no-scripts \
-        --no-progress
+        --no-progress >"$COMPOSER_LOG" 2>&1; then
+        cat "$COMPOSER_LOG"
+        fail "Composer could not install isolated test dependencies."
+    fi
 fi
 [[ -x vendor/bin/pest ]] || fail "Pest test runner is unavailable in the isolated worktree."
 echo "Isolated test dependencies: PASS"
 
 echo
 echo "=== BUILD ISOLATED COMPOSER AUTOLOAD ==="
-COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-interaction --optimize
+COMPOSER_LOG="$WORKTREE/composer-autoload.log"
+if ! COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload \
+    --no-scripts \
+    --no-interaction \
+    --optimize >"$COMPOSER_LOG" 2>&1; then
+    cat "$COMPOSER_LOG"
+    fail "Composer could not build the isolated autoloader."
+fi
+echo "Composer autoload build: PASS"
 php -r '
 require "vendor/autoload.php";
 $required = [
