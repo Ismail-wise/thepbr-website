@@ -228,6 +228,7 @@ MYSQL_PWD="$DB_PASSWORD" mysqldump \
     --single-transaction \
     --quick \
     --skip-lock-tables \
+    --no-tablespaces \
     -u "$DB_USER" \
     "$DB_NAME" > "$DB_BACKUP"
 chmod 600 "$DB_BACKUP"
@@ -282,8 +283,8 @@ chmod 644 \
     public/css/pbr-operating-fixes.css \
     public/css/pbr-roster.css \
     public/js/pbr-operating-system.js \
-    database/migrations/2026_08_12_120000_create_pbr_operating_system_tables.php
-chmod 755 scripts/pbr-operating-system-production-install.sh
+    database/migrations/2026_08_12_120000_create_pbr_operating_system_tables.php \
+    scripts/pbr-operating-system-production-install.sh
 chown -R www-data:www-data storage bootstrap/cache
 
 echo
