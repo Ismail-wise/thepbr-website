@@ -8,6 +8,67 @@
         });
     }
 
+    function professionalizeOperatingToolPage() {
+        const page = document.querySelector('.pbr-os-page');
+        if (!page) return;
+
+        const systemNames = {
+            1: 'Capital & Funding',
+            2: 'Ownership & Equity',
+            3: 'Partner Roles & Contributions',
+            4: 'Profit & Distribution',
+            5: 'Financial Controls',
+            6: 'Governance & Decision Making',
+            7: 'Exit & Buyout',
+            8: 'Continuity & Risk',
+            9: 'Share Transfers',
+            10: 'Dispute Management',
+        };
+
+        const chapterPill = page.querySelector('.pbr-os-chapter-pill');
+        let systemName = null;
+
+        if (chapterPill) {
+            const match = chapterPill.textContent.match(/Chapter\s*0?(\d+)/i);
+            if (match) systemName = systemNames[Number(match[1])] ?? 'Business System';
+            chapterPill.textContent = systemName ?? 'Business System';
+        }
+
+        const breadcrumb = page.querySelector('.pbr-os-breadcrumb');
+        if (breadcrumb) {
+            breadcrumb.querySelectorAll('a').forEach((link) => {
+                if (link.textContent.includes('10-Chapter System')) {
+                    link.textContent = 'Business Operating System';
+                }
+            });
+
+            breadcrumb.querySelectorAll('span').forEach((span) => {
+                if (/^Chapter\s+\d+$/i.test(span.textContent.trim())) {
+                    span.textContent = systemName ?? 'Business System';
+                }
+            });
+        }
+
+        const walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        textNodes.forEach((node) => {
+            let value = node.nodeValue;
+            if (!value) return;
+
+            value = value
+                .replaceAll('Agreed Business Rule', 'Active Business Rule')
+                .replaceAll('Agreed Rule', 'Active Rule')
+                .replaceAll('နောက် Chapters', 'အခြား Business Systems')
+                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ active operating data');
+
+            node.nodeValue = value;
+        });
+    }
+
+    professionalizeOperatingToolPage();
+
     document.querySelectorAll('[data-pbr-repeater]').forEach((repeater) => {
         const rows = repeater.querySelector('[data-repeater-rows]');
         const template = repeater.querySelector('[data-repeater-template]');
@@ -53,8 +114,8 @@
     document.querySelectorAll('[data-confirm-agreed]').forEach((form) => {
         form.addEventListener('submit', (event) => {
             const accepted = window.confirm(
-                'ဒီ Scenario ကို Agreed Business Rule အဖြစ် အတည်ပြုမလား?\n\n' +
-                'အတည်ပြုပြီးရင် နောက် Chapter တွေနဲ့ PBR AI Advisor က current business rule အဖြစ်အသုံးပြုနိုင်ပါမယ်။'
+                'ဒီ Scenario ကို Active Business Rule အဖြစ် အတည်ပြုမလား?\n\n' +
+                'အတည်ပြုပြီးရင် အခြား Business Systems နဲ့ PBR AI Advisor က current business rule အဖြစ်အသုံးပြုနိုင်ပါမယ်။'
             );
 
             if (!accepted) event.preventDefault();
