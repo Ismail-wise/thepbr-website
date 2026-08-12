@@ -4,6 +4,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use Database\Seeders\CourseCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Route;
 
 uses(RefreshDatabase::class);
 
@@ -64,4 +65,45 @@ test('active student portal exposes the connected PBR operating system', functio
         ->assertSee('Open 64 Tools')
         ->assertSee(route('workspaces.tools.index', $workspace), false)
         ->assertDontSee('Coming Next');
+});
+
+test('workspace tools dashboard keeps chapter one and operating routes registered separately', function () {
+    app(CourseCatalogSeeder::class)->run();
+
+    expect(Route::has('workspaces.tools.chapter-one.show'))->toBeTrue()
+        ->and(Route::has('workspaces.tools.chapter-one.calculate'))->toBeTrue()
+        ->and(Route::has('workspaces.tools.chapter-one.save'))->toBeTrue()
+        ->and(Route::has('workspaces.tools.operating.show'))->toBeTrue()
+        ->and(Route::has('workspaces.tools.operating.calculate'))->toBeTrue()
+        ->and(Route::has('workspaces.tools.operating.save'))->toBeTrue();
+
+    $user = User::factory()->create([
+        'role' => 'student',
+        'account_status' => 'active',
+        'portal_access_expires_at' => now()->addDay(),
+    ]);
+
+    $workspace = PartnershipWorkspace::create([
+        'owner_user_id' => $user->id,
+        'name' => 'Tools Dashboard Test Business',
+        'business_name' => 'Tools Dashboard Test Business',
+        'business_stage' => 'existing',
+        'currency_code' => 'THB',
+        'status' => 'active',
+    ]);
+
+    $chapterOneUrl = route('workspaces.tools.chapter-one.show', [
+        $workspace,
+        'current-capital-position',
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('workspaces.tools.index', $workspace));
+
+    $response
+        ->assertOk()
+        ->assertSee('Partnership Business Operating System')
+        ->assertSee($chapterOneUrl, false)
+        ->assertSee('/tools/operating/', false);
 });
