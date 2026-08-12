@@ -4,6 +4,7 @@ namespace App\Services\Ai;
 
 use App\Models\BusinessFeasibilityAssessment;
 use App\Models\BusinessValuation;
+use App\Models\PartnerDynamicsAssessment;
 use App\Models\PartnerDynamicsReport;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
@@ -38,6 +39,13 @@ class PbrAiContextBuilder
 
         $latestValuation = BusinessValuation::query()
             ->where('workspace_id', $workspace->id)
+            ->latest('id')
+            ->first();
+
+        $actorAssessment = PartnerDynamicsAssessment::query()
+            ->where('user_id', $actor->id)
+            ->where('status', 'completed')
+            ->latest('completed_at')
             ->latest('id')
             ->first();
 
@@ -92,6 +100,15 @@ class PbrAiContextBuilder
                 'accepted_partner_count' => count($partners),
                 'accepted_partners' => $partners,
             ],
+            'actor_partner_profile' => $actorAssessment ? [
+                'primary_profile' => $actorAssessment->primary_profile,
+                'secondary_profile' => $actorAssessment->secondary_profile,
+                'is_blended' => $actorAssessment->is_blended,
+                'result_confidence' => $actorAssessment->result_confidence,
+                'dimension_scores' => $actorAssessment->dimension_scores,
+                'completed_at' => $actorAssessment->completed_at?->toIso8601String(),
+                'scope_note' => 'This is the signed-in actor own latest completed Partner Dynamics profile only.',
+            ] : null,
             'feasibility' => $latestFeasibility ? [
                 'project_name' => $latestFeasibility->project_name,
                 'result' => $this->limitValue($latestFeasibility->result, 12000),
