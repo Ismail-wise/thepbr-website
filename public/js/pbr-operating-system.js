@@ -8,6 +8,28 @@
         });
     }
 
+    function replaceBusinessLanguage(root) {
+        if (!root) return;
+
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+        while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+        textNodes.forEach((node) => {
+            let value = node.nodeValue;
+            if (!value) return;
+
+            value = value
+                .replaceAll('Agreed Business Rule', 'Active Business Rule')
+                .replaceAll('Agreed Rule', 'Active Rule')
+                .replaceAll('နောက် Chapters', 'အခြား Business Systems')
+                .replaceAll('နောက် Chapter', 'အခြား Business System')
+                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ active operating data');
+
+            node.nodeValue = value;
+        });
+    }
+
     function professionalizeOperatingToolPage() {
         const page = document.querySelector('.pbr-os-page');
         if (!page) return;
@@ -49,25 +71,30 @@
             });
         }
 
-        const walker = document.createTreeWalker(page, NodeFilter.SHOW_TEXT);
-        const textNodes = [];
-        while (walker.nextNode()) textNodes.push(walker.currentNode);
+        replaceBusinessLanguage(page);
+    }
 
-        textNodes.forEach((node) => {
-            let value = node.nodeValue;
-            if (!value) return;
+    function professionalizeCapitalToolPage() {
+        const page = document.querySelector('.pbr-tools-section');
+        if (!page) return;
 
-            value = value
-                .replaceAll('Agreed Business Rule', 'Active Business Rule')
-                .replaceAll('Agreed Rule', 'Active Rule')
-                .replaceAll('နောက် Chapters', 'အခြား Business Systems')
-                .replace(/Chapter\s+\d+\s+ရဲ့ connected operating data/g, 'ဒီ Business System ရဲ့ active operating data');
-
-            node.nodeValue = value;
+        page.querySelectorAll('.pbr-tools-back').forEach((link) => {
+            if (link.textContent.includes('PBR Business Tools') || link.textContent.includes('10-Chapter')) {
+                link.textContent = '← Back to Business Operating System';
+            }
         });
+
+        page.querySelectorAll('.portal-kicker').forEach((kicker) => {
+            if (/Chapter\s*1/i.test(kicker.textContent)) {
+                kicker.textContent = 'Capital & Funding';
+            }
+        });
+
+        replaceBusinessLanguage(page);
     }
 
     professionalizeOperatingToolPage();
+    professionalizeCapitalToolPage();
 
     document.querySelectorAll('[data-pbr-repeater]').forEach((repeater) => {
         const rows = repeater.querySelector('[data-repeater-rows]');
