@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-operating-system.css') }}?v={{ filemtime(public_path('css/pbr-operating-system.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-operating-dashboard.css') }}?v={{ filemtime(public_path('css/pbr-operating-dashboard.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-operating-fixes.css') }}?v={{ filemtime(public_path('css/pbr-operating-fixes.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-roster.css') }}?v={{ filemtime(public_path('css/pbr-roster.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
 </head>
