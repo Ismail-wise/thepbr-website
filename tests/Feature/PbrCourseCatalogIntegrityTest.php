@@ -69,7 +69,7 @@ test('active student portal separates learning from the real business operating 
         ->assertDontSee('Coming Next');
 });
 
-test('workspace operating system is Burmese first business focused and keeps tool routes separate', function () {
+test('workspace operating system is clarity first and keeps tool routes separate', function () {
     app(CourseCatalogSeeder::class)->run();
 
     expect(Route::has('workspaces.tools.chapter-one.show'))->toBeTrue()
@@ -121,4 +121,75 @@ test('workspace operating system is Burmese first business focused and keeps too
         ->assertDontSee('PLANNER')
         ->assertDontSee('MATRIX')
         ->assertDontSee('CHART');
+});
+
+test('capital business screen uses clear operational language instead of classroom language', function () {
+    app(CourseCatalogSeeder::class)->run();
+
+    $user = User::factory()->create([
+        'role' => 'student',
+        'account_status' => 'active',
+        'portal_access_expires_at' => now()->addDay(),
+    ]);
+
+    $workspace = PartnershipWorkspace::create([
+        'owner_user_id' => $user->id,
+        'name' => 'Capital UX Test Business',
+        'business_name' => 'Capital UX Test Business',
+        'business_stage' => 'existing',
+        'currency_code' => 'THB',
+        'status' => 'active',
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('workspaces.tools.chapter-one.show', [
+            $workspace,
+            'current-capital-position',
+        ]));
+
+    $response
+        ->assertOk()
+        ->assertSee('Business Operating System သို့ ပြန်ရန်')
+        ->assertSee('မတည်ငွေနှင့် ရင်းနှီးငွေ')
+        ->assertSee('Draft အမည်')
+        ->assertSee('Draft သိမ်းရန်')
+        ->assertSee('Result စစ်ရန်')
+        ->assertDontSee('Chapter 1')
+        ->assertDontSee('Calculate / Review')
+        ->assertDontSee('Save Draft');
+});
+
+test('startup capital screen explains actions without requiring English fluency', function () {
+    app(CourseCatalogSeeder::class)->run();
+
+    $user = User::factory()->create([
+        'role' => 'student',
+        'account_status' => 'active',
+        'portal_access_expires_at' => now()->addDay(),
+    ]);
+
+    $workspace = PartnershipWorkspace::create([
+        'owner_user_id' => $user->id,
+        'name' => 'Startup UX Test Business',
+        'business_name' => 'Startup UX Test Business',
+        'business_stage' => 'new',
+        'currency_code' => 'THB',
+        'status' => 'active',
+    ]);
+
+    $response = $this
+        ->actingAs($user)
+        ->get(route('workspaces.tools.startup-capital.show', $workspace));
+
+    $response
+        ->assertOk()
+        ->assertSee('စတင်မတည်ငွေ အစီအစဉ်')
+        ->assertSee('ကိုယ့်လုပ်ငန်းအတွက် တကယ်လိုအပ်တာတွေကို ထည့်ပါ')
+        ->assertSee('ကုန်ကျစရိတ်အုပ်စု')
+        ->assertSee('Draft သိမ်းရန်')
+        ->assertSee('မတည်ငွေ Result စစ်ရန်')
+        ->assertDontSee('Chapter 1')
+        ->assertDontSee('Build Your Own Cost List')
+        ->assertDontSee('Calculate Startup Capital');
 });
