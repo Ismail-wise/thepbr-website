@@ -1,100 +1,176 @@
 @extends('layouts.student-portal')
 
-@section('title', 'Startup Capital Planner')
+@section('title', 'စတင်မတည်ငွေ အစီအစဉ်')
 
 @section('content')
-<section class="pbr-tools-section">
-    <div class="portal-wrap">
-        <div class="pbr-tool-page-head">
-            <div>
-                <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-tools-back">← Back to 10-Chapter System</a>
-                <span class="portal-kicker">Chapter 1 · Capital Contribution</span>
-                <h1>Startup Capital Planner</h1>
-                <p>Owner/Admin အတည်ပြုထားတဲ့ Startup Capital rule ကို Partner account က read-only ကြည့်နိုင်ပါတယ်။</p>
+@php
+    $currency = $workspace->currency_code ?? 'THB';
+    $total = (float) ($result['total_startup_capital'] ?? 0);
+    $essential = (float) ($result['essential_total'] ?? $total);
+    $optional = (float) ($result['optional_total'] ?? 0);
+    $funded = (float) ($result['funded_total'] ?? 0);
+    $gap = (float) ($result['funding_gap'] ?? max(0, $total - $funded));
+    $due30 = (float) ($result['due_30_days_outstanding'] ?? 0);
+    $fundedPercent = $total > 0 ? min(100, ($funded / $total) * 100) : 0;
+@endphp
+
+<section class="pbr-tools-section pbr-capital-plan-page">
+    <div class="portal-wrap pbr-capital-plan-wrap">
+        <header class="pbr-capital-plan-hero">
+            <div class="pbr-capital-plan-hero-copy">
+                <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-tools-back pbr-capital-back">
+                    ← Capital & Funding သို့ ပြန်ရန်
+                </a>
+                <span class="portal-kicker">CAPITAL & FUNDING</span>
+                <h1>စတင်မတည်ငွေ အစီအစဉ်</h1>
+                <p class="pbr-tool-en-subtitle">Startup Capital Plan</p>
+                <p class="pbr-capital-plan-lead">
+                    Owner/Admin အတည်ပြုပြီး <strong>လက်ရှိအသုံးပြုနေသော Startup Capital Plan</strong> ကို ဒီနေရာမှာကြည့်နိုင်ပါတယ်။
+                    Draft နဲ့ private scenario တွေကို Partner account မှာ မပြပါဘူး။
+                </p>
             </div>
-            <div class="pbr-tool-context-box">
-                <span>Current Business</span>
+
+            <div class="pbr-capital-business-card">
+                <small>လက်ရှိ Business</small>
                 <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
-                <small>Currency: {{ $workspace->currency_code ?? 'THB' }}</small>
+                <span>{{ $currency }} · Partner ကြည့်ရှုရန်သာ</span>
                 @if($latestAgreedOutput)
-                    <small style="color:#bbf0ce;">✓ Agreed · Revision {{ $latestAgreedOutput->revision }}</small>
+                    <b>✓ Active Rule · Revision {{ $latestAgreedOutput->revision }}</b>
                 @endif
             </div>
-        </div>
-
-        <div class="pbr-os-readonly-banner">
-            <div>
-                <strong>Partner Read-Only View</strong>
-                <p>Draft cost lists နဲ့ private calculation scenarios တွေကို မပြပါဘူး။ Agreed Business Rule အဖြစ် approve လုပ်ထားတဲ့ result ကိုပဲပြထားပါတယ်။</p>
-            </div>
-            <span>Permission Safe</span>
-        </div>
+        </header>
 
         @if($result)
-            <div class="pbr-calculator-layout">
-                <div class="pbr-calculator-panel">
-                    <span class="portal-kicker">Current Agreed Rule</span>
-                    <h2 style="margin:8px 0;">Startup Capital Structure</h2>
-                    <p style="color:#65777d;line-height:1.7;">ဒီ result က current Business ရဲ့ approved Startup Capital plan ဖြစ်ပါတယ်။</p>
-
-                    <div class="pbr-breakdown" style="margin-top:18px;">
-                        <h3>Category Breakdown</h3>
-                        @forelse($result['categories'] ?? [] as $category)
-                            <div class="pbr-breakdown-row">
-                                <div>
-                                    <span>{{ $category['name'] ?? 'Category' }}</span>
-                                    <strong>{{ number_format((float) ($category['percentage'] ?? 0), 2) }}%</strong>
-                                </div>
-                                <div class="pbr-breakdown-track"><i style="width: {{ min(100, (float) ($category['percentage'] ?? 0)) }}%"></i></div>
-                                <small>{{ $workspace->currency_code ?? 'THB' }} {{ number_format((float) ($category['subtotal'] ?? 0), 2) }}</small>
+            <div class="pbr-capital-workspace-grid pbr-capital-readonly-grid">
+                <main class="pbr-capital-planner">
+                    <section class="pbr-capital-costs-section">
+                        <div class="pbr-capital-section-heading">
+                            <div>
+                                <span class="portal-kicker">ACTIVE COST PLAN</span>
+                                <h2>လက်ရှိအတည်ပြုထားသော ကုန်ကျစရိတ် Plan</h2>
+                                <p>Category တစ်ခုချင်းစီရဲ့ လိုအပ်ငွေ၊ Funding ရထားမှုနဲ့ outstanding ကို စုစည်းပြထားပါတယ်။</p>
                             </div>
-                        @empty
-                            <p class="pbr-muted-copy">Category details မရှိသေးပါ။</p>
-                        @endforelse
-                    </div>
-                </div>
-
-                <aside class="pbr-calculator-results">
-                    <span class="portal-kicker">Agreed Capital Summary</span>
-                    <div class="pbr-total-result">
-                        <span>Total Startup Capital</span>
-                        <strong>{{ $workspace->currency_code ?? 'THB' }} {{ number_format((float) ($result['total_startup_capital'] ?? 0), 2) }}</strong>
-                    </div>
-                    <div class="pbr-result-stats">
-                        <div><span>Categories</span><strong>{{ $result['category_count'] ?? count($result['categories'] ?? []) }}</strong></div>
-                        <div><span>Items with Amount</span><strong>{{ $result['item_count'] ?? 0 }}</strong></div>
-                    </div>
-                    @if(!empty($result['largest_category']))
-                        <div class="pbr-largest-cost">
-                            <span>Largest Category</span>
-                            <strong>{{ $result['largest_category']['name'] ?? '—' }}</strong>
-                            <p>{{ $workspace->currency_code ?? 'THB' }} {{ number_format((float) ($result['largest_category']['subtotal'] ?? 0), 2) }}</p>
+                            @if($latestAgreedOutput)
+                                <span class="pbr-capital-readonly-status">အသုံးပြုနေ · Rev {{ $latestAgreedOutput->revision }}</span>
+                            @endif
                         </div>
+
+                        <div class="pbr-capital-readonly-categories">
+                            @forelse($result['categories'] ?? [] as $category)
+                                @php
+                                    $categoryTotal = (float) ($category['subtotal'] ?? 0);
+                                    $categoryFunded = (float) ($category['funded'] ?? 0);
+                                    $categoryOutstanding = (float) ($category['outstanding'] ?? max(0, $categoryTotal - $categoryFunded));
+                                @endphp
+                                <article class="pbr-capital-readonly-category">
+                                    <div class="pbr-capital-readonly-category-head">
+                                        <div>
+                                            <strong>{{ $category['name'] ?? 'ကုန်ကျစရိတ်အုပ်စု' }}</strong>
+                                            <small>{{ $category['item_count'] ?? count($category['items'] ?? []) }} items · {{ number_format((float) ($category['percentage'] ?? 0), 1) }}%</small>
+                                        </div>
+                                        <div>
+                                            <span>{{ $currency }} {{ number_format($categoryTotal, 2) }}</span>
+                                            <b class="{{ $categoryOutstanding > 0 ? 'warning' : 'ready' }}">
+                                                {{ $categoryOutstanding > 0 ? $currency.' '.number_format($categoryOutstanding, 2).' လိုနေ' : 'Funding ပြည့်' }}
+                                            </b>
+                                        </div>
+                                    </div>
+
+                                    @if(!empty($category['items']))
+                                        <div class="pbr-capital-readonly-items">
+                                            @foreach($category['items'] as $item)
+                                                @php
+                                                    $planned = (float) ($item['planned_cost'] ?? $item['amount'] ?? 0);
+                                                    $itemFunded = (float) ($item['funded_amount'] ?? 0);
+                                                    $outstanding = (float) ($item['outstanding'] ?? max(0, $planned - $itemFunded));
+                                                @endphp
+                                                <div>
+                                                    <div>
+                                                        <strong>{{ $item['name'] ?? 'Item' }}</strong>
+                                                        <small>
+                                                            {{ ($item['priority'] ?? 'essential') === 'optional' ? 'Optional' : 'မဖြစ်မနေလို' }}
+                                                            @if(($item['frequency'] ?? 'one_time') === 'monthly')
+                                                                · လစဉ် × {{ $item['reserve_months'] ?? 3 }} လ
+                                                            @endif
+                                                            @if(!empty($item['due_date'])) · Due {{ $item['due_date'] }} @endif
+                                                        </small>
+                                                    </div>
+                                                    <div>
+                                                        <span>{{ $currency }} {{ number_format($planned, 2) }}</span>
+                                                        <small>{{ $outstanding > 0 ? 'Outstanding '.$currency.' '.number_format($outstanding, 2) : '✓ Funded' }}</small>
+                                                    </div>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+                                </article>
+                            @empty
+                                <div class="pbr-capital-empty">
+                                    <strong>ကုန်ကျစရိတ်အသေးစိတ် မရှိသေးပါ</strong>
+                                    <p>လက်ရှိ Active Plan မှာ Category detail မပါသေးပါ။</p>
+                                </div>
+                            @endforelse
+                        </div>
+                    </section>
+                </main>
+
+                <aside class="pbr-capital-summary-column">
+                    <section class="pbr-capital-summary-card">
+                        <div class="pbr-capital-summary-head">
+                            <div>
+                                <span class="portal-kicker">CURRENT CAPITAL POSITION</span>
+                                <h2>အတည်ပြုထားသော Plan</h2>
+                            </div>
+                            <span class="pbr-capital-active-badge">Active</span>
+                        </div>
+
+                        <div class="pbr-capital-total">
+                            <span>စုစုပေါင်း Startup Capital</span>
+                            <strong>{{ $currency }} {{ number_format($total, 2) }}</strong>
+                            <div class="pbr-capital-funding-progress"><i style="width: {{ min(100, $fundedPercent) }}%"></i></div>
+                            <small><b>{{ number_format($fundedPercent, 0) }}%</b> Funding ရရှိထားသည်</small>
+                        </div>
+
+                        <div class="pbr-capital-metric-grid">
+                            <div><span>မဖြစ်မနေလို</span><strong>{{ $currency }} {{ number_format($essential, 2) }}</strong></div>
+                            <div><span>Optional</span><strong>{{ $currency }} {{ number_format($optional, 2) }}</strong></div>
+                            <div class="funded"><span>Funding ရပြီး</span><strong>{{ $currency }} {{ number_format($funded, 2) }}</strong></div>
+                            <div class="gap"><span>လိုနေသေး</span><strong>{{ $currency }} {{ number_format($gap, 2) }}</strong></div>
+                            <div><span>30 ရက်အတွင်းလို</span><strong>{{ $currency }} {{ number_format($due30, 2) }}</strong></div>
+                            <div><span>လစဉ် Commitment</span><strong>{{ $currency }} {{ number_format((float) ($result['monthly_recurring_cost'] ?? 0), 2) }}</strong></div>
+                        </div>
+
+                        <div class="pbr-capital-live-alert {{ $gap > 0 ? 'warning' : 'healthy' }}">
+                            @if($gap > 0)
+                                <strong>Funding Gap ရှိနေသည်</strong>
+                                <p>{{ $currency }} {{ number_format($gap, 2) }} လိုနေသေးပါတယ်။ Owner/Admin က Funding Plan ကိုဆက်စီမံနိုင်ပါတယ်။</p>
+                            @else
+                                <strong>လက်ရှိ Plan Funding ပြည့်စုံနေသည်</strong>
+                                <p>အတည်ပြုထားတဲ့ Startup Capital Plan အရ Funding Gap မရှိပါ။</p>
+                            @endif
+                        </div>
+                    </section>
+
+                    @if($latestAgreedOutput)
+                        <section class="pbr-capital-help-card">
+                            <span class="portal-kicker">ACTIVE REVISION</span>
+                            <h3>Revision {{ $latestAgreedOutput->revision }}</h3>
+                            <p class="pbr-capital-readonly-revision">{{ optional($latestAgreedOutput->agreed_at)->format('d M Y, H:i') }} မှာ အတည်ပြုထားပါတယ်။ ဒီ data ကို Capital & Funding system နဲ့ PBR AI context မှာ အသုံးပြုနိုင်ပါတယ်။</p>
+                        </section>
                     @endif
                 </aside>
             </div>
-
-            @if($latestAgreedOutput)
-                <section class="pbr-os-panel pbr-os-current-rule" style="margin-top:18px;">
-                    <div>
-                        <span class="pbr-os-agreed-pill">✓ Current Agreed Business Rule</span>
-                        <h2>Revision {{ $latestAgreedOutput->revision }}</h2>
-                        <p>Approved {{ optional($latestAgreedOutput->agreed_at)->format('d M Y, H:i') }}</p>
-                    </div>
-                    <p>ဒီ approved result ကို Capital domain, downstream Chapters နဲ့ PBR AI Advisor က authorized context အဖြစ်အသုံးပြုနိုင်ပါတယ်။</p>
-                </section>
-            @endif
         @else
-            <section class="pbr-os-panel pbr-os-empty-state">
-                <div class="pbr-os-empty-icon">◎</div>
-                <h2>Agreed Startup Capital Rule မရှိသေးပါ</h2>
-                <p>Owner/Admin က Startup Capital scenario တစ်ခုကို Agreed Business Rule အဖြစ် approve လုပ်ပြီးနောက် ဒီနေရာမှာပေါ်လာပါမယ်။</p>
+            <section class="pbr-capital-no-active-plan">
+                <div>◎</div>
+                <h2>အသုံးပြုနေသော Startup Capital Plan မရှိသေးပါ</h2>
+                <p>Owner/Admin က Draft Plan တစ်ခုကို Business Rule အဖြစ်အတည်ပြုလာတဲ့အခါ ဒီနေရာမှာမြင်ရပါမယ်။</p>
             </section>
         @endif
 
-        <div class="pbr-os-legal-note" style="margin-top:18px;">
-            <strong>Important</strong>
-            <p>ဒီ Startup Capital result က planning information ဖြစ်ပြီး accounting, tax, financing သို့မဟုတ် legal advice ကို အစားမထိုးပါ။</p>
+        <div class="pbr-os-legal-note pbr-capital-legal-note">
+            <strong>သတိပြုရန်</strong>
+            <p>ဒီ Capital Plan က business planning အတွက်ဖြစ်ပြီး accounting, tax, financing သို့မဟုတ် legal advice ကို အစားမထိုးပါ။</p>
         </div>
     </div>
 </section>
