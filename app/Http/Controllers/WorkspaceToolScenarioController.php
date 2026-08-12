@@ -34,7 +34,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Scenario အမည်ပြောင်းပြီးပါပြီ။'
+            'Draft အမည်ပြောင်းပြီးပါပြီ။'
         );
     }
 
@@ -58,7 +58,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Scenario copy အသစ်ဖန်တီးပြီးပါပြီ။'
+            'Draft Plan မိတ္တူအသစ် ဖန်တီးပြီးပါပြီ။'
         );
     }
 
@@ -79,7 +79,7 @@ class WorkspaceToolScenarioController extends Controller
         );
 
         return redirect($this->toolUrl($workspace, $tool))
-            ->with('status', 'Scenario Draft ကိုဖျက်ပြီးပါပြီ။');
+            ->with('status', 'Draft ကို ဖျက်ပြီးပါပြီ။');
     }
 
     public function output(
@@ -108,7 +108,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Workspace Draft Output revision '.$output->revision.' ဖန်တီးပြီးပါပြီ။'
+            'Draft Result revision '.$output->revision.' သိမ်းပြီးပါပြီ။'
         );
     }
 
@@ -138,7 +138,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Agreed Business Rule revision '.$output->revision.' အဖြစ်အတည်ပြုပြီးပါပြီ။ နောက် Chapter တွေနဲ့ AI Advisor မှာ ဒီ agreed data ကိုအသုံးပြုနိုင်ပါပြီ။'
+            'Business Rule revision '.$output->revision.' အဖြစ် အတည်ပြုအသုံးပြုပြီးပါပြီ။ PBR AI နဲ့ အခြား Business Systems တွေက ဒီ data ကို လက်ရှိအသုံးပြုနေသော rule အဖြစ်ယူနိုင်ပါပြီ။'
         );
     }
 
@@ -181,8 +181,20 @@ class WorkspaceToolScenarioController extends Controller
         PartnershipWorkspace $workspace,
         ChapterTool $tool
     ): string {
-        return url(
-            '/workspaces/'.$workspace->id.'/tools/'.$tool->slug
-        );
+        if ($tool->tool_key === 'startup_capital_planner') {
+            return route('workspaces.tools.startup-capital.show', $workspace);
+        }
+
+        if ((int) $tool->chapter?->chapter_number === 1) {
+            return route('workspaces.tools.chapter-one.show', [
+                $workspace,
+                $tool->slug,
+            ]);
+        }
+
+        return route('workspaces.tools.operating.show', [
+            $workspace,
+            $tool->slug,
+        ]);
     }
 }
