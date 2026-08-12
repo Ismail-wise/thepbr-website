@@ -111,6 +111,7 @@ class PbrChapterStateService
     private function capitalSummary(PartnershipWorkspace $workspace, array $tools): array
     {
         $startup = $this->value($tools, 'startup_capital_planner', 'total_startup_capital');
+        $startupFunded = $this->value($tools, 'startup_capital_planner', 'funded_total');
         $currentNet = $this->value($tools, 'current_capital_position', 'net_capital_position');
         $working = $this->value($tools, 'working_capital_calculator', 'working_capital_required');
         $monthlyCost = $this->value($tools, 'working_capital_calculator', 'monthly_operating_cost');
@@ -120,10 +121,17 @@ class PbrChapterStateService
         $required = $workspace->business_stage === 'new'
             ? round($startup + $working + $contingency, 2)
             : round($working + $contingency, 2);
-        $secured = round($partnerCapital + $otherFunding, 2);
+
+        // The Startup Capital Plan may already record confirmed funding before
+        // detailed Partner Contributions/Funding Position modules are active.
+        // Use the stronger view rather than adding them, because both can
+        // represent the same cash and must never be double-counted.
+        $detailedFunding = round($partnerCapital + $otherFunding, 2);
+        $secured = round(max($startupFunded, $detailedFunding), 2);
 
         return [
             'startup_capital' => $startup,
+            'startup_funded' => $startupFunded,
             'current_net_capital_position' => $currentNet,
             'working_capital' => $working,
             'monthly_operating_cost' => $monthlyCost,
