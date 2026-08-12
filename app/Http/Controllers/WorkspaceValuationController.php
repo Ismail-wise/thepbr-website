@@ -52,6 +52,7 @@ class WorkspaceValuationController extends Controller
             'total_liabilities' => ['required', 'numeric', 'min:0'],
             'cash' => ['required', 'numeric', 'min:0'],
             'debt' => ['required', 'numeric', 'min:0'],
+            'total_ownership_units' => ['required', 'integer', 'min:1', 'max:1000000000'],
             'ebitda_multiple' => ['required', 'numeric', 'min:0', 'max:50'],
             'sde_multiple' => ['required', 'numeric', 'min:0', 'max:50'],
             'growth_rate' => ['required', 'numeric', 'min:-50', 'max:100'],
@@ -88,6 +89,6 @@ class WorkspaceValuationController extends Controller
 
         return redirect()
             ->route('workspaces.valuation.show', $workspace)
-            ->with('success', 'Business Valuation Estimate တွက်ချက်ပြီးပါပြီ။');
+            ->with('success', 'Business Valuation နဲ့ Ownership Value တွက်ချက်ပြီးပါပြီ။');
     }
 }
