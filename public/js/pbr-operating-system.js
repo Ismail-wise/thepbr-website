@@ -82,6 +82,108 @@
         ]);
     }
 
+    function polishBusinessDashboard() {
+        const page = document.querySelector('.pbr-business-page');
+        if (!page) return;
+
+        page.classList.add('pbr-business-page-polished');
+
+        const hero = page.querySelector('.pbr-business-hero');
+        if (hero) {
+            const lead = hero.querySelector('.pbr-business-hero-lead');
+            if (lead) {
+                lead.innerHTML = 'Partnership ရဲ့ မတည်ငွေ၊ ပိုင်ဆိုင်မှု၊ Partner တာဝန်၊ ငွေကြေးနဲ့ ဆုံးဖြတ်ချက်တွေကို <strong>လက်တွေ့စီမံနိုင်တဲ့ Business Workspace</strong> ဖြစ်ပါတယ်။';
+            }
+
+            const tags = hero.querySelectorAll('.pbr-business-tags span');
+            tags.forEach((tag) => {
+                if (/^Partner\s+\d+\s+ဦး/.test(tag.textContent.trim())) {
+                    const match = tag.textContent.match(/(\d+)/);
+                    if (match) tag.textContent = `Partner Profiles ${match[1]}`;
+                }
+            });
+
+            const actions = hero.querySelector('.pbr-business-hero-actions');
+            if (actions) {
+                const links = actions.querySelectorAll('a');
+                if (links[0]) links[0].textContent = 'Partner များ';
+                if (links[1]) links[1].textContent = 'PBR AI ✦';
+
+                const settings = page.querySelector('.pbr-business-settings');
+                if (settings) {
+                    settings.id = 'business-settings';
+                    if (!actions.querySelector('a[href="#business-settings"]')) {
+                        const settingsLink = document.createElement('a');
+                        settingsLink.href = '#business-settings';
+                        settingsLink.className = 'pbr-business-btn secondary pbr-dashboard-settings-link';
+                        settingsLink.textContent = 'Settings';
+                        actions.insertBefore(settingsLink, links[1] ?? null);
+                    }
+                }
+            }
+        }
+
+        const metrics = page.querySelectorAll('.pbr-business-metric');
+        const capitalMetric = metrics[0] ?? null;
+        const fundingMetric = metrics[1] ?? null;
+        const partnerMetric = metrics[2] ?? null;
+
+        let capitalIsSetup = false;
+        let capitalIsDraft = false;
+
+        if (capitalMetric) {
+            const foot = capitalMetric.querySelector('.pbr-metric-foot');
+            const footText = foot?.textContent ?? '';
+            capitalIsSetup = footText.includes('မသတ်မှတ်ရသေး');
+            capitalIsDraft = capitalMetric.classList.contains('draft');
+
+            if (capitalIsSetup) {
+                capitalMetric.classList.add('setup');
+                const value = capitalMetric.querySelector('strong');
+                if (value) value.textContent = '—';
+            }
+
+            if (capitalIsDraft && foot) {
+                const badge = foot.querySelector('b.draft');
+                if (badge) badge.textContent = 'Draft ခန့်မှန်းချက်';
+            }
+        }
+
+        if (fundingMetric) {
+            const value = fundingMetric.querySelector('strong');
+            const foot = fundingMetric.querySelector('.pbr-metric-foot');
+
+            if (capitalIsSetup) {
+                fundingMetric.classList.remove('attention', 'healthy');
+                fundingMetric.classList.add('setup');
+                if (value) value.textContent = '—';
+                if (foot) foot.innerHTML = '<span>မတည်ငွေ အစီအစဉ်သတ်မှတ်ပြီးမှ Funding Gap ကိုတွက်မယ်</span>';
+            } else if (capitalIsDraft) {
+                fundingMetric.classList.add('draft-source');
+                if (foot) {
+                    replaceText(foot, [['Draft data', 'Draft ခန့်မှန်းချက်']]);
+                }
+            }
+        }
+
+        if (partnerMetric) {
+            const mmLabel = partnerMetric.querySelector('.pbr-mm-label');
+            const enLabel = partnerMetric.querySelector('.pbr-en-label');
+            const foot = partnerMetric.querySelector('.pbr-metric-foot');
+            if (mmLabel) mmLabel.textContent = 'Partner Profile အရေအတွက်';
+            if (enLabel) enLabel.textContent = 'Partner Roster';
+            if (foot) foot.innerHTML = '<span>Roster ထဲက လက်ရှိ/စီစဉ်ထားသော Partner Profiles</span>';
+        }
+
+        const attention = page.querySelector('.pbr-business-attention');
+        if (attention) {
+            const heading = attention.querySelector('.pbr-business-section-head h2');
+            const copy = attention.querySelector('.pbr-business-section-head p');
+            if (heading) heading.textContent = 'အခု စစ်ဆေးရမည့်အချက်များ';
+            if (copy) copy.textContent = 'မသတ်မှတ်ရသေးတာ၊ Draft ရှိနေတာ၊ ဒါမှမဟုတ် ဆုံးဖြတ်ချက်လိုနေတာတွေကို အရေးကြီးဆုံးကစပြီး ပြပါတယ်။';
+        }
+    }
+
     function professionalizeOperatingToolPage() {
         const page = document.querySelector('.pbr-os-page');
         if (!page) return;
@@ -177,6 +279,7 @@
     }
 
     cleanBusinessModuleNames();
+    polishBusinessDashboard();
     professionalizeOperatingToolPage();
     professionalizeCapitalToolPage();
 
