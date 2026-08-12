@@ -23,10 +23,21 @@ class PbrChapterStateService
             )
             ->get(['id', 'tool_key', 'slug', 'title_en', 'title_mm']);
 
-        $latestOutputs = WorkspaceToolOutput::query()
+        $outputQuery = WorkspaceToolOutput::query()
             ->where('workspace_id', $workspace->id)
-            ->where('status', $status)
-            ->whereIn('chapter_tool_id', $tools->pluck('id'))
+            ->whereIn('chapter_tool_id', $tools->pluck('id'));
+
+        if ($status === 'agreed') {
+            $outputQuery->where('status', 'agreed');
+        } else {
+            // A working/draft chapter state should keep the newest output for
+            // every tool. That means a newly changed draft can coexist with
+            // previously agreed rules from other tools in the same chapter.
+            // The official agreed state below never reads draft outputs.
+            $outputQuery->whereIn('status', ['draft', 'agreed']);
+        }
+
+        $latestOutputs = $outputQuery
             ->orderByDesc('revision')
             ->orderByDesc('id')
             ->get()
@@ -67,7 +78,9 @@ class PbrChapterStateService
                 'domain' => PbrOperatingSystemService::DOMAINS[$chapterNumber],
                 'business_stage' => $workspace->business_stage,
                 'currency_code' => $workspace->currency_code,
-                'source_status' => $status,
+                'source_status' => $status === 'draft'
+                    ? 'working_latest_draft_or_agreed'
+                    : 'agreed_only',
                 'tools' => $toolPayload,
                 'canonical' => $summary,
             ],
