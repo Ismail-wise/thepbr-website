@@ -17,6 +17,7 @@
                 </p>
             </div>
             <div class="pbr2-actions">
+                <a class="pbr2-btn" href="{{ route('workspaces.ai-advisor.index', ['workspace' => $workspace, 'new' => 1]) }}">+ စကားဝိုင်းအသစ်</a>
                 <a class="pbr2-btn secondary" href="{{ route('workspaces.show', $workspace) }}">Business Control Center</a>
             </div>
         </div>
@@ -34,6 +35,24 @@
         data-csrf="{{ csrf_token() }}"
         data-conversation-id="{{ $selectedConversation?->id ?? '' }}"
     >
+        <details class="pbrai-mobile-history">
+            <summary>AI စကားဝိုင်း History {{ $conversations->isNotEmpty() ? '('.$conversations->count().')' : '' }}</summary>
+            <div class="pbrai-mobile-history-list">
+                <a class="pbrai-mobile-new" href="{{ route('workspaces.ai-advisor.index', ['workspace' => $workspace, 'new' => 1]) }}">+ စကားဝိုင်းအသစ်</a>
+                @forelse($conversations as $conversation)
+                    <a
+                        class="{{ $selectedConversation?->id === $conversation->id ? 'active' : '' }}"
+                        href="{{ route('workspaces.ai-advisor.index', ['workspace' => $workspace, 'conversation' => $conversation->id]) }}"
+                    >
+                        <strong>{{ $conversation->title ?: 'AI Conversation' }}</strong>
+                        <span>{{ $conversation->updated_at?->diffForHumans() }}</span>
+                    </a>
+                @empty
+                    <p>စကားဝိုင်းမရှိသေးပါ။</p>
+                @endforelse
+            </div>
+        </details>
+
         <div class="pbrai-shell">
             <aside class="pbrai-sidebar">
                 <div class="pbrai-side-head">
