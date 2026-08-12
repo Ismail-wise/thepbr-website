@@ -36,7 +36,7 @@ test('PBR course catalog contains ten connected chapters and sixty four unique t
         ]);
 });
 
-test('active student portal exposes the connected PBR operating system', function () {
+test('active student portal separates learning from the real business operating system', function () {
     app(CourseCatalogSeeder::class)->run();
 
     $user = User::factory()->create([
@@ -60,14 +60,16 @@ test('active student portal exposes the connected PBR operating system', functio
 
     $response
         ->assertOk()
-        ->assertSee('10 Chapters · 64 Tools')
+        ->assertSee('10 Learning Chapters')
+        ->assertSee('Business Operating System')
         ->assertSee('Portal Test Business')
-        ->assertSee('Open 64 Tools')
+        ->assertSee('Open Business Operating System')
         ->assertSee(route('workspaces.tools.index', $workspace), false)
+        ->assertDontSee('Open 64 Tools')
         ->assertDontSee('Coming Next');
 });
 
-test('workspace tools dashboard keeps chapter one and operating routes registered separately', function () {
+test('workspace operating system is business focused and keeps tool routes separate', function () {
     app(CourseCatalogSeeder::class)->run();
 
     expect(Route::has('workspaces.tools.chapter-one.show'))->toBeTrue()
@@ -103,7 +105,16 @@ test('workspace tools dashboard keeps chapter one and operating routes registere
 
     $response
         ->assertOk()
-        ->assertSee('Partnership Business Operating System')
+        ->assertSee('PBR Business Operating System')
+        ->assertSee('Business Health')
+        ->assertSee('Capital & Funding')
+        ->assertSee('Ownership & Equity')
+        ->assertSee('Governance & Decision Making')
+        ->assertSee('Needs Setup')
+        ->assertSee('Active Business Rules')
         ->assertSee($chapterOneUrl, false)
-        ->assertSee('/tools/operating/', false);
+        ->assertSee('/tools/operating/', false)
+        ->assertDontSee('Operating System Completion')
+        ->assertDontSee('Practical Tools')
+        ->assertDontSee('Chapter 1');
 });
