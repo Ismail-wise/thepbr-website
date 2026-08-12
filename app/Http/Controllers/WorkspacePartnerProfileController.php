@@ -7,9 +7,30 @@ use App\Models\WorkspacePartnerProfile;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
 
 class WorkspacePartnerProfileController extends Controller
 {
+    public function index(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        PbrOperatingSystemService $operatingSystem
+    ): View {
+        $this->authorizeManagement($request, $workspace, $operatingSystem);
+        $operatingSystem->syncWorkspacePartners($workspace);
+
+        $profiles = WorkspacePartnerProfile::query()
+            ->where('workspace_id', $workspace->id)
+            ->orderByRaw("CASE WHEN status = 'active' THEN 0 ELSE 1 END")
+            ->orderBy('id')
+            ->get();
+
+        return view('workspaces.tools.partner-roster', compact(
+            'workspace',
+            'profiles'
+        ));
+    }
+
     public function store(
         Request $request,
         PartnershipWorkspace $workspace,
@@ -35,7 +56,7 @@ class WorkspacePartnerProfileController extends Controller
         );
 
         return redirect()
-            ->route('workspaces.tools.index', $workspace)
+            ->route('workspaces.partner-roster.index', $workspace)
             ->with('success', 'Planned Partner ကို Partner Roster ထဲထည့်ပြီးပါပြီ။');
     }
 
@@ -70,7 +91,7 @@ class WorkspacePartnerProfileController extends Controller
         $profile->update($updates);
 
         return redirect()
-            ->route('workspaces.tools.index', $workspace)
+            ->route('workspaces.partner-roster.index', $workspace)
             ->with('success', 'Partner Roster information ကို update လုပ်ပြီးပါပြီ။');
     }
 
@@ -92,7 +113,7 @@ class WorkspacePartnerProfileController extends Controller
         $profile->delete();
 
         return redirect()
-            ->route('workspaces.tools.index', $workspace)
+            ->route('workspaces.partner-roster.index', $workspace)
             ->with('success', 'Planned Partner ကို Partner Roster ကနေဖယ်ရှားပြီးပါပြီ။');
     }
 
