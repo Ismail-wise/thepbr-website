@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 class PbrOperatingSystemService
 {
     public const DOMAINS = [
+        1 => 'capital',
         2 => 'ownership',
         3 => 'contribution',
         4 => 'distribution',
