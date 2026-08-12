@@ -2,12 +2,16 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use RuntimeException;
 
 return new class extends Migration
 {
     public function up(): void
     {
+        $this->removeEmptyPartialTables();
+
         Schema::create('workspace_partner_profiles', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('workspace_id')
@@ -91,5 +95,35 @@ return new class extends Migration
         Schema::dropIfExists('workspace_operating_records');
         Schema::dropIfExists('workspace_operating_snapshots');
         Schema::dropIfExists('workspace_partner_profiles');
+    }
+
+    private function removeEmptyPartialTables(): void
+    {
+        $tables = [
+            'workspace_partner_profiles',
+            'workspace_operating_snapshots',
+            'workspace_operating_records',
+        ];
+
+        $existing = array_values(array_filter(
+            $tables,
+            static fn (string $table): bool => Schema::hasTable($table)
+        ));
+
+        if ($existing === []) {
+            return;
+        }
+
+        foreach ($existing as $table) {
+            if (DB::table($table)->exists()) {
+                throw new RuntimeException(
+                    "Refusing to replace partial operating-system table {$table} because it contains data."
+                );
+            }
+        }
+
+        foreach (array_reverse($tables) as $table) {
+            Schema::dropIfExists($table);
+        }
     }
 };
