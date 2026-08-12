@@ -58,27 +58,32 @@
             </div>
 
             @if($ownership)
-                <div class="pbr2-panel" style="margin-top:20px;">
+                <div class="pbr2-panel" style="margin-top:20px;padding:22px;">
                     <div class="pbr2-section-head">
                         <div>
                             <span class="pbr2-eyebrow">Share / Ownership Value</span>
-                            <h2>Share တစ်ခု / Ownership Unit တစ်ခုရဲ့ ခန့်မှန်းတန်ဖိုး</h2>
-                            <p>Total Ownership Units: <strong>{{ number_format($ownership['total_units']) }}</strong></p>
+                            <h2>Estimated Price per Share / Ownership Unit</h2>
+                            <p>စုစုပေါင်း <strong>{{ number_format($ownership['total_units']) }}</strong> Share / Ownership Units အပေါ်မူတည်ပြီး တစ် Unit ရဲ့ ခန့်မှန်းတန်ဖိုးကို ပြထားပါတယ်။</p>
                         </div>
+                        <span class="pbr2-badge gray">{{ number_format($ownership['total_units']) }} Units</span>
                     </div>
 
-                    <div class="pbr2-result-grid">
+                    <div class="pbr2-value-card" style="margin:18px 0;padding:28px;border-color:#91c49a;background:linear-gradient(135deg,#f8fcf8,#eef8f0);">
+                        <span style="font-size:12px;font-weight:750;color:var(--pbr2-green);">အဓိက ခန့်မှန်းတန်ဖိုး • Base Estimate</span>
+                        <strong style="display:block;font-size:clamp(32px,5vw,46px);line-height:1.15;margin:8px 0 4px;">{{ $currency }} {{ number_format($ownership['base_per_unit'], 2) }}</strong>
+                        <span style="font-size:12px;">တစ် Share / Ownership Unit</span>
+                    </div>
+
+                    <div class="pbr2-grid">
                         <div class="pbr2-value-card">
-                            <span>Conservative • တစ် Unit</span>
-                            <strong>{{ $currency }} {{ number_format($ownership['conservative_per_unit'], 4) }}</strong>
-                        </div>
-                        <div class="pbr2-value-card" style="border-color:#9fc8a7;background:#f4faf4;">
-                            <span>Base Value • တစ် Unit</span>
-                            <strong>{{ $currency }} {{ number_format($ownership['base_per_unit'], 4) }}</strong>
+                            <span>အနိမ့်ဘက် ခန့်မှန်းတန်ဖိုး • Conservative</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['conservative_per_unit'], 2) }}</strong>
+                            <span style="margin-top:5px;">တစ် Unit</span>
                         </div>
                         <div class="pbr2-value-card">
-                            <span>Optimistic • တစ် Unit</span>
-                            <strong>{{ $currency }} {{ number_format($ownership['optimistic_per_unit'], 4) }}</strong>
+                            <span>အမြင့်ဘက် ခန့်မှန်းတန်ဖိုး • Optimistic</span>
+                            <strong>{{ $currency }} {{ number_format($ownership['optimistic_per_unit'], 2) }}</strong>
+                            <span style="margin-top:5px;">တစ် Unit</span>
                         </div>
                     </div>
 
@@ -97,6 +102,10 @@
                             <strong>{{ $currency }} {{ number_format($ownership['optimistic_one_percent'], 2) }}</strong>
                         </div>
                     </div>
+
+                    <p style="margin:16px 2px 0;color:var(--pbr2-muted);font-size:12px;line-height:1.65;">
+                        <strong>သတိပြုရန်:</strong> ဒီ Price per Share / Unit က PBR Valuation Estimate ကို Total Ownership Units နဲ့ ခွဲတွက်ထားတဲ့ indicative value ဖြစ်ပါတယ်။ Legal share price, actual sale price သို့မဟုတ် certified valuation မဟုတ်ပါ။
+                    </p>
                 </div>
 
                 <div
@@ -281,12 +290,12 @@
                     <section class="pbr2-form-card">
                         <span class="pbr2-eyebrow">အပိုင်း ၄</span>
                         <h2>Share / Ownership Structure</h2>
-                        <p>Business ရဲ့ စုစုပေါင်း Share သို့မဟုတ် Ownership Units အရေအတွက်ကို ထည့်ပါ။</p>
+                        <p>Official Share ရှိရင် Total Shares ကိုထည့်ပါ။ Partnership တစ်ခုမှာ official shares မရှိရင် Ownership Units အဖြစ်သတ်မှတ်ပြီး အသုံးပြုနိုင်ပါတယ်။</p>
 
                         <div class="pbr2-field">
                             <label>Total Share / Ownership Units</label>
                             <input name="total_ownership_units" type="number" step="1" min="1" max="1000000000" value="{{ $value('total_ownership_units', 100) }}" required>
-                            <small class="pbr2-help">Official shares မရှိတဲ့ Partnership ဆိုရင် 100 Units သုံးနိုင်ပါတယ် — 1 Unit = 1% Ownership ဖြစ်ပါမယ်။ Official shares ရှိရင် အမှန်တကယ် Total Shares ကိုထည့်ပါ။</small>
+                            <small class="pbr2-help">Official shares မရှိရင် 100 Units သုံးနိုင်ပါတယ် — အဲဒီအခါ 1 Unit = 1% Ownership ဖြစ်ပါတယ်။ Official shares ရှိရင် အမှန်တကယ် Total Shares ကိုထည့်ပါ။</small>
                         </div>
                     </section>
 
