@@ -9,16 +9,16 @@
     $totalAgreed = collect($chapterProgress)->sum('agreed');
     $overallPercent = $totalTools > 0 ? round(($totalAgreed / $totalTools) * 100) : 0;
     $chapterMeta = [
-        1 => ['mm' => 'မတည်ငွေ ထည့်ဝင်ခြင်း', 'icon' => '01'],
-        2 => ['mm' => 'ပိုင်ဆိုင်မှုနှင့် Share Structure', 'icon' => '02'],
-        3 => ['mm' => 'လုပ်အားနှင့် တန်ဖိုး ထည့်ဝင်မှု', 'icon' => '03'],
-        4 => ['mm' => 'အမြတ်အရှုံး ခွဲဝေမှု', 'icon' => '04'],
-        5 => ['mm' => 'ငွေကြေး စီမံခန့်ခွဲမှု', 'icon' => '05'],
-        6 => ['mm' => 'ဦးဆောင်မှုနှင့် Governance', 'icon' => '06'],
-        7 => ['mm' => 'Withdrawal & Exit', 'icon' => '07'],
-        8 => ['mm' => 'Death, Disability & Continuity', 'icon' => '08'],
-        9 => ['mm' => 'Share Transfer', 'icon' => '09'],
-        10 => ['mm' => 'Dispute Resolution', 'icon' => '10'],
+        1 => 'မတည်ငွေ ထည့်ဝင်ခြင်း',
+        2 => 'ပိုင်ဆိုင်မှုနှင့် Share Structure',
+        3 => 'လုပ်အားနှင့် တန်ဖိုး ထည့်ဝင်မှု',
+        4 => 'အမြတ်အရှုံး ခွဲဝေမှု',
+        5 => 'ငွေကြေး စီမံခန့်ခွဲမှု',
+        6 => 'ဦးဆောင်မှုနှင့် Governance',
+        7 => 'Withdrawal & Exit',
+        8 => 'Death, Disability & Continuity',
+        9 => 'Share Transfer',
+        10 => 'Dispute Resolution',
     ];
 @endphp
 
@@ -134,7 +134,7 @@
         <div class="pbr-system-heading">
             <span class="portal-kicker">Connected Business Architecture</span>
             <h2>Chapter 1 ကနေ Chapter 10 အထိ</h2>
-            <p>Chapter တစ်ခန်းစီမှာ Scenario ကိုစမ်း → Review → Save Draft → Approve as Agreed Business Rule လုပ်ပြီး နောက် Chapter ဆီ data ဆက်သွားပါမယ်။</p>
+            <p>Scenario ကိုစမ်း → Review → Save Draft → Approve as Agreed Business Rule လုပ်ပြီး နောက် Chapter ဆီ data ဆက်သွားပါမယ်။</p>
         </div>
 
         <div class="pbr-system-flow-strip" aria-label="Chapter flow">
@@ -167,7 +167,7 @@
                         <div class="pbr-chapter-number">{{ str_pad((string) $chapterNumber, 2, '0', STR_PAD_LEFT) }}</div>
                         <div class="pbr-chapter-title">
                             <span>{{ strtoupper(str_replace('_', ' ', $chapter->phase)) }}</span>
-                            <h3>{{ $chapterMeta[$chapterNumber]['mm'] ?? $chapter->title_mm }}</h3>
+                            <h3>{{ $chapterMeta[$chapterNumber] ?? $chapter->title_mm }}</h3>
                             <p>{{ $chapter->title_en }}</p>
                         </div>
                         <div class="pbr-system-chapter-progress">
@@ -192,13 +192,9 @@
                                     $definition = $toolDefinitions[$tool->tool_key] ?? null;
                                     $toolTitleMm = $definition['title_mm'] ?? $tool->title_mm ?? $tool->title_en;
                                     $purpose = $definition['purpose_mm'] ?? ($chapterNumber === 1
-                                        ? 'Capital planning အတွက် calculate, compare, save scenario နဲ့ workspace output ကိုအသုံးပြုပါ။'
+                                        ? 'Capital planning အတွက် calculate, compare, save scenario နဲ့ agreed operating rule ကိုအသုံးပြုပါ။'
                                         : $tool->description);
-                                    $isAgreed = $progress['agreed'] > 0 && \App\Models\WorkspaceToolOutput::query()
-                                        ->where('workspace_id', $workspace->id)
-                                        ->where('chapter_tool_id', $tool->id)
-                                        ->where('status', 'agreed')
-                                        ->exists();
+                                    $isAgreed = $agreedToolIds->has((int) $tool->id);
                                 @endphp
 
                                 <article class="pbr-tool-card pbr-system-tool-card {{ $isAgreed ? 'agreed' : '' }}">
@@ -242,7 +238,7 @@
 
         <div class="pbr-os-legal-note">
             <strong>Important</strong>
-            <p>ဒီ operating tools တွေက planning, internal controls နဲ့ partner discussion support အတွက်ဖြစ်ပါတယ်။ Legal document, tax/accounting advice, certified valuation သို့မဟုတ် insurance advice ကို အစားမထိုးပါ။</p>
+            <p>ဒီ tools တွေက planning, internal controls နဲ့ partner discussion support အတွက်ဖြစ်ပါတယ်။ Legal document, tax/accounting advice, certified valuation သို့မဟုတ် insurance advice ကို အစားမထိုးပါ။</p>
         </div>
     </div>
 </section>
