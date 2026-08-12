@@ -30,17 +30,29 @@ class WorkspaceChapterOneToolController extends Controller
         ToolScenarioService $scenarios,
         ChapterOneIntegrationService $integration
     ): View {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
-
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
+        $canManage = $scenarios->canManage($request->user(), $workspace);
         $activeSession = null;
-        $input = $this->defaultInput(
-            $tool->tool_key
-        );
+        $input = $this->defaultInput($tool->tool_key);
         $result = null;
+
+        if (! $canManage) {
+            $agreed = $scenarios->latestAgreedOutput($workspace, $tool);
+            $result = is_array($agreed?->output_data)
+                ? $agreed->output_data
+                : null;
+
+            return $this->render(
+                $request,
+                $workspace,
+                $tool,
+                $input,
+                $result,
+                null,
+                false,
+                $scenarios
+            );
+        }
 
         if ($request->query('session') === null) {
             $input = $integration->prefill(
@@ -48,17 +60,9 @@ class WorkspaceChapterOneToolController extends Controller
                 $tool->tool_key,
                 $input
             );
-        }
-
-        if ($request->query('session') !== null) {
-            $sessionId = (string) $request->query(
-                'session'
-            );
-
-            abort_unless(
-                ctype_digit($sessionId),
-                404
-            );
+        } else {
+            $sessionId = (string) $request->query('session');
+            abort_unless(ctype_digit($sessionId), 404);
 
             $activeSession = $scenarios->ownedDraft(
                 $request->user(),
@@ -67,15 +71,10 @@ class WorkspaceChapterOneToolController extends Controller
                 (int) $sessionId
             );
 
-            $input = is_array(
-                $activeSession->input_data
-            )
+            $input = is_array($activeSession->input_data)
                 ? $activeSession->input_data
                 : $input;
-
-            $result = is_array(
-                $activeSession->result_data
-            )
+            $result = is_array($activeSession->result_data)
                 ? $activeSession->result_data
                 : null;
         }
@@ -87,6 +86,7 @@ class WorkspaceChapterOneToolController extends Controller
             $input,
             $result,
             $activeSession,
+            true,
             $scenarios
         );
     }
@@ -98,42 +98,21 @@ class WorkspaceChapterOneToolController extends Controller
         ChapterOneCapitalService $capital,
         ToolScenarioService $scenarios
     ): View {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
+        $this->authorizeManagement($request, $workspace, $scenarios);
 
-        $validated = $request->validate(
-            $this->rules(
-                $tool->tool_key
-            )
-        );
-
-        $input = $this->toolInput(
-            $validated
-        );
-
-        $result = $this->calculateTool(
-            $tool->tool_key,
-            $input,
-            $capital
-        );
-
+        $validated = $request->validate($this->rules($tool->tool_key));
+        $input = $this->toolInput($validated);
+        $result = $this->calculateTool($tool->tool_key, $input, $capital);
         $activeSession = null;
 
-        if (! empty(
-            $validated['tool_session_id']
-        )) {
-            $activeSession =
-                $scenarios->ownedDraft(
-                    $request->user(),
-                    $workspace,
-                    $tool,
-                    (int) $validated[
-                        'tool_session_id'
-                    ]
-                );
+        if (! empty($validated['tool_session_id'])) {
+            $activeSession = $scenarios->ownedDraft(
+                $request->user(),
+                $workspace,
+                $tool,
+                (int) $validated['tool_session_id']
+            );
         }
 
         return $this->render(
@@ -143,6 +122,7 @@ class WorkspaceChapterOneToolController extends Controller
             $input,
             $result,
             $activeSession,
+            true,
             $scenarios
         );
     }
@@ -154,44 +134,17 @@ class WorkspaceChapterOneToolController extends Controller
         ChapterOneCapitalService $capital,
         ToolScenarioService $scenarios
     ): RedirectResponse {
-        $tool = $this->resolveTool(
-            $request,
-            $workspace,
-            $toolSlug
-        );
+        $tool = $this->resolveTool($request, $workspace, $toolSlug);
+        $this->authorizeManagement($request, $workspace, $scenarios);
 
-        $rules = array_merge(
-            [
-                'scenario_name' => [
-                    'required',
-                    'string',
-                    'max:120',
-                ],
+        $rules = array_merge([
+            'scenario_name' => ['required', 'string', 'max:120'],
+            'tool_session_id' => ['nullable', 'integer'],
+        ], $this->rules($tool->tool_key, false));
 
-                'tool_session_id' => [
-                    'nullable',
-                    'integer',
-                ],
-            ],
-            $this->rules(
-                $tool->tool_key,
-                false
-            )
-        );
-
-        $validated = $request->validate(
-            $rules
-        );
-
-        $input = $this->toolInput(
-            $validated
-        );
-
-        $result = $this->calculateTool(
-            $tool->tool_key,
-            $input,
-            $capital
-        );
+        $validated = $request->validate($rules);
+        $input = $this->toolInput($validated);
+        $result = $this->calculateTool($tool->tool_key, $input, $capital);
 
         $session = $scenarios->saveDraft(
             $request->user(),
@@ -201,23 +154,14 @@ class WorkspaceChapterOneToolController extends Controller
             $input,
             $result,
             ! empty($validated['tool_session_id'])
-                ? (int) $validated[
-                    'tool_session_id'
-                ]
+                ? (int) $validated['tool_session_id']
                 : null
         );
 
         return redirect(
-            url(
-                '/workspaces/'
-                .$workspace->id
-                .'/tools/'
-                .$tool->slug
-            ).'?session='.$session->id
-        )->with(
-            'status',
-            'Scenario saved successfully.'
-        );
+            url('/workspaces/'.$workspace->id.'/tools/'.$tool->slug)
+            .'?session='.$session->id
+        )->with('status', 'Scenario ကို Draft အဖြစ်သိမ်းပြီးပါပြီ။');
     }
 
     private function resolveTool(
@@ -226,38 +170,38 @@ class WorkspaceChapterOneToolController extends Controller
         string $toolSlug
     ): ChapterTool {
         abort_unless(
-            $request->user()
-                ->canAccessWorkspace($workspace),
+            $request->user()->canAccessWorkspace($workspace),
             403
         );
 
         $tool = ChapterTool::query()
             ->where('slug', $toolSlug)
-            ->whereIn(
-                'tool_key',
-                self::SUPPORTED_TOOLS
-            )
+            ->whereIn('tool_key', self::SUPPORTED_TOOLS)
             ->whereHas(
                 'chapter',
-                fn ($query) =>
-                    $query->where(
-                        'chapter_number',
-                        1
-                    )
+                fn ($query) => $query->where('chapter_number', 1)
             )
+            ->with('chapter:id,chapter_number,title_en,title_mm')
             ->firstOrFail();
 
-        $supported =
-            $workspace->business_stage === 'new'
-                ? $tool->supports_new_business
-                : $tool->supports_existing_business;
+        $supported = $workspace->business_stage === 'new'
+            ? $tool->supports_new_business
+            : $tool->supports_existing_business;
 
-        abort_unless(
-            $supported,
-            404
-        );
+        abort_unless($supported, 404);
 
         return $tool;
+    }
+
+    private function authorizeManagement(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        ToolScenarioService $scenarios
+    ): void {
+        abort_unless(
+            $scenarios->canManage($request->user(), $workspace),
+            403
+        );
     }
 
     private function render(
@@ -267,25 +211,28 @@ class WorkspaceChapterOneToolController extends Controller
         array $input,
         ?array $result,
         ?ToolSession $activeSession,
+        bool $canManage,
         ToolScenarioService $scenarios
     ): View {
-        $drafts = $scenarios->drafts(
-            $request->user(),
-            $workspace,
-            $tool
-        );
+        $drafts = $canManage
+            ? $scenarios->drafts($request->user(), $workspace, $tool)
+            : collect();
+        $latestAgreedOutput = $scenarios->latestAgreedOutput($workspace, $tool);
+        $outputHistory = $canManage
+            ? $scenarios->outputHistory($workspace, $tool)
+            : collect([$latestAgreedOutput])->filter();
 
-        return view(
-            'workspaces.tools.chapter-one',
-            compact(
-                'workspace',
-                'tool',
-                'input',
-                'result',
-                'activeSession',
-                'drafts'
-            )
-        );
+        return view('workspaces.tools.chapter-one', compact(
+            'workspace',
+            'tool',
+            'input',
+            'result',
+            'activeSession',
+            'drafts',
+            'canManage',
+            'latestAgreedOutput',
+            'outputHistory'
+        ));
     }
 
     private function calculateTool(
@@ -294,268 +241,88 @@ class WorkspaceChapterOneToolController extends Controller
         ChapterOneCapitalService $capital
     ): array {
         return match ($toolKey) {
-            'current_capital_position' =>
-                $capital->currentCapitalPosition(
-                    $input
-                ),
-
-            'working_capital_calculator' =>
-                $capital->workingCapital(
-                    $input
-                ),
-
-            'contingency_fund_calculator' =>
-                $capital->contingencyFund(
-                    $input
-                ),
-
-            'partner_contribution_matrix' =>
-                $capital->partnerContributions(
-                    $input
-                ),
-
-            'funding_gap_calculator' =>
-                $capital->fundingGap(
-                    $input
-                ),
-
-            'capital_allocation_chart' =>
-                $capital->capitalAllocation(
-                    $input
-                ),
-
+            'current_capital_position' => $capital->currentCapitalPosition($input),
+            'working_capital_calculator' => $capital->workingCapital($input),
+            'contingency_fund_calculator' => $capital->contingencyFund($input),
+            'partner_contribution_matrix' => $capital->partnerContributions($input),
+            'funding_gap_calculator' => $capital->fundingGap($input),
+            'capital_allocation_chart' => $capital->capitalAllocation($input),
             default => abort(404),
         };
     }
 
-    private function rules(
-        string $toolKey,
-        bool $includeSession = true
-    ): array {
+    private function rules(string $toolKey, bool $includeSession = true): array
+    {
         $base = $includeSession
-            ? [
-                'tool_session_id' => [
-                    'nullable',
-                    'integer',
-                ],
-            ]
+            ? ['tool_session_id' => ['nullable', 'integer']]
             : [];
 
-        return array_merge(
-            $base,
-            match ($toolKey) {
-                'current_capital_position' =>
-                    array_merge(
-                        $this->categoryRules(
-                            'resources'
-                        ),
-                        $this->categoryRules(
-                            'liabilities'
-                        )
-                    ),
-
-                'working_capital_calculator' =>
-                    array_merge(
-                        $this->categoryRules(
-                            'monthly_costs'
-                        ),
-                        [
-                            'reserve_months' => [
-                                'nullable',
-                                'numeric',
-                                'min:0',
-                                'max:24',
-                            ],
-
-                            'inventory_requirement' => [
-                                'nullable',
-                                'numeric',
-                                'min:0',
-                            ],
-
-                            'short_term_payables' => [
-                                'nullable',
-                                'numeric',
-                                'min:0',
-                            ],
-
-                            'expected_receivables' => [
-                                'nullable',
-                                'numeric',
-                                'min:0',
-                            ],
-                        ]
-                    ),
-
-                'contingency_fund_calculator' => [
-                    'method' => [
-                        'required',
-                        'in:percentage,months',
-                    ],
-
-                    'base_capital' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                    ],
-
-                    'percentage' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                        'max:100',
-                    ],
-
-                    'monthly_operating_cost' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                    ],
-
-                    'months' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                        'max:24',
-                    ],
-                ],
-
-                'partner_contribution_matrix' => [
-                    'partners' => [
-                        'nullable',
-                        'array',
-                        'max:30',
-                    ],
-
-                    'partners.*.name' => [
-                        'nullable',
-                        'string',
-                        'max:120',
-                    ],
-
-                    'partners.*.contributions' => [
-                        'nullable',
-                        'array',
-                        'max:100',
-                    ],
-
-                    'partners.*.contributions.*.name' => [
-                        'nullable',
-                        'string',
-                        'max:150',
-                    ],
-
-                    'partners.*.contributions.*.amount' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                        'max:999999999999.99',
-                    ],
-                ],
-
-                'funding_gap_calculator' => [
-                    'capital_required' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                    ],
-
-                    'partner_capital' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                    ],
-
-                    'other_funding' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                    ],
-                ],
-
-                'capital_allocation_chart' => [
-                    'allocations' => [
-                        'nullable',
-                        'array',
-                        'max:100',
-                    ],
-
-                    'allocations.*.name' => [
-                        'nullable',
-                        'string',
-                        'max:150',
-                    ],
-
-                    'allocations.*.amount' => [
-                        'nullable',
-                        'numeric',
-                        'min:0',
-                        'max:999999999999.99',
-                    ],
-                ],
-
-                default => [],
-            }
-        );
+        return array_merge($base, match ($toolKey) {
+            'current_capital_position' => array_merge(
+                $this->categoryRules('resources'),
+                $this->categoryRules('liabilities')
+            ),
+            'working_capital_calculator' => array_merge(
+                $this->categoryRules('monthly_costs'),
+                [
+                    'reserve_months' => ['nullable', 'numeric', 'min:0', 'max:24'],
+                    'inventory_requirement' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                    'short_term_payables' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                    'expected_receivables' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                ]
+            ),
+            'contingency_fund_calculator' => [
+                'method' => ['required', 'in:percentage,months'],
+                'base_capital' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                'percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+                'monthly_operating_cost' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                'months' => ['nullable', 'numeric', 'min:0', 'max:24'],
+            ],
+            'partner_contribution_matrix' => [
+                'partners' => ['nullable', 'array', 'max:30'],
+                'partners.*.name' => ['nullable', 'string', 'max:120'],
+                'partners.*.contributions' => ['nullable', 'array', 'max:100'],
+                'partners.*.contributions.*.name' => ['nullable', 'string', 'max:150'],
+                'partners.*.contributions.*.amount' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+            ],
+            'funding_gap_calculator' => [
+                'capital_required' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                'partner_capital' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+                'other_funding' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+            ],
+            'capital_allocation_chart' => [
+                'allocations' => ['nullable', 'array', 'max:100'],
+                'allocations.*.name' => ['nullable', 'string', 'max:150'],
+                'allocations.*.amount' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
+            ],
+            default => [],
+        });
     }
 
-    private function categoryRules(
-        string $prefix
-    ): array {
+    private function categoryRules(string $prefix): array
+    {
         return [
-            $prefix => [
-                'nullable',
-                'array',
-                'max:30',
-            ],
-
-            $prefix.'.*.name' => [
-                'nullable',
-                'string',
-                'max:120',
-            ],
-
-            $prefix.'.*.items' => [
-                'nullable',
-                'array',
-                'max:100',
-            ],
-
-            $prefix.'.*.items.*.name' => [
-                'nullable',
-                'string',
-                'max:150',
-            ],
-
-            $prefix.'.*.items.*.amount' => [
-                'nullable',
-                'numeric',
-                'min:0',
-                'max:999999999999.99',
-            ],
+            $prefix => ['nullable', 'array', 'max:30'],
+            $prefix.'.*.name' => ['nullable', 'string', 'max:120'],
+            $prefix.'.*.items' => ['nullable', 'array', 'max:100'],
+            $prefix.'.*.items.*.name' => ['nullable', 'string', 'max:150'],
+            $prefix.'.*.items.*.amount' => ['nullable', 'numeric', 'min:0', 'max:999999999999.99'],
         ];
     }
 
-    private function toolInput(
-        array $validated
-    ): array {
-        unset(
-            $validated['scenario_name'],
-            $validated['tool_session_id']
-        );
-
+    private function toolInput(array $validated): array
+    {
+        unset($validated['scenario_name'], $validated['tool_session_id']);
         return $validated;
     }
 
-    private function defaultInput(
-        string $toolKey
-    ): array {
+    private function defaultInput(string $toolKey): array
+    {
         return match ($toolKey) {
             'current_capital_position' => [
                 'resources' => [],
                 'liabilities' => [],
             ],
-
             'working_capital_calculator' => [
                 'monthly_costs' => [],
                 'reserve_months' => '',
@@ -563,7 +330,6 @@ class WorkspaceChapterOneToolController extends Controller
                 'short_term_payables' => '',
                 'expected_receivables' => '',
             ],
-
             'contingency_fund_calculator' => [
                 'method' => 'percentage',
                 'base_capital' => '',
@@ -571,21 +337,13 @@ class WorkspaceChapterOneToolController extends Controller
                 'monthly_operating_cost' => '',
                 'months' => '',
             ],
-
-            'partner_contribution_matrix' => [
-                'partners' => [],
-            ],
-
+            'partner_contribution_matrix' => ['partners' => []],
             'funding_gap_calculator' => [
                 'capital_required' => '',
                 'partner_capital' => '',
                 'other_funding' => '',
             ],
-
-            'capital_allocation_chart' => [
-                'allocations' => [],
-            ],
-
+            'capital_allocation_chart' => ['allocations' => []],
             default => [],
         };
     }
