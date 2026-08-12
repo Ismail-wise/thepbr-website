@@ -13,6 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class ToolScenarioService
 {
+    public function __construct(
+        private readonly ChapterOneIntegrationService $chapterOneIntegration,
+        private readonly PbrOperatingSystemService $operatingSystem
+    ) {
+    }
+
     public function saveDraft(
         User $user,
         PartnershipWorkspace $workspace,
@@ -22,6 +28,7 @@ class ToolScenarioService
         array $resultData,
         ?int $sessionId = null
     ): ToolSession {
+        $this->authorizeManagement($user, $workspace);
 
         if (! array_key_exists(
             (string) $workspace->business_stage,
@@ -101,6 +108,8 @@ class ToolScenarioService
         int $sessionId,
         string $scenarioName
     ): ToolSession {
+        $this->authorizeManagement($user, $workspace);
+
         $session = $this->ownedDraft(
             $user,
             $workspace,
@@ -121,6 +130,8 @@ class ToolScenarioService
         ChapterTool $tool,
         int $sessionId
     ): ToolSession {
+        $this->authorizeManagement($user, $workspace);
+
         $source = $this->ownedDraft(
             $user,
             $workspace,
@@ -158,6 +169,8 @@ class ToolScenarioService
         ChapterTool $tool,
         int $sessionId
     ): void {
+        $this->authorizeManagement($user, $workspace);
+
         $session = $this->ownedDraft(
             $user,
             $workspace,
@@ -174,11 +187,15 @@ class ToolScenarioService
         ChapterTool $tool,
         ToolSession $session
     ): WorkspaceToolOutput {
+        $this->authorizeManagement($user, $workspace);
+
         abort_unless(
             $session->workspace_id === $workspace->id
             && $session->chapter_tool_id === $tool->id,
             403
         );
+
+        $tool->loadMissing('chapter:id,chapter_number');
 
         return DB::transaction(
             function () use (
@@ -186,7 +203,7 @@ class ToolScenarioService
                 $workspace,
                 $tool,
                 $session
-            ) {
+            ): WorkspaceToolOutput {
                 $latest = WorkspaceToolOutput::query()
                     ->where(
                         'workspace_id',
@@ -203,7 +220,7 @@ class ToolScenarioService
                 $revision =
                     ($latest?->revision ?? 0) + 1;
 
-                return WorkspaceToolOutput::create([
+                $output = WorkspaceToolOutput::create([
                     'workspace_id' =>
                         $workspace->id,
 
@@ -225,7 +242,33 @@ class ToolScenarioService
 
                     'generated_at' => now(),
                 ]);
+
+                if ((int) $tool->chapter?->chapter_number === 1) {
+                    $capital = $this->chapterOneIntegration
+                        ->operatingSnapshot($workspace);
+
+                    $this->operatingSystem->saveSnapshot(
+                        $user,
+                        $workspace,
+                        'capital',
+                        $capital['payload'],
+                        $capital['summary'],
+                        'draft'
+                    );
+                }
+
+                return $output;
             }
+        );
+    }
+
+    private function authorizeManagement(
+        User $user,
+        PartnershipWorkspace $workspace
+    ): void {
+        abort_unless(
+            $this->operatingSystem->canManage($user, $workspace),
+            403
         );
     }
 
