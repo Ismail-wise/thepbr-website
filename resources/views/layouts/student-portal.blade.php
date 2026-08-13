@@ -21,40 +21,46 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-readonly.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-readonly.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-roster.css') }}?v={{ filemtime(public_path('css/pbr-roster.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-business-os.css') }}?v={{ filemtime(public_path('css/pbr-business-os.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-premium-shell.css') }}?v={{ filemtime(public_path('css/pbr-premium-shell.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
 </head>
-<body>
+<body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }}">
     <header class="portal-header">
         <div class="portal-wrap portal-bar">
-            <a href="{{ route('home') }}" class="portal-brand">
+            <a href="{{ auth()->check() && auth()->user()->isStudent() ? route('student.dashboard') : route('home') }}" class="portal-brand">
                 <img src="{{ asset('images/pbr-logo.png') }}" alt="thePBR">
                 <span>the<strong>PBR</strong></span>
+                @auth
+                    <small class="portal-product-label">Business OS</small>
+                @endauth
             </a>
 
             <div class="portal-nav">
-                <a href="{{ route('home') }}">Public Website</a>
                 @auth
                     @if(auth()->user()->isStudent())
-                        <a href="{{ route('student.dashboard') }}">Business OS</a>
+                        <a href="{{ route('student.dashboard') }}" class="{{ request()->routeIs('student.dashboard') ? 'is-active' : '' }}">Dashboard</a>
                     @endif
 
-                    <a href="{{ route('workspaces.index') }}">My Businesses</a>
+                    <a href="{{ route('workspaces.index') }}" class="{{ request()->routeIs('workspaces.index', 'workspaces.create', 'workspaces.show', 'workspaces.edit') ? 'is-active' : '' }}">My Businesses</a>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
-                        <a href="{{ route('partner-dynamics.index') }}">Partner Dynamics</a>
+                        <a href="{{ route('partner-dynamics.index') }}" class="{{ request()->routeIs('partner-dynamics.*', 'workspaces.partner-dynamics.*') ? 'is-active' : '' }}">Partner Dynamics</a>
                     @endif
 
-                    <a href="{{ route('account.dashboard') }}">Account</a>
+                    <a href="{{ route('account.dashboard') }}" class="{{ request()->routeIs('account.*') ? 'is-active' : '' }}">Account</a>
 
                     @if(auth()->user()->isAdmin())
                         <a href="{{ url('/admin') }}">Admin Portal</a>
                     @endif
 
+                    <a href="{{ route('home') }}" class="portal-public-link">Public Website ↗</a>
+
                     <form method="POST" action="{{ route('logout') }}">
                         @csrf
-                        <button type="submit">ထွက်ရန်</button>
+                        <button type="submit" class="portal-logout-button">ထွက်ရန်</button>
                     </form>
                 @else
+                    <a href="{{ route('home') }}" class="portal-public-link">Public Website</a>
                     <a href="{{ route('login') }}">Login ဝင်ရန်</a>
                 @endauth
             </div>
