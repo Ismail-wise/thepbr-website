@@ -6,6 +6,7 @@ use App\Models\BusinessFeasibilityAssessment;
 use App\Models\BusinessValuation;
 use App\Models\PartnershipWorkspace;
 use App\Models\WorkspaceMember;
+use App\Services\PbrTools\PbrBusinessOperatingService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -154,8 +155,11 @@ class WorkspaceController extends Controller
             ->with('success', 'Business နဲ့ ဆက်စပ် Workspace Data တွေကို အပြီးဖျက်ပြီးပါပြီ။');
     }
 
-    public function show(Request $request, PartnershipWorkspace $workspace): View
-    {
+    public function show(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        PbrBusinessOperatingService $businessOperatingSystem
+    ): View {
         abort_unless($request->user()->canAccessWorkspace($workspace), 403);
 
         $workspace->load([
@@ -168,22 +172,18 @@ class WorkspaceController extends Controller
 
         $canManageBusiness = $request->user()->isAdmin()
             || $workspace->owner_user_id === $request->user()->id;
-
         $canManageInvitations = $canManageBusiness;
 
-        $partnerCount = $workspace->memberships
-            ->where('member_role', 'partner')
-            ->where('invitation_status', 'accepted')
-            ->count();
-
-        $savedOutputCount = $workspace->toolOutputs()->count();
+        $businessState = $businessOperatingSystem->workspaceState(
+            $request->user(),
+            $workspace
+        );
 
         return view('workspaces.show', compact(
             'workspace',
             'canManageBusiness',
             'canManageInvitations',
-            'partnerCount',
-            'savedOutputCount'
+            'businessState'
         ));
     }
 
