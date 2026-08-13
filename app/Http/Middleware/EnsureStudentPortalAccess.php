@@ -21,14 +21,14 @@ class EnsureStudentPortalAccess
             return redirect()
                 ->route('student.login')
                 ->withErrors([
-                    'email' => 'Please log in to access the Student Portal.',
+                    'email' => 'Please log in to access the PBR Business Operating System.',
                 ]);
         }
 
         return redirect()
             ->route('home')
             ->withErrors([
-                'email' => 'This account does not currently have Student Portal access.',
+                'email' => 'This account does not currently have PBR Business OS access.',
             ]);
     }
 }
