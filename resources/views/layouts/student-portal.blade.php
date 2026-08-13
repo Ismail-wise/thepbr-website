@@ -35,13 +35,18 @@
                 @endauth
             </a>
 
+            @php
+                $workspaceNavActive = request()->routeIs('workspaces.*')
+                    && ! request()->routeIs('workspaces.partner-dynamics.*');
+            @endphp
+
             <div class="portal-nav">
                 @auth
                     @if(auth()->user()->isStudent())
                         <a href="{{ route('student.dashboard') }}" class="{{ request()->routeIs('student.dashboard') ? 'is-active' : '' }}">Dashboard</a>
                     @endif
 
-                    <a href="{{ route('workspaces.index') }}" class="{{ request()->routeIs('workspaces.index', 'workspaces.create', 'workspaces.show', 'workspaces.edit') ? 'is-active' : '' }}">My Businesses</a>
+                    <a href="{{ route('workspaces.index') }}" class="{{ $workspaceNavActive ? 'is-active' : '' }}">My Businesses</a>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
                         <a href="{{ route('partner-dynamics.index') }}" class="{{ request()->routeIs('partner-dynamics.*', 'workspaces.partner-dynamics.*') ? 'is-active' : '' }}">Partner Dynamics</a>
