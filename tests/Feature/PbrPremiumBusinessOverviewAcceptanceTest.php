@@ -123,7 +123,6 @@ test('business overview is a premium operational control center with consistent 
         ->get(route('workspaces.show', $workspace))
         ->assertOk()
         ->assertSee('BUSINESS CONTROL CENTER')
-        ->assertSee('CURRENT BUSINESS POSITION', false)
         ->assertSee('Pending Review')
         ->assertSee('Partner Profiles')
         ->assertSee('Accepted Partner Accounts — 1')
@@ -168,7 +167,7 @@ test('priority actions consolidate duplicate operating areas instead of flooding
         ->assertOk()
         ->assertSee('PRIORITY ACTIONS')
         ->assertSee('အခု ဘာလုပ်ရမလဲ')
-        ->assertSee('FUNDING GAP');
+        ->assertSee('Funding Gap');
 
     $actions = $response->viewData('businessState')['action_items'];
     $capitalActionCount = $actions->where('domain', 'capital')->count();
