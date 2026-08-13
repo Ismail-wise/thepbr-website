@@ -81,6 +81,10 @@ class PbrBusinessOperatingService
             ? ToolSession::query()
                 ->where('workspace_id', $workspace->id)
                 ->where('status', 'draft')
+                ->whereDoesntHave(
+                    'workspaceOutputs',
+                    fn ($query) => $query->where('status', 'agreed')
+                )
                 ->orderByDesc('last_saved_at')
                 ->orderByDesc('id')
                 ->get()
@@ -377,6 +381,14 @@ class PbrBusinessOperatingService
                     'action_mm' => $canManage ? 'Review လုပ်ရန် →' : 'လက်ရှိ Rule ကြည့်ရန် →',
                     'url' => $system['url'],
                 ]);
+                continue;
+            }
+
+            // A read-only partner cannot configure a missing area, so do not
+            // create a wall of unactionable setup tasks for that user. Current
+            // approved business issues (such as an agreed funding gap) remain
+            // visible above.
+            if (! $canManage && $stateKey === 'setup') {
                 continue;
             }
 
