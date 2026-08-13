@@ -1,118 +1,227 @@
 @extends('layouts.student-portal')
 
-@section('title', 'ကျွန်ုပ်၏ Business များ')
+@section('title', 'My Businesses')
 
 @section('content')
 @php
-    $owned = $workspaces->filter(fn ($workspace) => $user->isAdmin() || $workspace->owner_user_id === $user->id);
-    $invited = $workspaces->filter(fn ($workspace) => ! $user->isAdmin() && $workspace->owner_user_id !== $user->id);
+    $managedBusinesses = $businesses->filter(fn (array $business) => $business['can_manage']);
+    $partnerBusinesses = $businesses->reject(fn (array $business) => $business['can_manage']);
 @endphp
 
-<div class="pbr2-page">
-    <section class="pbr2-hero">
-        <div class="pbr2-hero-row">
-            <div>
-                <span class="pbr2-eyebrow">My Businesses</span>
-                <h1>သင့် Partnership Business အားလုံးကို တစ်နေရာတည်းက စီမံပါ</h1>
-                <p>Business တစ်ခုချင်းစီရဲ့ Partner၊ Capital၊ Ownership၊ Finance၊ Governance၊ Feasibility၊ Valuation နဲ့ Active Business Rules တွေကို သီးခြား Workspace အဖြစ် စနစ်တကျ စီမံနိုင်ပါတယ်။</p>
+<section class="pbr-workspaces-page">
+    <div class="portal-wrap pbr-workspaces-wrap">
+        <header class="pbr-workspaces-hero">
+            <div class="pbr-workspaces-hero-copy">
+                <span class="pbr-workspaces-eyebrow">BUSINESS PORTFOLIO</span>
+                <h1>My Businesses</h1>
+                <p>
+                    Partnership Business တစ်ခုချင်းစီရဲ့ လက်ရှိအခြေအနေ၊ Funding၊ Active Rules၊ Review လိုအပ်ချက်နဲ့
+                    Partner Access ကို တစ်နေရာတည်းက ကြည့်ပြီး သက်ဆိုင်ရာ Business Workspace ကို တိုက်ရိုက်ဖွင့်နိုင်ပါတယ်။
+                </p>
             </div>
 
             @if($canCreateBusiness)
-                <a class="pbr2-btn" href="{{ route('workspaces.create') }}">+ Business အသစ်ထည့်ရန်</a>
+                <a class="pbr-workspaces-primary-action" href="{{ route('workspaces.create') }}">
+                    <span>＋</span>
+                    Business အသစ်ထည့်ရန်
+                </a>
             @endif
-        </div>
-    </section>
+        </header>
 
-    <section class="pbr2-section">
-        <div class="pbr2-section-head">
-            <div>
-                <h2>ကျွန်ုပ်ပိုင် Business များ</h2>
-                <p>Owner အဖြစ် Operating System၊ Partner Access နဲ့ Business Rules ကို သင်စီမံနိုင်တဲ့ Workspace များ</p>
-            </div>
-        </div>
-
-        <div class="pbr2-business-grid">
-            @forelse($owned as $workspace)
-                <article class="pbr2-card pbr2-business-card">
-                    <div class="pbr2-meta">
-                        <span class="pbr2-badge">OWNER</span>
-                        <span class="pbr2-badge {{ $workspace->business_stage === 'existing' ? 'orange' : 'gray' }}">
-                            {{ $workspace->business_stage === 'existing' ? 'ရှိပြီးသား Business' : 'Business အသစ် စီစဉ်နေသည်' }}
-                        </span>
-                    </div>
-
-                    <h3 class="pbr2-business-name">{{ $workspace->business_name ?: $workspace->name }}</h3>
-
-                    <div class="pbr2-data-row">
-                        <span>အဓိက Currency</span>
-                        <strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong>
-                    </div>
-                    <div class="pbr2-data-row">
-                        <span>ချိတ်ဆက်ထားသော Partner</span>
-                        <strong>{{ $workspace->acceptedMemberships->where('member_role', 'partner')->count() }}</strong>
-                    </div>
-
-                    <div class="pbr2-actions">
-                        <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business Control Center</a>
-                        <a class="pbr2-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}">Operating System</a>
-                        @if($workspace->owner_user_id === $user->id || $user->isAdmin())
-                            <a class="pbr2-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">Settings</a>
-                        @endif
-                    </div>
-                </article>
-            @empty
-                <div class="pbr2-empty">
-                    <strong>ကိုယ်ပိုင် Business မရှိသေးပါ</strong><br>
-                    Partnership Business တစ်ခုဖန်တီးပြီး actual business data နဲ့ PBR Operating System ကို စတင်အသုံးပြုနိုင်ပါတယ်။
-                </div>
-            @endforelse
-        </div>
-    </section>
-
-    @if($invited->isNotEmpty())
-        <section class="pbr2-section">
-            <div class="pbr2-section-head">
-                <div>
-                    <h2>Partner အဖြစ် ဝင်ထားသော Business များ</h2>
-                    <p>အခြား Owner တွေက သင့်ကို ဖိတ်ကြားထားပြီး အတည်ပြုထားတဲ့ shared business information ကို ကြည့်နိုင်တဲ့ Workspace များ</p>
-                </div>
-            </div>
-
-            <div class="pbr2-business-grid">
-                @foreach($invited as $workspace)
-                    <article class="pbr2-card pbr2-business-card">
-                        <div class="pbr2-meta">
-                            <span class="pbr2-badge orange">PARTNER ACCESS</span>
-                        </div>
-                        <h3 class="pbr2-business-name">{{ $workspace->business_name ?: $workspace->name }}</h3>
-                        <div class="pbr2-data-row"><span>Owner</span><strong>{{ $workspace->owner?->name ?? 'မသိရှိရသေး' }}</strong></div>
-                        <div class="pbr2-data-row"><span>Currency</span><strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong></div>
-                        <div class="pbr2-actions">
-                            <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business ကိုဖွင့်ရန်</a>
-                            <a class="pbr2-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}">Active Rules ကြည့်ရန်</a>
-                        </div>
-                    </article>
-                @endforeach
-            </div>
+        <section class="pbr-workspaces-summary" aria-label="Business portfolio summary">
+            <article>
+                <span>Businesses</span>
+                <strong>{{ $portfolioSummary['business_count'] }}</strong>
+                <small>ဝင်ရောက်အသုံးပြုနိုင်သော Workspace</small>
+            </article>
+            <article>
+                <span>Managed by You</span>
+                <strong>{{ $portfolioSummary['owned_count'] }}</strong>
+                <small>Owner/Admin အဖြစ် စီမံနိုင်သည်</small>
+            </article>
+            <article class="{{ $portfolioSummary['needs_attention_count'] > 0 ? 'attention' : '' }}">
+                <span>Needs Attention</span>
+                <strong>{{ $portfolioSummary['needs_attention_count'] }}</strong>
+                <small>Action သို့မဟုတ် Review လိုအပ်သည်</small>
+            </article>
+            <article>
+                <span>Partner Access</span>
+                <strong>{{ $portfolioSummary['partner_access_count'] }}</strong>
+                <small>Partner အဖြစ် ဝင်ရောက်ကြည့်နိုင်သည်</small>
+            </article>
         </section>
-    @endif
 
-    <section class="pbr2-section">
-        <details class="pbr2-details">
-            <summary>Partner Invitation Link ရှိပါသလား?</summary>
-            <div class="pbr2-details-body">
-                <p style="margin-top:0;color:var(--pbr2-muted);font-size:14px;">Partner ဆီကရထားတဲ့ Invitation Link ကို အောက်မှာထည့်ပြီး Business Workspace ကို ချိတ်ဆက်နိုင်ပါတယ်။</p>
-                <form method="POST" action="{{ route('workspace-invitations.connect') }}">
-                    @csrf
-                    <div class="pbr2-field">
-                        <label for="invitation_link">Invitation Link</label>
-                        <input id="invitation_link" name="invitation_link" type="text" value="{{ old('invitation_link') }}" placeholder="https://thepbr.io/workspace-invitations/..." required>
-                        @error('invitation_link')<small class="pbr2-error">{{ $message }}</small>@enderror
+        <section class="pbr-workspaces-section">
+            <div class="pbr-workspaces-section-head">
+                <div>
+                    <span class="pbr-workspaces-eyebrow">MANAGED BUSINESSES</span>
+                    <h2>သင် စီမံနေသော Business များ</h2>
+                    <p>အရေးကြီးဆုံး Business ကို အရင်မြင်နိုင်အောင် Action → Review → Setup → Stable အလိုက် စီထားပါတယ်။</p>
+                </div>
+                @if($portfolioSummary['setup_required_count'] > 0)
+                    <div class="pbr-workspaces-setup-note">
+                        <strong>{{ $portfolioSummary['setup_required_count'] }}</strong>
+                        <span>Setup Required</span>
                     </div>
-                    <button class="pbr2-btn" type="submit">Link ကိုစစ်ပြီး ချိတ်ဆက်ရန်</button>
-                </form>
+                @endif
             </div>
-        </details>
-    </section>
-</div>
+
+            @if($managedBusinesses->isEmpty())
+                <div class="pbr-workspaces-empty">
+                    <div class="pbr-workspaces-empty-icon">＋</div>
+                    <div>
+                        <strong>ကိုယ်တိုင် စီမံနေသော Business မရှိသေးပါ</strong>
+                        <p>Partnership Business တစ်ခုဖန်တီးပြီး actual operating data နဲ့ စတင်စီမံနိုင်ပါတယ်။</p>
+                    </div>
+                    @if($canCreateBusiness)
+                        <a href="{{ route('workspaces.create') }}">Business တည်ဆောက်ရန် →</a>
+                    @endif
+                </div>
+            @else
+                <div class="pbr-workspaces-grid">
+                    @foreach($managedBusinesses as $business)
+                        @php
+                            $workspace = $business['workspace'];
+                            $metrics = $business['metrics'];
+                            $status = $business['status'];
+                            $nextAction = $business['next_action'];
+                            $currency = $workspace->currency_code ?? 'THB';
+                        @endphp
+
+                        <article class="pbr-workspace-card status-{{ $status['key'] }}">
+                            <div class="pbr-workspace-card-head">
+                                <div>
+                                    <div class="pbr-workspace-card-meta">
+                                        <span class="access">OWNER</span>
+                                        <span>{{ $workspace->business_stage === 'existing' ? 'Operating Business' : 'New Business Plan' }}</span>
+                                    </div>
+                                    <h3>{{ $workspace->business_name ?: $workspace->name }}</h3>
+                                    <p>{{ $currency }} · Partner Profiles {{ $metrics['partner_count'] }} · Active Areas {{ $metrics['active_area_count'] }}/10</p>
+                                </div>
+
+                                <div class="pbr-workspace-status status-{{ $status['key'] }}">
+                                    <small>{{ $status['label_en'] }}</small>
+                                    <strong>{{ $status['label_mm'] }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="pbr-workspace-kpis">
+                                <div>
+                                    <span>Funding Gap</span>
+                                    <strong>{{ $currency }} {{ number_format((float) $metrics['funding_gap'], 0) }}</strong>
+                                </div>
+                                <div>
+                                    <span>Active Rules</span>
+                                    <strong>{{ $metrics['active_rule_count'] }}</strong>
+                                </div>
+                                <div>
+                                    <span>Pending Review</span>
+                                    <strong>{{ $metrics['working_change_count'] }}</strong>
+                                </div>
+                                <div>
+                                    <span>Business Records</span>
+                                    <strong>{{ $metrics['operating_record_count'] }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="pbr-workspace-next-action">
+                                <span>NEXT ACTION</span>
+                                @if($nextAction)
+                                    <strong>{{ $nextAction['title_mm'] }}</strong>
+                                    <p>{{ $nextAction['detail_mm'] }}</p>
+                                    <a href="{{ $nextAction['url'] }}">{{ $nextAction['action_mm'] }}</a>
+                                @else
+                                    <strong>လက်ရှိ အရေးပေါ် Action မရှိပါ</strong>
+                                    <p>Active Rules နဲ့ Business Records ကို ဆက်လက်စောင့်ကြည့်ပြီး လိုအပ်သလို Update လုပ်နိုင်ပါတယ်။</p>
+                                @endif
+                            </div>
+
+                            <div class="pbr-workspace-card-actions">
+                                <a class="primary" href="{{ route('workspaces.show', $workspace) }}">Open Business</a>
+                                <a href="{{ route('workspaces.tools.index', $workspace) }}">Operating System</a>
+                                <a href="{{ route('workspaces.edit', $workspace) }}">Settings</a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        @if($partnerBusinesses->isNotEmpty())
+            <section class="pbr-workspaces-section partner-access-section">
+                <div class="pbr-workspaces-section-head">
+                    <div>
+                        <span class="pbr-workspaces-eyebrow">PARTNER ACCESS</span>
+                        <h2>Partner အဖြစ် ဝင်ရောက်ထားသော Business များ</h2>
+                        <p>Owner က အတည်ပြုထားတဲ့ Active Business Rules နဲ့ shared operating information ကို permission-safe view နဲ့ကြည့်နိုင်ပါတယ်။</p>
+                    </div>
+                </div>
+
+                <div class="pbr-workspaces-grid partner-grid">
+                    @foreach($partnerBusinesses as $business)
+                        @php
+                            $workspace = $business['workspace'];
+                            $metrics = $business['metrics'];
+                            $status = $business['status'];
+                            $currency = $workspace->currency_code ?? 'THB';
+                        @endphp
+
+                        <article class="pbr-workspace-card partner-card status-{{ $status['key'] }}">
+                            <div class="pbr-workspace-card-head">
+                                <div>
+                                    <div class="pbr-workspace-card-meta">
+                                        <span class="partner-access">PARTNER ACCESS</span>
+                                        <span>{{ $workspace->business_stage === 'existing' ? 'Operating Business' : 'New Business Plan' }}</span>
+                                    </div>
+                                    <h3>{{ $workspace->business_name ?: $workspace->name }}</h3>
+                                    <p>Owner: {{ $workspace->owner?->name ?? '—' }} · {{ $currency }}</p>
+                                </div>
+                                <div class="pbr-workspace-status status-{{ $status['key'] }}">
+                                    <small>{{ $status['label_en'] }}</small>
+                                    <strong>{{ $status['label_mm'] }}</strong>
+                                </div>
+                            </div>
+
+                            <div class="pbr-workspace-kpis compact">
+                                <div><span>Active Areas</span><strong>{{ $metrics['active_area_count'] }}/10</strong></div>
+                                <div><span>Active Rules</span><strong>{{ $metrics['active_rule_count'] }}</strong></div>
+                                <div><span>Business Records</span><strong>{{ $metrics['operating_record_count'] }}</strong></div>
+                            </div>
+
+                            <div class="pbr-workspace-card-actions">
+                                <a class="primary" href="{{ route('workspaces.show', $workspace) }}">Open Business</a>
+                                <a href="{{ route('workspaces.tools.index', $workspace) }}">View Active Rules</a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            </section>
+        @endif
+
+        <section class="pbr-workspaces-invitation">
+            <details>
+                <summary>
+                    <div>
+                        <span class="pbr-workspaces-eyebrow">JOIN A BUSINESS</span>
+                        <strong>Partner Invitation Link ရှိပါသလား?</strong>
+                        <small>ဖိတ်ကြားထားတဲ့ Business Workspace နဲ့ account ကို ချိတ်ဆက်ရန်</small>
+                    </div>
+                    <span class="pbr-workspaces-details-icon">＋</span>
+                </summary>
+                <div class="pbr-workspaces-invitation-body">
+                    <p>Owner ဆီကရထားတဲ့ Invitation Link ကို ထည့်ပါ။ Link ကိုစစ်ပြီးမှ သင့် account နဲ့ Business Workspace ကို ချိတ်ဆက်ပေးပါမယ်။</p>
+                    <form method="POST" action="{{ route('workspace-invitations.connect') }}">
+                        @csrf
+                        <label for="invitation_link">Invitation Link</label>
+                        <div class="pbr-workspaces-invitation-row">
+                            <input id="invitation_link" name="invitation_link" type="text" value="{{ old('invitation_link') }}" placeholder="https://thepbr.io/workspace-invitations/..." required>
+                            <button type="submit">Link ကို စစ်ပြီး ချိတ်ဆက်ရန်</button>
+                        </div>
+                        @error('invitation_link')<small class="pbr-workspaces-error">{{ $message }}</small>@enderror
+                    </form>
+                </div>
+            </details>
+        </section>
+    </div>
+</section>
 @endsection
