@@ -156,7 +156,7 @@
                             <strong>{{ $action['title_mm'] }}</strong>
                             <p>{{ $action['detail_mm'] }}</p>
                             <footer>
-                                <span>{{ $action['action_mm'] }} →</span>
+                                <span>{{ $action['action_mm'] }}</span>
                                 @if(($action['open_items'] ?? 1) > 1)
                                     <em>{{ $action['open_items'] }} open items</em>
                                 @endif
@@ -180,7 +180,7 @@
                 <div>
                     <span class="ov-eyebrow">OPERATING AREAS</span>
                     <h2>Business Operating Areas 10 ခု</h2>
-                    <p>Course progress မဟုတ်ပါဘူး။ Business ပြောင်းလဲလာတိုင်း Data၊ Decision၊ Approval နဲ့ Current Rule ကို ဆက်လက်ထိန်းသိမ်းရမယ့် operating systems တွေပါ။</p>
+                    <p>Business ရဲ့ Data၊ Decision၊ Approval နဲ့ Current Rule တွေကို ပြောင်းလဲမှုတိုင်းနဲ့အတူ ဆက်လက်ထိန်းသိမ်းပြီး လက်တွေ့လုပ်ငန်းလည်ပတ်မှုကို တစ်နေရာတည်းက စီမံနိုင်တဲ့ operating systems တွေပါ။</p>
                 </div>
                 <a href="{{ route('workspaces.tools.index', $workspace) }}" class="ov-btn">View Full Operating System →</a>
             </div>
