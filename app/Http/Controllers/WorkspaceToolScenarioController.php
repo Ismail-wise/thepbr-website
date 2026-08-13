@@ -34,7 +34,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Draft အမည်ပြောင်းပြီးပါပြီ။'
+            'Working Plan အမည်ပြောင်းပြီးပါပြီ။'
         );
     }
 
@@ -58,7 +58,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Draft Plan မိတ္တူအသစ် ဖန်တီးပြီးပါပြီ။'
+            'Working Plan Version အသစ် ဖန်တီးပြီးပါပြီ။'
         );
     }
 
@@ -79,7 +79,7 @@ class WorkspaceToolScenarioController extends Controller
         );
 
         return redirect($this->toolUrl($workspace, $tool))
-            ->with('status', 'Draft ကို ဖျက်ပြီးပါပြီ။');
+            ->with('status', 'Working Draft ကို ဖျက်ပြီးပါပြီ။');
     }
 
     public function output(
@@ -108,7 +108,7 @@ class WorkspaceToolScenarioController extends Controller
             $workspace,
             $tool,
             $draft->id,
-            'Draft Result revision '.$output->revision.' သိမ်းပြီးပါပြီ။'
+            'Review Output revision '.$output->revision.' သိမ်းပြီးပါပြီ။ Active Business Rule ကို မပြောင်းသေးပါ။'
         );
     }
 
@@ -134,12 +134,13 @@ class WorkspaceToolScenarioController extends Controller
             $draft
         );
 
-        return $this->toolRedirect(
-            $workspace,
-            $tool,
-            $draft->id,
-            'Business Rule revision '.$output->revision.' အဖြစ် အတည်ပြုအသုံးပြုပြီးပါပြီ။ PBR AI နဲ့ အခြား Business Systems တွေက ဒီ data ကို လက်ရှိအသုံးပြုနေသော rule အဖြစ်ယူနိုင်ပါပြီ။'
-        );
+        // Approval closes the working session, so redirect to the current
+        // active view instead of trying to reopen the now-completed draft.
+        return redirect($this->toolUrl($workspace, $tool))
+            ->with(
+                'status',
+                'Business Rule revision '.$output->revision.' ကို Approve & Activate လုပ်ပြီးပါပြီ။ Connected Business Systems နဲ့ PBR AI က ဒီ rule ကို current approved data အဖြစ် အသုံးပြုနိုင်ပါပြီ။'
+            );
     }
 
     private function resolveTool(
