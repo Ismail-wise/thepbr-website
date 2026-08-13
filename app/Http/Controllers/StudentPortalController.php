@@ -52,10 +52,10 @@ class StudentPortalController extends Controller
         $portfolioMetrics = [
             'business_count' => $businesses->count(),
             'needs_action_count' => $businesses
-                ->where('status.key', 'needs_action')
+                ->filter(fn (array $business): bool => (float) ($business['metrics']['funding_gap'] ?? 0) > 0)
                 ->count(),
             'needs_review_count' => $businesses
-                ->where('status.key', 'needs_review')
+                ->filter(fn (array $business): bool => (int) ($business['metrics']['working_change_count'] ?? 0) > 0)
                 ->count(),
             'setup_required_count' => $businesses
                 ->where('status.key', 'setup_required')
