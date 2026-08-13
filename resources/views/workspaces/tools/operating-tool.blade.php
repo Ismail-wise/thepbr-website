@@ -5,7 +5,12 @@
 @section('content')
 @php
     $currency = $workspace->currency_code ?? 'THB';
-    $chapterNumber = (int) ($tool->chapter?->chapter_number ?? ($definition['chapter'] ?? 0));
+    $internalNumber = (int) ($tool->chapter?->chapter_number ?? ($definition['chapter'] ?? 0));
+    $businessArea = config('pbr_business_operating_system.areas.'.$internalNumber, []);
+    $areaNameMm = $businessArea['name_mm'] ?? 'Business Operations';
+    $areaNameEn = $businessArea['name_en'] ?? 'Business Operations';
+    $areaSlug = $businessArea['slug'] ?? 'operations';
+
     $formatValue = static function ($value, $format) use ($currency) {
         if ($value === null || $value === '') {
             return '—';
@@ -26,20 +31,23 @@
 <section class="pbr-os-page">
     <div class="portal-wrap pbr-os-wrap">
         <nav class="pbr-os-breadcrumb" aria-label="Breadcrumb">
-            <a href="{{ route('workspaces.show', $workspace) }}">Business Control Center</a>
+            <a href="{{ route('workspaces.show', $workspace) }}">{{ $workspace->business_name ?: $workspace->name }}</a>
             <span>›</span>
-            <a href="{{ route('workspaces.tools.index', $workspace) }}">10-Chapter System</a>
+            <a href="{{ route('workspaces.tools.index', $workspace) }}#system-{{ $areaSlug }}">{{ $areaNameEn }}</a>
             <span>›</span>
-            <span>Chapter {{ $chapterNumber }}</span>
+            <span>{{ $tool->title_en }}</span>
         </nav>
 
         <header class="pbr-os-hero">
             <div class="pbr-os-hero-copy">
                 <div class="pbr-os-kickers">
-                    <span class="pbr-os-chapter-pill">Chapter {{ str_pad((string) $chapterNumber, 2, '0', STR_PAD_LEFT) }}</span>
-                    <span class="pbr-os-type-pill">{{ ucfirst($tool->tool_type) }}</span>
+                    <span class="pbr-os-chapter-pill">{{ $areaNameMm }}</span>
                     @if($latestAgreedOutput)
-                        <span class="pbr-os-agreed-pill">✓ Agreed Rule ရှိပြီး</span>
+                        <span class="pbr-os-agreed-pill">✓ Active Rule ရှိသည်</span>
+                    @elseif($activeSession)
+                        <span class="pbr-os-type-pill">Working Draft</span>
+                    @else
+                        <span class="pbr-os-type-pill">Business Setup</span>
                     @endif
                 </div>
 
@@ -52,7 +60,7 @@
                 <span>လက်ရှိ Business</span>
                 <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
                 <div>
-                    <small>{{ $workspace->business_stage === 'new' ? 'Planning a New Partnership' : 'Managing an Existing Partnership' }}</small>
+                    <small>{{ $workspace->business_stage === 'new' ? 'New Partnership' : 'Existing Partnership' }}</small>
                     <small>{{ $currency }}</small>
                 </div>
             </aside>
@@ -66,7 +74,7 @@
             <div class="pbr-os-readonly-banner">
                 <div>
                     <strong>Partner Read-Only View</strong>
-                    <p>ဒီ Business ရဲ့ Owner/Admin က အတည်ပြုထားတဲ့ <b>Agreed Business Rule</b> ကိုသာ မြင်ရပါတယ်။ Draft, private scenario နဲ့ owner-only inputs တွေကို မပြပါဘူး။</p>
+                    <p>Owner/Admin က အတည်ပြုထားတဲ့ <b>Active Business Rule</b> ကိုသာ မြင်ရပါတယ်။ Working Draft၊ private scenario နဲ့ owner-only input တွေကို မပြပါဘူး။</p>
                 </div>
                 <span>Permission Safe</span>
             </div>
@@ -76,19 +84,19 @@
             @if($canManage)
                 <aside class="pbr-os-sidebar">
                     <div class="pbr-os-side-card">
-                        <span class="pbr-os-side-label">Workflow</span>
+                        <span class="pbr-os-side-label">OPERATING WORKFLOW</span>
                         <ol class="pbr-os-steps">
-                            <li class="active"><span>1</span><div><b>Data ထည့်ပါ</b><small>Actual business information</small></div></li>
-                            <li><span>2</span><div><b>Calculate / Review</b><small>Logic + warnings + comparison</small></div></li>
-                            <li><span>3</span><div><b>Save Draft</b><small>Scenario မပျောက်အောင်သိမ်း</small></div></li>
-                            <li><span>4</span><div><b>Approve</b><small>Agreed Business Rule ဖြစ်မယ်</small></div></li>
+                            <li class="active"><span>1</span><div><b>Actual Data ထည့်ပါ</b><small>လက်ရှိ Business information</small></div></li>
+                            <li><span>2</span><div><b>Review Result</b><small>Calculation, warning နဲ့ option ကိုစစ်ပါ</small></div></li>
+                            <li><span>3</span><div><b>Working Draft သိမ်းပါ</b><small>Active Rule ကို မထိခိုက်ဘဲ ပြင်ဆင်ပါ</small></div></li>
+                            <li><span>4</span><div><b>Approve & Activate</b><small>Business မှာ အသုံးပြုမယ့် Current Rule ဖြစ်မယ်</small></div></li>
                         </ol>
                     </div>
 
                     <div class="pbr-os-side-card">
                         <div class="pbr-os-side-head">
                             <div>
-                                <span class="pbr-os-side-label">Saved Scenarios</span>
+                                <span class="pbr-os-side-label">WORKING PLANS</span>
                                 <strong>{{ $drafts->count() }} Drafts</strong>
                             </div>
                             <a href="{{ route('workspaces.tools.operating.show', [$workspace, $tool->slug]) }}">New</a>
@@ -99,21 +107,23 @@
                                 class="pbr-os-draft-link {{ $activeSession?->id === $draft->id ? 'active' : '' }}"
                                 href="{{ route('workspaces.tools.operating.show', [$workspace, $tool->slug, 'session' => $draft->id]) }}"
                             >
-                                <span>{{ $draft->scenario_name ?: 'Untitled Scenario' }}</span>
+                                <span>{{ $draft->scenario_name ?: 'Untitled Working Plan' }}</span>
                                 <small>{{ optional($draft->last_saved_at)->diffForHumans() }}</small>
                             </a>
                         @empty
-                            <p class="pbr-os-empty-small">Draft မရှိသေးပါ။ Form ဖြည့်ပြီး Save Draft လုပ်ပါ။</p>
+                            <p class="pbr-os-empty-small">Working Draft မရှိသေးပါ။ Data ထည့်ပြီး လိုအပ်ရင် Draft သိမ်းနိုင်ပါတယ်။</p>
                         @endforelse
                     </div>
 
                     @if($outputHistory->isNotEmpty())
                         <div class="pbr-os-side-card">
-                            <span class="pbr-os-side-label">Rule History</span>
+                            <span class="pbr-os-side-label">RULE HISTORY</span>
                             <div class="pbr-os-history-list">
                                 @foreach($outputHistory as $output)
                                     <div>
-                                        <span class="{{ $output->status === 'agreed' ? 'agreed' : 'draft' }}">{{ strtoupper($output->status) }}</span>
+                                        <span class="{{ $output->status === 'agreed' ? 'agreed' : 'draft' }}">
+                                            {{ $output->status === 'agreed' ? 'ACTIVE' : 'DRAFT' }}
+                                        </span>
                                         <b>Revision {{ $output->revision }}</b>
                                         <small>{{ optional($output->generated_at)->format('d M Y, H:i') }}</small>
                                     </div>
@@ -129,12 +139,12 @@
                     <section class="pbr-os-panel pbr-os-input-panel">
                         <div class="pbr-os-panel-head">
                             <div>
-                                <span class="portal-kicker">Business Inputs</span>
-                                <h2>{{ $activeSession ? 'Scenario ကိုပြင်နေပါတယ်' : 'Scenario အသစ်တည်ဆောက်ပါ' }}</h2>
-                                <p>Tool တစ်ခုချင်းစီမှာ လိုအပ်တဲ့ data ပဲမေးထားပါတယ်။ Empty field မဖြည့်ချင်ရင် 0 / blank ထားနိုင်တဲ့နေရာတွေရှိပါတယ်။</p>
+                                <span class="portal-kicker">BUSINESS DATA</span>
+                                <h2>{{ $activeSession ? 'Working Plan ကို ပြင်နေသည်' : 'လက်ရှိ Business အချက်အလက် ထည့်ပါ' }}</h2>
+                                <p>ဒီ Operating Function အတွက် ဆုံးဖြတ်ချက်ချဖို့ လိုအပ်တဲ့ data ကိုပဲ ထည့်ပါ။ Save လုပ်ထားတဲ့ Draft က Active Rule ကို အလိုအလျောက် မပြောင်းပါဘူး။</p>
                             </div>
                             @if($activeSession)
-                                <span class="pbr-os-session-badge">Draft #{{ $activeSession->id }}</span>
+                                <span class="pbr-os-session-badge">Working Draft #{{ $activeSession->id }}</span>
                             @endif
                         </div>
 
@@ -162,7 +172,7 @@
                                                     <label>{{ $field['label_mm'] }}</label>
                                                     <span>{{ $field['label_en'] }}</span>
                                                 </div>
-                                                <button type="button" class="pbr-os-add-row" data-repeater-add>+ Row ထည့်ရန်</button>
+                                                <button type="button" class="pbr-os-add-row" data-repeater-add>+ Record ထည့်ရန်</button>
                                             </div>
                                             @if(!empty($field['help_mm']))
                                                 <p class="pbr-os-help">{{ $field['help_mm'] }}</p>
@@ -208,7 +218,7 @@
                                                                 @endif
                                                             </div>
                                                         @endforeach
-                                                        <button type="button" class="pbr-os-remove-row" data-repeater-remove aria-label="Remove row">×</button>
+                                                        <button type="button" class="pbr-os-remove-row" data-repeater-remove aria-label="Remove record">×</button>
                                                     </div>
                                                 @endforeach
                                             </div>
@@ -241,11 +251,10 @@
                                                             @endif
                                                         </div>
                                                     @endforeach
-                                                    <button type="button" class="pbr-os-remove-row" data-repeater-remove aria-label="Remove row">×</button>
+                                                    <button type="button" class="pbr-os-remove-row" data-repeater-remove aria-label="Remove record">×</button>
                                                 </div>
                                             </template>
                                         </div>
-
                                     @elseif($fieldType === 'checklist')
                                         <div class="pbr-os-field pbr-os-field-wide">
                                             <div class="pbr-os-field-heading">
@@ -267,12 +276,11 @@
                                                             value="1"
                                                             @checked((bool) ($fieldValue[$itemKey] ?? false))
                                                         >
-                                                        <span><b>{{ $itemLabel }}</b><small>ပြီးထားရင် check လုပ်ပါ</small></span>
+                                                        <span><b>{{ $itemLabel }}</b><small>လက်ရှိ Business မှာ သက်ဆိုင်ရင် ရွေးပါ</small></span>
                                                     </label>
                                                 @endforeach
                                             </div>
                                         </div>
-
                                     @else
                                         <div class="pbr-os-field {{ $fieldType === 'textarea' ? 'pbr-os-field-wide' : '' }}">
                                             <label for="{{ $fieldName }}">
@@ -312,23 +320,23 @@
                             </div>
 
                             <div class="pbr-os-form-actions">
-                                <button type="submit" class="pbr-os-btn primary">Calculate / Review</button>
+                                <button type="submit" class="pbr-os-btn primary">Result စစ်ရန်</button>
 
                                 <div class="pbr-os-save-cluster">
-                                    <label for="scenario_name">Scenario အမည်</label>
+                                    <label for="scenario_name">Plan / Version အမည်</label>
                                     <input
                                         id="scenario_name"
                                         type="text"
                                         name="scenario_name"
                                         maxlength="120"
                                         value="{{ old('scenario_name', $activeSession?->scenario_name ?? '') }}"
-                                        placeholder="ဥပမာ: Base Plan 2026"
+                                        placeholder="ဥပမာ: Current Policy 2026 / Option A"
                                     >
                                     <button
                                         type="submit"
                                         class="pbr-os-btn secondary"
                                         formaction="{{ route('workspaces.tools.operating.save', [$workspace, $tool->slug]) }}"
-                                    >Save Draft</button>
+                                    >Working Draft သိမ်းရန်</button>
                                 </div>
                             </div>
                         </form>
@@ -338,9 +346,9 @@
                 @if($result)
                     <section class="pbr-os-panel pbr-os-result-panel" id="result">
                         <div class="pbr-os-result-hero">
-                            <span>{{ $result['headline']['label'] ?? 'Result' }}</span>
+                            <span>{{ $result['headline']['label'] ?? 'Business Result' }}</span>
                             <strong>{{ $formatValue($result['headline']['value'] ?? null, $result['headline']['format'] ?? 'text') }}</strong>
-                            <small>Based on the information entered for this scenario</small>
+                            <small>လက်ရှိထည့်ထားသော Business Data အပေါ် အခြေခံထားသည်</small>
                         </div>
 
                         @if(!empty($result['metrics']))
@@ -358,7 +366,7 @@
                             <div class="pbr-os-result-table-wrap">
                                 <div class="pbr-os-table-head">
                                     <h3>{{ $table['title'] ?? 'Details' }}</h3>
-                                    <span>{{ count($table['rows'] ?? []) }} rows</span>
+                                    <span>{{ count($table['rows'] ?? []) }} records</span>
                                 </div>
                                 <div class="pbr-os-table-scroll">
                                     <table class="pbr-os-result-table">
@@ -398,7 +406,7 @@
                             <div class="pbr-os-insight warning">
                                 <div class="pbr-os-insight-icon">!</div>
                                 <div>
-                                    <h3>ပြန်စစ်သင့်တဲ့အချက်များ</h3>
+                                    <h3>Action မလုပ်ခင် ပြန်စစ်သင့်တဲ့အချက်များ</h3>
                                     <ul>
                                         @foreach($result['warnings'] as $warning)
                                             <li>{{ $warning }}</li>
@@ -412,7 +420,7 @@
                             <div class="pbr-os-insight note">
                                 <div class="pbr-os-insight-icon">i</div>
                                 <div>
-                                    <h3>Business Note</h3>
+                                    <h3>Business Notes</h3>
                                     <ul>
                                         @foreach($result['notes'] as $note)
                                             <li>{{ $note }}</li>
@@ -425,18 +433,18 @@
                         @if($canManage && $activeSession)
                             <div class="pbr-os-approval-zone">
                                 <div>
-                                    <span>ဒီ Scenario ကိုဘာလုပ်မလဲ?</span>
-                                    <h3>Draft နဲ့ Agreed Rule ကိုမရောပါဘူး</h3>
-                                    <p>Workspace Output က working draft reference ဖြစ်ပါတယ်။ <b>Approve as Agreed Business Rule</b> လုပ်မှ နောက် Chapters နဲ့ AI Advisor က official current rule အဖြစ်ယူသုံးပါမယ်။</p>
+                                    <span>Working Draft ကို အတည်ပြုမလား?</span>
+                                    <h3>Draft နဲ့ Active Business Rule ကို သီးခြားထားပါတယ်</h3>
+                                    <p>Draft ကို သိမ်းတာနဲ့ လက်ရှိ Rule မပြောင်းပါဘူး။ <b>Approve & Activate</b> လုပ်မှ ဒီ Business Area ရဲ့ Current Rule ဖြစ်ပြီး connected operating data နဲ့ PBR AI Advisor က အသုံးပြုပါမယ်။</p>
                                 </div>
                                 <div class="pbr-os-approval-actions">
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.output', [$workspace, $tool->slug, $activeSession->id]) }}">
                                         @csrf
-                                        <button class="pbr-os-btn secondary" type="submit">Create Draft Output</button>
+                                        <button class="pbr-os-btn secondary" type="submit">Review Output သိမ်းရန်</button>
                                     </form>
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.approve', [$workspace, $tool->slug, $activeSession->id]) }}" data-confirm-agreed>
                                         @csrf
-                                        <button class="pbr-os-btn approve" type="submit">✓ Approve as Agreed Business Rule</button>
+                                        <button class="pbr-os-btn approve" type="submit">✓ Approve & Activate Business Rule</button>
                                     </form>
                                 </div>
                             </div>
@@ -445,25 +453,25 @@
                 @elseif(!$canManage)
                     <section class="pbr-os-panel pbr-os-empty-state">
                         <div class="pbr-os-empty-icon">◎</div>
-                        <h2>Owner/Admin က ဒီ Tool အတွက် Agreed Rule မသတ်မှတ်ရသေးပါ</h2>
-                        <p>Draft scenarios တွေကို Partner account က မမြင်နိုင်ပါဘူး။ Agreed Business Rule ရှိလာရင် ဒီနေရာမှာ automatically ပေါ်လာပါမယ်။</p>
+                        <h2>ဒီ Operating Function အတွက် Active Business Rule မရှိသေးပါ</h2>
+                        <p>Partner account မှာ Working Draft တွေကို မပြပါဘူး။ Owner/Admin က Rule အတည်ပြုပြီးရင် ဒီနေရာမှာ current operating information အဖြစ် ပေါ်လာပါမယ်။</p>
                     </section>
                 @endif
 
                 @if($latestAgreedOutput)
                     <section class="pbr-os-panel pbr-os-current-rule">
                         <div>
-                            <span class="pbr-os-agreed-pill">✓ Current Agreed Business Rule</span>
+                            <span class="pbr-os-agreed-pill">✓ Current Active Business Rule</span>
                             <h2>Revision {{ $latestAgreedOutput->revision }}</h2>
                             <p>Approved {{ optional($latestAgreedOutput->agreed_at)->format('d M Y, H:i') }}</p>
                         </div>
-                        <p>ဒီ revision ကို Chapter {{ $chapterNumber }} ရဲ့ connected operating data နဲ့ PBR AI Advisor context အတွက်အသုံးပြုနိုင်ပါတယ်။</p>
+                        <p>ဒီ Revision က <b>{{ $areaNameEn }}</b> ရဲ့ လက်ရှိအသုံးပြုနေသော Rule ဖြစ်ပြီး connected business workflows နဲ့ permission-safe PBR AI context မှာ အသုံးပြုနိုင်ပါတယ်။</p>
                     </section>
                 @endif
 
                 <div class="pbr-os-legal-note">
-                    <strong>Important</strong>
-                    <p>{{ config('pbr_operating_tools.shared_notes.planning_only_mm') }}</p>
+                    <strong>Planning & Governance Note</strong>
+                    <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
                     <p>{{ config('pbr_operating_tools.shared_notes.agreement_mm') }}</p>
                 </div>
             </main>
