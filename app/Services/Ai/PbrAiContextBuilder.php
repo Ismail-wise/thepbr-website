@@ -54,20 +54,16 @@ class PbrAiContextBuilder
             ->latest('id')
             ->first();
 
-        $outputQuery = WorkspaceToolOutput::query()
+        // Business operating rules supplied to AI are approved-only for every
+        // actor, including owners/admins. Proposed working changes remain in
+        // the workflow until someone explicitly approves and activates them.
+        $latestOutputs = WorkspaceToolOutput::query()
             ->with([
                 'tool:id,course_chapter_id,tool_key,slug,title_en,title_mm',
                 'tool.chapter:id,chapter_number,title_en,title_mm',
             ])
-            ->where('workspace_id', $workspace->id);
-
-        // Owner/Admin may use the latest working outputs. Accepted partners must
-        // never receive draft workspace outputs through AI context.
-        if (! $canManage) {
-            $outputQuery->where('status', 'agreed');
-        }
-
-        $latestOutputs = $outputQuery
+            ->where('workspace_id', $workspace->id)
+            ->where('status', 'agreed')
             ->orderByDesc('revision')
             ->orderByDesc('id')
             ->get()
@@ -93,17 +89,21 @@ class PbrAiContextBuilder
             ])
             ->all();
 
-        $operatingSystem = $this->operatingSystem->latestDomainMap($actor, $workspace);
+        $operatingSystem = $this->operatingSystem->agreedDomainMap(
+            $actor,
+            $workspace
+        );
 
         $context = [
-            'context_version' => 'pbr-ai-v2',
+            'context_version' => 'pbr-ai-v3-approved-business-rules',
             'access_scope' => [
                 'actor_type' => $canManage ? 'owner_or_admin' : 'accepted_partner',
                 'manager_sensitive_context_included' => $canManage,
-                'workspace_tool_output_scope' => $canManage ? 'latest_authorized' : 'agreed_only',
+                'workspace_tool_output_scope' => 'agreed_only',
+                'operating_rule_scope' => 'approved_current_rules_only',
                 'instruction' => $canManage
-                    ? 'This actor may receive owner/admin business context included in this snapshot.'
-                    : 'This actor is an accepted partner. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot.',
+                    ? 'This actor may receive owner/admin-sensitive context where explicitly included, but operating rules and business-tool outputs in this snapshot are approved-only. Never treat an unapproved working change as current policy.'
+                    : 'This actor is an accepted partner. Operating rules and business-tool outputs are approved-only. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot.',
             ],
             'business' => [
                 'workspace_id' => $workspace->id,
@@ -228,7 +228,7 @@ class PbrAiContextBuilder
             ->take(1)
             ->values()
             ->all();
-        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent authorized tool output.';
+        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent approved business-tool output.';
 
         return $context;
     }
