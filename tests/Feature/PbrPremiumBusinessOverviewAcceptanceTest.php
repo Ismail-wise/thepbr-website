@@ -136,9 +136,11 @@ test('business overview is a premium operational control center with consistent 
 
     $state = $response->viewData('businessState');
 
+    // The roster contains the owner profile, one planned partner profile,
+    // and the accepted partner account synced into its own active profile.
     expect((float) $state['metrics']['funding_gap'])->toBe(20000.0)
         ->and((int) $state['metrics']['working_change_count'])->toBe(1)
-        ->and((int) $state['metrics']['partner_count'])->toBe(2);
+        ->and((int) $state['metrics']['partner_count'])->toBe(3);
 });
 
 test('priority actions consolidate duplicate operating areas instead of flooding the overview', function () {
