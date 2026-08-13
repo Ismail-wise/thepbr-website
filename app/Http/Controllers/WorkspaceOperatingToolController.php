@@ -55,6 +55,14 @@ class WorkspaceOperatingToolController extends Controller
                 ? $activeSession->result_data
                 : null;
         } elseif ($canManage) {
+            // Start from the current approved rule when one exists, then let
+            // cross-domain prefills fill only blanks. Saving creates a new
+            // working version; it never edits the active rule in place.
+            $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
+            if (! empty($approvedInput)) {
+                $input = array_replace_recursive($input, $approvedInput);
+            }
+
             $input = $prefill->prefill(
                 $workspace,
                 $tool,
@@ -226,9 +234,6 @@ class WorkspaceOperatingToolController extends Controller
 
         $latestAgreedOutput = $scenarios->latestAgreedOutput($workspace, $tool);
 
-        // With no working version selected, show the actual current approved
-        // result to owners as well as partners. Calculated/working results
-        // still take precedence while the user is actively reviewing them.
         if ($result === null && is_array($latestAgreedOutput?->output_data)) {
             $result = $latestAgreedOutput->output_data;
         }
