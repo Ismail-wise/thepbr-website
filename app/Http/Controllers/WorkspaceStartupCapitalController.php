@@ -60,6 +60,11 @@ class WorkspaceStartupCapitalController extends Controller
             $result = is_array($activeSession->result_data)
                 ? $activeSession->result_data
                 : null;
+        } else {
+            $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
+            $categories = is_array($approvedInput['categories'] ?? null)
+                ? $approvedInput['categories']
+                : [];
         }
 
         return $this->render(
@@ -155,6 +160,11 @@ class WorkspaceStartupCapitalController extends Controller
             ? $scenarios->drafts($request->user(), $workspace, $tool)
             : collect();
         $latestAgreedOutput = $scenarios->latestAgreedOutput($workspace, $tool);
+
+        if ($result === null && is_array($latestAgreedOutput?->output_data)) {
+            $result = $latestAgreedOutput->output_data;
+        }
+
         $outputHistory = $canManage
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
@@ -167,7 +177,7 @@ class WorkspaceStartupCapitalController extends Controller
 
                 return [
                     'id' => $draft->id,
-                    'name' => $draft->scenario_name ?: 'Draft Plan',
+                    'name' => $draft->scenario_name ?: 'Working Plan',
                     'total' => $total,
                     'essential' => (float) ($data['essential_total'] ?? $total),
                     'funded' => $funded,
