@@ -41,7 +41,7 @@ test('PBR course catalog contains ten connected chapters and sixty four unique t
         ]);
 });
 
-test('active student portal separates learning from the real business operating system', function () {
+test('active student portal is the real business operating system instead of a learning progress dashboard', function () {
     app(CourseCatalogSeeder::class)->run();
 
     $user = User::factory()->create([
@@ -65,11 +65,14 @@ test('active student portal separates learning from the real business operating 
 
     $response
         ->assertOk()
-        ->assertSee('10 Learning Chapters')
-        ->assertSee('Business Operating System')
+        ->assertSee('PBR BUSINESS OPERATING SYSTEM')
+        ->assertSee('Business တစ်ခုရွေးပြီး တိုက်ရိုက်စီမံပါ')
         ->assertSee('Portal Test Business')
-        ->assertSee('Business Operating System ဖွင့်ရန်')
+        ->assertSee('Operating System ဖွင့်ရန် →')
         ->assertSee(route('workspaces.tools.index', $workspace), false)
+        ->assertDontSee('10 Learning Chapters')
+        ->assertDontSee('Learning Chapters')
+        ->assertDontSee('Chapter Completion')
         ->assertDontSee('Open 64 Tools')
         ->assertDontSee('Coming Next');
 });
@@ -111,12 +114,12 @@ test('workspace operating system is clarity first and keeps tool routes separate
     $response
         ->assertOk()
         ->assertSee('PBR BUSINESS OPERATING SYSTEM')
-        ->assertSee('အခုအရင်ဆုံး သတိထားစီမံရမယ့်အရာများ')
+        ->assertSee('လက်ရှိ Business မှာ အရင်ဆုံး စီမံရမယ့်အရာများ')
         ->assertSee('မတည်ငွေနှင့် ရင်းနှီးငွေ')
         ->assertSee('ပိုင်ဆိုင်မှုနှင့် အစုရှယ်ယာ')
         ->assertSee('အုပ်ချုပ်မှုနှင့် ဆုံးဖြတ်ချက် စနစ်')
         ->assertSee('မသတ်မှတ်ရသေး')
-        ->assertSee('အသုံးပြုနေသော စည်းမျဉ်းများ')
+        ->assertSee('Current Business Rule Register')
         ->assertSee($chapterOneUrl, false)
         ->assertSee('/tools/operating/', false)
         ->assertDontSee('Operating System Completion')
