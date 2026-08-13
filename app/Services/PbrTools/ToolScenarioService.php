@@ -315,6 +315,27 @@ class ToolScenarioService
             ->first();
     }
 
+    public function latestAgreedInput(
+        PartnershipWorkspace $workspace,
+        ChapterTool $tool
+    ): array {
+        $output = $this->latestAgreedOutput($workspace, $tool);
+
+        if (! $output?->source_tool_session_id) {
+            return [];
+        }
+
+        $source = ToolSession::query()
+            ->whereKey($output->source_tool_session_id)
+            ->where('workspace_id', $workspace->id)
+            ->where('chapter_tool_id', $tool->id)
+            ->first();
+
+        return is_array($source?->input_data)
+            ? $source->input_data
+            : [];
+    }
+
     public function outputHistory(
         PartnershipWorkspace $workspace,
         ChapterTool $tool,
