@@ -8,7 +8,7 @@
         <div class="auth-copy">
             <span class="portal-kicker">My Account</span>
             <h1>Hello, {{ $user->name }}</h1>
-            <p>Your account is active. The areas shown below depend on the access attached to this account.</p>
+            <p>ဒီ Account ရဲ့ Access နဲ့ ချိတ်ဆက်ထားတဲ့ Business Workspace တွေကို အောက်ကနေ ဖွင့်နိုင်ပါတယ်။</p>
         </div>
 
         <div class="auth-card">
@@ -25,28 +25,28 @@
 
             @if($user->isStudent())
                 <div class="auth-note">
-                    <strong>Student:</strong> Active Student Portal access is enabled.
+                    <strong>Business OS Access:</strong> PBR private business workspace access is active.
                 </div>
-                <a class="portal-button" href="{{ route('student.dashboard') }}">Open Student Portal</a>
+                <a class="portal-button" href="{{ route('student.dashboard') }}">Open Business Operating System</a>
             @endif
 
             @if($user->isAdmin() || $user->ownedWorkspaces->isNotEmpty() || $user->workspaceMemberships->where('invitation_status', 'accepted')->isNotEmpty())
                 <div class="auth-note">
-                    <strong>Workspace:</strong> You can open only workspaces permitted for this account.
+                    <strong>My Businesses:</strong> ဒီ Account က ခွင့်ပြုထားတဲ့ Workspace တွေကိုသာ ဝင်ရောက်နိုင်ပါတယ်။
                 </div>
-                <a class="portal-button" href="{{ route('workspaces.index') }}">Open Workspaces</a>
+                <a class="portal-button" href="{{ route('workspaces.index') }}">Open My Businesses</a>
             @endif
 
             @unless($user->isAdmin() || $user->isStudent())
                 <div class="auth-note">
-                    Have a Student Access Code? Upgrade this existing account without registering again.
+                    PBR Access Code ရှိရင် Account အသစ်မဖန်တီးဘဲ private Business OS access ကို activate လုပ်နိုင်ပါတယ်။
                 </div>
-                <a class="portal-button" href="{{ route('account.access-code.show') }}">Redeem Student Access Code</a>
+                <a class="portal-button" href="{{ route('account.access-code.show') }}">Redeem PBR Access Code</a>
             @endunless
 
             @unless($user->isAdmin() || $user->isStudent() || $user->workspaceMemberships->where('invitation_status', 'accepted')->isNotEmpty())
                 <div class="auth-note">
-                    This is currently a public account. Student Portal and private workspaces remain locked.
+                    ဒီ Account မှာ private Business Workspace access မရှိသေးပါ။ Public website resources ကို ဆက်လက်အသုံးပြုနိုင်ပါတယ်။
                 </div>
             @endunless
         </div>
