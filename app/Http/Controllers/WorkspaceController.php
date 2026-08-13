@@ -43,7 +43,7 @@ class WorkspaceController extends Controller
                 $businessOperatingSystem
             ): array {
                 $state = $businessOperatingSystem->workspaceState($user, $workspace);
-                $status = $this->portfolioStatus($state);
+                $status = $this->portfolioStatus($state, (bool) $state['can_manage']);
 
                 return [
                     'workspace' => $workspace,
@@ -234,8 +234,17 @@ class WorkspaceController extends Controller
         ));
     }
 
-    private function portfolioStatus(array $state): array
+    private function portfolioStatus(array $state, bool $canManage): array
     {
+        if (! $canManage) {
+            return [
+                'key' => 'partner_access',
+                'rank' => 50,
+                'label_mm' => 'ကြည့်ရှုရန်သာ',
+                'label_en' => 'Partner View',
+            ];
+        }
+
         $metrics = $state['metrics'] ?? [];
         $fundingGap = (float) ($metrics['funding_gap'] ?? 0);
         $workingChanges = (int) ($metrics['working_change_count'] ?? 0);
