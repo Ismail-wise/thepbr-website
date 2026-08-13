@@ -1,92 +1,159 @@
 @extends('layouts.student-portal')
 
-@section('title', 'My PBR Workspace')
+@section('title', 'PBR Business Operating System')
 
 @section('content')
-<section class="workspace-section">
-    <div class="portal-wrap">
-        <div class="workspace-head">
-            <div>
-                <span class="portal-kicker">MY PBR WORKSPACE</span>
+<section class="pbr-business-page pbr-portfolio-page">
+    <div class="portal-wrap pbr-business-wrap">
+        <header class="pbr-business-hero pbr-portfolio-hero">
+            <div class="pbr-business-hero-copy">
+                <span class="pbr-business-eyebrow">PBR BUSINESS OPERATING SYSTEM</span>
                 <h1>မင်္ဂလာပါ၊ {{ $user->name }}</h1>
-                <p>သင်တန်းအတွက် Learning Portal နဲ့ တကယ်အသုံးပြုမယ့် Business Operating System ကို Account တစ်ခုတည်းကနေ သုံးနိုင်ပါတယ်။</p>
+                <p class="pbr-business-hero-lead">
+                    ဒီနေရာက သင်ခန်းစာပြီးအောင်လုပ်ရတဲ့ Portal မဟုတ်ပါဘူး။
+                    သင့် Partnership Business တွေရဲ့ <strong>အချက်အလက်၊ Partner တာဝန်၊ ငွေကြေး၊ Ownership၊ ဆုံးဖြတ်ချက်၊ Risk နဲ့ Active Business Rules</strong>
+                    ကို နေ့စဉ်တကယ်စီမံဖို့ အသုံးပြုမယ့် Workspace ဖြစ်ပါတယ်။
+                </p>
             </div>
-            <div class="status-pill">Student · Active</div>
-        </div>
 
-        <div class="workspace-grid">
-            <article class="workspace-card primary-card">
-                <span>CLASS BATCH</span>
-                <h2>{{ $user->classSession?->title ?? 'သင်တန်းအုပ်စု မသတ်မှတ်ရသေးပါ' }}</h2>
-                @if($user->classSession)
-                    <p>{{ $user->classSession->location }} · {{ $user->classSession->time_note ?: 'အချိန်ဇယား ကြေညာပါမည်' }}</p>
+            <div class="pbr-business-hero-actions">
+                <a href="{{ route('workspaces.index') }}" class="pbr-business-btn secondary">Business အားလုံးကြည့်ရန်</a>
+                @if($user->isAdmin() || $user->isStudent())
+                    <a href="{{ route('workspaces.create') }}" class="pbr-business-btn">+ Business အသစ်ထည့်ရန်</a>
                 @endif
+            </div>
+        </header>
+
+        <section class="pbr-business-metrics" aria-label="Business portfolio overview">
+            <article class="pbr-business-metric">
+                <span class="pbr-mm-label">စီမံနေသော Business</span>
+                <small class="pbr-en-label">Businesses</small>
+                <strong>{{ $portfolioMetrics['business_count'] }}</strong>
+                <div class="pbr-metric-foot"><span>သင်ဝင်ရောက်ခွင့်ရှိသော Workspace များ</span></div>
             </article>
 
-            <article class="workspace-card">
-                <span>LEARNING</span>
-                <h2>သင်ယူရန် အခန်း {{ $chapterCount }} ခု</h2>
-                <p><small>10 Learning Chapters</small><br>သင်တန်းထဲမှာ Partnership အယူအဆနဲ့ Framework တွေကို လေ့လာပြီး အောက်က Business Workspace ထဲမှာ ကိုယ့်လုပ်ငန်းအတွက် တကယ်အသုံးချနိုင်ပါတယ်။</p>
+            <article class="pbr-business-metric {{ $portfolioMetrics['businesses_needing_attention'] > 0 ? 'attention' : 'healthy' }}">
+                <span class="pbr-mm-label">အာရုံစိုက်ရန်လိုသော Business</span>
+                <small class="pbr-en-label">Needs Attention</small>
+                <strong>{{ $portfolioMetrics['businesses_needing_attention'] }}</strong>
+                <div class="pbr-metric-foot">
+                    <b class="{{ $portfolioMetrics['businesses_needing_attention'] > 0 ? 'warning' : 'active' }}">
+                        {{ $portfolioMetrics['businesses_needing_attention'] > 0 ? 'Action ရှိသည်' : 'အရေးပေါ်မရှိ' }}
+                    </b>
+                </div>
             </article>
 
-            <article class="workspace-card">
-                <span>PARTNER DYNAMICS</span>
-                <h2>သင့် Partnership Operating Style ကို သိပါ</h2>
-                <p>သင့် strengths၊ decision style နဲ့ Partnership ထဲမှာ သဘာဝကျကျ အားသာတဲ့ role တွေကို ရှာဖွေပါ။</p>
-                <a class="pd-inline-link" href="{{ route('partner-dynamics.index') }}">
-                    Assessment ဆက်လုပ်ရန် →
-                </a>
+            <article class="pbr-business-metric">
+                <span class="pbr-mm-label">အသုံးပြုနေသော Business Rules</span>
+                <small class="pbr-en-label">Active Rules</small>
+                <strong>{{ $portfolioMetrics['active_rule_count'] }}</strong>
+                <div class="pbr-metric-foot"><span>အတည်ပြုပြီး လက်ရှိအသုံးပြုနေသော Rules</span></div>
             </article>
 
-            <article class="workspace-card">
-                <span>BUSINESS OPERATING SYSTEM</span>
-                <h2>Business {{ $workspaces->count() }} ခု ချိတ်ဆက်ထားသည်</h2>
-                @if($workspaces->isNotEmpty())
-                    @php($firstWorkspace = $workspaces->first())
-                    <p>Partner Rules၊ Finance၊ Ownership၊ Governance၊ Risk နဲ့ ဆုံးဖြတ်ချက်တွေကို ကိုယ့်လုပ်ငန်းအလိုက် တကယ်စီမံနိုင်ပါတယ်။</p>
-                    <a class="pd-inline-link" href="{{ route('workspaces.tools.index', $firstWorkspace) }}">
-                        Business Operating System ဖွင့်ရန် →
-                    </a>
-                @else
-                    <p>Partnership data နဲ့ operating rules တွေကို စတင်စီမံဖို့ Business Workspace တစ်ခုအရင်တည်ဆောက်ပါ။</p>
-                    <a class="pd-inline-link" href="{{ route('workspaces.create') }}">
-                        Business Workspace တည်ဆောက်ရန် →
-                    </a>
-                @endif
+            <article class="pbr-business-metric {{ $portfolioMetrics['working_change_count'] > 0 ? 'draft' : '' }}">
+                <span class="pbr-mm-label">ပြန်စစ်ရန် ပြောင်းလဲမှု</span>
+                <small class="pbr-en-label">Working Changes</small>
+                <strong>{{ $portfolioMetrics['working_change_count'] }}</strong>
+                <div class="pbr-metric-foot"><span>Active Rule မပြောင်းခင် Review လုပ်ရမည့် Draft များ</span></div>
             </article>
-        </div>
+        </section>
 
-        <div class="coming-panel">
-            <div style="width:100%;">
-                <span class="portal-kicker">YOUR BUSINESSES</span>
+        <section class="pbr-business-attention pbr-portfolio-section">
+            <div class="pbr-business-section-head">
+                <div>
+                    <span class="pbr-business-eyebrow">MY BUSINESSES</span>
+                    <h2>Business တစ်ခုရွေးပြီး တိုက်ရိုက်စီမံပါ</h2>
+                    <p>Business တစ်ခုချင်းစီရဲ့ Data၊ Partner နဲ့ Rules တွေကို လုံးဝသီးခြားထားပြီး တစ်နေရာတည်းက စီမံနိုင်ပါတယ်။</p>
+                </div>
+            </div>
 
-                @if($workspaces->isNotEmpty())
-                    <h2>စီမံချင်တဲ့ Business ကို ရွေးပါ</h2>
-                    <p>Business Workspace တစ်ခုချင်းစီမှာ Partner Data၊ Financial Data၊ Draft၊ Active Business Rules နဲ့ Operating Records တွေကို သီးသန့်သိမ်းထားပါတယ်။</p>
-
-                    <div style="display:grid;gap:12px;margin-top:18px;">
-                        @foreach($workspaces as $workspace)
-                            @php($agreedCount = (int) ($agreedToolCounts[$workspace->id] ?? 0))
-                            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 16px;border:1px solid rgba(30,92,42,.14);border-radius:14px;background:#fff;flex-wrap:wrap;">
-                                <div>
-                                    <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
-                                    <div style="margin-top:4px;font-size:13px;opacity:.72;">
-                                        {{ strtoupper($workspace->currency_code ?? 'THB') }} · အသုံးပြုနေသော Rule {{ $agreedCount }} ခု
-                                    </div>
-                                </div>
-                                <a class="pd-inline-link" href="{{ route('workspaces.tools.index', $workspace) }}">
-                                    Business System ဖွင့်ရန် →
-                                </a>
-                            </div>
-                        @endforeach
+            @if($businesses->isEmpty())
+                <div class="pbr-business-empty-real">
+                    <div class="pbr-business-empty-icon">＋</div>
+                    <div>
+                        <h3>Business Workspace မရှိသေးပါ</h3>
+                        <p>ကိုယ့် Partnership ရဲ့ actual data ကို စတင်သိမ်းပြီး Operating System တည်ဆောက်ဖို့ Business တစ်ခုအရင်ဖန်တီးပါ။</p>
                     </div>
-                @else
-                    <h2>ပထမဆုံး Business Workspace ကို တည်ဆောက်ပါ</h2>
-                    <p>Business Operating System က တကယ်တွက်ထားတဲ့ data၊ Partner Rules နဲ့ Operating Data ကို Business တစ်ခုချင်းစီအလိုက် သိမ်းထားပေးပါတယ်။</p>
-                    <a class="pd-inline-link" href="{{ route('workspaces.create') }}">Business Workspace တည်ဆောက်ရန် →</a>
-                @endif
+                    @if($user->isAdmin() || $user->isStudent())
+                        <a href="{{ route('workspaces.create') }}" class="pbr-business-btn">Business Workspace တည်ဆောက်ရန်</a>
+                    @endif
+                </div>
+            @else
+                <div class="pbr-business-portfolio-grid">
+                    @foreach($businesses as $business)
+                        @php
+                            $workspace = $business['workspace'];
+                            $metrics = $business['metrics'];
+                            $actions = $business['action_items'];
+                        @endphp
+
+                        <article class="pbr-business-portfolio-card">
+                            <div class="pbr-business-portfolio-head">
+                                <div>
+                                    <span class="pbr-business-eyebrow">
+                                        {{ $workspace->business_stage === 'existing' ? 'OPERATING BUSINESS' : 'NEW BUSINESS PLAN' }}
+                                    </span>
+                                    <h3>{{ $workspace->business_name ?: $workspace->name }}</h3>
+                                    <p>{{ $workspace->currency_code ?? 'THB' }} · Partner {{ $metrics['partner_count'] }} ဦး</p>
+                                </div>
+                                <span class="pbr-business-status-dot {{ $actions->isNotEmpty() ? 'attention' : 'healthy' }}">
+                                    {{ $actions->isNotEmpty() ? 'Action လိုသည်' : 'ပုံမှန်' }}
+                                </span>
+                            </div>
+
+                            <div class="pbr-business-portfolio-stats">
+                                <div>
+                                    <span>Active Rules</span>
+                                    <strong>{{ $metrics['active_rule_count'] }}</strong>
+                                </div>
+                                <div>
+                                    <span>Review</span>
+                                    <strong>{{ $metrics['working_change_count'] }}</strong>
+                                </div>
+                                <div>
+                                    <span>Records</span>
+                                    <strong>{{ $metrics['operating_record_count'] }}</strong>
+                                </div>
+                                <div>
+                                    <span>Funding Gap</span>
+                                    <strong>{{ $workspace->currency_code ?? 'THB' }} {{ number_format((float) $metrics['funding_gap'], 0) }}</strong>
+                                </div>
+                            </div>
+
+                            @if($actions->isNotEmpty())
+                                <div class="pbr-business-mini-actions">
+                                    @foreach($actions as $action)
+                                        <a href="{{ $action['url'] }}" class="{{ $action['level'] }}">
+                                            <span>{{ $action['title_mm'] }}</span>
+                                            <small>{{ $action['action_mm'] }}</small>
+                                        </a>
+                                    @endforeach
+                                </div>
+                            @else
+                                <div class="pbr-business-mini-healthy">
+                                    <span>✓</span>
+                                    <p>လက်ရှိမှတ်တမ်းအရ အရေးပေါ်ပြန်စစ်ရမယ့် Working Change မရှိပါ။</p>
+                                </div>
+                            @endif
+
+                            <div class="pbr-business-portfolio-actions">
+                                <a href="{{ route('workspaces.show', $workspace) }}" class="pbr-business-btn secondary">Business Overview</a>
+                                <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-business-btn">Operating System ဖွင့်ရန် →</a>
+                            </div>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+        </section>
+
+        <section class="pbr-business-utility-strip">
+            <div>
+                <span class="pbr-business-eyebrow">PARTNER INTELLIGENCE</span>
+                <h2>Partner Dynamics</h2>
+                <p>Partner တွေရဲ့ Working Style၊ Decision Style၊ Strengths နဲ့ Role Fit ကို Business Role စီမံရာမှာ အထောက်အကူဖြစ်အောင် အသုံးပြုပါ။</p>
             </div>
-        </div>
+            <a href="{{ route('partner-dynamics.index') }}" class="pbr-business-btn secondary">Partner Dynamics ဖွင့်ရန် →</a>
+        </section>
     </div>
 </section>
 @endsection
