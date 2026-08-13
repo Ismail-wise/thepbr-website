@@ -2,20 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ChapterTool;
-use App\Models\CourseChapter;
-use App\Models\WorkspaceToolOutput;
+use App\Services\PbrTools\PbrBusinessOperatingService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class StudentPortalController extends Controller
 {
-    public function dashboard(Request $request): View
-    {
+    public function dashboard(
+        Request $request,
+        PbrBusinessOperatingService $businessOperatingSystem
+    ): View {
         $user = $request->user()->load([
-            'classSession',
-            'usedAccessCode',
-            'studentEnrollments.classSession',
             'ownedWorkspaces',
             'workspaceMemberships.workspace',
         ]);
@@ -30,26 +27,36 @@ class StudentPortalController extends Controller
             ->unique('id')
             ->values();
 
-        $chapterCount = CourseChapter::query()->count();
-        $toolCount = ChapterTool::query()
-            ->distinct()
-            ->count('tool_key');
+        $businesses = $workspaces->map(function ($workspace) use (
+            $user,
+            $businessOperatingSystem
+        ): array {
+            $state = $businessOperatingSystem->workspaceState($user, $workspace);
 
-        $agreedToolCounts = $workspaces->isEmpty()
-            ? collect()
-            : WorkspaceToolOutput::query()
-                ->whereIn('workspace_id', $workspaces->pluck('id'))
-                ->where('status', 'agreed')
-                ->selectRaw('workspace_id, COUNT(DISTINCT chapter_tool_id) as agreed_count')
-                ->groupBy('workspace_id')
-                ->pluck('agreed_count', 'workspace_id');
+            return [
+                'workspace' => $workspace,
+                'can_manage' => $state['can_manage'],
+                'metrics' => $state['metrics'],
+                'action_items' => $state['action_items']->take(3)->values(),
+                'systems' => $state['systems'],
+            ];
+        });
+
+        $portfolioMetrics = [
+            'business_count' => $businesses->count(),
+            'businesses_needing_attention' => $businesses
+                ->filter(fn (array $business) => $business['action_items']->isNotEmpty())
+                ->count(),
+            'active_rule_count' => $businesses
+                ->sum(fn (array $business) => (int) $business['metrics']['active_rule_count']),
+            'working_change_count' => $businesses
+                ->sum(fn (array $business) => (int) $business['metrics']['working_change_count']),
+        ];
 
         return view('student.dashboard', compact(
             'user',
-            'workspaces',
-            'chapterCount',
-            'toolCount',
-            'agreedToolCounts'
+            'businesses',
+            'portfolioMetrics'
         ));
     }
 }
