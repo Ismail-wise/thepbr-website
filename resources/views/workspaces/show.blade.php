@@ -46,6 +46,7 @@
                 @if($canManageBusiness)
                     <a class="pbr-business-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
                 @endif
+                <a class="pbr-business-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules</a>
                 <a class="pbr-business-btn" href="{{ route('workspaces.tools.index', $workspace) }}">Operating System ဖွင့်ရန် →</a>
             </div>
         </header>
@@ -130,7 +131,7 @@
                 <div>
                     <span class="pbr-business-eyebrow">BUSINESS AREAS</span>
                     <h2>Partnership တစ်ခုလုံးကို စနစ်တကျ ထိန်းချုပ်ပါ</h2>
-                    <p>Chapter မဟုတ်ပါဘူး။ တစ်ခုချင်းစီက ဒီ Business မှာ ဆက်တိုက်အသုံးပြုရမယ့် Operating Area ဖြစ်ပါတယ်။</p>
+                    <p>တစ်ခုချင်းစီက Business ပြောင်းလဲလာတိုင်း Data၊ Decision နဲ့ Rule ကို Update လုပ်ပြီး ဆက်တိုက်အသုံးပြုရမယ့် Operating Area ဖြစ်ပါတယ်။</p>
                 </div>
                 <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-business-btn secondary">Full Operating System →</a>
             </div>
@@ -162,6 +163,13 @@
                 <h3>သင့် Business Data ကိုသိတဲ့ AI Advisor</h3>
                 <p>Permission-safe Active Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Operating Records ကို PBR Knowledge နဲ့ တွဲပြီး မေးမြန်းနိုင်ပါတယ်။</p>
                 <a class="pbr-business-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">PBR AI ကို မေးရန် ✦</a>
+            </article>
+
+            <article class="pbr-business-utility-card">
+                <span class="pbr-business-eyebrow">DOCUMENTS & BUSINESS RULES</span>
+                <h3>Current Business Rule Register</h3>
+                <p>Approve & Activate လုပ်ထားတဲ့ Current Rules တွေကို Operating Area အလိုက် စုစည်းကြည့်ပြီး Print / Save PDF လုပ်နိုင်ပါတယ်။</p>
+                <a class="pbr-business-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules ကြည့်ရန် →</a>
             </article>
 
             <article class="pbr-business-utility-card">
