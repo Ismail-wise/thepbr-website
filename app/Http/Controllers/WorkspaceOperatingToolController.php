@@ -169,7 +169,7 @@ class WorkspaceOperatingToolController extends Controller
                 'toolSlug' => $tool->slug,
                 'session' => $session->id,
             ])
-            ->with('status', 'Scenario ကို Draft အဖြစ်သိမ်းပြီးပါပြီ။');
+            ->with('status', 'Working Draft သိမ်းပြီးပါပြီ။ လက်ရှိ Active Business Rule ကို မပြောင်းသေးပါ။');
     }
 
     private function resolveTool(
@@ -225,6 +225,14 @@ class WorkspaceOperatingToolController extends Controller
             : collect();
 
         $latestAgreedOutput = $scenarios->latestAgreedOutput($workspace, $tool);
+
+        // With no working version selected, show the actual current approved
+        // result to owners as well as partners. Calculated/working results
+        // still take precedence while the user is actively reviewing them.
+        if ($result === null && is_array($latestAgreedOutput?->output_data)) {
+            $result = $latestAgreedOutput->output_data;
+        }
+
         $outputHistory = $canManage
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
