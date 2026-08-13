@@ -9,9 +9,27 @@
     $systems = $businessState['systems'];
     $actions = $businessState['action_items'];
     $capital = $businessState['capital'];
+    $activeRules = $businessState['active_rules'];
+    $capitalSource = $businessState['capital_source'] ?? 'none';
     $stageMm = $workspace->business_stage === 'new'
         ? 'Partnership Business အသစ် စီစဉ်နေသည်'
         : 'ရှိပြီးသား Partnership Business ကို စီမံနေသည်';
+
+    $formatRuleValue = static function ($value, $format = 'text') use ($currency) {
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        return match ($format) {
+            'money' => $currency.' '.number_format((float) $value, 2),
+            'percent' => number_format((float) $value, 2).'%',
+            'units' => number_format((float) $value, 2).' Units',
+            'months' => number_format((float) $value, 2).' Months',
+            'days' => number_format((float) $value, 0).' Days',
+            'number' => is_numeric($value) ? number_format((float) $value, 2) : (string) $value,
+            default => (string) $value,
+        };
+    };
 @endphp
 
 <section class="pbr-business-page">
@@ -27,9 +45,8 @@
                 <span class="pbr-business-eyebrow">PBR BUSINESS OPERATING SYSTEM</span>
                 <h1>{{ $workspace->business_name ?: $workspace->name }}</h1>
                 <p class="pbr-business-hero-lead">
-                    ဒီနေရာက Calculator Library မဟုတ်ပါဘူး။ Capital ကနေ Conflict Resolution အထိ
-                    <strong>actual company data၊ Working Changes၊ approved Rules နဲ့ Operating Records</strong>
-                    ကို ချိတ်ဆက်ပြီး Partnership ကို ဆက်တိုက်စီမံဖို့ အသုံးပြုတဲ့ System ဖြစ်ပါတယ်။
+                    Capital ကနေ Conflict Resolution အထိ <strong>actual company data၊ Working Changes၊ approved Rules နဲ့ Operating Records</strong>
+                    ကို ချိတ်ဆက်ပြီး Partnership ကို ဆက်တိုက်စီမံနိုင်ပါတယ်။
                 </p>
                 <div class="pbr-business-tags">
                     <span>{{ $stageMm }}</span>
@@ -42,6 +59,7 @@
             </div>
 
             <div class="pbr-business-hero-actions">
+                <a href="#current-business-rules" class="pbr-business-btn secondary">Current Rules</a>
                 <a href="{{ route('workspaces.partner-roster.index', $workspace) }}" class="pbr-business-btn secondary">Partner များ</a>
                 <a href="{{ route('workspaces.ai-advisor.index', $workspace) }}" class="pbr-business-btn">PBR AI ကို မေးရန် ✦</a>
             </div>
@@ -62,7 +80,17 @@
                 <span class="pbr-mm-label">လိုအပ်သော မတည်ငွေ</span>
                 <small class="pbr-en-label">Capital Required</small>
                 <strong>{{ $currency }} {{ number_format((float) $metrics['capital_required'], 2) }}</strong>
-                <div class="pbr-metric-foot"><span>လက်ရှိ Capital Plan အပေါ်အခြေခံသည်</span></div>
+                <div class="pbr-metric-foot">
+                    <span>
+                        @if($capitalSource === 'active')
+                            Current approved Capital Rule အပေါ်အခြေခံသည်
+                        @elseif($capitalSource === 'working')
+                            Working Capital Data အပေါ်အခြေခံသည်
+                        @else
+                            Capital Data မသတ်မှတ်ရသေး
+                        @endif
+                    </span>
+                </div>
             </article>
 
             <article class="pbr-business-metric {{ $metrics['funding_gap'] > 0 ? 'attention' : 'healthy' }}">
@@ -96,7 +124,7 @@
                 <div>
                     <span class="pbr-business-eyebrow">ACTION CENTER</span>
                     <h2>လက်ရှိ Business မှာ အရင်ဆုံး စီမံရမယ့်အရာများ</h2>
-                    <p>Completion percentage မပြပါဘူး။ တကယ်ဆုံးဖြတ်ချက်၊ Review သို့မဟုတ် Setup လိုတဲ့အရာတွေကိုပဲ Action အဖြစ် ပြပါတယ်။</p>
+                    <p>ဆုံးဖြတ်ချက်၊ Review သို့မဟုတ် Setup လိုတဲ့အရာတွေကို priority အလိုက် Action အဖြစ် ပြပါတယ်။</p>
                 </div>
             </div>
 
@@ -180,7 +208,7 @@
                 <div>
                     <span class="pbr-business-eyebrow">OPERATING AREAS</span>
                     <h2>Partnership တစ်ခုလုံးရဲ့ Operating System</h2>
-                    <p>တစ်ခုချင်းစီကို တစ်ကြိမ်ပြီးဆုံးသွားတဲ့ Lesson လိုမယူပါဘူး။ Business အခြေအနေပြောင်းတိုင်း Data၊ Decision နဲ့ Rule ကို ပြန်လည် Update လုပ်နိုင်ပါတယ်။</p>
+                    <p>Business အခြေအနေပြောင်းတိုင်း Data၊ Decision နဲ့ Rule ကို Update လုပ်ပြီး Operating Area တစ်ခုချင်းစီကို ဆက်တိုက်အသုံးပြုနိုင်ပါတယ်။</p>
                 </div>
             </div>
 
@@ -234,6 +262,15 @@
             <div>
                 <span class="pbr-business-eyebrow">CURRENT BUSINESS POSITION</span>
                 <h2>Capital Snapshot</h2>
+                <p>
+                    @if($capitalSource === 'active')
+                        Current approved Capital Rule ကို source of truth အဖြစ် ပြထားပါတယ်။
+                    @elseif($capitalSource === 'working')
+                        Active Capital Rule မရှိသေးလို့ Working Data ကို planning view အဖြစ် ပြထားပါတယ်။
+                    @else
+                        Capital information စတင်သတ်မှတ်နိုင်ပါတယ်။
+                    @endif
+                </p>
             </div>
             <div class="pbr-business-operating-summary-grid">
                 <div><span>Capital Required</span><strong>{{ $currency }} {{ number_format((float) ($capital['capital_required'] ?? 0), 2) }}</strong></div>
@@ -243,7 +280,134 @@
             </div>
         </section>
 
-        <section class="pbr-business-legal-note">
+        <section id="current-business-rules" class="pbr-business-rulebook">
+            <div class="pbr-business-rulebook-head">
+                <div>
+                    <span class="pbr-business-eyebrow">DOCUMENTS & BUSINESS RULES</span>
+                    <h2>Current Business Rule Register</h2>
+                    <p>Approve & Activate လုပ်ထားတဲ့ Rules တွေကိုသာ ဒီ Register မှာ Current Business Rules အဖြစ် စုစည်းပြထားပါတယ်။ Working Draft တွေ ဒီ Register ထဲ မဝင်ပါဘူး။</p>
+                </div>
+                @if($activeRules->isNotEmpty())
+                    <button
+                        type="button"
+                        class="pbr-business-btn secondary pbr-no-print"
+                        onclick="document.body.classList.add('pbr-rulebook-print'); window.print(); setTimeout(() => document.body.classList.remove('pbr-rulebook-print'), 700);"
+                    >Print / Save PDF</button>
+                @endif
+            </div>
+
+            <div class="pbr-business-rulebook-meta">
+                <div><span>Business</span><strong>{{ $workspace->business_name ?: $workspace->name }}</strong></div>
+                <div><span>Currency</span><strong>{{ $currency }}</strong></div>
+                <div><span>Active Rules</span><strong>{{ $activeRules->count() }}</strong></div>
+                <div><span>Generated</span><strong>{{ now()->format('d M Y, H:i') }}</strong></div>
+            </div>
+
+            @forelse($activeRules->groupBy('domain') as $domain => $rules)
+                <article class="pbr-business-rulebook-area">
+                    <header>
+                        <span>{{ $rules->first()['area_name_en'] }}</span>
+                        <h3>{{ $rules->first()['area_name_mm'] }}</h3>
+                    </header>
+
+                    <div class="pbr-business-rulebook-rules">
+                        @foreach($rules as $rule)
+                            @php $ruleResult = $rule['active_result'] ?? []; @endphp
+                            <section class="pbr-business-rulebook-rule">
+                                <div class="pbr-business-rulebook-rule-head">
+                                    <div>
+                                        <h4>{{ $rule['title_mm'] }}</h4>
+                                        <small>{{ $rule['title_en'] }}</small>
+                                    </div>
+                                    <div>
+                                        <span>Revision {{ $rule['active_revision'] }}</span>
+                                        <small>{{ optional($rule['agreed_at'])->format('d M Y, H:i') }}</small>
+                                    </div>
+                                </div>
+
+                                @if(!empty($ruleResult['headline']))
+                                    <div class="pbr-business-rulebook-headline">
+                                        <span>{{ $ruleResult['headline']['label'] ?? 'Current Result' }}</span>
+                                        <strong>{{ $formatRuleValue($ruleResult['headline']['value'] ?? null, $ruleResult['headline']['format'] ?? 'text') }}</strong>
+                                    </div>
+                                @endif
+
+                                @if(!empty($ruleResult['metrics']))
+                                    <div class="pbr-business-rulebook-metrics">
+                                        @foreach($ruleResult['metrics'] as $metric)
+                                            <div>
+                                                <span>{{ $metric['label'] ?? '' }}</span>
+                                                <strong>{{ $formatRuleValue($metric['value'] ?? null, $metric['format'] ?? 'text') }}</strong>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @endif
+
+                                @foreach($ruleResult['tables'] ?? [] as $table)
+                                    <div class="pbr-business-rulebook-table-wrap">
+                                        <h5>{{ $table['title'] ?? 'Details' }}</h5>
+                                        <table>
+                                            <thead>
+                                                <tr>
+                                                    @foreach($table['columns'] ?? [] as $columnLabel)
+                                                        <th>{{ $columnLabel }}</th>
+                                                    @endforeach
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @forelse($table['rows'] ?? [] as $row)
+                                                    <tr>
+                                                        @foreach($table['columns'] ?? [] as $columnKey => $columnLabel)
+                                                            @php $cell = $row[$columnKey] ?? null; @endphp
+                                                            <td>
+                                                                @if(is_numeric($cell) && str_contains(strtolower((string) $columnLabel), '%'))
+                                                                    {{ number_format((float) $cell, 2) }}%
+                                                                @elseif(is_numeric($cell))
+                                                                    {{ number_format((float) $cell, 2) }}
+                                                                @else
+                                                                    {{ $cell ?? '—' }}
+                                                                @endif
+                                                            </td>
+                                                        @endforeach
+                                                    </tr>
+                                                @empty
+                                                    <tr><td colspan="{{ count($table['columns'] ?? []) }}">—</td></tr>
+                                                @endforelse
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endforeach
+
+                                @if(!empty($ruleResult['notes']))
+                                    <div class="pbr-business-rulebook-notes">
+                                        <strong>Business Notes</strong>
+                                        <ul>
+                                            @foreach($ruleResult['notes'] as $note)
+                                                <li>{{ $note }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                @endif
+
+                                <a class="pbr-business-rulebook-open pbr-no-print" href="{{ $rule['url'] }}">Current Rule ဖွင့်ရန် →</a>
+                            </section>
+                        @endforeach
+                    </div>
+                </article>
+            @empty
+                <div class="pbr-business-rulebook-empty">
+                    <strong>Current Business Rule မရှိသေးပါ</strong>
+                    <p>Operating Area တစ်ခုမှာ Working Plan ကို Review လုပ်ပြီး Approve & Activate လုပ်တာနဲ့ ဒီ Register ထဲ အလိုအလျောက်ဝင်လာပါမယ်။</p>
+                </div>
+            @endforelse
+
+            <footer class="pbr-business-rulebook-note">
+                <strong>Planning & Governance Record</strong>
+                <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
+            </footer>
+        </section>
+
+        <section class="pbr-business-legal-note pbr-no-print">
             <strong>Planning & Governance Note</strong>
             <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
         </section>
