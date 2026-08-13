@@ -158,11 +158,15 @@ test('partner access businesses are separated from managed businesses and stay r
         ->assertOk()
         ->assertSee('PARTNER ACCESS')
         ->assertSee('Shared Partner Business')
+        ->assertSee('Partner View')
         ->assertSee('View Active Rules')
+        ->assertDontSee('Setup Required')
         ->assertDontSee(route('workspaces.edit', $workspace), false);
 
     $summary = $response->viewData('portfolioSummary');
+    $business = $response->viewData('businesses')->first();
 
     expect($summary['owned_count'])->toBe(0)
-        ->and($summary['partner_access_count'])->toBe(1);
+        ->and($summary['partner_access_count'])->toBe(1)
+        ->and($business['status']['key'])->toBe('partner_access');
 });
