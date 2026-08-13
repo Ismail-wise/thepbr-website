@@ -41,7 +41,7 @@ class ToolScenarioService
 
         if ($scenarioName === '') {
             throw ValidationException::withMessages([
-                'scenario_name' => 'Scenario အမည်ထည့်ပါ။',
+                'scenario_name' => 'Working Plan / Version အမည်ထည့်ပါ။',
             ]);
         }
 
@@ -148,7 +148,7 @@ class ToolScenarioService
         $copy->workspace_id = $workspace->id;
         $copy->chapter_tool_id = $tool->id;
         $copy->business_stage = $source->business_stage;
-        $copy->scenario_name = $this->copyName($source->scenario_name ?: 'Scenario');
+        $copy->scenario_name = $this->copyName($source->scenario_name ?: 'Working Plan');
         $copy->status = 'draft';
         $copy->input_data = $source->input_data;
         $copy->result_data = $source->result_data;
@@ -291,6 +291,13 @@ class ToolScenarioService
                 'agreed'
             );
 
+            // Approval closes this working version. A later change must be a
+            // new draft so active policy and proposed changes stay separate.
+            $session->status = 'completed';
+            $session->completed_at = now();
+            $session->last_saved_at = now();
+            $session->save();
+
             return $output;
         });
     }
@@ -372,7 +379,7 @@ class ToolScenarioService
             PartnershipWorkspace::BUSINESS_STAGES
         )) {
             throw ValidationException::withMessages([
-                'business_stage' => 'PBR Business Tools မှာ Partnership Stage ကိုအရင်ရွေးပါ။',
+                'business_stage' => 'PBR Business Operating System မှာ Partnership Stage ကို အရင်သတ်မှတ်ပါ။',
             ]);
         }
     }
