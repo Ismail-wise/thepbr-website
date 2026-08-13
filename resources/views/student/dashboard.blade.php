@@ -10,9 +10,8 @@
                 <span class="pbr-business-eyebrow">PBR BUSINESS OPERATING SYSTEM</span>
                 <h1>မင်္ဂလာပါ၊ {{ $user->name }}</h1>
                 <p class="pbr-business-hero-lead">
-                    ဒီနေရာက သင်ခန်းစာပြီးအောင်လုပ်ရတဲ့ Portal မဟုတ်ပါဘူး။
                     သင့် Partnership Business တွေရဲ့ <strong>အချက်အလက်၊ Partner တာဝန်၊ ငွေကြေး၊ Ownership၊ ဆုံးဖြတ်ချက်၊ Risk နဲ့ Active Business Rules</strong>
-                    ကို နေ့စဉ်တကယ်စီမံဖို့ အသုံးပြုမယ့် Workspace ဖြစ်ပါတယ်။
+                    ကို နေ့စဉ်တကယ်စီမံပြီး လိုအပ်တဲ့ Action တွေကို တစ်နေရာတည်းက ထိန်းချုပ်နိုင်ပါတယ်။
                 </p>
             </div>
 
