@@ -148,6 +148,10 @@ class PbrBusinessOperatingService
                         : 'အတည်ပြုထားသော အချက်အလက် ကြည့်ရန် →',
                     'state' => $this->state($moduleStateKey, $states),
                     'active_revision' => $agreedOutput?->revision,
+                    'active_result' => is_array($agreedOutput?->output_data)
+                        ? $agreedOutput->output_data
+                        : [],
+                    'active_generated_at' => $agreedOutput?->generated_at,
                     'agreed_at' => $agreedOutput?->agreed_at,
                     'draft_id' => $draftSession?->id,
                     'draft_updated_at' => $draftSession?->last_saved_at,
@@ -180,7 +184,8 @@ class PbrBusinessOperatingService
         }
 
         $systemsCollection = collect($systems);
-        $capitalSummary = $this->capitalSummary($actor, $workspace, $canManage, $snapshots);
+        $capitalState = $this->capitalState($workspace, $canManage);
+        $capitalSummary = $capitalState['summary'];
         $fundingGap = (float) ($capitalSummary['funding_gap'] ?? 0);
         $capitalRequired = (float) ($capitalSummary['capital_required'] ?? 0);
         $capitalSecured = (float) ($capitalSummary['capital_secured'] ?? 0);
@@ -198,6 +203,16 @@ class PbrBusinessOperatingService
             'system_map' => $systemsCollection->keyBy('domain'),
             'action_items' => $actionItems,
             'capital' => $capitalSummary,
+            'capital_source' => $capitalState['source'],
+            'active_rules' => $systemsCollection
+                ->flatMap(fn (array $system) => collect($system['modules'])
+                    ->filter(fn (array $module) => ! empty($module['active_revision']))
+                    ->map(fn (array $module) => array_merge($module, [
+                        'domain' => $system['domain'],
+                        'area_name_mm' => $system['name_mm'],
+                        'area_name_en' => $system['name_en'],
+                    ])))
+                ->values(),
             'metrics' => [
                 'capital_required' => $capitalRequired,
                 'capital_secured' => $capitalSecured,
@@ -224,19 +239,42 @@ class PbrBusinessOperatingService
         return $this->area($chapterNumber);
     }
 
-    private function capitalSummary(
-        User $actor,
+    private function capitalState(
         PartnershipWorkspace $workspace,
-        bool $canManage,
-        Collection $snapshots
+        bool $canManage
     ): array {
-        if ($canManage) {
-            return $this->capitalIntegration->summary($workspace);
+        // Current dashboards must never silently switch to a proposed draft.
+        // Once a capital rule has been approved, the latest agreed snapshot is
+        // the source of truth until another version is explicitly approved.
+        $agreedSnapshot = $this->operatingSystem->latestSnapshot(
+            $workspace,
+            'capital',
+            'agreed'
+        );
+
+        if ($agreedSnapshot && is_array($agreedSnapshot->summary)) {
+            return [
+                'source' => 'active',
+                'summary' => $agreedSnapshot->summary,
+            ];
         }
 
-        $summary = $snapshots->get('capital')?->summary;
+        if ($canManage) {
+            $working = $this->capitalIntegration->summary($workspace);
+            $hasWorkingData = collect($working)
+                ->except(['outputs', 'allocations'])
+                ->contains(fn ($value) => is_numeric($value) && (float) $value !== 0.0);
 
-        return is_array($summary) ? $summary : [];
+            return [
+                'source' => $hasWorkingData ? 'working' : 'none',
+                'summary' => $working,
+            ];
+        }
+
+        return [
+            'source' => 'none',
+            'summary' => [],
+        ];
     }
 
     private function partnerCount(PartnershipWorkspace $workspace, bool $canManage): int
