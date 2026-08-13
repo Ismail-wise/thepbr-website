@@ -55,6 +55,11 @@ class WorkspaceChapterOneToolController extends Controller
         }
 
         if ($request->query('session') === null) {
+            $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
+            if (! empty($approvedInput)) {
+                $input = array_replace_recursive($input, $approvedInput);
+            }
+
             $input = $integration->prefill(
                 $workspace,
                 $tool->tool_key,
