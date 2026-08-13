@@ -9,286 +9,342 @@
     $systems = $businessState['systems'];
     $actions = $businessState['action_items'];
     $currency = $workspace->currency_code ?? 'THB';
+
     $acceptedPartners = $workspace->memberships
         ->where('member_role', 'partner')
         ->where('invitation_status', 'accepted');
+
     $pendingInvitations = $workspace->memberships
         ->where('invitation_status', 'pending');
+
+    $pendingEmailInvitations = $pendingInvitations->reject(
+        fn ($invitation) => str_ends_with(
+            strtolower((string) $invitation->invited_email),
+            '@invite.thepbr.local'
+        )
+    );
+
+    $notConfiguredCount = (int) ($metrics['not_configured_area_count'] ?? $systems
+        ->filter(fn ($system) => ($system['state']['key'] ?? null) === 'not_configured')
+        ->count());
+
+    if ((float) ($metrics['funding_gap'] ?? 0) > 0) {
+        $overallStatusKey = 'needs-action';
+        $overallStatusLabel = 'Needs Action';
+    } elseif ((int) ($metrics['working_change_count'] ?? 0) > 0) {
+        $overallStatusKey = 'needs-review';
+        $overallStatusLabel = 'Needs Review';
+    } elseif ($notConfiguredCount > 0) {
+        $overallStatusKey = 'setup-required';
+        $overallStatusLabel = 'Setup Required';
+    } else {
+        $overallStatusKey = 'stable';
+        $overallStatusLabel = 'Stable';
+    }
+
+    $priorityActions = $actions
+        ->groupBy('domain')
+        ->map(function ($items) {
+            $action = $items->first();
+            $action['open_items'] = $items->count();
+
+            return $action;
+        })
+        ->values()
+        ->take(4);
 @endphp
 
-<section class="pbr-business-page">
-    <div class="portal-wrap pbr-business-wrap">
-        <nav class="pbr-os-breadcrumb pbr-business-breadcrumb" aria-label="Breadcrumb">
+<section class="pbr-overview-v2">
+    <div class="ov-wrap">
+        <nav class="ov-breadcrumb" aria-label="Breadcrumb">
             <a href="{{ route('workspaces.index') }}">My Businesses</a>
             <span>›</span>
             <span>{{ $businessName }}</span>
         </nav>
 
-        <header class="pbr-business-hero">
-            <div class="pbr-business-hero-copy">
-                <span class="pbr-business-eyebrow">BUSINESS CONTROL CENTER</span>
+        <header class="ov-hero">
+            <div>
+                <span class="ov-eyebrow">BUSINESS CONTROL CENTER</span>
                 <h1>{{ $businessName }}</h1>
-                <p class="pbr-business-hero-lead">
-                    ဒီ Business ရဲ့ Partner၊ Capital၊ Ownership၊ Profit၊ Finance၊ Governance၊ Risk နဲ့ Exit Rules တွေကို
-                    <strong>တစ်နေရာတည်းက လက်တွေ့စီမံ</strong>ပြီး PBR AI ကို လက်ရှိအတည်ပြုထားတဲ့ Business Data နဲ့ အသုံးပြုနိုင်ပါတယ်။
+                <p>
+                    လက်ရှိ Business Position၊ Partner Profiles၊ Funding၊ Approved Rules၊ Pending Reviews နဲ့
+                    Operating Areas တွေကို တစ်နေရာတည်းက စီမံပြီး နောက်တစ်ဆင့်လုပ်ရမယ့် Action ကို အမြန်ဆုံးသိနိုင်ပါတယ်။
                 </p>
-                <div class="pbr-business-tags">
-                    <span>{{ $workspace->business_stage === 'existing' ? 'ရှိပြီးသား Business' : 'Business အသစ် စီစဉ်နေသည်' }}</span>
+
+                <div class="ov-tags">
+                    <span>{{ $workspace->business_stage === 'existing' ? 'Operating Business' : 'New Business Plan' }}</span>
                     <span>{{ $currency }}</span>
-                    <span>Partner {{ $metrics['partner_count'] }} ဦး</span>
+                    <span>Partner Profiles {{ (int) ($metrics['partner_count'] ?? 0) }}</span>
+                    <span class="ov-status {{ $overallStatusKey }}">{{ $overallStatusLabel }}</span>
                     @unless($businessState['can_manage'])
                         <span>Partner Read-Only</span>
                     @endunless
                 </div>
             </div>
 
-            <div class="pbr-business-hero-actions">
+            <div class="ov-hero-actions">
+                <a class="ov-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
+                <a class="ov-btn" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules</a>
                 @if($canManageBusiness)
-                    <a class="pbr-business-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
+                    <a class="ov-btn" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
                 @endif
-                <a class="pbr-business-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules</a>
-                <a class="pbr-business-btn" href="{{ route('workspaces.tools.index', $workspace) }}">Operating System ဖွင့်ရန် →</a>
+                <a class="ov-btn primary" href="{{ route('workspaces.tools.index', $workspace) }}">Open Operating System →</a>
             </div>
         </header>
 
         @unless($businessState['can_manage'])
-            <div class="pbr-os-readonly-banner">
+            <div class="ov-readonly">
                 <div>
                     <strong>Partner Read-Only View</strong>
-                    <p>Owner/Admin က အတည်ပြုထားတဲ့ Active Business Rules နဲ့ shared operating data ကိုသာ မြင်ရပါတယ်။ Private Working Draft တွေ မပြပါဘူး။</p>
+                    <p>Owner/Admin က Activate လုပ်ထားတဲ့ Business Rules နဲ့ shared operating data ကိုသာ မြင်ရပြီး private Working Changes တွေ မမြင်ရပါဘူး။</p>
                 </div>
                 <span>Permission Safe</span>
             </div>
         @endunless
 
-        <section class="pbr-business-metrics" aria-label="Business overview">
-            <article class="pbr-business-metric {{ $metrics['funding_gap'] > 0 ? 'attention' : 'healthy' }}">
-                <span class="pbr-mm-label">လိုအပ်နေသေးသော ရင်းနှီးငွေ</span>
-                <small class="pbr-en-label">Funding Gap</small>
-                <strong>{{ $currency }} {{ number_format((float) $metrics['funding_gap'], 2) }}</strong>
-                <div class="pbr-metric-foot">
-                    <b class="{{ $metrics['funding_gap'] > 0 ? 'warning' : 'active' }}">
-                        {{ $metrics['funding_gap'] > 0 ? 'စီမံရန်လိုသည်' : 'Gap မရှိ' }}
-                    </b>
-                </div>
+        <section class="ov-position" aria-label="Current business position">
+            <article class="ov-kpi {{ (float) ($metrics['funding_gap'] ?? 0) > 0 ? 'attention' : '' }}">
+                <span>လိုအပ်နေသေးသော ရင်းနှီးငွေ</span>
+                <small>Funding Gap</small>
+                <strong>{{ $currency }} {{ number_format((float) ($metrics['funding_gap'] ?? 0), 0) }}</strong>
+                <p>{{ (float) ($metrics['funding_gap'] ?? 0) > 0 ? 'Capital plan မှာ ဖြည့်ဆည်းရန်လိုနေသည်' : 'လက်ရှိ Funding Gap မရှိပါ' }}</p>
             </article>
 
-            <article class="pbr-business-metric">
-                <span class="pbr-mm-label">အသုံးပြုနေသော Business Rules</span>
-                <small class="pbr-en-label">Active Rules</small>
-                <strong>{{ $metrics['active_rule_count'] }}</strong>
-                <div class="pbr-metric-foot"><span>အတည်ပြုပြီး လက်ရှိအသုံးပြုနေသော Rules</span></div>
+            <article class="ov-kpi">
+                <span>လက်ရှိအသုံးပြုနေသော Rules</span>
+                <small>Active Rules</small>
+                <strong>{{ (int) ($metrics['active_rule_count'] ?? 0) }}</strong>
+                <p>Approve & Activate လုပ်ထားသော Current Rules</p>
             </article>
 
-            <article class="pbr-business-metric {{ $metrics['working_change_count'] > 0 ? 'draft' : '' }}">
-                <span class="pbr-mm-label">Review လုပ်ရန် ပြောင်းလဲမှု</span>
-                <small class="pbr-en-label">Working Changes</small>
-                <strong>{{ $metrics['working_change_count'] }}</strong>
-                <div class="pbr-metric-foot"><span>Active Rule မပြောင်းခင် စစ်ဆေးရမည့် Draft</span></div>
+            <article class="ov-kpi {{ (int) ($metrics['working_change_count'] ?? 0) > 0 ? 'review' : '' }}">
+                <span>ပြန်စစ်ရန်ရှိသော Changes</span>
+                <small>Pending Review</small>
+                <strong>{{ (int) ($metrics['working_change_count'] ?? 0) }}</strong>
+                <p>Current Rule မပြောင်းခင် Review လုပ်ရန်</p>
             </article>
 
-            <article class="pbr-business-metric">
-                <span class="pbr-mm-label">Business Records</span>
-                <small class="pbr-en-label">Operating Records</small>
-                <strong>{{ $metrics['operating_record_count'] }}</strong>
-                <div class="pbr-metric-foot"><span>အတည်ပြုမှုမှ ထွက်လာသော လက်တွေ့မှတ်တမ်းများ</span></div>
+            <article class="ov-kpi">
+                <span>Partner Profiles</span>
+                <small>Operating Roster</small>
+                <strong>{{ (int) ($metrics['partner_count'] ?? 0) }}</strong>
+                <p>Owner + current/planned Partner Profiles</p>
+            </article>
+
+            <article class="ov-kpi">
+                <span>Business Records</span>
+                <small>Operating Records</small>
+                <strong>{{ (int) ($metrics['operating_record_count'] ?? 0) }}</strong>
+                <p>Approved decisions ကနေ ထွက်လာသော records</p>
             </article>
         </section>
 
-        <section class="pbr-business-attention">
-            <div class="pbr-business-section-head">
+        <section class="ov-section">
+            <div class="ov-section-head">
                 <div>
-                    <span class="pbr-business-eyebrow">ACTION CENTER</span>
-                    <h2>အခုအရင်ဆုံး စီမံရမယ့်အရာများ</h2>
-                    <p>Working Draft၊ Funding Gap နဲ့ မသတ်မှတ်ရသေးတဲ့ အရေးကြီး Business Area တွေကို Action အလိုက် ပြပါတယ်။</p>
+                    <span class="ov-eyebrow">PRIORITY ACTIONS</span>
+                    <h2>အခု ဘာလုပ်ရမလဲ</h2>
+                    <p>တူညီတဲ့ Operating Area ထဲက issue တွေကို တစ်စုတည်းပြပြီး owner က အရေးကြီးဆုံး Action ကို မြန်မြန်ရွေးနိုင်အောင် စီထားပါတယ်။</p>
                 </div>
             </div>
 
-            @if($actions->isNotEmpty())
-                <div class="pbr-business-attention-grid">
-                    @foreach($actions->take(6) as $action)
-                        <a href="{{ $action['url'] }}" class="pbr-business-attention-card {{ $action['level'] }}">
-                            <span class="pbr-en-label">{{ strtoupper(str_replace('_', ' ', $action['domain'])) }}</span>
+            @if($priorityActions->isNotEmpty())
+                <div class="ov-priority-grid">
+                    @foreach($priorityActions as $action)
+                        <a href="{{ $action['url'] }}" class="ov-priority-card {{ $action['level'] }}">
+                            <span class="domain">{{ strtoupper(str_replace('_', ' ', $action['domain'])) }}</span>
                             <strong>{{ $action['title_mm'] }}</strong>
-                            <small>{{ $action['detail_mm'] }}</small>
-                            <b>{{ $action['action_mm'] }}</b>
+                            <p>{{ $action['detail_mm'] }}</p>
+                            <footer>
+                                <span>{{ $action['action_mm'] }} →</span>
+                                @if(($action['open_items'] ?? 1) > 1)
+                                    <em>{{ $action['open_items'] }} open items</em>
+                                @endif
+                            </footer>
                         </a>
                     @endforeach
                 </div>
             @else
-                <div class="pbr-business-healthy-banner">
+                <div class="ov-healthy">
                     <span>✓</span>
                     <div>
-                        <strong>လက်ရှိအရေးပေါ် Action မရှိပါ</strong>
-                        <p>လက်ရှိ Active Rules နဲ့ Funding အခြေအနေအရ အရေးပေါ်ပြန်စစ်ရမယ့် Working Change မရှိပါ။</p>
+                        <strong>လက်ရှိ Priority Action မရှိပါ</strong>
+                        <p>Funding Gap၊ Pending Review နဲ့ urgent operating issue မရှိသေးပါဘူး။</p>
                     </div>
                 </div>
             @endif
         </section>
 
-        <section class="pbr-business-systems">
-            <div class="pbr-business-section-head">
+        <section class="ov-section">
+            <div class="ov-section-head">
                 <div>
-                    <span class="pbr-business-eyebrow">BUSINESS AREAS</span>
-                    <h2>Partnership တစ်ခုလုံးကို စနစ်တကျ ထိန်းချုပ်ပါ</h2>
-                    <p>တစ်ခုချင်းစီက Business ပြောင်းလဲလာတိုင်း Data၊ Decision နဲ့ Rule ကို Update လုပ်ပြီး ဆက်တိုက်အသုံးပြုရမယ့် Operating Area ဖြစ်ပါတယ်။</p>
+                    <span class="ov-eyebrow">OPERATING AREAS</span>
+                    <h2>Business Operating Areas 10 ခု</h2>
+                    <p>Course progress မဟုတ်ပါဘူး။ Business ပြောင်းလဲလာတိုင်း Data၊ Decision၊ Approval နဲ့ Current Rule ကို ဆက်လက်ထိန်းသိမ်းရမယ့် operating systems တွေပါ။</p>
                 </div>
-                <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-business-btn secondary">Full Operating System →</a>
+                <a href="{{ route('workspaces.tools.index', $workspace) }}" class="ov-btn">View Full Operating System →</a>
             </div>
 
-            <div class="pbr-business-area-grid">
+            <div class="ov-system-grid">
                 @foreach($systems as $system)
-                    <a href="{{ $system['url'] }}" class="pbr-business-area-card {{ $system['state']['key'] }}">
-                        <div class="pbr-business-area-top">
-                            <span class="pbr-business-state {{ $system['state']['key'] }}">{{ $system['state']['label_mm'] }}</span>
+                    <a href="{{ $system['url'] }}" class="ov-system-card {{ $system['state']['key'] }}">
+                        <div class="ov-system-top">
+                            <span>{{ $system['state']['label_mm'] }}</span>
                             <small>{{ $system['name_en'] }}</small>
                         </div>
                         <h3>{{ $system['name_mm'] }}</h3>
-                        <p>{{ $system['short_mm'] }}</p>
-                        <div class="pbr-business-area-foot">
+                        <div class="ov-system-footer">
                             <span>Active {{ $system['active_count'] }}</span>
                             @if($businessState['can_manage'])
                                 <span>Review {{ $system['working_count'] }}</span>
                             @endif
-                            <b>စီမံရန် →</b>
+                            <b>Open →</b>
                         </div>
                     </a>
                 @endforeach
             </div>
         </section>
 
-        <section class="pbr-business-utility-grid">
-            <article class="pbr-business-utility-card ai">
-                <span class="pbr-business-eyebrow">PBR AI ADVISOR</span>
-                <h3>သင့် Business Data ကိုသိတဲ့ AI Advisor</h3>
-                <p>Permission-safe Active Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Operating Records ကို PBR Knowledge နဲ့ တွဲပြီး မေးမြန်းနိုင်ပါတယ်။</p>
-                <a class="pbr-business-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">PBR AI ကို မေးရန် ✦</a>
-            </article>
+        <section class="ov-section">
+            <div class="ov-section-head">
+                <div>
+                    <span class="ov-eyebrow">BUSINESS SERVICES</span>
+                    <h2>ဆုံးဖြတ်ချက်နဲ့ Business Records ကို ဆက်သုံးရန်</h2>
+                    <p>Operating Areas ထဲက approved data ကို AI၊ Rule Register၊ Valuation နဲ့ Partner workflows တွေနဲ့ ချိတ်ဆက်အသုံးပြုနိုင်ပါတယ်။</p>
+                </div>
+            </div>
 
-            <article class="pbr-business-utility-card">
-                <span class="pbr-business-eyebrow">DOCUMENTS & BUSINESS RULES</span>
-                <h3>Current Business Rule Register</h3>
-                <p>Approve & Activate လုပ်ထားတဲ့ Current Rules တွေကို Operating Area အလိုက် စုစည်းကြည့်ပြီး Print / Save PDF လုပ်နိုင်ပါတယ်။</p>
-                <a class="pbr-business-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules ကြည့်ရန် →</a>
-            </article>
-
-            <article class="pbr-business-utility-card">
-                <span class="pbr-business-eyebrow">PARTNERS</span>
-                <h3>Partner Roster & Roles</h3>
-                <p>တစ်ကြိမ်ထည့်ထားတဲ့ Partner Profile ကို Capital၊ Ownership၊ Roles၊ Governance နဲ့ Exit အပိုင်းတွေမှာ ပြန်သုံးနိုင်ပါတယ်။</p>
-                <a class="pbr-business-btn secondary" href="{{ route('workspaces.partner-roster.index', $workspace) }}">Partner များ စီမံရန် →</a>
-            </article>
-
-            <article class="pbr-business-utility-card">
-                <span class="pbr-business-eyebrow">DECISION SUPPORT</span>
-                <h3>Feasibility</h3>
-                <p>Business အသစ်၊ Branch၊ Product သို့မဟုတ် Project တစ်ခုကို လက်ရှိအခြေအနေမှာ လုပ်သင့်မလုပ်သင့် အချက်အလက်ပေါ်မူတည်ပြီး စစ်ဆေးပါ။</p>
-                <a class="pbr-business-btn secondary" href="{{ route('workspaces.feasibility.show', $workspace) }}">Feasibility စစ်ဆေးရန် →</a>
-            </article>
-
-            @if($workspace->isExistingPartnership())
-                <article class="pbr-business-utility-card">
-                    <span class="pbr-business-eyebrow">BUSINESS VALUE</span>
-                    <h3>Business Valuation</h3>
-                    <p>Financial Data နဲ့ Valuation Methods အမျိုးမျိုးကို သုံးပြီး Conservative၊ Base နဲ့ Optimistic Value Range ကို စစ်ဆေးပါ။</p>
-                    <a class="pbr-business-btn secondary" href="{{ route('workspaces.valuation.show', $workspace) }}">Valuation Center →</a>
+            <div class="ov-tools-grid">
+                <article class="ov-tool-card ai">
+                    <span class="ov-eyebrow">PBR AI ADVISOR</span>
+                    <h3>Business-aware AI Advisor</h3>
+                    <p>Permission-safe Current Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Business Records ပေါ်မူတည်ပြီး မေးမြန်းနိုင်ပါတယ်။</p>
+                    <a class="ov-btn primary" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
                 </article>
-            @endif
 
-            <article class="pbr-business-utility-card">
-                <span class="pbr-business-eyebrow">PARTNER INTELLIGENCE</span>
-                <h3>Partner Dynamics</h3>
-                <p>Partner တွေရဲ့ Strengths၊ Decision Style နဲ့ Role Fit ကို Partner Role စီမံရာမှာ အထောက်အကူဖြစ်အောင် အသုံးပြုပါ။</p>
-                <a class="pbr-business-btn secondary" href="{{ route('workspaces.partner-dynamics.show', $workspace) }}">Partner Alignment →</a>
-            </article>
+                <article class="ov-tool-card">
+                    <span class="ov-eyebrow">DOCUMENTS & RULES</span>
+                    <h3>Current Business Rule Register</h3>
+                    <p>Approve & Activate လုပ်ထားတဲ့ Current Rules တွေကို Operating Area အလိုက် ပြန်ကြည့်ပြီး Print / Save PDF လုပ်နိုင်ပါတယ်။</p>
+                    <a class="ov-btn" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Open Rule Register →</a>
+                </article>
+
+                <article class="ov-tool-card">
+                    <span class="ov-eyebrow">PARTNERS</span>
+                    <h3>Partner Roster & Roles</h3>
+                    <p>Partner Profile တစ်ကြိမ်ထည့်ပြီး Capital၊ Ownership၊ Roles၊ Governance၊ Exit နဲ့ Transfer areas တွေမှာ ပြန်သုံးနိုင်ပါတယ်။</p>
+                    <a class="ov-btn" href="{{ route('workspaces.partner-roster.index', $workspace) }}">Open Partner Roster →</a>
+                </article>
+
+                <article class="ov-tool-card">
+                    <span class="ov-eyebrow">DECISION SUPPORT</span>
+                    <h3>Business Feasibility</h3>
+                    <p>Business အသစ်၊ Branch၊ Product ဒါမှမဟုတ် Project တစ်ခုကို လက်ရှိ Business Data နဲ့ စစ်ဆေးပြီး decision support ရယူနိုင်ပါတယ်။</p>
+                    <a class="ov-btn" href="{{ route('workspaces.feasibility.show', $workspace) }}">Open Feasibility →</a>
+                </article>
+
+                <article class="ov-tool-card">
+                    <span class="ov-eyebrow">BUSINESS VALUE</span>
+                    <h3>Business Valuation</h3>
+                    <p>လက်ရှိ Business Value ကို structured assumptions နဲ့တွက်ပြီး ownership၊ buyout နဲ့ transfer decisions တွေအတွက် reference အဖြစ်သုံးနိုင်ပါတယ်။</p>
+                    <a class="ov-btn" href="{{ route('workspaces.valuation.show', $workspace) }}">Open Valuation →</a>
+                </article>
+
+                <article class="ov-tool-card">
+                    <span class="ov-eyebrow">PARTNER INTELLIGENCE</span>
+                    <h3>Partner Dynamics</h3>
+                    <p>Working Style၊ Decision Style၊ Strengths နဲ့ Role Fit ကို operating decisions တွေနဲ့ချိတ်ပြီး partner alignment ကို ပြန်စစ်နိုင်ပါတယ်။</p>
+                    <a class="ov-btn" href="{{ route('workspaces.partner-dynamics.show', $workspace) }}">Open Partner Dynamics →</a>
+                </article>
+            </div>
         </section>
 
-        @if(session('invitation_link'))
-            <section class="pbr-business-section-card">
-                <span class="pbr-business-eyebrow">INVITATION READY</span>
-                <h2>Partner ဆီပို့ရန် Link အသင့်ဖြစ်ပါပြီ</h2>
-                <p>ဒီ Link က single-use ဖြစ်ပါတယ်။ ဖိတ်ချင်တဲ့ Partner ကိုပဲ ပို့ပါ။</p>
-                <div class="pbr2-copy-box">{{ session('invitation_link') }}</div>
+        @if($canManageInvitations)
+            <section class="ov-section" id="partner-access">
+                <div class="ov-section-head">
+                    <div>
+                        <span class="ov-eyebrow">PARTNERS & ACCESS</span>
+                        <h2>Partner Access</h2>
+                        <p>Partner Profiles နဲ့ Login Access ကို သီးခြားစီထိန်းထားပါတယ်။ Accepted account ဆိုတာ system ထဲဝင်ကြည့်ခွင့်ရှိသူကိုဆိုလိုပြီး Partner Profile count နဲ့ မတူနိုင်ပါတယ်။</p>
+                    </div>
+                </div>
+
+                <div class="ov-access-grid">
+                    <article class="ov-panel">
+                        <h3>Accepted Partner Accounts — {{ $acceptedPartners->count() }}</h3>
+                        <p>ဒီ Accounts တွေက Owner/Admin သတ်မှတ်ထားတဲ့ permission-safe Business Data ကို login ဝင်ပြီး ကြည့်နိုင်ပါတယ်။</p>
+
+                        @if($acceptedPartners->isNotEmpty())
+                            <div class="ov-account-list">
+                                @foreach($acceptedPartners as $partner)
+                                    <div class="ov-account">
+                                        <div>
+                                            <strong>{{ $partner->user?->name ?: 'Partner' }}</strong>
+                                            <small>{{ $partner->user?->email ?: $partner->invited_email }}</small>
+                                        </div>
+                                        <span>Partner</span>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="ov-empty">Accepted Partner Account မရှိသေးပါဘူး။ Partner Profile ရှိတာနဲ့ Login Access ရှိတာ မတူပါဘူး။</div>
+                        @endif
+                    </article>
+
+                    <article class="ov-panel">
+                        <h3>Invite Partner</h3>
+                        <p>Email တစ်ခုကို တိုက်ရိုက်ဖိတ်နိုင်သလို single-use shareable link တစ်ခုလည်း ဖန်တီးနိုင်ပါတယ်။</p>
+
+                        @if(session('invitation_link'))
+                            <div class="ov-invite-link">
+                                <strong>{{ session('shareable_invitation') ? 'Shareable invitation created' : 'Partner invitation created' }}</strong>
+                                <small>ဒီ link ကို recipient ကိုပဲပို့ပါ။ Link က invitation acceptance အတွက်အသုံးပြုမှာပါ။</small>
+                                <input class="ov-input" type="text" readonly value="{{ session('invitation_link') }}" onclick="this.select()">
+                            </div>
+                        @endif
+
+                        <div class="ov-invite-actions">
+                            <div class="ov-invite-block">
+                                <strong>Invite by Email</strong>
+                                <form class="ov-inline-form" method="POST" action="{{ route('workspace-invitations.store', $workspace) }}">
+                                    @csrf
+                                    <input class="ov-input" type="email" name="email" placeholder="partner@example.com" required>
+                                    <button class="ov-btn primary" type="submit">Create Invite</button>
+                                </form>
+                            </div>
+
+                            <div class="ov-invite-block">
+                                <strong>Single-use Shareable Link</strong>
+                                <form method="POST" action="{{ route('workspace-invitations.shareable.store', $workspace) }}">
+                                    @csrf
+                                    <button class="ov-btn" type="submit">Create Shareable Link →</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        @if($pendingEmailInvitations->isNotEmpty())
+                            <div class="ov-pending">
+                                @foreach($pendingEmailInvitations as $invitation)
+                                    <div class="ov-pending-row">
+                                        <span>Pending · {{ $invitation->invited_email }}</span>
+                                        <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit">Revoke</button>
+                                        </form>
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+                    </article>
+                </div>
             </section>
         @endif
 
-        <section class="pbr-business-section-card">
-            <div class="pbr-business-section-head">
-                <div>
-                    <span class="pbr-business-eyebrow">PARTNERS & ACCESS</span>
-                    <h2>Partner Access ကို စီမံပါ</h2>
-                    <p>Accepted Partner တွေက အတည်ပြုထားတဲ့ Business Data ကို Permission အတိုင်း ကြည့်နိုင်ပါတယ်။</p>
-                </div>
-            </div>
-
-            <div class="pbr-business-partner-grid">
-                <div class="pbr-business-partner-panel">
-                    <h3>ချိတ်ဆက်ထားသော Partner {{ $acceptedPartners->count() }} ဦး</h3>
-                    @forelse($acceptedPartners as $membership)
-                        <div class="pbr-business-person-row">
-                            <div>
-                                <strong>{{ $membership->user?->name ?? $membership->invited_email }}</strong>
-                                <small>{{ $membership->user?->email ?? $membership->invited_email }}</small>
-                            </div>
-                            <span>Partner</span>
-                        </div>
-                    @empty
-                        <p class="pbr-business-muted">ချိတ်ဆက်ထားတဲ့ Partner မရှိသေးပါ။</p>
-                    @endforelse
-                </div>
-
-                @if($canManageInvitations)
-                    <div class="pbr-business-partner-panel">
-                        <h3>Partner ဖိတ်ရန်</h3>
-                        <p>Single-use Link သို့မဟုတ် Email နဲ့ ဖိတ်နိုင်ပါတယ်။</p>
-                        <form method="POST" action="{{ route('workspace-invitations.shareable.store', $workspace) }}" class="pbr-business-inline-form">
-                            @csrf
-                            <button class="pbr-business-btn secondary" type="submit">Shareable Link ဖန်တီးရန်</button>
-                        </form>
-
-                        <form method="POST" action="{{ route('workspace-invitations.store', $workspace) }}" class="pbr-business-email-form">
-                            @csrf
-                            <label for="partner-email">Partner Email</label>
-                            <div>
-                                <input id="partner-email" name="email" type="email" value="{{ old('email') }}" placeholder="partner@example.com" required>
-                                <button class="pbr-business-btn" type="submit">ဖိတ်ရန်</button>
-                            </div>
-                            @error('email')<small class="pbr2-error">{{ $message }}</small>@enderror
-                        </form>
-                    </div>
-                @endif
-            </div>
-
-            @if($canManageInvitations && $pendingInvitations->isNotEmpty())
-                <div class="pbr-business-pending-list">
-                    <h3>Pending Invitations</h3>
-                    @foreach($pendingInvitations as $invitation)
-                        <div class="pbr-business-person-row">
-                            <div>
-                                <strong>
-                                    @if(str_ends_with(strtolower((string) $invitation->invited_email), '@invite.thepbr.local'))
-                                        Shareable Invitation Link
-                                    @else
-                                        {{ $invitation->invited_email }}
-                                    @endif
-                                </strong>
-                                <small>{{ optional($invitation->invited_at)->diffForHumans() }}</small>
-                            </div>
-                            <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
-                                @csrf
-                                @method('DELETE')
-                                <button class="pbr-business-text-button" type="submit">ပယ်ဖျက်ရန်</button>
-                            </form>
-                        </div>
-                    @endforeach
-                </div>
-            @endif
-        </section>
-
-        <section class="pbr-business-legal-note">
+        <aside class="ov-note">
             <strong>Planning & Governance Note</strong>
-            <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
-        </section>
+            <p>PBR က Business Planning နဲ့ Partnership Governance အတွက် decision-support system ဖြစ်ပါတယ်။ Legal၊ tax၊ accounting သို့မဟုတ် regulated professional advice ကို အစားမထိုးပါဘူး။ အရေးကြီး agreement နဲ့ transaction တွေအတွက် qualified professional review ကို သီးခြားယူသင့်ပါတယ်။</p>
+        </aside>
     </div>
 </section>
 @endsection
