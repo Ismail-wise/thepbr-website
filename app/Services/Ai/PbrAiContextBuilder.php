@@ -69,24 +69,29 @@ class PbrAiContextBuilder
             ->get()
             ->unique('chapter_tool_id')
             ->values()
-            ->map(fn (WorkspaceToolOutput $output): array => [
-                'chapter' => [
-                    'number' => $output->tool?->chapter?->chapter_number,
-                    'title_mm' => $output->tool?->chapter?->title_mm,
-                    'title_en' => $output->tool?->chapter?->title_en,
-                ],
-                'tool' => [
-                    'key' => $output->tool?->tool_key,
-                    'slug' => $output->tool?->slug,
-                    'title_mm' => $output->tool?->title_mm,
-                    'title_en' => $output->tool?->title_en,
-                ],
-                'revision' => $output->revision,
-                'status' => $output->status,
-                'output' => $this->limitValue($output->output_data, 6000),
-                'generated_at' => $output->generated_at?->toIso8601String(),
-                'agreed_at' => $output->agreed_at?->toIso8601String(),
-            ])
+            ->map(function (WorkspaceToolOutput $output): array {
+                $internalNumber = (int) ($output->tool?->chapter?->chapter_number ?? 0);
+                $area = config('pbr_business_operating_system.areas.'.$internalNumber, []);
+
+                return [
+                    'business_area' => [
+                        'domain' => $area['domain'] ?? null,
+                        'name_mm' => $area['name_mm'] ?? null,
+                        'name_en' => $area['name_en'] ?? null,
+                    ],
+                    'tool' => [
+                        'key' => $output->tool?->tool_key,
+                        'slug' => $output->tool?->slug,
+                        'title_mm' => $output->tool?->title_mm,
+                        'title_en' => $output->tool?->title_en,
+                    ],
+                    'revision' => $output->revision,
+                    'status' => $output->status,
+                    'output' => $this->limitValue($output->output_data, 6000),
+                    'generated_at' => $output->generated_at?->toIso8601String(),
+                    'agreed_at' => $output->agreed_at?->toIso8601String(),
+                ];
+            })
             ->all();
 
         $operatingSystem = $this->operatingSystem->agreedDomainMap(
@@ -102,8 +107,8 @@ class PbrAiContextBuilder
                 'workspace_tool_output_scope' => 'agreed_only',
                 'operating_rule_scope' => 'approved_current_rules_only',
                 'instruction' => $canManage
-                    ? 'This actor may receive owner/admin-sensitive context where explicitly included, but operating rules and business-tool outputs in this snapshot are approved-only. Never treat an unapproved working change as current policy.'
-                    : 'This actor is an accepted partner. Operating rules and business-tool outputs are approved-only. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot.',
+                    ? 'This actor may receive owner/admin-sensitive context where explicitly included, but operating rules and business-tool outputs in this snapshot are approved-only. Never treat an unapproved working change as current policy. Refer to operating domains by their business-area names, not by internal chapter numbers.'
+                    : 'This actor is an accepted partner. Operating rules and business-tool outputs are approved-only. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot. Refer to operating domains by their business-area names, not by internal chapter numbers.',
             ],
             'business' => [
                 'workspace_id' => $workspace->id,
