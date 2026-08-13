@@ -168,11 +168,12 @@ Route::middleware('auth')->group(function (): void {
 });
 
 Route::middleware(['auth', EnsureStudentPortalAccess::class])
-    ->prefix('student')
-    ->name('student.')
     ->group(function (): void {
-        Route::get('/', [StudentPortalController::class, 'dashboard'])
-            ->name('dashboard');
+        Route::get('/dashboard', [StudentPortalController::class, 'dashboard'])
+            ->name('student.dashboard');
+
+        Route::get('/student', fn () => redirect()->route('student.dashboard'))
+            ->name('student.legacy-dashboard');
     });
 
 /*
@@ -307,7 +308,9 @@ Route::middleware('auth')->group(function (): void {
     Route::post(
         '/workspaces/{workspace}/tools/operating/{toolSlug}/save-draft',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'save']
-    )->name('workspaces.tools.operating.save');
+    )
+        ->where('toolSlug', '.*')
+        ->name('workspaces.tools.operating.save');
 });
 
 require __DIR__.'/ai.php';
