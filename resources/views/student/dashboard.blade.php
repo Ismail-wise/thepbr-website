@@ -8,7 +8,7 @@
     $primaryWorkspace = $primaryBusiness['workspace'] ?? null;
 @endphp
 
-<section class="pbr-business-page pbr-portfolio-page pbr-premium-dashboard" data-premium-dashboard>
+<section class="pbr-portfolio-page pbr-premium-dashboard" data-premium-dashboard>
     <div class="portal-wrap pbr-business-wrap">
         <header class="pbr-premium-dashboard-hero">
             <div class="pbr-premium-dashboard-copy">
