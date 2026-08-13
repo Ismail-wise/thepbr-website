@@ -15,8 +15,10 @@ use Illuminate\View\View;
 
 class WorkspaceController extends Controller
 {
-    public function index(Request $request): View
-    {
+    public function index(
+        Request $request,
+        PbrBusinessOperatingService $businessOperatingSystem
+    ): View {
         $user = $request->user();
 
         $workspaces = PartnershipWorkspace::query()
@@ -35,9 +37,54 @@ class WorkspaceController extends Controller
             ->latest()
             ->get();
 
+        $businesses = $workspaces
+            ->map(function (PartnershipWorkspace $workspace) use (
+                $user,
+                $businessOperatingSystem
+            ): array {
+                $state = $businessOperatingSystem->workspaceState($user, $workspace);
+                $status = $this->portfolioStatus($state);
+
+                return [
+                    'workspace' => $workspace,
+                    'can_manage' => $state['can_manage'],
+                    'metrics' => $state['metrics'],
+                    'status' => $status,
+                    'next_action' => $state['action_items']->first(),
+                    'systems' => $state['systems'],
+                ];
+            })
+            ->sortBy(fn (array $business): int => (int) $business['status']['rank'])
+            ->values();
+
+        $portfolioSummary = [
+            'business_count' => $businesses->count(),
+            'owned_count' => $businesses
+                ->filter(fn (array $business): bool => (bool) $business['can_manage'])
+                ->count(),
+            'partner_access_count' => $businesses
+                ->reject(fn (array $business): bool => (bool) $business['can_manage'])
+                ->count(),
+            'needs_attention_count' => $businesses
+                ->filter(fn (array $business): bool => in_array(
+                    $business['status']['key'],
+                    ['needs_action', 'needs_review'],
+                    true
+                ))
+                ->count(),
+            'setup_required_count' => $businesses
+                ->where('status.key', 'setup_required')
+                ->count(),
+        ];
+
         $canCreateBusiness = $user->isAdmin() || $user->isStudent();
 
-        return view('workspaces.index', compact('user', 'workspaces', 'canCreateBusiness'));
+        return view('workspaces.index', compact(
+            'user',
+            'businesses',
+            'portfolioSummary',
+            'canCreateBusiness'
+        ));
     }
 
     public function create(Request $request): View
@@ -185,6 +232,48 @@ class WorkspaceController extends Controller
             'canManageInvitations',
             'businessState'
         ));
+    }
+
+    private function portfolioStatus(array $state): array
+    {
+        $metrics = $state['metrics'] ?? [];
+        $fundingGap = (float) ($metrics['funding_gap'] ?? 0);
+        $workingChanges = (int) ($metrics['working_change_count'] ?? 0);
+        $notConfigured = (int) ($metrics['not_configured_area_count'] ?? 0);
+
+        if ($fundingGap > 0) {
+            return [
+                'key' => 'needs_action',
+                'rank' => 10,
+                'label_mm' => 'Action လိုသည်',
+                'label_en' => 'Needs Action',
+            ];
+        }
+
+        if ($workingChanges > 0) {
+            return [
+                'key' => 'needs_review',
+                'rank' => 20,
+                'label_mm' => 'Review လိုသည်',
+                'label_en' => 'Needs Review',
+            ];
+        }
+
+        if ($notConfigured > 0) {
+            return [
+                'key' => 'setup_required',
+                'rank' => 30,
+                'label_mm' => 'Setup လိုသည်',
+                'label_en' => 'Setup Required',
+            ];
+        }
+
+        return [
+            'key' => 'stable',
+            'rank' => 40,
+            'label_mm' => 'ပုံမှန်',
+            'label_en' => 'Stable',
+        ];
     }
 
     private function authorizeManagement(Request $request, PartnershipWorkspace $workspace): void
