@@ -5,6 +5,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceMember;
 use App\Models\WorkspaceOperatingSnapshot;
+use App\Services\Ai\PbrAiContextBuilder;
 use App\Services\PbrTools\PbrBusinessOperatingService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\ToolScenarioService;
@@ -159,6 +160,62 @@ test('a later working change never replaces current approved data for owner or p
         ->and($partnerOwnership['working_count'])->toBe(0)
         ->and((float) ($holders[0]['ownership_percentage'] ?? 0))->toBe(60.0)
         ->and((float) ($holders[1]['ownership_percentage'] ?? 0))->toBe(40.0);
+});
+
+test('pbr ai uses current approved rules for owners and partners and excludes later working changes', function () {
+    extract(pbrBusinessOsFixture(withPartner: true));
+
+    $engine = app(PbrOperatingToolEngine::class);
+    $scenarios = app(ToolScenarioService::class);
+
+    $approvedInput = pbrBusinessOsCapInput(60, 40);
+    $approvedSession = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $ownershipTool,
+        'Approved Ownership 60-40',
+        $approvedInput,
+        $engine->calculate($ownershipTool->tool_key, $approvedInput, $workspace)
+    );
+    $scenarios->publishAgreedOutput(
+        $owner,
+        $workspace,
+        $ownershipTool,
+        $approvedSession
+    );
+
+    $workingInput = pbrBusinessOsCapInput(10, 90);
+    $workingSession = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $ownershipTool,
+        'Private Working Change 10-90',
+        $workingInput,
+        $engine->calculate($ownershipTool->tool_key, $workingInput, $workspace)
+    );
+    $scenarios->createWorkspaceOutput(
+        $owner,
+        $workspace,
+        $ownershipTool,
+        $workingSession
+    );
+
+    $builder = app(PbrAiContextBuilder::class);
+    $ownerContext = $builder->build($owner, $workspace);
+    $partnerContext = $builder->build($partner, $workspace);
+
+    foreach ([$ownerContext, $partnerContext] as $context) {
+        $outputs = collect($context['business_tool_outputs'] ?? []);
+        $capOutput = $outputs->firstWhere('tool.key', 'cap_table_builder');
+        $holders = $capOutput['output']['data']['holders'] ?? [];
+
+        expect($context['access_scope']['workspace_tool_output_scope'])->toBe('agreed_only')
+            ->and($context['access_scope']['operating_rule_scope'])->toBe('approved_current_rules_only')
+            ->and($outputs->pluck('status')->unique()->values()->all())->toBe(['agreed'])
+            ->and((float) ($holders[0]['ownership_percentage'] ?? 0))->toBe(60.0)
+            ->and((float) ($holders[1]['ownership_percentage'] ?? 0))->toBe(40.0)
+            ->and($context['operating_system']['ownership']['status'] ?? null)->toBe('agreed');
+    }
 });
 
 test('business dashboard capital position keeps approved snapshot as source of truth while a draft exists', function () {
