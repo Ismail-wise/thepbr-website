@@ -97,6 +97,15 @@ class PbrBusinessOperatingService
             ->unique('domain_key')
             ->keyBy('domain_key');
 
+        $agreedSnapshots = WorkspaceOperatingSnapshot::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('status', 'agreed')
+            ->orderByDesc('revision')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('domain_key')
+            ->keyBy('domain_key');
+
         $toolDefinitions = config('pbr_operating_tools.definitions', []);
         $capitalOverrides = config('pbr_business_operating_system.capital_module_overrides', []);
         $states = config('pbr_business_operating_system.states', []);
@@ -106,6 +115,7 @@ class PbrBusinessOperatingService
             $number = (int) $chapter->chapter_number;
             $area = $this->area($number);
             $domainSnapshot = $snapshots->get($area['domain']);
+            $agreedDomainSnapshot = $agreedSnapshots->get($area['domain']);
             $modules = [];
             $activeCount = 0;
             $workingCount = 0;
@@ -159,9 +169,11 @@ class PbrBusinessOperatingService
                 ];
             }
 
-            $hasAgreed = $activeCount > 0 || $domainSnapshot?->status === 'agreed';
-            $hasWorkingChange = $canManage
-                && ($workingCount > 0 || $domainSnapshot?->status === 'draft');
+            // Historical draft snapshots are audit history. Only a currently
+            // open ToolSession represents a live working change that needs
+            // action, so deleting or approving a draft clears Review state.
+            $hasAgreed = $activeCount > 0 || $agreedDomainSnapshot !== null;
+            $hasWorkingChange = $canManage && $workingCount > 0;
 
             $stateKey = $hasWorkingChange
                 ? 'review'
@@ -178,7 +190,11 @@ class PbrBusinessOperatingService
                 'snapshot_summary' => is_array($domainSnapshot?->summary)
                     ? $domainSnapshot->summary
                     : [],
-                'last_agreed_at' => $domainSnapshot?->agreed_at,
+                'active_snapshot_revision' => $agreedDomainSnapshot?->revision,
+                'active_snapshot_summary' => is_array($agreedDomainSnapshot?->summary)
+                    ? $agreedDomainSnapshot->summary
+                    : [],
+                'last_agreed_at' => $agreedDomainSnapshot?->agreed_at,
                 'url' => route('workspaces.tools.index', $workspace).'#system-'.$area['slug'],
             ]);
         }
