@@ -161,7 +161,7 @@ class WorkspaceChapterOneToolController extends Controller
         return redirect(
             url('/workspaces/'.$workspace->id.'/tools/'.$tool->slug)
             .'?session='.$session->id
-        )->with('status', 'Scenario ကို Draft အဖြစ်သိမ်းပြီးပါပြီ။');
+        )->with('status', 'Working Draft သိမ်းပြီးပါပြီ။ လက်ရှိ Active Business Rule ကို မပြောင်းသေးပါ။');
     }
 
     private function resolveTool(
@@ -218,6 +218,11 @@ class WorkspaceChapterOneToolController extends Controller
             ? $scenarios->drafts($request->user(), $workspace, $tool)
             : collect();
         $latestAgreedOutput = $scenarios->latestAgreedOutput($workspace, $tool);
+
+        if ($result === null && is_array($latestAgreedOutput?->output_data)) {
+            $result = $latestAgreedOutput->output_data;
+        }
+
         $outputHistory = $canManage
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
