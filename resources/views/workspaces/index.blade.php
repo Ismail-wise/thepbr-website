@@ -13,8 +13,8 @@
         <div class="pbr2-hero-row">
             <div>
                 <span class="pbr2-eyebrow">My Businesses</span>
-                <h1>သင့် Business အားလုံးကို တစ်နေရာတည်းက စီမံပါ</h1>
-                <p>Business တစ်ခုချင်းစီရဲ့ Partner, Tools, Feasibility, Valuation နဲ့ ဆက်စပ် Data တွေကို သီးခြား Workspace အဖြစ် စနစ်တကျ စီမံနိုင်ပါတယ်။</p>
+                <h1>သင့် Partnership Business အားလုံးကို တစ်နေရာတည်းက စီမံပါ</h1>
+                <p>Business တစ်ခုချင်းစီရဲ့ Partner၊ Capital၊ Ownership၊ Finance၊ Governance၊ Feasibility၊ Valuation နဲ့ Active Business Rules တွေကို သီးခြား Workspace အဖြစ် စနစ်တကျ စီမံနိုင်ပါတယ်။</p>
             </div>
 
             @if($canCreateBusiness)
@@ -27,7 +27,7 @@
         <div class="pbr2-section-head">
             <div>
                 <h2>ကျွန်ုပ်ပိုင် Business များ</h2>
-                <p>Owner အဖြစ် သင်စီမံနိုင်တဲ့ Business Workspace များ</p>
+                <p>Owner အဖြစ် Operating System၊ Partner Access နဲ့ Business Rules ကို သင်စီမံနိုင်တဲ့ Workspace များ</p>
             </div>
         </div>
 
@@ -48,21 +48,22 @@
                         <strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong>
                     </div>
                     <div class="pbr2-data-row">
-                        <span>Partner အရေအတွက်</span>
+                        <span>ချိတ်ဆက်ထားသော Partner</span>
                         <strong>{{ $workspace->acceptedMemberships->where('member_role', 'partner')->count() }}</strong>
                     </div>
 
                     <div class="pbr2-actions">
-                        <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business ကိုဖွင့်ရန်</a>
+                        <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business Control Center</a>
+                        <a class="pbr2-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}">Operating System</a>
                         @if($workspace->owner_user_id === $user->id || $user->isAdmin())
-                            <a class="pbr2-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">ပြင်ဆင်ရန်</a>
+                            <a class="pbr2-btn secondary" href="{{ route('workspaces.edit', $workspace) }}">Settings</a>
                         @endif
                     </div>
                 </article>
             @empty
                 <div class="pbr2-empty">
                     <strong>ကိုယ်ပိုင် Business မရှိသေးပါ</strong><br>
-                    Business အသစ်တစ်ခုထည့်ပြီး PBR Platform ကို စတင်အသုံးပြုနိုင်ပါတယ်။
+                    Partnership Business တစ်ခုဖန်တီးပြီး actual business data နဲ့ PBR Operating System ကို စတင်အသုံးပြုနိုင်ပါတယ်။
                 </div>
             @endforelse
         </div>
@@ -73,7 +74,7 @@
             <div class="pbr2-section-head">
                 <div>
                     <h2>Partner အဖြစ် ဝင်ထားသော Business များ</h2>
-                    <p>အခြား Owner တွေက သင့်ကို ဖိတ်ကြားထားတဲ့ Workspace များ</p>
+                    <p>အခြား Owner တွေက သင့်ကို ဖိတ်ကြားထားပြီး အတည်ပြုထားတဲ့ shared business information ကို ကြည့်နိုင်တဲ့ Workspace များ</p>
                 </div>
             </div>
 
@@ -88,6 +89,7 @@
                         <div class="pbr2-data-row"><span>Currency</span><strong>{{ $workspace->currency_code ?? 'မသတ်မှတ်ရသေး' }}</strong></div>
                         <div class="pbr2-actions">
                             <a class="pbr2-btn" href="{{ route('workspaces.show', $workspace) }}">Business ကိုဖွင့်ရန်</a>
+                            <a class="pbr2-btn secondary" href="{{ route('workspaces.tools.index', $workspace) }}">Active Rules ကြည့်ရန်</a>
                         </div>
                     </article>
                 @endforeach
