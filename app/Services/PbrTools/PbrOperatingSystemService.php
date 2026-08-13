@@ -242,4 +242,31 @@ class PbrOperatingSystemService
 
         return $result;
     }
+
+    public function agreedDomainMap(User $actor, PartnershipWorkspace $workspace): array
+    {
+        abort_unless($actor->canAccessWorkspace($workspace), 403);
+
+        $result = [];
+
+        foreach (self::DOMAINS as $domainKey) {
+            $snapshot = $this->latestSnapshot($workspace, $domainKey, 'agreed');
+
+            if (! $snapshot) {
+                continue;
+            }
+
+            $result[$domainKey] = [
+                'revision' => $snapshot->revision,
+                'status' => $snapshot->status,
+                'schema_version' => $snapshot->schema_version,
+                'payload' => $snapshot->payload,
+                'summary' => $snapshot->summary,
+                'generated_at' => $snapshot->generated_at?->toIso8601String(),
+                'agreed_at' => $snapshot->agreed_at?->toIso8601String(),
+            ];
+        }
+
+        return $result;
+    }
 }
