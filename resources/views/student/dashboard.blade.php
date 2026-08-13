@@ -15,7 +15,7 @@
                 <span class="pbr-business-eyebrow">PBR BUSINESS OPERATING SYSTEM</span>
                 <div class="pbr-premium-dashboard-title-row">
                     <h1>Business Control Center</h1>
-                    <span class="pbr-premium-live-status"><i></i> Portfolio Live</span>
+                    <span class="pbr-premium-live-status"><i></i> Current View</span>
                 </div>
                 <p>
                     မင်္ဂလာပါ <strong>{{ $user->name }}</strong>။ Business တစ်ခုချင်းစီရဲ့ လက်ရှိအခြေအနေ၊ Review လိုတာ၊
@@ -50,7 +50,7 @@
                     <small>ချက်ချင်းစီမံရန်</small>
                 </div>
                 <strong>{{ $portfolioMetrics['needs_action_count'] }}</strong>
-                <p>Funding Gap သို့မဟုတ် လုပ်ဆောင်ချက်လိုနေသော Business</p>
+                <p>Funding Gap ရှိနေပြီး Capital Action လိုသော Business</p>
             </article>
 
             <article class="pbr-premium-metric review {{ $portfolioMetrics['needs_review_count'] > 0 ? 'has-value' : '' }}">
