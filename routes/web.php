@@ -308,9 +308,7 @@ Route::middleware('auth')->group(function (): void {
     Route::post(
         '/workspaces/{workspace}/tools/operating/{toolSlug}/save-draft',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'save']
-    )
-        ->where('toolSlug', '.*')
-        ->name('workspaces.tools.operating.save');
+    )->name('workspaces.tools.operating.save');
 });
 
 require __DIR__.'/ai.php';
