@@ -41,7 +41,7 @@ test('PBR course catalog contains ten connected chapters and sixty four unique t
         ]);
 });
 
-test('active student portal is the real business operating system instead of a learning progress dashboard', function () {
+test('active student portal is the premium business control center instead of a learning progress dashboard', function () {
     app(CourseCatalogSeeder::class)->run();
 
     $user = User::factory()->create([
@@ -59,6 +59,8 @@ test('active student portal is the real business operating system instead of a l
         'status' => 'active',
     ]);
 
+    expect(parse_url(route('student.dashboard'), PHP_URL_PATH))->toBe('/dashboard');
+
     $response = $this
         ->actingAs($user)
         ->get(route('student.dashboard'));
@@ -66,9 +68,13 @@ test('active student portal is the real business operating system instead of a l
     $response
         ->assertOk()
         ->assertSee('PBR BUSINESS OPERATING SYSTEM')
-        ->assertSee('Business တစ်ခုရွေးပြီး တိုက်ရိုက်စီမံပါ')
+        ->assertSee('Business Control Center')
+        ->assertSee('Business Portfolio')
+        ->assertSee('Needs Action')
+        ->assertSee('Needs Review')
+        ->assertSee('Setup Required')
         ->assertSee('Portal Test Business')
-        ->assertSee('Operating System ဖွင့်ရန် →')
+        ->assertSee('Open Business OS →')
         ->assertSee(route('workspaces.tools.index', $workspace), false)
         ->assertDontSee('10 Learning Chapters')
         ->assertDontSee('Learning Chapters')
