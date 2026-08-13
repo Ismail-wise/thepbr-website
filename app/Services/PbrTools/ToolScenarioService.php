@@ -83,6 +83,10 @@ class ToolScenarioService
             ->where('workspace_id', $workspace->id)
             ->where('chapter_tool_id', $tool->id)
             ->where('status', 'draft')
+            ->whereDoesntHave(
+                'workspaceOutputs',
+                fn ($query) => $query->where('status', 'agreed')
+            )
             ->firstOrFail();
     }
 
@@ -100,6 +104,10 @@ class ToolScenarioService
             ->where('workspace_id', $workspace->id)
             ->where('chapter_tool_id', $tool->id)
             ->where('status', 'draft')
+            ->whereDoesntHave(
+                'workspaceOutputs',
+                fn ($query) => $query->where('status', 'agreed')
+            )
             ->orderByDesc('last_saved_at')
             ->orderByDesc('id')
             ->get();
@@ -385,10 +393,15 @@ class ToolScenarioService
         ChapterTool $tool,
         ToolSession $session
     ): void {
+        $alreadyApproved = $session->workspaceOutputs()
+            ->where('status', 'agreed')
+            ->exists();
+
         abort_unless(
             (int) $session->workspace_id === (int) $workspace->id
             && (int) $session->chapter_tool_id === (int) $tool->id
-            && $session->status === 'draft',
+            && $session->status === 'draft'
+            && ! $alreadyApproved,
             403
         );
     }
