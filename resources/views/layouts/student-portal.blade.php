@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>@yield('title', 'PBR Account') — thePBR</title>
+    <title>@yield('title', 'PBR Business Operating System') — thePBR</title>
     <meta name="robots" content="noindex,nofollow">
     <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-readonly.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-readonly.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-roster.css') }}?v={{ filemtime(public_path('css/pbr-roster.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-business-os.css') }}?v={{ filemtime(public_path('css/pbr-business-os.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
 </head>
 <body>
@@ -31,19 +32,19 @@
             </a>
 
             <div class="portal-nav">
-                <a href="{{ route('home') }}">ပင်မစာမျက်နှာ</a>
+                <a href="{{ route('home') }}">Public Website</a>
                 @auth
-                    <a href="{{ route('account.dashboard') }}">ကျွန်ုပ်၏ Account</a>
+                    @if(auth()->user()->isStudent())
+                        <a href="{{ route('student.dashboard') }}">Business OS</a>
+                    @endif
+
+                    <a href="{{ route('workspaces.index') }}">My Businesses</a>
 
                     @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
                         <a href="{{ route('partner-dynamics.index') }}">Partner Dynamics</a>
                     @endif
 
-                    @if(auth()->user()->isStudent())
-                        <a href="{{ route('student.dashboard') }}">သင်တန်း Portal</a>
-                    @endif
-
-                    <a href="{{ route('workspaces.index') }}">ကျွန်ုပ်၏ Business များ</a>
+                    <a href="{{ route('account.dashboard') }}">Account</a>
 
                     @if(auth()->user()->isAdmin())
                         <a href="{{ url('/admin') }}">Admin Portal</a>
@@ -73,7 +74,7 @@
     </main>
 
     <footer class="portal-footer">
-        <div class="portal-wrap">© {{ date('Y') }} thePBR — Partnership Business Management Platform</div>
+        <div class="portal-wrap">© {{ date('Y') }} thePBR — Partnership Business Operating System</div>
     </footer>
 </body>
 </html>
