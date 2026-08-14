@@ -2,12 +2,19 @@
 
 namespace App\Services\PbrTools;
 
+use App\Services\PbrTools\Domains\CapitalDomainEngine;
+
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\WorkspaceToolOutput;
 
 class PbrChapterStateService
 {
+    public function __construct(
+        private readonly CapitalDomainEngine $capitalDomain
+    ) {
+    }
+
     public function build(
         PartnershipWorkspace $workspace,
         int $chapterNumber,
@@ -108,42 +115,14 @@ class PbrChapterStateService
         };
     }
 
-    private function capitalSummary(PartnershipWorkspace $workspace, array $tools): array
-    {
-        $startup = $this->value($tools, 'startup_capital_planner', 'total_startup_capital');
-        $startupFunded = $this->value($tools, 'startup_capital_planner', 'funded_total');
-        $currentNet = $this->value($tools, 'current_capital_position', 'net_capital_position');
-        $working = $this->value($tools, 'working_capital_calculator', 'working_capital_required');
-        $monthlyCost = $this->value($tools, 'working_capital_calculator', 'monthly_operating_cost');
-        $contingency = $this->value($tools, 'contingency_fund_calculator', 'contingency_fund');
-        $partnerCapital = $this->value($tools, 'partner_contribution_matrix', 'total_contribution');
-        $otherFunding = $this->value($tools, 'funding_gap_calculator', 'other_funding');
-        $required = $workspace->business_stage === 'new'
-            ? round($startup + $working + $contingency, 2)
-            : round($working + $contingency, 2);
-
-        // The Startup Capital Plan may already record confirmed funding before
-        // detailed Partner Contributions/Funding Position modules are active.
-        // Use the stronger view rather than adding them, because both can
-        // represent the same cash and must never be double-counted.
-        $detailedFunding = round($partnerCapital + $otherFunding, 2);
-        $secured = round(max($startupFunded, $detailedFunding), 2);
-
-        return [
-            'startup_capital' => $startup,
-            'startup_funded' => $startupFunded,
-            'current_net_capital_position' => $currentNet,
-            'working_capital' => $working,
-            'monthly_operating_cost' => $monthlyCost,
-            'contingency_fund' => $contingency,
-            'partner_capital' => $partnerCapital,
-            'other_funding' => $otherFunding,
-            'capital_required' => $required,
-            'capital_secured' => $secured,
-            'funding_gap' => round(max(0, $required - $secured), 2),
-            'funding_surplus' => round(max(0, $secured - $required), 2),
-            'partner_contributions' => $tools['partner_contribution_matrix']['data']['partners'] ?? [],
-        ];
+    private function capitalSummary(
+        PartnershipWorkspace $workspace,
+        array $tools
+    ): array {
+        return $this->capitalDomain->summarize(
+            $workspace,
+            $tools
+        );
     }
 
     private function ownershipSummary(array $tools): array

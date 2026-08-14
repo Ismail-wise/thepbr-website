@@ -2,12 +2,19 @@
 
 namespace App\Services\PbrTools;
 
+use App\Services\PbrTools\Domains\CapitalDomainEngine;
+
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\WorkspaceToolOutput;
 
 class ChapterOneIntegrationService
 {
+    public function __construct(
+        private readonly CapitalDomainEngine $capitalDomain
+    ) {
+    }
+
     public function latestOutputs(PartnershipWorkspace $workspace): array
     {
         $tools = ChapterTool::query()
@@ -46,59 +53,22 @@ class ChapterOneIntegrationService
         return $result;
     }
 
-    public function summary(PartnershipWorkspace $workspace): array
-    {
-        $outputs = $this->latestOutputs($workspace);
+    public function summary(
+        PartnershipWorkspace $workspace
+    ): array {
+        $outputs = $this->latestOutputs(
+            $workspace
+        );
 
-        $startup = $this->value($outputs, 'startup_capital_planner', 'total_startup_capital');
-        $startupFunded = $this->value($outputs, 'startup_capital_planner', 'funded_total');
-        $currentNet = $this->value($outputs, 'current_capital_position', 'net_capital_position');
-        $working = $this->value($outputs, 'working_capital_calculator', 'working_capital_required');
-        $monthlyOperatingCost = $this->value($outputs, 'working_capital_calculator', 'monthly_operating_cost');
-        $contingency = $this->value($outputs, 'contingency_fund_calculator', 'contingency_fund');
-        $partnerCapital = $this->value($outputs, 'partner_contribution_matrix', 'total_contribution');
-        $otherFunding = $this->value($outputs, 'funding_gap_calculator', 'other_funding');
-
-        $capitalRequired = $workspace->business_stage === 'new'
-            ? round($startup + $working + $contingency, 2)
-            : round($working + $contingency, 2);
-
-        // Startup Plan can hold confirmed funding before the detailed funding modules
-        // are configured. Use the stronger of the two views rather than adding them,
-        // because they can describe the same money and must never be double-counted.
-        $detailedFunding = round($partnerCapital + $otherFunding, 2);
-        $capitalSecured = round(max($startupFunded, $detailedFunding), 2);
-
-        $fundingGap = round(max(0, $capitalRequired - $capitalSecured), 2);
-        $fundingSurplus = round(max(0, $capitalSecured - $capitalRequired), 2);
-
-        $allocations = [];
-        if ($workspace->business_stage === 'new' && $startup > 0) {
-            $allocations[] = ['name' => 'Startup Capital', 'amount' => $startup];
-        }
-        if ($working > 0) {
-            $allocations[] = ['name' => 'Working Capital', 'amount' => $working];
-        }
-        if ($contingency > 0) {
-            $allocations[] = ['name' => 'Contingency Reserve', 'amount' => $contingency];
-        }
-
-        return [
-            'outputs' => $outputs,
-            'startup_capital' => $startup,
-            'startup_funded' => $startupFunded,
-            'current_net_capital_position' => $currentNet,
-            'working_capital' => $working,
-            'monthly_operating_cost' => $monthlyOperatingCost,
-            'contingency_fund' => $contingency,
-            'partner_capital' => $partnerCapital,
-            'other_funding' => $otherFunding,
-            'capital_required' => $capitalRequired,
-            'capital_secured' => $capitalSecured,
-            'funding_gap' => $fundingGap,
-            'funding_surplus' => $fundingSurplus,
-            'allocations' => $allocations,
-        ];
+        return array_merge(
+            [
+                'outputs' => $outputs,
+            ],
+            $this->capitalDomain->summarize(
+                $workspace,
+                $outputs
+            )
+        );
     }
 
     public function operatingSnapshot(PartnershipWorkspace $workspace): array
@@ -135,6 +105,8 @@ class ChapterOneIntegrationService
             'capital_secured' => $summary['capital_secured'],
             'funding_gap' => $summary['funding_gap'],
             'funding_surplus' => $summary['funding_surplus'],
+            'funding_coverage_percentage' => $summary['funding_coverage_percentage'],
+            'funding_status' => $summary['funding_status'],
         ];
 
         return [
@@ -194,16 +166,6 @@ class ChapterOneIntegrationService
         }
 
         return $input;
-    }
-
-    private function value(array $outputs, string $toolKey, string $field): float
-    {
-        $value = $outputs[$toolKey]['data'][$field] ?? 0;
-        if (! is_numeric($value)) {
-            return 0.0;
-        }
-
-        return round((float) $value, 2);
     }
 
     private function blank(mixed $value): bool
