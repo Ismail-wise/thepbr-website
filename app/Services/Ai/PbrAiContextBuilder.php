@@ -8,6 +8,7 @@ use App\Models\PartnerDynamicsAssessment;
 use App\Models\PartnerDynamicsReport;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
+use App\Models\WorkspaceOperatingRecord;
 use App\Models\WorkspaceToolOutput;
 use App\Services\PbrTools\PbrOperatingSystemService;
 
@@ -94,18 +95,85 @@ class PbrAiContextBuilder
             })
             ->all();
 
+        $operatingRecords =
+            WorkspaceOperatingRecord::query()
+                ->with([
+                    'tool:id,course_chapter_id,tool_key,slug,title_en,title_mm',
+                    'tool.chapter:id,chapter_number,title_en,title_mm',
+                ])
+                ->where(
+                    'workspace_id',
+                    $workspace->id
+                )
+                ->where('status', 'active')
+                ->orderByDesc('effective_at')
+                ->orderByDesc('id')
+                ->limit(20)
+                ->get()
+                ->map(function (
+                    WorkspaceOperatingRecord $record
+                ): array {
+                    $internalNumber = (int) (
+                        $record->tool?->chapter?->chapter_number
+                        ?? 0
+                    );
+
+                    $area = config(
+                        'pbr_business_operating_system.areas.'
+                        .$internalNumber,
+                        []
+                    );
+
+                    return [
+                        'business_area' => [
+                            'domain' =>
+                                $area['domain'] ?? null,
+                            'name_mm' =>
+                                $area['name_mm'] ?? null,
+                            'name_en' =>
+                                $area['name_en'] ?? null,
+                        ],
+                        'tool' => [
+                            'key' =>
+                                $record->tool?->tool_key,
+                            'title_mm' =>
+                                $record->tool?->title_mm,
+                            'title_en' =>
+                                $record->tool?->title_en,
+                        ],
+                        'record_type' =>
+                            $record->record_type,
+                        'title' =>
+                            $record->title,
+                        'record_date' =>
+                            $record->record_date
+                                ?->toDateString(),
+                        'effective_at' =>
+                            $record->effective_at
+                                ?->toIso8601String(),
+                        'data' =>
+                            $this->limitValue(
+                                $record->data,
+                                3000
+                            ),
+                    ];
+                })
+                ->values()
+                ->all();
+
         $operatingSystem = $this->operatingSystem->agreedDomainMap(
             $actor,
             $workspace
         );
 
         $context = [
-            'context_version' => 'pbr-ai-v3-approved-business-rules',
+            'context_version' => 'pbr-ai-v4-approved-rules-and-records',
             'access_scope' => [
                 'actor_type' => $canManage ? 'owner_or_admin' : 'accepted_partner',
                 'manager_sensitive_context_included' => $canManage,
                 'workspace_tool_output_scope' => 'agreed_only',
                 'operating_rule_scope' => 'approved_current_rules_only',
+                'operating_record_scope' => 'approved_active_records_only',
                 'instruction' => $canManage
                     ? 'This actor may receive owner/admin-sensitive context where explicitly included, but operating rules and business-tool outputs in this snapshot are approved-only. Never treat an unapproved working change as current policy. Refer to operating domains by their business-area names, not by internal chapter numbers.'
                     : 'This actor is an accepted partner. Operating rules and business-tool outputs are approved-only. Do not infer, request, or reveal owner/admin-only or draft data that is absent from this snapshot. Refer to operating domains by their business-area names, not by internal chapter numbers.',
@@ -146,6 +214,7 @@ class PbrAiContextBuilder
                 'calculated_at' => $latestValuation->created_at?->toIso8601String(),
             ] : null,
             'operating_system' => $this->limitValue($operatingSystem, 26000),
+            'operating_records' => $operatingRecords,
             'business_tool_outputs' => $latestOutputs,
         ];
 
@@ -202,6 +271,14 @@ class PbrAiContextBuilder
             return $context;
         }
 
+        $context['operating_records'] =
+            collect(
+                $context['operating_records'] ?? []
+            )
+                ->take(12)
+                ->values()
+                ->all();
+
         foreach ([6, 4, 3, 2] as $toolLimit) {
             $context['business_tool_outputs'] = collect($context['business_tool_outputs'] ?? [])
                 ->take($toolLimit)
@@ -233,7 +310,16 @@ class PbrAiContextBuilder
             ->take(1)
             ->values()
             ->all();
-        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, the connected operating-system snapshot, and the most recent approved business-tool output.';
+
+        $context['operating_records'] =
+            collect(
+                $context['operating_records'] ?? []
+            )
+                ->take(3)
+                ->values()
+                ->all();
+
+        $context['_pbr_context_note'] = 'Context was reduced to the latest high-value business results, approved operating records, the connected operating-system snapshot, and the most recent approved business-tool output.';
 
         return $context;
     }

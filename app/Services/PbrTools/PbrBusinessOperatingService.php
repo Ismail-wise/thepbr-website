@@ -14,7 +14,8 @@ class PbrBusinessOperatingService
 {
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
-        private readonly ChapterOneIntegrationService $capitalIntegration
+        private readonly ChapterOneIntegrationService $capitalIntegration,
+        private readonly PbrToolRuntimeContractService $runtimeContracts
     ) {
     }
 
@@ -114,6 +115,7 @@ class PbrBusinessOperatingService
         $capitalOverrides = config('pbr_business_operating_system.capital_module_overrides', []);
         $states = config('pbr_business_operating_system.states', []);
         $systems = [];
+        $activeRuleTotal = 0;
 
         foreach ($chapters as $chapter) {
             $number = (int) $chapter->chapter_number;
@@ -128,9 +130,16 @@ class PbrBusinessOperatingService
                 $toolId = (int) $tool->id;
                 $agreedOutput = $latestAgreedOutputs->get($toolId);
                 $draftSession = $latestDraftSessions->get($toolId);
+                $definition = $toolDefinitions[$tool->tool_key] ?? [];
+                $runtimeContract =
+                    $this->runtimeContracts->forTool($tool);
 
-                if ($agreedOutput) {
+                if (
+                    $agreedOutput
+                    && ! $runtimeContract['is_record']
+                ) {
                     $activeCount++;
+                    $activeRuleTotal++;
                 }
 
                 if ($draftSession) {
@@ -140,7 +149,7 @@ class PbrBusinessOperatingService
                 $moduleStateKey = $draftSession
                     ? 'review'
                     : ($agreedOutput ? 'active' : 'setup');
-                $definition = $toolDefinitions[$tool->tool_key] ?? [];
+
                 $override = $number === 1
                     ? ($capitalOverrides[$tool->tool_key] ?? [])
                     : [];
@@ -169,6 +178,14 @@ class PbrBusinessOperatingService
                     'agreed_at' => $agreedOutput?->agreed_at,
                     'draft_id' => $draftSession?->id,
                     'draft_updated_at' => $draftSession?->last_saved_at,
+                    'runtime_mode' =>
+                        $runtimeContract['mode'],
+                    'is_record' =>
+                        $runtimeContract['is_record'],
+                    'record_type' =>
+                        $runtimeContract['record_type'],
+                    'connected_sources' =>
+                        $runtimeContract['prefill_sources'],
                     'url' => $this->toolUrl($workspace, $number, $tool->tool_key, $tool->slug),
                 ];
             }
@@ -238,7 +255,7 @@ class PbrBusinessOperatingService
                 'capital_secured' => $capitalSecured,
                 'funding_gap' => $fundingGap,
                 'partner_count' => $this->partnerCount($workspace, $canManage),
-                'active_rule_count' => $latestAgreedOutputs->count(),
+                'active_rule_count' => $activeRuleTotal,
                 'working_change_count' => $latestDraftSessions->count(),
                 'active_area_count' => $systemsCollection
                     ->where('state.key', 'active')

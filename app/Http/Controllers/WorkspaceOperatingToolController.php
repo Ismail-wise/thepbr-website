@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
+use App\Models\WorkspaceOperatingRecord;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\PbrToolPrefillService;
+use App\Services\PbrTools\PbrToolRuntimeContractService;
 use App\Services\PbrTools\ToolScenarioService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -15,6 +17,11 @@ use Illuminate\View\View;
 
 class WorkspaceOperatingToolController extends Controller
 {
+    public function __construct(
+        private readonly PbrToolRuntimeContractService $runtimeContracts
+    ) {
+    }
+
     public function show(
         Request $request,
         PartnershipWorkspace $workspace,
@@ -171,13 +178,21 @@ class WorkspaceOperatingToolController extends Controller
             $sessionId
         );
 
+        $runtimeContract =
+            $this->runtimeContracts->forTool($tool);
+
+        $statusMessage =
+            $runtimeContract['is_record']
+                ? 'Working Record သိမ်းပြီးပါပြီ။ Approve မလုပ်မချင်း Operating History ထဲကို မထည့်သေးပါ။'
+                : 'Working Draft သိမ်းပြီးပါပြီ။ လက်ရှိ Active Business Rule ကို မပြောင်းသေးပါ။';
+
         return redirect()
             ->route('workspaces.tools.operating.show', [
                 'workspace' => $workspace,
                 'toolSlug' => $tool->slug,
                 'session' => $session->id,
             ])
-            ->with('status', 'Working Draft သိမ်းပြီးပါပြီ။ လက်ရှိ Active Business Rule ကို မပြောင်းသေးပါ။');
+            ->with('status', $statusMessage);
     }
 
     private function resolveTool(
@@ -242,6 +257,21 @@ class WorkspaceOperatingToolController extends Controller
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
 
+        $toolContract =
+            $this->runtimeContracts->forTool($tool);
+
+        $operatingRecords =
+            $toolContract['is_record']
+                ? WorkspaceOperatingRecord::query()
+                    ->where('workspace_id', $workspace->id)
+                    ->where('chapter_tool_id', $tool->id)
+                    ->where('status', 'active')
+                    ->orderByDesc('effective_at')
+                    ->orderByDesc('id')
+                    ->limit(25)
+                    ->get()
+                : collect();
+
         return view('workspaces.tools.operating-tool', compact(
             'workspace',
             'tool',
@@ -252,7 +282,9 @@ class WorkspaceOperatingToolController extends Controller
             'drafts',
             'canManage',
             'latestAgreedOutput',
-            'outputHistory'
+            'outputHistory',
+            'toolContract',
+            'operatingRecords'
         ));
     }
 }

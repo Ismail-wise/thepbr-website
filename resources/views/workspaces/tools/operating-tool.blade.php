@@ -11,6 +11,9 @@
     $areaNameEn = $businessArea['name_en'] ?? 'Business Operations';
     $areaSlug = $businessArea['slug'] ?? 'operations';
 
+    $isRecordTool =
+        (bool) ($toolContract['is_record'] ?? false);
+
     $formatValue = static function ($value, $format) use ($currency) {
         if ($value === null || $value === '') {
             return '—';
@@ -43,7 +46,13 @@
                 <div class="pbr-os-kickers">
                     <span class="pbr-os-chapter-pill">{{ $areaNameMm }}</span>
                     @if($latestAgreedOutput)
-                        <span class="pbr-os-agreed-pill">✓ Active Rule ရှိသည်</span>
+                        <span class="pbr-os-agreed-pill">
+                            {{
+                                $isRecordTool
+                                    ? '✓ Approved Record ရှိသည်'
+                                    : '✓ Active Rule ရှိသည်'
+                            }}
+                        </span>
                     @elseif($activeSession)
                         <span class="pbr-os-type-pill">Working Draft</span>
                     @else
@@ -70,11 +79,31 @@
             <div class="pbr-os-alert success">{{ session('status') }}</div>
         @endif
 
+        @include(
+            'workspaces.tools.partials.connected-runtime',
+            [
+                'toolContract' => $toolContract,
+                'operatingRecords' => $operatingRecords,
+            ]
+        )
+
         @unless($canManage)
             <div class="pbr-os-readonly-banner">
                 <div>
                     <strong>Partner Read-Only View</strong>
-                    <p>Owner/Admin က အတည်ပြုထားတဲ့ <b>Active Business Rule</b> ကိုသာ မြင်ရပါတယ်။ Working Draft၊ private scenario နဲ့ owner-only input တွေကို မပြပါဘူး။</p>
+                    <p>
+                        Owner/Admin က အတည်ပြုထားတဲ့
+                        <b>
+                            {{
+                                $isRecordTool
+                                    ? 'Operating Records'
+                                    : 'Active Business Rule'
+                            }}
+                        </b>
+                        ကိုသာ မြင်ရပါတယ်။
+                        Working Draft၊ private scenario နဲ့
+                        owner-only input တွေကို မပြပါဘူး။
+                    </p>
                 </div>
                 <span>Permission Safe</span>
             </div>
@@ -89,7 +118,25 @@
                             <li class="active"><span>1</span><div><b>Actual Data ထည့်ပါ</b><small>လက်ရှိ Business information</small></div></li>
                             <li><span>2</span><div><b>Review Result</b><small>Calculation, warning နဲ့ option ကိုစစ်ပါ</small></div></li>
                             <li><span>3</span><div><b>Working Draft သိမ်းပါ</b><small>Active Rule ကို မထိခိုက်ဘဲ ပြင်ဆင်ပါ</small></div></li>
-                            <li><span>4</span><div><b>Approve & Activate</b><small>Business မှာ အသုံးပြုမယ့် Current Rule ဖြစ်မယ်</small></div></li>
+                            <li>
+                                <span>4</span>
+                                <div>
+                                    <b>
+                                        {{
+                                            $isRecordTool
+                                                ? 'Approve & Record'
+                                                : 'Approve & Activate'
+                                        }}
+                                    </b>
+                                    <small>
+                                        {{
+                                            $isRecordTool
+                                                ? 'Operating History ထဲကို approved entry အဖြစ်ထည့်မယ်'
+                                                : 'Business မှာ အသုံးပြုမယ့် Current Rule ဖြစ်မယ်'
+                                        }}
+                                    </small>
+                                </div>
+                            </li>
                         </ol>
                     </div>
 
@@ -117,7 +164,13 @@
 
                     @if($outputHistory->isNotEmpty())
                         <div class="pbr-os-side-card">
-                            <span class="pbr-os-side-label">RULE HISTORY</span>
+                            <span class="pbr-os-side-label">
+                                {{
+                                    $isRecordTool
+                                        ? 'APPROVAL HISTORY'
+                                        : 'RULE HISTORY'
+                                }}
+                            </span>
                             <div class="pbr-os-history-list">
                                 @foreach($outputHistory as $output)
                                     <div>
@@ -433,9 +486,41 @@
                         @if($canManage && $activeSession)
                             <div class="pbr-os-approval-zone">
                                 <div>
-                                    <span>Working Draft ကို အတည်ပြုမလား?</span>
-                                    <h3>Draft နဲ့ Active Business Rule ကို သီးခြားထားပါတယ်</h3>
-                                    <p>Draft ကို သိမ်းတာနဲ့ လက်ရှိ Rule မပြောင်းပါဘူး။ <b>Approve & Activate</b> လုပ်မှ ဒီ Business Area ရဲ့ Current Rule ဖြစ်ပြီး connected operating data နဲ့ PBR AI Advisor က အသုံးပြုပါမယ်။</p>
+                                    <span>
+                                        {{
+                                            $isRecordTool
+                                                ? 'Working Record ကို အတည်ပြုမလား?'
+                                                : 'Working Draft ကို အတည်ပြုမလား?'
+                                        }}
+                                    </span>
+
+                                    <h3>
+                                        {{
+                                            $isRecordTool
+                                                ? 'Draft နဲ့ Approved Operating History ကို သီးခြားထားပါတယ်'
+                                                : 'Draft နဲ့ Active Business Rule ကို သီးခြားထားပါတယ်'
+                                        }}
+                                    </h3>
+
+                                    <p>
+                                        @if($isRecordTool)
+                                            Working Record ကို သိမ်းတာနဲ့
+                                            Operating History မပြောင်းပါဘူး။
+                                            <b>Approve & Record</b>
+                                            လုပ်မှ approved history entry
+                                            ဖြစ်ပြီး PBR AI Advisor က
+                                            business context အဖြစ်
+                                            အသုံးပြုနိုင်ပါတယ်။
+                                        @else
+                                            Draft ကို သိမ်းတာနဲ့
+                                            လက်ရှိ Rule မပြောင်းပါဘူး။
+                                            <b>Approve & Activate</b>
+                                            လုပ်မှ ဒီ Business Area ရဲ့
+                                            Current Rule ဖြစ်ပြီး connected
+                                            operating data နဲ့ PBR AI Advisor
+                                            က အသုံးပြုပါမယ်။
+                                        @endif
+                                    </p>
                                 </div>
                                 <div class="pbr-os-approval-actions">
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.output', [$workspace, $tool->slug, $activeSession->id]) }}">
@@ -444,7 +529,13 @@
                                     </form>
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.approve', [$workspace, $tool->slug, $activeSession->id]) }}" data-confirm-agreed>
                                         @csrf
-                                        <button class="pbr-os-btn approve" type="submit">✓ Approve & Activate Business Rule</button>
+                                        <button class="pbr-os-btn approve" type="submit">
+                                            {{
+                                                $isRecordTool
+                                                    ? '✓ Approve & Add to History'
+                                                    : '✓ Approve & Activate Business Rule'
+                                            }}
+                                        </button>
                                     </form>
                                 </div>
                             </div>
@@ -453,19 +544,74 @@
                 @elseif(!$canManage)
                     <section class="pbr-os-panel pbr-os-empty-state">
                         <div class="pbr-os-empty-icon">◎</div>
-                        <h2>ဒီ Operating Function အတွက် Active Business Rule မရှိသေးပါ</h2>
-                        <p>Partner account မှာ Working Draft တွေကို မပြပါဘူး။ Owner/Admin က Rule အတည်ပြုပြီးရင် ဒီနေရာမှာ current operating information အဖြစ် ပေါ်လာပါမယ်။</p>
+                        <h2>
+                            {{
+                                $isRecordTool
+                                    ? 'ဒီ Operating Function အတွက် Approved Record မရှိသေးပါ'
+                                    : 'ဒီ Operating Function အတွက် Active Business Rule မရှိသေးပါ'
+                            }}
+                        </h2>
+
+                        <p>
+                            Partner account မှာ Working Draft တွေကို
+                            မပြပါဘူး။
+                            Owner/Admin က
+                            {{
+                                $isRecordTool
+                                    ? 'record'
+                                    : 'rule'
+                            }}
+                            အတည်ပြုပြီးရင် ဒီနေရာမှာ
+                            approved operating information
+                            အဖြစ် ပေါ်လာပါမယ်။
+                        </p>
                     </section>
                 @endif
 
                 @if($latestAgreedOutput)
                     <section class="pbr-os-panel pbr-os-current-rule">
                         <div>
-                            <span class="pbr-os-agreed-pill">✓ Current Active Business Rule</span>
-                            <h2>Revision {{ $latestAgreedOutput->revision }}</h2>
-                            <p>Approved {{ optional($latestAgreedOutput->agreed_at)->format('d M Y, H:i') }}</p>
+                            <span class="pbr-os-agreed-pill">
+                                {{
+                                    $isRecordTool
+                                        ? '✓ Latest Approved Operating Record'
+                                        : '✓ Current Active Business Rule'
+                                }}
+                            </span>
+
+                            <h2>
+                                Revision
+                                {{ $latestAgreedOutput->revision }}
+                            </h2>
+
+                            <p>
+                                Approved
+                                {{
+                                    optional(
+                                        $latestAgreedOutput->agreed_at
+                                    )->format('d M Y, H:i')
+                                }}
+                            </p>
                         </div>
-                        <p>ဒီ Revision က <b>{{ $areaNameEn }}</b> ရဲ့ လက်ရှိအသုံးပြုနေသော Rule ဖြစ်ပြီး connected business workflows နဲ့ permission-safe PBR AI context မှာ အသုံးပြုနိုင်ပါတယ်။</p>
+
+                        <p>
+                            @if($isRecordTool)
+                                ဒီ Revision က
+                                <b>{{ $areaNameEn }}</b>
+                                ရဲ့ latest approved record ဖြစ်ပါတယ်။
+                                အရင် approved records တွေကို
+                                Operating History ထဲမှာ ဆက်ထိန်းထားပြီး
+                                permission-safe PBR AI context မှာ
+                                အသုံးပြုနိုင်ပါတယ်။
+                            @else
+                                ဒီ Revision က
+                                <b>{{ $areaNameEn }}</b>
+                                ရဲ့ လက်ရှိအသုံးပြုနေသော Rule ဖြစ်ပြီး
+                                connected business workflows နဲ့
+                                permission-safe PBR AI context မှာ
+                                အသုံးပြုနိုင်ပါတယ်။
+                            @endif
+                        </p>
                     </section>
                 @endif
 
