@@ -32,6 +32,31 @@
         </strong>
     </div>
 
+    <div
+        class="pbr-result-interpretation {{ ($result['net_capital_position'] ?? 0) >= 0 ? 'positive' : 'attention' }}"
+        data-result-interpretation="current-capital"
+    >
+        <span>
+            {{
+                ($result['net_capital_position'] ?? 0) >= 0
+                    ? 'POSITIVE NET POSITION'
+                    : 'LIABILITIES EXCEED RESOURCES'
+            }}
+        </span>
+
+        <p>
+            @if(($result['net_capital_position'] ?? 0) >= 0)
+                လက်ရှိ Resources က Liabilities ထက် ပိုများနေပါတယ်။
+                ဒီ amount ကို Funding Requirement လို့ မယူဘဲ
+                current business position အဖြစ်ပဲ အသုံးပြုပါတယ်။
+            @else
+                လက်ရှိ Liabilities က Resources ထက် ပိုများနေပါတယ်။
+                Liquidity, obligations နဲ့ funding plan ကို
+                သီးခြား review လုပ်သင့်ပါတယ်။
+            @endif
+        </p>
+    </div>
+
     <div class="pbr-result-stats">
         <div>
             <span>Total Resources</span>
@@ -79,6 +104,20 @@
         </strong>
     </div>
 
+    <div
+        class="pbr-result-interpretation"
+        data-result-interpretation="working-capital"
+    >
+        <span>OPERATING BUFFER</span>
+
+        <p>
+            ဒီ result က specified reserve period အတွက်
+            operations ဆက်လက်လုပ်ဆောင်နိုင်ဖို့ planning amount ပါ။
+            Receivables ကို requirement ထဲက နုတ်ထားပြီး
+            negative result မဖြစ်အောင် floor 0 သုံးထားပါတယ်။
+        </p>
+    </div>
+
     <div class="pbr-result-stats">
         <div>
             <span>Monthly Operating Cost</span>
@@ -115,7 +154,7 @@
         </strong>
 
         <p>
-            Gross need:
+            Gross need before receivables:
             {{ $currency }}
             {{
                 number_format(

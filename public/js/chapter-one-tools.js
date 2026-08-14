@@ -76,8 +76,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 `;
             };
 
-            const categoryHtml = () => {
+            const categoryHtml = (
+                presetName = ''
+            ) => {
                 const index = categorySeed++;
+
+                const safePreset =
+                    String(presetName)
+                        .replaceAll('&', '&amp;')
+                        .replaceAll('"', '&quot;')
+                        .replaceAll('<', '&lt;')
+                        .replaceAll('>', '&gt;');
 
                 return `
                     <section
@@ -97,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     name="${field}[${index}][name]"
                                     placeholder="Type your category name"
                                     maxlength="120"
+                                    value="${safePreset}"
                                     required
                                 >
                             </div>
@@ -179,6 +189,31 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
 
                     updateAll();
+                    return;
+                }
+
+                const presetCategory =
+                    event.target.closest(
+                        '[data-add-category-preset]'
+                    );
+
+                if (presetCategory) {
+                    const name =
+                        presetCategory.dataset
+                            .addCategoryPreset || '';
+
+                    categories.insertAdjacentHTML(
+                        'beforeend',
+                        categoryHtml(name)
+                    );
+
+                    updateAll();
+
+                    presetCategory.disabled = true;
+                    presetCategory.classList.add(
+                        'is-added'
+                    );
+
                     return;
                 }
 
@@ -678,4 +713,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
         updateMethod();
     }
+
+    /* ---------------------------------------------------------------
+       Working Capital Reserve Presets
+       --------------------------------------------------------------- */
+
+    const reserveMonthsInput =
+        document.querySelector('#reserve_months');
+
+    document
+        .querySelectorAll('[data-reserve-months]')
+        .forEach(button => {
+            button.addEventListener('click', () => {
+                if (! reserveMonthsInput) {
+                    return;
+                }
+
+                reserveMonthsInput.value =
+                    button.dataset.reserveMonths || '';
+
+                reserveMonthsInput.dispatchEvent(
+                    new Event('input', {
+                        bubbles: true,
+                    })
+                );
+
+                document
+                    .querySelectorAll(
+                        '[data-reserve-months]'
+                    )
+                    .forEach(item => {
+                        item.classList.toggle(
+                            'is-active',
+                            item === button
+                        );
+                    });
+            });
+        });
+
 });

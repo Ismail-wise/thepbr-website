@@ -6,6 +6,12 @@
     }
 
     $currency = $workspace->currency_code ?? 'THB';
+
+    $quickCategories = $quickCategories ?? [];
+
+    if (! is_array($quickCategories)) {
+        $quickCategories = [];
+    }
 @endphp
 
 <div
@@ -24,6 +30,26 @@
             @endif
         </div>
     </div>
+
+    @if(! empty($quickCategories))
+        <div
+            class="pbr-quick-category-presets"
+            aria-label="Quick add categories"
+        >
+            <span>Quick Add</span>
+
+            <div>
+                @foreach($quickCategories as $quickCategory)
+                    <button
+                        type="button"
+                        data-add-category-preset="{{ $quickCategory }}"
+                    >
+                        + {{ $quickCategory }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <div data-categories>
 
