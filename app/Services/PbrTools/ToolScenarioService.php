@@ -16,7 +16,8 @@ class ToolScenarioService
 {
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
-        private readonly PbrChapterStateService $chapterState
+        private readonly PbrChapterStateService $chapterState,
+        private readonly PbrToolApprovalReadinessService $approvalReadiness
     ) {
     }
 
@@ -239,6 +240,17 @@ class ToolScenarioService
     ): WorkspaceToolOutput {
         $this->authorizeManagement($user, $workspace);
         $this->assertSessionMatches($workspace, $tool, $session);
+
+        /*
+         * Drafts remain flexible. Approval is intentionally stricter:
+         * incomplete, contradictory or untouched demo data cannot become
+         * approved operating data.
+         */
+        $this->approvalReadiness->assertReady(
+            $workspace,
+            $tool,
+            $session
+        );
 
         $tool->loadMissing('chapter:id,chapter_number');
         $chapterNumber = (int) $tool->chapter?->chapter_number;

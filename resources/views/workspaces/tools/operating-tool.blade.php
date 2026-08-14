@@ -522,6 +522,58 @@
                                         @endif
                                     </p>
                                 </div>
+                                @if($approvalState)
+                                    <div
+                                        class="pbr-approval-readiness {{ $approvalState['ready'] ? 'ready' : 'blocked' }}"
+                                        data-pbr-approval-ready="{{ $approvalState['ready'] ? '1' : '0' }}"
+                                    >
+                                        <div class="pbr-approval-readiness-head">
+                                            <span>
+                                                {{
+                                                    $approvalState['ready']
+                                                        ? 'READY FOR APPROVAL'
+                                                        : 'APPROVAL BLOCKED'
+                                                }}
+                                            </span>
+
+                                            <strong>
+                                                {{
+                                                    $approvalState['ready']
+                                                        ? 'Business data ကို approve လုပ်နိုင်ပါပြီ'
+                                                        : 'အောက်ကအချက်တွေကို အရင်ပြင်ပါ'
+                                                }}
+                                            </strong>
+                                        </div>
+
+                                        @if(!empty($approvalState['errors']))
+                                            <ul class="pbr-approval-errors">
+                                                @foreach($approvalState['errors'] as $approvalError)
+                                                    <li>
+                                                        {{ $approvalError }}
+                                                    </li>
+                                                @endforeach
+                                            </ul>
+                                        @endif
+
+                                        @if(!empty($approvalState['warnings']))
+                                            <details class="pbr-approval-warnings">
+                                                <summary>
+                                                    Review Notes
+                                                    ({{ count($approvalState['warnings']) }})
+                                                </summary>
+
+                                                <ul>
+                                                    @foreach($approvalState['warnings'] as $approvalWarning)
+                                                        <li>
+                                                            {{ $approvalWarning }}
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </details>
+                                        @endif
+                                    </div>
+                                @endif
+
                                 <div class="pbr-os-approval-actions">
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.output', [$workspace, $tool->slug, $activeSession->id]) }}">
                                         @csrf
@@ -529,7 +581,11 @@
                                     </form>
                                     <form method="POST" action="{{ route('workspaces.tools.scenarios.approve', [$workspace, $tool->slug, $activeSession->id]) }}" data-confirm-agreed>
                                         @csrf
-                                        <button class="pbr-os-btn approve" type="submit">
+                                        <button
+                                            class="pbr-os-btn approve"
+                                            type="submit"
+                                            @disabled(!($approvalState['ready'] ?? false))
+                                        >
                                             {{
                                                 $isRecordTool
                                                     ? '✓ Approve & Add to History'

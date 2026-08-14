@@ -189,3 +189,88 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* ================================================================
+   Batch B - Approval Readiness
+   ================================================================ */
+
+.pbr-approval-readiness {
+    margin-top: 14px;
+    padding: 13px;
+    border: 1px solid #dce6e1;
+    border-radius: 12px;
+    background: #f8faf9;
+}
+
+.pbr-approval-readiness.ready {
+    border-color: #c8e3d5;
+    background: #f1f9f5;
+}
+
+.pbr-approval-readiness.blocked {
+    border-color: #ead1bd;
+    background: #fff8f2;
+}
+
+.pbr-approval-readiness-head span {
+    display: block;
+    color: #708078;
+    font-family: Manrope, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.pbr-approval-readiness.ready
+.pbr-approval-readiness-head span {
+    color: #397257;
+}
+
+.pbr-approval-readiness.blocked
+.pbr-approval-readiness-head span {
+    color: #9a5d2e;
+}
+
+.pbr-approval-readiness-head strong {
+    display: block;
+    margin-top: 4px;
+    color: #2f493d;
+    font-size: 11px;
+}
+
+.pbr-approval-errors,
+.pbr-approval-warnings ul {
+    margin: 9px 0 0;
+    padding-left: 18px;
+}
+
+.pbr-approval-errors li {
+    margin: 4px 0;
+    color: #8a4b28;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.pbr-approval-warnings {
+    margin-top: 9px;
+}
+
+.pbr-approval-warnings summary {
+    cursor: pointer;
+    color: #786640;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.pbr-approval-warnings li {
+    margin: 4px 0;
+    color: #756d59;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+.pbr-os-btn.approve:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+    filter: grayscale(.35);
+}

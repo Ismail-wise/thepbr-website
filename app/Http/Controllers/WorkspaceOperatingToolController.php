@@ -6,6 +6,7 @@ use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
 use App\Models\WorkspaceOperatingRecord;
+use App\Services\PbrTools\PbrToolApprovalReadinessService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\PbrToolPrefillService;
@@ -18,7 +19,8 @@ use Illuminate\View\View;
 class WorkspaceOperatingToolController extends Controller
 {
     public function __construct(
-        private readonly PbrToolRuntimeContractService $runtimeContracts
+        private readonly PbrToolRuntimeContractService $runtimeContracts,
+        private readonly PbrToolApprovalReadinessService $approvalReadiness
     ) {
     }
 
@@ -272,6 +274,15 @@ class WorkspaceOperatingToolController extends Controller
                     ->get()
                 : collect();
 
+        $approvalState =
+            $canManage && $activeSession
+                ? $this->approvalReadiness->assess(
+                    $workspace,
+                    $tool,
+                    $activeSession
+                )
+                : null;
+
         return view('workspaces.tools.operating-tool', compact(
             'workspace',
             'tool',
@@ -284,7 +295,8 @@ class WorkspaceOperatingToolController extends Controller
             'latestAgreedOutput',
             'outputHistory',
             'toolContract',
-            'operatingRecords'
+            'operatingRecords',
+            'approvalState'
         ));
     }
 }
