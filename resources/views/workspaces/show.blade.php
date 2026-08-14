@@ -87,6 +87,7 @@
                     <a class="ov-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
                 @endif
                 <a class="ov-btn" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules</a>
+                <a class="ov-btn" href="{{ route('workspaces.rulebook.show', $workspace) }}">Business Rulebook</a>
                 @if($canManageBusiness)
                     <a class="ov-btn" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
                 @endif

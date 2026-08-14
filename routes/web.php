@@ -149,6 +149,11 @@ Route::middleware('auth')->group(function (): void {
         [\App\Http\Controllers\WorkspacePartnerProfileController::class, 'destroy']
     )->name('workspaces.partner-roster.destroy');
 
+    Route::get(
+        '/workspaces/{workspace}/rulebook',
+        [\App\Http\Controllers\WorkspaceRulebookController::class, 'show']
+    )->name('workspaces.rulebook.show');
+
     Route::get('/workspaces/{workspace}', [WorkspaceController::class, 'show'])
         ->name('workspaces.show');
 

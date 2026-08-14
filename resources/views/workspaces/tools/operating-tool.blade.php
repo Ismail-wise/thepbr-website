@@ -87,6 +87,13 @@
             ]
         )
 
+        @include(
+            'workspaces.tools.partials.business-guidance',
+            [
+                'businessGuidance' => $businessGuidance,
+            ]
+        )
+
         @unless($canManage)
             <div class="pbr-os-readonly-banner">
                 <div>

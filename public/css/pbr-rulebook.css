@@ -1,0 +1,484 @@
+.pbr-rulebook-page {
+    padding: 22px 0 50px;
+    background: #f5f7f6;
+}
+
+.rulebook-wrap {
+    max-width: 1180px;
+}
+
+.rulebook-breadcrumb {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    color: #748079;
+    font-size: 10px;
+}
+
+.rulebook-breadcrumb a {
+    color: #395d4b;
+    text-decoration: none;
+}
+
+.rulebook-hero {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 26px;
+    border: 1px solid #dae4df;
+    border-radius: 22px;
+    background: #fff;
+}
+
+.rulebook-kicker,
+.rulebook-area-head > div:first-child > span,
+.rulebook-kpis span,
+.rulebook-subhead > span,
+.rulebook-result span,
+.rulebook-record-data span {
+    color: #748079;
+    font-family: Manrope, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.rulebook-hero h1 {
+    margin: 7px 0 0;
+    color: #203c2f;
+    font-size: 30px;
+}
+
+.rulebook-hero p {
+    max-width: 720px;
+    margin: 8px 0 0;
+    color: #68756e;
+    font-size: 11px;
+    line-height: 1.75;
+}
+
+.rulebook-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 13px;
+}
+
+.rulebook-meta span {
+    padding: 6px 8px;
+    border: 1px solid #dce5e0;
+    border-radius: 9px;
+    color: #587064;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.rulebook-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    min-width: 180px;
+}
+
+.rulebook-actions a,
+.rulebook-actions button {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 11px;
+    border: 1px solid #cddbd4;
+    border-radius: 10px;
+    background: #fff;
+    color: #315744;
+    cursor: pointer;
+    font: inherit;
+    font-size: 9px;
+    font-weight: 800;
+    text-align: center;
+    text-decoration: none;
+}
+
+.rulebook-actions button {
+    background: #244938;
+    color: #fff;
+}
+
+.rulebook-scope {
+    margin-top: 12px;
+    padding: 13px 15px;
+    border: 1px solid #d9e5df;
+    border-radius: 14px;
+    background: #f8fcfa;
+}
+
+.rulebook-scope strong {
+    color: #315743;
+    font-size: 10px;
+}
+
+.rulebook-scope p {
+    margin: 4px 0 0;
+    color: #708078;
+    font-size: 9px;
+    line-height: 1.65;
+}
+
+.rulebook-kpis {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 12px;
+}
+
+.rulebook-kpis article {
+    padding: 14px;
+    border: 1px solid #dfe6e2;
+    border-radius: 14px;
+    background: #fff;
+}
+
+.rulebook-kpis strong {
+    display: block;
+    margin-top: 5px;
+    color: #284b3a;
+    font-size: 22px;
+}
+
+.rulebook-kpis small {
+    display: block;
+    margin-top: 2px;
+    color: #7b8781;
+    font-size: 8px;
+}
+
+.rulebook-sections {
+    display: grid;
+    gap: 13px;
+    margin-top: 16px;
+}
+
+.rulebook-area {
+    padding: 18px;
+    border: 1px solid #dce4e0;
+    border-radius: 18px;
+    background: #fff;
+}
+
+.rulebook-area-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.rulebook-area-head h2 {
+    margin: 4px 0 0;
+    color: #294738;
+    font-size: 16px;
+}
+
+.rulebook-area-head p {
+    margin: 2px 0 0;
+    color: #7b8781;
+    font-size: 9px;
+}
+
+.rulebook-area-head > div:last-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.rulebook-active,
+.rulebook-setup {
+    padding: 5px 7px;
+    border-radius: 8px;
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.rulebook-active {
+    background: #edf7f2;
+    color: #397158;
+}
+
+.rulebook-setup {
+    background: #f6f2ea;
+    color: #866e43;
+}
+
+.rulebook-area-head small {
+    color: #87918c;
+    font-size: 8px;
+}
+
+.rulebook-summary {
+    display: grid;
+    grid-template-columns:
+        repeat(4, minmax(0, 1fr));
+    gap: 6px;
+    margin-top: 13px;
+}
+
+.rulebook-summary > div {
+    padding: 9px;
+    border-radius: 10px;
+    background: #f7f9f8;
+}
+
+.rulebook-summary span {
+    display: block;
+    color: #7a8780;
+    font-size: 8px;
+}
+
+.rulebook-summary strong {
+    display: block;
+    overflow-wrap: anywhere;
+    margin-top: 3px;
+    color: #3d594b;
+    font-size: 9px;
+}
+
+.rulebook-subsection {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid #e4e9e6;
+}
+
+.rulebook-subhead {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: center;
+}
+
+.rulebook-subhead strong {
+    color: #466354;
+    font-size: 9px;
+}
+
+.rulebook-rule-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 9px;
+}
+
+.rulebook-rule,
+.rulebook-record {
+    padding: 12px;
+    border: 1px solid #e0e7e3;
+    border-radius: 12px;
+    background: #fafcfa;
+}
+
+.rulebook-rule-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.rulebook-rule-head strong,
+.rulebook-record > div:first-child strong {
+    color: #304d3e;
+    font-size: 10px;
+}
+
+.rulebook-rule-head small,
+.rulebook-record > div:first-child small {
+    display: block;
+    margin-top: 2px;
+    color: #849089;
+    font-size: 8px;
+}
+
+.rulebook-rule-head > span {
+    height: fit-content;
+    padding: 4px 6px;
+    border-radius: 7px;
+    background: #edf4f0;
+    color: #486957;
+    font-size: 8px;
+    font-weight: 800;
+}
+
+.rulebook-result {
+    margin-top: 9px;
+    padding: 9px;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.rulebook-result strong {
+    display: block;
+    margin-top: 3px;
+    color: #244837;
+    font-size: 13px;
+}
+
+.rulebook-rule details {
+    margin-top: 8px;
+}
+
+.rulebook-rule summary {
+    cursor: pointer;
+    color: #796d4f;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.rulebook-rule li {
+    margin: 4px 0;
+    color: #766f60;
+    font-size: 8px;
+    line-height: 1.55;
+}
+
+.rulebook-records {
+    display: grid;
+    gap: 7px;
+    margin-top: 9px;
+}
+
+.rulebook-record {
+    display: grid;
+    grid-template-columns:
+        minmax(160px, .8fr)
+        auto
+        minmax(0, 2fr);
+    gap: 12px;
+    align-items: start;
+}
+
+.rulebook-record > span {
+    padding: 4px 6px;
+    border-radius: 7px;
+    background: #eef5f1;
+    color: #4c6b5b;
+    font-size: 8px;
+    font-weight: 700;
+}
+
+.rulebook-record-data {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 5px;
+}
+
+.rulebook-record-data > div {
+    padding: 6px;
+    border-radius: 7px;
+    background: #fff;
+}
+
+.rulebook-record-data strong {
+    display: block;
+    overflow-wrap: anywhere;
+    margin-top: 2px;
+    color: #455e52;
+    font-size: 8px;
+}
+
+.rulebook-empty {
+    margin-top: 12px;
+    padding: 11px;
+    border: 1px dashed #d7e1dc;
+    border-radius: 10px;
+    color: #808c85;
+    font-size: 9px;
+}
+
+.rulebook-footer {
+    margin-top: 14px;
+    padding: 14px;
+    border: 1px solid #dde5e1;
+    border-radius: 13px;
+    background: #fff;
+}
+
+.rulebook-footer strong {
+    color: #425e50;
+    font-size: 9px;
+}
+
+.rulebook-footer p {
+    margin: 4px 0 0;
+    color: #77827c;
+    font-size: 8px;
+    line-height: 1.65;
+}
+
+@media (max-width: 850px) {
+    .rulebook-hero {
+        display: grid;
+    }
+
+    .rulebook-actions {
+        min-width: 0;
+    }
+
+    .rulebook-kpis,
+    .rulebook-summary {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+    .rulebook-rule-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rulebook-record {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 520px) {
+    .rulebook-kpis,
+    .rulebook-summary,
+    .rulebook-record-data {
+        grid-template-columns: 1fr;
+    }
+
+    .rulebook-area-head {
+        display: grid;
+    }
+
+    .rulebook-area-head > div:last-child {
+        align-items: flex-start;
+    }
+}
+
+@media print {
+    .portal-header,
+    .no-print {
+        display: none !important;
+    }
+
+    body,
+    .pbr-rulebook-page {
+        background: #fff !important;
+    }
+
+    .pbr-rulebook-page {
+        padding: 0;
+    }
+
+    .rulebook-wrap {
+        max-width: none;
+    }
+
+    .rulebook-hero,
+    .rulebook-area,
+    .rulebook-kpis article,
+    .rulebook-footer {
+        break-inside: avoid;
+        box-shadow: none !important;
+    }
+
+    .rulebook-area {
+        page-break-inside: avoid;
+    }
+}

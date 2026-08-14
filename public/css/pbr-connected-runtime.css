@@ -274,3 +274,195 @@
     cursor: not-allowed;
     filter: grayscale(.35);
 }
+
+/* ================================================================
+   Batch C1 - Real Business Guidance
+   ================================================================ */
+
+.pbr-business-guidance {
+    margin: 0 0 20px;
+    padding: 16px;
+    border: 1px solid #dfe7e3;
+    border-radius: 18px;
+    background: #fff;
+}
+
+.pbr-business-guidance.blocked {
+    border-color: #ead0bc;
+    background: #fffaf6;
+}
+
+.pbr-business-guidance.ready {
+    border-color: #c7e0d3;
+    background: #f8fcfa;
+}
+
+.pbr-business-guidance.active {
+    border-color: #cdded5;
+    background: #fbfdfc;
+}
+
+.pbr-guidance-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.pbr-guidance-kicker,
+.pbr-guidance-grid article > span,
+.pbr-guidance-sources span,
+.pbr-guidance-signal span {
+    display: block;
+    color: #73817a;
+    font-family: Manrope, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.pbr-guidance-top > div > strong {
+    display: block;
+    margin-top: 4px;
+    color: #29463a;
+    font-size: 14px;
+}
+
+.pbr-guidance-top p {
+    max-width: 720px;
+    margin: 5px 0 0;
+    color: #69766f;
+    font-size: 10px;
+    line-height: 1.65;
+}
+
+.pbr-guidance-signal {
+    min-width: 170px;
+    padding: 11px;
+    border: 1px solid #e0e7e3;
+    border-radius: 12px;
+    background: #f7f9f8;
+}
+
+.pbr-guidance-signal strong {
+    display: block;
+    margin-top: 4px;
+    color: #294b3b;
+    font-size: 14px;
+}
+
+.pbr-guidance-signal small {
+    display: block;
+    margin-top: 2px;
+    color: #7c8882;
+    font-size: 8px;
+}
+
+.pbr-guidance-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+    gap: 9px;
+    margin-top: 13px;
+}
+
+.pbr-guidance-grid article {
+    padding: 12px;
+    border: 1px solid #e3e9e6;
+    border-radius: 12px;
+    background: #fafcfa;
+}
+
+.pbr-guidance-grid p,
+.pbr-guidance-grid li {
+    color: #66746d;
+    font-size: 9px;
+    line-height: 1.65;
+}
+
+.pbr-guidance-grid p {
+    margin: 6px 0 0;
+}
+
+.pbr-guidance-grid ul {
+    margin: 6px 0 0;
+    padding-left: 16px;
+}
+
+.pbr-guidance-grid li + li {
+    margin-top: 4px;
+}
+
+.pbr-guidance-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 8px;
+}
+
+.pbr-guidance-tags i {
+    padding: 5px 7px;
+    border: 1px solid #d6e3dc;
+    border-radius: 8px;
+    background: #fff;
+    color: #466b58;
+    font-size: 8px;
+    font-style: normal;
+    font-weight: 700;
+}
+
+.pbr-guidance-sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    margin-top: 12px;
+    padding: 10px 12px;
+    border-radius: 11px;
+    background: #f5f8f6;
+}
+
+.pbr-guidance-sources strong {
+    display: block;
+    margin-top: 3px;
+    color: #466155;
+    font-size: 9px;
+}
+
+.pbr-guidance-guardrails {
+    margin-top: 10px;
+}
+
+.pbr-guidance-guardrails summary {
+    cursor: pointer;
+    color: #50675b;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.pbr-guidance-guardrails ul {
+    margin: 8px 0 0;
+    padding-left: 17px;
+}
+
+.pbr-guidance-guardrails li {
+    margin: 4px 0;
+    color: #758179;
+    font-size: 9px;
+    line-height: 1.6;
+}
+
+@media (max-width: 850px) {
+    .pbr-guidance-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .pbr-guidance-top {
+        display: grid;
+    }
+
+    .pbr-guidance-signal {
+        min-width: 0;
+    }
+}
