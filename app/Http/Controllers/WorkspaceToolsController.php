@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartnershipWorkspace;
+use App\Services\PbrTools\CapitalWorkflowService;
 use App\Services\PbrTools\PbrBusinessOperatingService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use Illuminate\Http\RedirectResponse;
@@ -16,7 +17,8 @@ class WorkspaceToolsController extends Controller
         Request $request,
         PartnershipWorkspace $workspace,
         PbrOperatingSystemService $operatingSystem,
-        PbrBusinessOperatingService $businessOperatingSystem
+        PbrBusinessOperatingService $businessOperatingSystem,
+        CapitalWorkflowService $capitalWorkflowService
     ): View {
         abort_unless(
             $request->user()->canAccessWorkspace($workspace),
@@ -38,6 +40,11 @@ class WorkspaceToolsController extends Controller
             $workspace
         );
 
+        $capitalWorkflow = $capitalWorkflowService->build(
+            $request->user(),
+            $workspace
+        );
+
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
 
@@ -46,7 +53,8 @@ class WorkspaceToolsController extends Controller
             'canManageContext',
             'businessStages',
             'currencies',
-            'businessState'
+            'businessState',
+            'capitalWorkflow'
         ));
     }
 

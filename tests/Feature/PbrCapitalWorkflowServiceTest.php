@@ -322,3 +322,93 @@ test('partner workflow view never exposes manager draft metadata', function () {
         )->toBeNull();
     }
 });
+
+test('approved capital rule remains counted while a newer working change waits for review', function () {
+    extract(
+        capitalWorkflowFixture(
+            'existing'
+        )
+    );
+
+    $tool = ChapterTool::query()
+        ->where(
+            'tool_key',
+            'current_capital_position'
+        )
+        ->firstOrFail();
+
+    $scenarios = app(
+        ToolScenarioService::class
+    );
+
+    $approvedDraft = $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $tool,
+        'Approved Position',
+        [],
+        [
+            'net_capital_position' => 80000,
+        ]
+    );
+
+    $scenarios->publishAgreedOutput(
+        $owner,
+        $workspace,
+        $tool,
+        $approvedDraft
+    );
+
+    $scenarios->saveDraft(
+        $owner,
+        $workspace,
+        $tool,
+        'Position Review 2026',
+        [],
+        [
+            'net_capital_position' => 95000,
+        ]
+    );
+
+    $state = app(
+        CapitalWorkflowService::class
+    )->build(
+        $owner,
+        $workspace
+    );
+
+    $capitalPosition = collect(
+        $state['steps']
+    )->firstWhere(
+        'tool_key',
+        'current_capital_position'
+    );
+
+    expect(
+        $capitalPosition['state']
+    )->toBe('working');
+
+    expect(
+        $capitalPosition['is_approved']
+    )->toBeTrue();
+
+    expect(
+        $state['approved_count']
+    )->toBe(1);
+
+    expect(
+        $state['working_count']
+    )->toBe(1);
+
+    expect(
+        $state['next_step']['tool_key']
+    )->toBe(
+        'current_capital_position'
+    );
+
+    expect(
+        $state['next_step']['draft_name']
+    )->toBe(
+        'Position Review 2026'
+    );
+});

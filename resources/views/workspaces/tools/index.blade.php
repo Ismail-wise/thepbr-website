@@ -75,6 +75,11 @@
             </div>
         @endunless
 
+        @include(
+            'workspaces.tools.partials.capital-command-center',
+            ['capitalWorkflow' => $capitalWorkflow]
+        )
+
         <section class="pbr-business-metrics" aria-label="Operating overview">
             <article class="pbr-business-metric">
                 <span class="pbr-mm-label">လိုအပ်သော မတည်ငွေ</span>

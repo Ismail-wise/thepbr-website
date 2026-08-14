@@ -184,11 +184,49 @@ class CapitalWorkflowService
             ];
         }
 
-        $nextStep = collect($steps)
-            ->first(
-                fn (array $step) =>
-                    $step['state']
-                    !== 'approved'
+        $stepCollection = collect($steps);
+
+        /*
+         * Review an existing Working Change before suggesting a fresh setup.
+         * Partners never receive management-oriented next-step metadata.
+         */
+        $nextStep = $canManage
+            ? (
+                $stepCollection->firstWhere(
+                    'state',
+                    'working'
+                )
+                ?? $stepCollection->firstWhere(
+                    'state',
+                    'setup'
+                )
+            )
+            : null;
+
+        /*
+         * A Working Change never erases the currently approved rule.
+         * Therefore approved progress is based on is_approved rather than
+         * presentation state.
+         */
+        $approvedCount = $stepCollection
+            ->filter(
+                fn (array $step): bool =>
+                    (bool) $step['is_approved']
+            )
+            ->count();
+
+        $workingCount = $stepCollection
+            ->where(
+                'state',
+                'working'
+            )
+            ->count();
+
+        $currentRuleComplete =
+            count($steps) > 0
+            && $stepCollection->every(
+                fn (array $step): bool =>
+                    (bool) $step['is_approved']
             );
 
         $approvedSnapshot =
@@ -213,28 +251,17 @@ class CapitalWorkflowService
             'steps' => $steps,
             'step_count' => count($steps),
             'approved_count' =>
-                collect($steps)
-                    ->where(
-                        'state',
-                        'approved'
-                    )
-                    ->count(),
+                $approvedCount,
             'working_count' =>
-                collect($steps)
-                    ->where(
-                        'state',
-                        'working'
-                    )
-                    ->count(),
+                $workingCount,
             'next_step' => $nextStep,
+            'current_rule_complete' =>
+                $currentRuleComplete,
+            'has_pending_changes' =>
+                $workingCount > 0,
             'is_complete' =>
-                count($steps) > 0
-                && collect($steps)
-                    ->every(
-                        fn (array $step) =>
-                            $step['state']
-                            === 'approved'
-                    ),
+                $currentRuleComplete
+                && $workingCount === 0,
             'current_rule' => [
                 'revision' =>
                     $approvedSnapshot?->revision,

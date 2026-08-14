@@ -21,6 +21,7 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-readonly.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-readonly.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-roster.css') }}?v={{ filemtime(public_path('css/pbr-roster.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-business-os.css') }}?v={{ filemtime(public_path('css/pbr-business-os.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-capital-command-center.css') }}?v={{ filemtime(public_path('css/pbr-capital-command-center.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-shell.css') }}?v={{ filemtime(public_path('css/pbr-premium-shell.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-workspaces.css') }}?v={{ filemtime(public_path('css/pbr-premium-workspaces.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-business-overview.css') }}?v={{ filemtime(public_path('css/pbr-premium-business-overview.css')) }}">
