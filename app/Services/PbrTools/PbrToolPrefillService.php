@@ -10,7 +10,7 @@ use App\Models\WorkspacePartnerProfile;
 class PbrToolPrefillService
 {
     public function __construct(
-        private readonly PbrOperatingSystemService $operatingSystem
+        private readonly PbrCanonicalDataService $canonicalData
     ) {
     }
 
@@ -19,19 +19,8 @@ class PbrToolPrefillService
         ChapterTool $tool,
         array $input
     ): array {
-        $snapshots = [];
-
-        foreach (PbrOperatingSystemService::DOMAINS as $domain) {
-            $snapshot = $this->operatingSystem->latestSnapshot(
-                $workspace,
-                $domain,
-                'agreed'
-            );
-
-            if ($snapshot) {
-                $snapshots[$domain] = $snapshot->summary ?? [];
-            }
-        }
+        $snapshots = $this->canonicalData
+            ->approvedDomainSummaries($workspace);
 
         $valuation = BusinessValuation::query()
             ->where('workspace_id', $workspace->id)

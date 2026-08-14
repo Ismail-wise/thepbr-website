@@ -21,6 +21,7 @@ class ChapterOneIntegrationService
         $outputs = WorkspaceToolOutput::query()
             ->where('workspace_id', $workspace->id)
             ->whereIn('chapter_tool_id', $tools->pluck('id'))
+            ->where('status', 'agreed')
             ->orderByDesc('revision')
             ->orderByDesc('id')
             ->get()
