@@ -291,6 +291,7 @@ class PbrOperatingToolEngine
             $table[] = [
                 'holder' => $this->name($partner['name'] ?? ''),
                 'units' => $units,
+                'voting_units' => $votingUnits,
                 'ownership_percentage' => $issued > 0 ? round($units / $issued * 100, 2) : 0,
                 'fully_diluted_percentage' => $fullyDiluted > 0 ? round($units / $fullyDiluted * 100, 2) : 0,
                 'voting_percentage' => $votes > 0 ? round($votingUnits / $votes * 100, 2) : 0,

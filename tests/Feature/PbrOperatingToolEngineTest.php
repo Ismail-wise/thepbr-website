@@ -67,6 +67,7 @@ test('cap table keeps issued ownership voting and reserved units separate', func
         ->and($result['data']['fully_diluted_units'])->toBe(1250.0)
         ->and($result['data']['holders'][0]['ownership_percentage'])->toBe(60.0)
         ->and($result['data']['holders'][0]['fully_diluted_percentage'])->toBe(48.0)
+        ->and($result['data']['holders'][0]['voting_units'])->toBe(400.0)
         ->and($result['data']['holders'][0]['voting_percentage'])->toBe(40.0);
 });
 

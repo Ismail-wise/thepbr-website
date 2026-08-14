@@ -74,7 +74,7 @@ class PbrToolPrefillService
             'contribution_balance_chart' => $this->prefillPartnerRows($input, $partners),
             'profit_distribution_calculator',
             'loss_sharing_simulator' => $this->prefillDistributionPartners($input, $partners, $ownership),
-            'salary_profit_share_planner' => $this->prefillSalaryPartners($input, $partners, $distribution, $ownership),
+            'salary_profit_share_planner' => $this->prefillSalaryPartners($input, $partners, $distribution),
             'reserve_fund_planner' => $this->fillBlank($input, 'monthly_operating_cost', $capital['monthly_operating_cost'] ?? null),
             'cashflow_dashboard' => $this->fillBlank($input, 'monthly_fixed_cost', $capital['monthly_operating_cost'] ?? null),
             'voting_simulator' => $this->prefillVotingSimulator($input, $partners, $ownership),
@@ -123,7 +123,7 @@ class PbrToolPrefillService
             $input['partners'] = collect($holders)->map(fn ($holder): array => [
                 'name' => $holder['holder'] ?? $holder['partner'] ?? '',
                 'units' => $holder['units'] ?? 0,
-                'voting_units' => $holder['voting_units'] ?? $holder['units'] ?? 0,
+                'voting_units' => $holder['voting_units'] ?? 0,
             ])->all();
 
             return $input;
@@ -148,7 +148,7 @@ class PbrToolPrefillService
         $input['partners'] = ! empty($holders)
             ? collect($holders)->map(fn ($holder): array => [
                 'name' => $holder['holder'] ?? $holder['partner'] ?? '',
-                'voting_units' => $holder['voting_units'] ?? $holder['units'] ?? 0,
+                'voting_units' => $holder['voting_units'] ?? 0,
             ])->all()
             : collect($partners)->map(fn (string $name): array => ['name' => $name, 'voting_units' => 0])->all();
 
@@ -199,55 +199,82 @@ class PbrToolPrefillService
         return $input;
     }
 
-    private function prefillDistributionPartners(array $input, array $partners, array $ownership): array
-    {
+    private function prefillDistributionPartners(
+        array $input,
+        array $partners,
+        array $ownership
+    ): array {
         if (! empty($input['partners'])) {
             return $input;
         }
 
+        /*
+         * Ownership may identify the people involved, but ownership percentage
+         * must never silently become Profit Share or Loss Share.
+         */
         $holders = $ownership['holders'] ?? [];
+
         if (! empty($holders)) {
-            $input['partners'] = collect($holders)->map(fn ($holder): array => [
-                'name' => $holder['holder'] ?? $holder['partner'] ?? '',
-                'percentage' => $holder['ownership_percentage'] ?? $holder['percentage'] ?? 0,
-            ])->all();
+            $input['partners'] = collect($holders)
+                ->map(fn ($holder): array => [
+                    'name' =>
+                        $holder['holder']
+                        ?? $holder['partner']
+                        ?? '',
+                    'percentage' => 0,
+                ])
+                ->all();
 
             return $input;
         }
 
-        $equal = count($partners) > 0 ? round(100 / count($partners), 2) : 0;
-        $input['partners'] = collect($partners)->map(fn (string $name): array => [
-            'name' => $name,
-            'percentage' => $equal,
-        ])->all();
+        $input['partners'] = collect($partners)
+            ->map(fn (string $name): array => [
+                'name' => $name,
+                'percentage' => 0,
+            ])
+            ->all();
 
         return $input;
     }
 
-    private function prefillSalaryPartners(array $input, array $partners, array $distribution, array $ownership): array
-    {
+    private function prefillSalaryPartners(
+        array $input,
+        array $partners,
+        array $distribution
+    ): array {
         if (! empty($input['partners'])) {
             return $input;
         }
 
-        $source = $distribution['profit_distribution']['partners'] ?? [];
+        /*
+         * An already approved Profit Distribution rule may provide an explicit
+         * Profit Share starting point. Ownership alone may not.
+         */
+        $source =
+            $distribution['profit_distribution']['partners']
+            ?? [];
+
         if (! empty($source)) {
-            $input['partners'] = collect($source)->map(fn ($row): array => [
-                'name' => $row['partner'] ?? '',
-                'monthly_salary' => 0,
-                'profit_share' => $row['profit_share'] ?? 0,
-            ])->all();
+            $input['partners'] = collect($source)
+                ->map(fn ($row): array => [
+                    'name' => $row['partner'] ?? '',
+                    'monthly_salary' => 0,
+                    'profit_share' =>
+                        $row['profit_share'] ?? 0,
+                ])
+                ->all();
 
             return $input;
         }
 
-        $distributionInput = ['partners' => []];
-        $distributionInput = $this->prefillDistributionPartners($distributionInput, $partners, $ownership);
-        $input['partners'] = collect($distributionInput['partners'])->map(fn ($row): array => [
-            'name' => $row['name'] ?? '',
-            'monthly_salary' => 0,
-            'profit_share' => $row['percentage'] ?? 0,
-        ])->all();
+        $input['partners'] = collect($partners)
+            ->map(fn (string $name): array => [
+                'name' => $name,
+                'monthly_salary' => 0,
+                'profit_share' => 0,
+            ])
+            ->all();
 
         return $input;
     }
@@ -262,7 +289,7 @@ class PbrToolPrefillService
         $input['votes'] = ! empty($holders)
             ? collect($holders)->map(fn ($holder): array => [
                 'name' => $holder['holder'] ?? $holder['partner'] ?? '',
-                'weight' => $holder['voting_percentage'] ?? $holder['ownership_percentage'] ?? 0,
+                'weight' => $holder['voting_percentage'] ?? 0,
                 'vote' => 'abstain',
             ])->all()
             : collect($partners)->map(fn (string $name): array => ['name' => $name, 'weight' => 0, 'vote' => 'abstain'])->all();

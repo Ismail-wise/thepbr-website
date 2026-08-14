@@ -204,7 +204,6 @@ return [
             'consumer' => 'distribution',
             'sources' => [
                 'distribution',
-                'ownership',
             ],
             'advisory' => [],
         ],

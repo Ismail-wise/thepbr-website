@@ -175,7 +175,7 @@ test('reserve fund planner may read approved capital but cannot see unrelated ca
     )->toBe(50000);
 });
 
-test('distribution prefill uses approved ownership and ignores a newer ownership draft', function () {
+test('distribution prefill uses approved ownership roster, ignores newer draft, and never infers profit share', function () {
     extract(dependencyWorkspace());
 
     dependencySnapshot(
@@ -207,11 +207,11 @@ test('distribution prefill uses approved ownership and ignores a newer ownership
         [
             'holders' => [
                 [
-                    'holder' => 'Owner',
+                    'holder' => 'Draft Owner',
                     'ownership_percentage' => 5,
                 ],
                 [
-                    'holder' => 'Partner',
+                    'holder' => 'Draft Partner',
                     'ownership_percentage' => 95,
                 ],
             ],
@@ -231,12 +231,20 @@ test('distribution prefill uses approved ownership and ignores a newer ownership
     );
 
     expect(
+        $input['partners'][0]['name']
+    )->toBe('Owner');
+
+    expect(
+        $input['partners'][1]['name']
+    )->toBe('Partner');
+
+    expect(
         (float) $input['partners'][0]['percentage']
-    )->toBe(60.0);
+    )->toBe(0.0);
 
     expect(
         (float) $input['partners'][1]['percentage']
-    )->toBe(40.0);
+    )->toBe(0.0);
 });
 
 test('capital contribution data can inform equity planning but never becomes ownership automatically', function () {
