@@ -108,10 +108,7 @@ class User extends Authenticatable implements FilamentUser
 
     public function isPartner(): bool
     {
-        return $this->workspaceMemberships()
-            ->where('member_role', 'partner')
-            ->where('invitation_status', 'accepted')
-            ->exists();
+        return $this->hasAcceptedPartnerWorkspaceMembership();
     }
 
     public function hasActivePortalAccess(): bool
@@ -126,14 +123,39 @@ class User extends Authenticatable implements FilamentUser
             ->exists();
     }
 
+    public function hasAcceptedPartnerWorkspaceMembership(): bool
+    {
+        return $this->workspaceMemberships()
+            ->where('member_role', 'partner')
+            ->where('invitation_status', 'accepted')
+            ->exists();
+    }
+
+    public function canAccessBusinessOperatingSystem(): bool
+    {
+        return $this->isAdmin()
+            || $this->isStudent()
+            || $this->hasAcceptedPartnerWorkspaceMembership();
+    }
+
+    public function canUsePbrAiAdvisor(): bool
+    {
+        return $this->isAdmin() || $this->isStudent();
+    }
+
     public function canAccessWorkspace(PartnershipWorkspace $workspace): bool
     {
-        if ($this->isAdmin() || $workspace->owner_user_id === $this->id) {
+        if ($this->isAdmin()) {
             return true;
+        }
+
+        if ((int) $workspace->owner_user_id === (int) $this->id) {
+            return $this->isStudent();
         }
 
         return $this->workspaceMemberships()
             ->where('workspace_id', $workspace->id)
+            ->where('member_role', 'partner')
             ->where('invitation_status', 'accepted')
             ->exists();
     }

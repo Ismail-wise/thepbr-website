@@ -616,8 +616,11 @@ class WorkspaceInvitationController extends Controller
     ): void {
         abort_unless(
             $request->user()->isAdmin()
-                || $workspace->owner_user_id
-                    === $request->user()->id,
+                || (
+                    $request->user()->isStudent()
+                    && (int) $workspace->owner_user_id
+                        === (int) $request->user()->id
+                ),
             403,
         );
     }

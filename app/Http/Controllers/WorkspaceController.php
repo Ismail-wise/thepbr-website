@@ -21,16 +21,36 @@ class WorkspaceController extends Controller
     ): View {
         $user = $request->user();
 
+        abort_unless(
+            $user->canAccessBusinessOperatingSystem(),
+            403
+        );
+
         $workspaces = PartnershipWorkspace::query()
             ->when(! $user->isAdmin(), function ($query) use ($user): void {
                 $query->where(function ($workspaceQuery) use ($user): void {
-                    $workspaceQuery
-                        ->where('owner_user_id', $user->id)
-                        ->orWhereHas('memberships', function ($membershipQuery) use ($user): void {
+                    if ($user->isStudent()) {
+                        $workspaceQuery
+                            ->where('owner_user_id', $user->id)
+                            ->orWhereHas('memberships', function ($membershipQuery) use ($user): void {
+                                $membershipQuery
+                                    ->where('user_id', $user->id)
+                                    ->where('member_role', 'partner')
+                                    ->where('invitation_status', 'accepted');
+                            });
+
+                        return;
+                    }
+
+                    $workspaceQuery->whereHas(
+                        'memberships',
+                        function ($membershipQuery) use ($user): void {
                             $membershipQuery
                                 ->where('user_id', $user->id)
+                                ->where('member_role', 'partner')
                                 ->where('invitation_status', 'accepted');
-                        });
+                        }
+                    );
                 });
             })
             ->with(['owner', 'acceptedMemberships'])
@@ -218,8 +238,13 @@ class WorkspaceController extends Controller
         ]);
 
         $canManageBusiness = $request->user()->isAdmin()
-            || $workspace->owner_user_id === $request->user()->id;
+            || (
+                $request->user()->isStudent()
+                && (int) $workspace->owner_user_id === (int) $request->user()->id
+            );
+
         $canManageInvitations = $canManageBusiness;
+        $canUsePbrAiAdvisor = $request->user()->canUsePbrAiAdvisor();
 
         $businessState = $businessOperatingSystem->workspaceState(
             $request->user(),
@@ -230,6 +255,7 @@ class WorkspaceController extends Controller
             'workspace',
             'canManageBusiness',
             'canManageInvitations',
+            'canUsePbrAiAdvisor',
             'businessState'
         ));
     }
@@ -289,7 +315,11 @@ class WorkspaceController extends Controller
     {
         abort_unless(
             $request->user()->isAdmin()
-                || $workspace->owner_user_id === $request->user()->id,
+                || (
+                    $request->user()->isStudent()
+                    && (int) $workspace->owner_user_id
+                        === (int) $request->user()->id
+                ),
             403
         );
     }

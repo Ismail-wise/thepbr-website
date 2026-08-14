@@ -15,13 +15,19 @@ class WorkspaceFeasibilityController extends Controller
     {
         abort_unless($request->user()->canAccessWorkspace($workspace), 403);
 
+        $canManageBusiness = $request->user()->isAdmin()
+            || (
+                $request->user()->isStudent()
+                && (int) $workspace->owner_user_id
+                    === (int) $request->user()->id
+            );
+
+        abort_unless($canManageBusiness, 403);
+
         $latest = BusinessFeasibilityAssessment::query()
             ->where('workspace_id', $workspace->id)
             ->latest()
             ->first();
-
-        $canManageBusiness = $request->user()->isAdmin()
-            || $workspace->owner_user_id === $request->user()->id;
 
         return view(
             'workspaces.feasibility',
@@ -36,7 +42,11 @@ class WorkspaceFeasibilityController extends Controller
     ): RedirectResponse {
         abort_unless(
             $request->user()->isAdmin()
-                || $workspace->owner_user_id === $request->user()->id,
+                || (
+                    $request->user()->isStudent()
+                    && (int) $workspace->owner_user_id
+                        === (int) $request->user()->id
+                ),
             403
         );
 

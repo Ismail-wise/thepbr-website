@@ -83,7 +83,9 @@
             </div>
 
             <div class="ov-hero-actions">
-                <a class="ov-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
+                @if($canUsePbrAiAdvisor)
+                    <a class="ov-btn" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
+                @endif
                 <a class="ov-btn" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Current Rules</a>
                 @if($canManageBusiness)
                     <a class="ov-btn" href="{{ route('workspaces.edit', $workspace) }}">Business Settings</a>
@@ -210,17 +212,23 @@
                 <div>
                     <span class="ov-eyebrow">BUSINESS SERVICES</span>
                     <h2>ဆုံးဖြတ်ချက်နဲ့ Business Records ကို ဆက်သုံးရန်</h2>
-                    <p>Operating Areas ထဲက approved data ကို AI၊ Rule Register၊ Valuation နဲ့ Partner workflows တွေနဲ့ ချိတ်ဆက်အသုံးပြုနိုင်ပါတယ်။</p>
+                    @if($canManageBusiness)
+                        <p>Operating Areas ထဲက approved data ကို AI၊ Rule Register၊ Valuation နဲ့ Partner workflows တွေနဲ့ ချိတ်ဆက်အသုံးပြုနိုင်ပါတယ်။</p>
+                    @else
+                        <p>Approved Current Rules နဲ့ Partner Dynamics လို shared business workflows တွေကို ဒီနေရာကနေ ဆက်သုံးနိုင်ပါတယ်။</p>
+                    @endif
                 </div>
             </div>
 
             <div class="ov-tools-grid">
-                <article class="ov-tool-card ai">
-                    <span class="ov-eyebrow">PBR AI ADVISOR</span>
-                    <h3>Business-aware AI Advisor</h3>
-                    <p>Permission-safe Current Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Business Records ပေါ်မူတည်ပြီး မေးမြန်းနိုင်ပါတယ်။</p>
-                    <a class="ov-btn primary" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
-                </article>
+                @if($canUsePbrAiAdvisor)
+                    <article class="ov-tool-card ai">
+                        <span class="ov-eyebrow">PBR AI ADVISOR</span>
+                        <h3>Business-aware AI Advisor</h3>
+                        <p>Permission-safe Current Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Business Records ပေါ်မူတည်ပြီး မေးမြန်းနိုင်ပါတယ်။</p>
+                        <a class="ov-btn primary" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
+                    </article>
+                @endif
 
                 <article class="ov-tool-card">
                     <span class="ov-eyebrow">DOCUMENTS & RULES</span>
@@ -229,26 +237,28 @@
                     <a class="ov-btn" href="{{ route('workspaces.tools.index', $workspace) }}#current-business-rules">Open Rule Register →</a>
                 </article>
 
-                <article class="ov-tool-card">
-                    <span class="ov-eyebrow">PARTNERS</span>
-                    <h3>Partner Roster & Roles</h3>
-                    <p>Partner Profile တစ်ကြိမ်ထည့်ပြီး Capital၊ Ownership၊ Roles၊ Governance၊ Exit နဲ့ Transfer areas တွေမှာ ပြန်သုံးနိုင်ပါတယ်။</p>
-                    <a class="ov-btn" href="{{ route('workspaces.partner-roster.index', $workspace) }}">Open Partner Roster →</a>
-                </article>
+                @if($canManageBusiness)
+                    <article class="ov-tool-card">
+                        <span class="ov-eyebrow">PARTNERS</span>
+                        <h3>Partner Roster & Roles</h3>
+                        <p>Partner Profile တစ်ကြိမ်ထည့်ပြီး Capital၊ Ownership၊ Roles၊ Governance၊ Exit နဲ့ Transfer areas တွေမှာ ပြန်သုံးနိုင်ပါတယ်။</p>
+                        <a class="ov-btn" href="{{ route('workspaces.partner-roster.index', $workspace) }}">Open Partner Roster →</a>
+                    </article>
 
-                <article class="ov-tool-card">
-                    <span class="ov-eyebrow">DECISION SUPPORT</span>
-                    <h3>Business Feasibility</h3>
-                    <p>Business အသစ်၊ Branch၊ Product ဒါမှမဟုတ် Project တစ်ခုကို လက်ရှိ Business Data နဲ့ စစ်ဆေးပြီး decision support ရယူနိုင်ပါတယ်။</p>
-                    <a class="ov-btn" href="{{ route('workspaces.feasibility.show', $workspace) }}">Open Feasibility →</a>
-                </article>
+                    <article class="ov-tool-card">
+                        <span class="ov-eyebrow">DECISION SUPPORT</span>
+                        <h3>Business Feasibility</h3>
+                        <p>Business အသစ်၊ Branch၊ Product ဒါမှမဟုတ် Project တစ်ခုကို လက်ရှိ Business Data နဲ့ စစ်ဆေးပြီး decision support ရယူနိုင်ပါတယ်။</p>
+                        <a class="ov-btn" href="{{ route('workspaces.feasibility.show', $workspace) }}">Open Feasibility →</a>
+                    </article>
 
-                <article class="ov-tool-card">
-                    <span class="ov-eyebrow">BUSINESS VALUE</span>
-                    <h3>Business Valuation</h3>
-                    <p>လက်ရှိ Business Value ကို structured assumptions နဲ့တွက်ပြီး ownership၊ buyout နဲ့ transfer decisions တွေအတွက် reference အဖြစ်သုံးနိုင်ပါတယ်။</p>
-                    <a class="ov-btn" href="{{ route('workspaces.valuation.show', $workspace) }}">Open Valuation →</a>
-                </article>
+                    <article class="ov-tool-card">
+                        <span class="ov-eyebrow">BUSINESS VALUE</span>
+                        <h3>Business Valuation</h3>
+                        <p>လက်ရှိ Business Value ကို structured assumptions နဲ့တွက်ပြီး ownership၊ buyout နဲ့ transfer decisions တွေအတွက် reference အဖြစ်သုံးနိုင်ပါတယ်။</p>
+                        <a class="ov-btn" href="{{ route('workspaces.valuation.show', $workspace) }}">Open Valuation →</a>
+                    </article>
+                @endif
 
                 <article class="ov-tool-card">
                     <span class="ov-eyebrow">PARTNER INTELLIGENCE</span>

@@ -48,9 +48,11 @@
                         <a href="{{ route('student.dashboard') }}" class="{{ request()->routeIs('student.dashboard') ? 'is-active' : '' }}">Dashboard</a>
                     @endif
 
-                    <a href="{{ route('workspaces.index') }}" class="{{ $workspaceNavActive ? 'is-active' : '' }}">My Businesses</a>
+                    @if(auth()->user()->canAccessBusinessOperatingSystem())
+                        <a href="{{ route('workspaces.index') }}" class="{{ $workspaceNavActive ? 'is-active' : '' }}">My Businesses</a>
+                    @endif
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || auth()->user()->isPartner())
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStudent())
                         <a href="{{ route('partner-dynamics.index') }}" class="{{ request()->routeIs('partner-dynamics.*', 'workspaces.partner-dynamics.*') ? 'is-active' : '' }}">Partner Dynamics</a>
                     @endif
 

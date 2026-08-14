@@ -30,7 +30,10 @@ class PbrOperatingSystemService
     public function canManage(User $user, PartnershipWorkspace $workspace): bool
     {
         return $user->isAdmin()
-            || (int) $workspace->owner_user_id === (int) $user->id;
+            || (
+                $user->isStudent()
+                && (int) $workspace->owner_user_id === (int) $user->id
+            );
     }
 
     public function domainForChapter(int $chapterNumber): string

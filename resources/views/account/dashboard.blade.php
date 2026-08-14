@@ -30,7 +30,7 @@
                 <a class="portal-button" href="{{ route('student.dashboard') }}">Open Business Operating System</a>
             @endif
 
-            @if($user->isAdmin() || $user->ownedWorkspaces->isNotEmpty() || $user->workspaceMemberships->where('invitation_status', 'accepted')->isNotEmpty())
+            @if($user->canAccessBusinessOperatingSystem())
                 <div class="auth-note">
                     <strong>My Businesses:</strong> ဒီ Account က ခွင့်ပြုထားတဲ့ Workspace တွေကိုသာ ဝင်ရောက်နိုင်ပါတယ်။
                 </div>
@@ -44,7 +44,7 @@
                 <a class="portal-button" href="{{ route('account.access-code.show') }}">Redeem PBR Access Code</a>
             @endunless
 
-            @unless($user->isAdmin() || $user->isStudent() || $user->workspaceMemberships->where('invitation_status', 'accepted')->isNotEmpty())
+            @unless($user->canAccessBusinessOperatingSystem())
                 <div class="auth-note">
                     ဒီ Account မှာ private Business Workspace access မရှိသေးပါ။ Public website resources ကို ဆက်လက်အသုံးပြုနိုင်ပါတယ်။
                 </div>

@@ -18,7 +18,7 @@ class WorkspaceAiAdvisorController extends Controller
 {
     public function index(Request $request, PartnershipWorkspace $workspace): View
     {
-        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+        $this->authorizeAiAccess($request, $workspace);
 
         $conversations = AiConversation::query()
             ->where('workspace_id', $workspace->id)
@@ -63,7 +63,7 @@ class WorkspaceAiAdvisorController extends Controller
         PartnershipWorkspace $workspace,
         PbrAiContextBuilder $contextBuilder
     ): StreamedResponse|JsonResponse {
-        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+        $this->authorizeAiAccess($request, $workspace);
 
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
@@ -343,7 +343,7 @@ class WorkspaceAiAdvisorController extends Controller
         PartnershipWorkspace $workspace,
         AiConversation $conversation
     ): RedirectResponse {
-        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+        $this->authorizeAiAccess($request, $workspace);
         abort_unless(
             (int) $conversation->workspace_id === (int) $workspace->id
                 && (int) $conversation->user_id === (int) $request->user()->id,
@@ -355,5 +355,19 @@ class WorkspaceAiAdvisorController extends Controller
         return redirect()
             ->route('workspaces.ai-advisor.index', $workspace)
             ->with('success', 'AI Conversation ကိုဖျက်ပြီးပါပြီ။');
+    }
+
+    private function authorizeAiAccess(
+        Request $request,
+        PartnershipWorkspace $workspace
+    ): void {
+        $user = $request->user();
+
+        abort_unless(
+            $user
+                && $user->canUsePbrAiAdvisor()
+                && $user->canAccessWorkspace($workspace),
+            403
+        );
     }
 }

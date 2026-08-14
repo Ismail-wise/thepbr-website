@@ -237,7 +237,6 @@ class PartnerDynamicsController extends Controller
             && (
                 $user->isAdmin()
                 || $user->isStudent()
-                || $user->isPartner()
             ),
             403
         );

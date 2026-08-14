@@ -61,7 +61,11 @@ class WorkspaceToolsController extends Controller
 
         abort_unless(
             $request->user()->isAdmin()
-            || (int) $workspace->owner_user_id === (int) $request->user()->id,
+            || (
+                $request->user()->isStudent()
+                && (int) $workspace->owner_user_id
+                    === (int) $request->user()->id
+            ),
             403
         );
 

@@ -94,7 +94,7 @@ class AccountAuthController extends Controller
             return route('student.dashboard');
         }
 
-        if ($user->hasAcceptedWorkspaceMembership()) {
+        if ($user->hasAcceptedPartnerWorkspaceMembership()) {
             return route('workspaces.index');
         }
 

@@ -25,7 +25,7 @@
   } elseif ($currentUser?->isStudent()) {
       $portalUrl = route('student.dashboard');
       $portalLabel = 'Student Portal';
-  } elseif ($currentUser?->hasAcceptedWorkspaceMembership()) {
+  } elseif ($currentUser?->hasAcceptedPartnerWorkspaceMembership()) {
       $portalUrl = route('workspaces.index');
       $portalLabel = 'My Workspace';
   } elseif ($currentUser) {
