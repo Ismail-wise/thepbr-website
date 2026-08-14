@@ -11,6 +11,7 @@
     $capital = $businessState['capital'];
     $activeRules = $businessState['active_rules'];
     $capitalSource = $businessState['capital_source'] ?? 'none';
+    $journey = $businessState['journey'];
     $stageMm = $workspace->business_stage === 'new'
         ? 'Partnership Business အသစ် စီစဉ်နေသည်'
         : 'ရှိပြီးသား Partnership Business ကို စီမံနေသည်';
@@ -59,9 +60,13 @@
             </div>
 
             <div class="pbr-business-hero-actions">
-                <a href="#current-business-rules" class="pbr-business-btn secondary">Current Rules</a>
+                <a href="#business-operating-journey" class="pbr-business-btn secondary">Operating Journey</a>
+                <a href="{{ route('workspaces.rulebook.show', $workspace) }}" class="pbr-business-btn secondary">Business Rulebook</a>
                 <a href="{{ route('workspaces.partner-roster.index', $workspace) }}" class="pbr-business-btn secondary">Partner များ</a>
-                <a href="{{ route('workspaces.ai-advisor.index', $workspace) }}" class="pbr-business-btn">PBR AI ကို မေးရန် ✦</a>
+
+                @if($canUsePbrAiAdvisor)
+                    <a href="{{ route('workspaces.ai-advisor.index', $workspace) }}" class="pbr-business-btn">PBR AI ကို မေးရန် ✦</a>
+                @endif
             </div>
         </header>
 
@@ -74,6 +79,232 @@
                 <span>Permission Safe</span>
             </div>
         @endunless
+
+        <section
+            id="business-operating-journey"
+            class="pbr-business-journey"
+            data-pbr-business-journey
+        >
+            <div class="pbr-journey-head">
+                <div>
+                    <span class="pbr-business-eyebrow">
+                        REAL BUSINESS JOURNEY
+                    </span>
+                    <h2>
+                        Business Setup ကနေ Rulebook အထိ
+                    </h2>
+                    <p>
+                        Area တစ်ခုမှာ Rule တစ်ခု approve လုပ်ထားတာနဲ့
+                        setup ပြီးသွားတယ်လို့ မယူပါဘူး။
+                        Current Rules, Working Changes နဲ့ upstream
+                        changes တွေကို တစ်ခုလုံးချိတ်ပြီး
+                        နောက်လုပ်ရမယ့်အဆင့်ကို ပြထားပါတယ်။
+                    </p>
+                </div>
+
+                <div class="pbr-journey-score">
+                    <span>RULE COVERAGE</span>
+                    <strong>
+                        {{ $journey['completion_percent'] }}%
+                    </strong>
+                    <small>
+                        {{
+                            $journey['metrics']['approved_rule_count']
+                        }}
+                        /
+                        {{
+                            $journey['metrics']['total_rule_count']
+                        }}
+                        Current Rules
+                    </small>
+                </div>
+            </div>
+
+            <div class="pbr-journey-preflight">
+                <a
+                    href="{{ $canManageContext ? route('workspaces.edit', $workspace) : route('workspaces.show', $workspace) }}"
+                >
+                    <span>00A</span>
+                    <div>
+                        <strong>Business Context</strong>
+                        <small>
+                            Stage · Currency · Business Identity
+                        </small>
+                    </div>
+                </a>
+
+                <a
+                    href="{{ route('workspaces.partner-roster.index', $workspace) }}"
+                >
+                    <span>00B</span>
+                    <div>
+                        <strong>Partner Roster</strong>
+                        <small>
+                            Owner · Partners · Planned Roles
+                        </small>
+                    </div>
+                </a>
+            </div>
+
+            <div class="pbr-journey-progress">
+                <div
+                    style="width: {{ min(100, max(0, (int) $journey['completion_percent'])) }}%"
+                ></div>
+            </div>
+
+            <div class="pbr-journey-stats">
+                <div>
+                    <span>Established Areas</span>
+                    <strong>
+                        {{
+                            $journey['metrics']['established_area_count']
+                        }}
+                        / 10
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Missing Rules</span>
+                    <strong>
+                        {{
+                            $journey['metrics']['missing_rule_count']
+                        }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Review Areas</span>
+                    <strong>
+                        {{
+                            $journey['metrics']['review_area_count']
+                        }}
+                    </strong>
+                </div>
+
+                <div>
+                    <span>Upstream Review Signals</span>
+                    <strong>
+                        {{
+                            $journey['metrics']['dependency_review_count']
+                        }}
+                    </strong>
+                </div>
+            </div>
+
+            @if(!empty($journey['next_action']))
+                <a
+                    href="{{ $journey['next_action']['url'] }}"
+                    class="pbr-journey-next"
+                >
+                    <span>NEXT BUSINESS ACTION</span>
+
+                    <strong>
+                        {{ $journey['next_action']['title_mm'] }}
+                    </strong>
+
+                    <small>
+                        {{ $journey['next_action']['detail_mm'] }}
+                    </small>
+
+                    <b>
+                        {{ $journey['next_action']['action_mm'] }}
+                    </b>
+                </a>
+            @endif
+
+            <div class="pbr-journey-grid">
+                @foreach($journey['steps'] as $step)
+                    <a
+                        href="{{ $step['next_module']['url'] ?? $step['url'] }}"
+                        class="pbr-journey-step {{ $step['status_key'] }}"
+                        data-journey-step="{{ $step['domain'] }}"
+                    >
+                        <div class="pbr-journey-step-top">
+                            <span>
+                                {{
+                                    str_pad(
+                                        (string) $step['step_number'],
+                                        2,
+                                        '0',
+                                        STR_PAD_LEFT
+                                    )
+                                }}
+                            </span>
+
+                            <b>
+                                {{ $step['completion_percent'] }}%
+                            </b>
+                        </div>
+
+                        <h3>{{ $step['name_mm'] }}</h3>
+                        <small>{{ $step['name_en'] }}</small>
+
+                        <div class="pbr-journey-step-state">
+                            {{ $step['status_label'] }}
+                        </div>
+
+                        <div class="pbr-journey-step-meta">
+                            <span>
+                                Rules
+                                {{
+                                    $step['approved_rule_count']
+                                }}
+                                /
+                                {{ $step['rule_count'] }}
+                            </span>
+
+                            @if($step['working_change_count'] > 0)
+                                <span>
+                                    Working
+                                    {{
+                                        $step['working_change_count']
+                                    }}
+                                </span>
+                            @endif
+
+                            @if($step['dependency_review_count'] > 0)
+                                <span class="attention">
+                                    Upstream Review
+                                    {{
+                                        $step['dependency_review_count']
+                                    }}
+                                </span>
+                            @endif
+                        </div>
+
+                        @if($businessState['can_manage'] && !empty($step['next_module']))
+                            <footer>
+                                <span>Next</span>
+                                <strong>
+                                    {{
+                                        $step['next_module']['title_en']
+                                    }}
+                                </strong>
+                            </footer>
+                        @elseif(!$businessState['can_manage'])
+                            <footer>
+                                <strong>
+                                    Approved business state
+                                </strong>
+                            </footer>
+                        @endif
+                    </a>
+                @endforeach
+            </div>
+
+            <footer class="pbr-journey-footer">
+                <a
+                    href="{{ route('workspaces.rulebook.show', $workspace) }}"
+                >
+                    Approved Business Rulebook →
+                </a>
+
+                <span>
+                    Working Draft ≠ Current Rule ·
+                    Operating Record ≠ Current Rule
+                </span>
+            </footer>
+        </section>
 
         @include(
             'workspaces.tools.partials.capital-command-center',

@@ -47,6 +47,8 @@ class WorkspaceToolsController extends Controller
 
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
+        $canUsePbrAiAdvisor =
+            $request->user()->canUsePbrAiAdvisor();
 
         return view('workspaces.tools.index', compact(
             'workspace',
@@ -54,7 +56,8 @@ class WorkspaceToolsController extends Controller
             'businessStages',
             'currencies',
             'businessState',
-            'capitalWorkflow'
+            'capitalWorkflow',
+            'canUsePbrAiAdvisor'
         ));
     }
 

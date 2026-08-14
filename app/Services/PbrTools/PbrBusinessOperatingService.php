@@ -15,7 +15,8 @@ class PbrBusinessOperatingService
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
         private readonly ChapterOneIntegrationService $capitalIntegration,
-        private readonly PbrToolRuntimeContractService $runtimeContracts
+        private readonly PbrToolRuntimeContractService $runtimeContracts,
+        private readonly PbrBusinessJourneyService $journey
     ) {
     }
 
@@ -125,6 +126,9 @@ class PbrBusinessOperatingService
             $modules = [];
             $activeCount = 0;
             $workingCount = 0;
+            $ruleModuleCount = 0;
+            $recordModuleCount = 0;
+            $dependencyReviewCount = 0;
 
             foreach ($chapter->tools as $tool) {
                 $toolId = (int) $tool->id;
@@ -133,6 +137,76 @@ class PbrBusinessOperatingService
                 $definition = $toolDefinitions[$tool->tool_key] ?? [];
                 $runtimeContract =
                     $this->runtimeContracts->forTool($tool);
+
+                if ($runtimeContract['is_record']) {
+                    $recordModuleCount++;
+                } else {
+                    $ruleModuleCount++;
+                }
+
+                /*
+                 * Approved downstream rules remain current until explicitly
+                 * replaced. If an approved upstream source changed later,
+                 * flag the downstream rule for human review rather than
+                 * silently recalculating or replacing it.
+                 */
+                $staleSourceDomains = [];
+
+                if (
+                    $agreedOutput
+                    && ! $runtimeContract['is_record']
+                    && $agreedOutput->agreed_at
+                ) {
+                    foreach (
+                        $runtimeContract[
+                            'prefill_sources'
+                        ] ?? []
+                        as $sourceDomain
+                    ) {
+                        if (
+                            $sourceDomain
+                            === $area['domain']
+                        ) {
+                            continue;
+                        }
+
+                        $sourceSnapshot =
+                            $agreedSnapshots->get(
+                                $sourceDomain
+                            );
+
+                        if (
+                            ! $sourceSnapshot
+                            || ! $sourceSnapshot
+                                ->agreed_at
+                        ) {
+                            continue;
+                        }
+
+                        if (
+                            $sourceSnapshot
+                                ->agreed_at
+                                ->gt(
+                                    $agreedOutput
+                                        ->agreed_at
+                                )
+                        ) {
+                            $staleSourceDomains[] =
+                                $sourceDomain;
+                        }
+                    }
+                }
+
+                $staleSourceDomains =
+                    array_values(
+                        array_unique(
+                            $staleSourceDomains
+                        )
+                    );
+
+                if ($staleSourceDomains !== []) {
+                    $dependencyReviewCount++;
+                }
 
                 if (
                     $agreedOutput
@@ -186,9 +260,51 @@ class PbrBusinessOperatingService
                         $runtimeContract['record_type'],
                     'connected_sources' =>
                         $runtimeContract['prefill_sources'],
+                    'dependency_review_required' =>
+                        $staleSourceDomains !== [],
+                    'stale_source_domains' =>
+                        $staleSourceDomains,
+                    'stale_source_labels' =>
+                        collect(
+                            $staleSourceDomains
+                        )
+                            ->map(
+                                fn (
+                                    string $source
+                                ): string =>
+                                    (string) (
+                                        config(
+                                            'pbr_canonical_data.domains.'
+                                            .$source
+                                            .'.name'
+                                        )
+                                        ?? str($source)
+                                            ->replace(
+                                                '_',
+                                                ' '
+                                            )
+                                            ->title()
+                                    )
+                            )
+                            ->values()
+                            ->all(),
                     'url' => $this->toolUrl($workspace, $number, $tool->tool_key, $tool->slug),
                 ];
             }
+
+            $missingRuleCount = max(
+                0,
+                $ruleModuleCount - $activeCount
+            );
+
+            $ruleCompletionPercent =
+                $ruleModuleCount > 0
+                    ? (int) round(
+                        $activeCount
+                        / $ruleModuleCount
+                        * 100
+                    )
+                    : 100;
 
             // Historical draft snapshots are audit history. Only a currently
             // open ToolSession represents a live working change that needs
@@ -205,6 +321,16 @@ class PbrBusinessOperatingService
                 'active_count' => $activeCount,
                 'working_count' => $workingCount,
                 'module_count' => count($modules),
+                'rule_module_count' =>
+                    $ruleModuleCount,
+                'record_module_count' =>
+                    $recordModuleCount,
+                'missing_rule_count' =>
+                    $missingRuleCount,
+                'rule_completion_percent' =>
+                    $ruleCompletionPercent,
+                'dependency_review_count' =>
+                    $dependencyReviewCount,
                 'modules' => $modules,
                 'snapshot_revision' => $domainSnapshot?->revision,
                 'snapshot_status' => $domainSnapshot?->status,
@@ -234,16 +360,46 @@ class PbrBusinessOperatingService
             $canManage
         );
 
+        $journey = $this->journey->build(
+            $systemsCollection,
+            $actionItems,
+            $canManage
+        );
+
+        $totalRuleCount =
+            (int) $systemsCollection->sum(
+                'rule_module_count'
+            );
+
+        $dependencyReviewTotal =
+            (int) $systemsCollection->sum(
+                'dependency_review_count'
+            );
+
         return [
             'can_manage' => $canManage,
             'systems' => $systemsCollection,
             'system_map' => $systemsCollection->keyBy('domain'),
             'action_items' => $actionItems,
+            'journey' => $journey,
             'capital' => $capitalSummary,
             'capital_source' => $capitalState['source'],
             'active_rules' => $systemsCollection
                 ->flatMap(fn (array $system) => collect($system['modules'])
-                    ->filter(fn (array $module) => ! empty($module['active_revision']))
+                    ->filter(
+                        fn (array $module): bool =>
+                            ! empty(
+                                $module[
+                                    'active_revision'
+                                ]
+                            )
+                            && ! (
+                                $module[
+                                    'is_record'
+                                ]
+                                ?? false
+                            )
+                    )
                     ->map(fn (array $module) => array_merge($module, [
                         'domain' => $system['domain'],
                         'area_name_mm' => $system['name_mm'],
@@ -256,6 +412,29 @@ class PbrBusinessOperatingService
                 'funding_gap' => $fundingGap,
                 'partner_count' => $this->partnerCount($workspace, $canManage),
                 'active_rule_count' => $activeRuleTotal,
+                'total_rule_count' =>
+                    $totalRuleCount,
+                'rule_completion_percent' =>
+                    $totalRuleCount > 0
+                        ? (int) round(
+                            $activeRuleTotal
+                            / $totalRuleCount
+                            * 100
+                        )
+                        : 100,
+                'dependency_review_count' =>
+                    $dependencyReviewTotal,
+                'incomplete_area_count' =>
+                    $systemsCollection
+                        ->filter(
+                            fn (array $system): bool =>
+                                (
+                                    $system[
+                                        'missing_rule_count'
+                                    ] ?? 0
+                                ) > 0
+                        )
+                        ->count(),
                 'working_change_count' => $latestDraftSessions->count(),
                 'active_area_count' => $systemsCollection
                     ->where('state.key', 'active')
@@ -382,41 +561,178 @@ class PbrBusinessOperatingService
         }
 
         foreach ($systems as $system) {
-            $stateKey = $system['state']['key'] ?? 'setup';
+            $modules = collect(
+                $system['modules'] ?? []
+            );
 
-            if ($stateKey === 'active') {
-                continue;
-            }
+            /*
+             * First priority inside an area is an actual live Working Change.
+             * Partners never receive draft metadata because their state does
+             * not contain manager ToolSessions.
+             */
+            $reviewModule = $canManage
+                ? $modules->first(
+                    fn (array $module): bool =>
+                        (
+                            $module['state']['key']
+                            ?? null
+                        ) === 'review'
+                )
+                : null;
 
-            if ($stateKey === 'review') {
+            if ($reviewModule) {
                 $actions->push([
-                    'priority' => (int) ($system['priority'] ?? 50),
+                    'priority' =>
+                        10
+                        + (int) (
+                            $system['priority']
+                            ?? 50
+                        ),
                     'level' => 'high',
-                    'domain' => $system['domain'],
-                    'title_mm' => $system['name_mm'].' ပြန်လည်စစ်ဆေးရန်ရှိသည်',
-                    'detail_mm' => 'Working Draft / ပြောင်းလဲမှုအသစ် ရှိနေပါတယ်။ လက်ရှိ Active Rule ကို မပြောင်းခင် Review လုပ်ပြီးမှ အတည်ပြုပါ။',
-                    'action_mm' => $canManage ? 'Review လုပ်ရန် →' : 'လက်ရှိ Rule ကြည့်ရန် →',
-                    'url' => $system['url'],
+                    'domain' =>
+                        $system['domain'],
+                    'module_key' =>
+                        $reviewModule['key'],
+                    'title_mm' =>
+                        $reviewModule['title_mm']
+                        .' ပြန်လည်စစ်ဆေးရန်ရှိသည်',
+                    'detail_mm' =>
+                        'Working Change အသစ် ရှိနေပါတယ်။ Current Rule ကို မပြောင်းခင် result နဲ့ approval readiness ကို review လုပ်ပါ။',
+                    'action_mm' =>
+                        'Working Change ကို Review လုပ်ရန် →',
+                    'url' =>
+                        $reviewModule['url'],
                 ]);
+
                 continue;
             }
 
-            // A read-only partner cannot configure a missing area, so do not
-            // create a wall of unactionable setup tasks for that user. Current
-            // approved business issues (such as an agreed funding gap) remain
-            // visible above.
-            if (! $canManage && $stateKey === 'setup') {
+            /*
+             * A newer approved upstream rule does not invalidate or replace a
+             * downstream Current Rule. It creates a review signal only.
+             */
+            $dependencyModule = $modules
+                ->first(
+                    fn (array $module): bool =>
+                        ! (
+                            $module['is_record']
+                            ?? false
+                        )
+                        && (
+                            $module[
+                                'dependency_review_required'
+                            ]
+                            ?? false
+                        )
+                );
+
+            if ($dependencyModule) {
+                $sourceNames = implode(
+                    ', ',
+                    $dependencyModule[
+                        'stale_source_labels'
+                    ] ?? []
+                );
+
+                $actions->push([
+                    'priority' =>
+                        60
+                        + (int) (
+                            $system['priority']
+                            ?? 50
+                        ),
+                    'level' => 'medium',
+                    'domain' =>
+                        $system['domain'],
+                    'module_key' =>
+                        $dependencyModule['key'],
+                    'title_mm' =>
+                        $dependencyModule['title_mm']
+                        .' ကို ပြန်စစ်သင့်သည်',
+                    'detail_mm' =>
+                        ($sourceNames !== ''
+                            ? $sourceNames
+                            : 'Upstream approved data')
+                        .' က ဒီ Current Rule approve လုပ်ပြီးနောက် ပြောင်းထားပါတယ်။ Rule ကို အလိုအလျောက်မပြောင်းဘဲ business relevance ကို review လုပ်ပါ။',
+                    'action_mm' =>
+                        $canManage
+                            ? 'Current Rule ကို Review လုပ်ရန် →'
+                            : 'Review လိုနိုင်သော Rule ကြည့်ရန် →',
+                    'url' =>
+                        $dependencyModule['url'],
+                ]);
+
+                continue;
+            }
+
+            if (! $canManage) {
+                continue;
+            }
+
+            /*
+             * An area with one approved rule is not necessarily fully built.
+             * Continue guiding the owner to the next missing Current Rule.
+             * Operating-record tools never block rule coverage.
+             */
+            $missingRuleModule = $modules
+                ->first(
+                    fn (array $module): bool =>
+                        ! (
+                            $module['is_record']
+                            ?? false
+                        )
+                        && empty(
+                            $module[
+                                'active_revision'
+                            ]
+                        )
+                );
+
+            if (! $missingRuleModule) {
                 continue;
             }
 
             $actions->push([
-                'priority' => 100 + (int) ($system['priority'] ?? 50),
-                'level' => (int) ($system['priority'] ?? 50) <= 6 ? 'medium' : 'normal',
-                'domain' => $system['domain'],
-                'title_mm' => $system['name_mm'].' မသတ်မှတ်ရသေး',
-                'detail_mm' => $system['short_mm'],
-                'action_mm' => $canManage ? 'စတင်စီမံရန် →' : 'အခြေအနေ ကြည့်ရန် →',
-                'url' => $system['url'],
+                'priority' =>
+                    120
+                    + (int) (
+                        $system['priority']
+                        ?? 50
+                    ),
+                'level' =>
+                    (
+                        (int) (
+                            $system['priority']
+                            ?? 50
+                        )
+                        <= 6
+                    )
+                        ? 'medium'
+                        : 'normal',
+                'domain' =>
+                    $system['domain'],
+                'module_key' =>
+                    $missingRuleModule['key'],
+                'title_mm' =>
+                    $missingRuleModule['title_mm']
+                    .' မသတ်မှတ်ရသေး',
+                'detail_mm' =>
+                    $system['name_mm']
+                    .' မှာ approved rules '
+                    .(int) (
+                        $system['active_count']
+                        ?? 0
+                    )
+                    .'/'
+                    .(int) (
+                        $system['rule_module_count']
+                        ?? 0
+                    )
+                    .' ရှိပါတယ်။ နောက် missing rule ကို business-specific data နဲ့ စတင်သတ်မှတ်ပါ။',
+                'action_mm' =>
+                    'နောက် Rule ကို စတင်ရန် →',
+                'url' =>
+                    $missingRuleModule['url'],
             ]);
         }
 
