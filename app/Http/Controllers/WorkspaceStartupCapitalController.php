@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
+use App\Services\PbrTools\CapitalWorkflowService;
 use App\Services\PbrTools\StartupCapitalCalculator;
 use App\Services\PbrTools\ToolScenarioService;
 use Illuminate\Http\Request;
@@ -13,6 +14,11 @@ use Illuminate\View\View;
 
 class WorkspaceStartupCapitalController extends Controller
 {
+    public function __construct(
+        private readonly CapitalWorkflowService $capitalWorkflow
+    ) {
+    }
+
     public function show(
         Request $request,
         PartnershipWorkspace $workspace,
@@ -193,6 +199,11 @@ class WorkspaceStartupCapitalController extends Controller
             ? 'workspaces.tools.startup-capital'
             : 'workspaces.tools.startup-capital-readonly';
 
+        $capitalWorkflow = $this->capitalWorkflow->build(
+            $request->user(),
+            $workspace
+        );
+
         return view($view, compact(
             'workspace',
             'tool',
@@ -203,7 +214,8 @@ class WorkspaceStartupCapitalController extends Controller
             'scenarioComparisons',
             'canManage',
             'latestAgreedOutput',
-            'outputHistory'
+            'outputHistory',
+            'capitalWorkflow'
         ));
     }
 

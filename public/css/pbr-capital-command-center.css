@@ -478,3 +478,314 @@
         justify-self: start;
     }
 }
+
+/* ================================================================
+   Capital individual tool workflow
+   ================================================================ */
+
+.pbr-capital-tool-flow {
+    margin: 18px 0 22px;
+    padding: 18px;
+    border: 1px solid #dde7e2;
+    border-radius: 20px;
+    background:
+        linear-gradient(180deg, #fbfdfc 0%, #ffffff 100%);
+}
+
+.pbr-capital-tool-flow-head {
+    display: flex;
+    justify-content: space-between;
+    gap: 18px;
+    align-items: flex-start;
+}
+
+.pbr-capital-tool-flow-back {
+    display: inline-flex;
+    color: #376955;
+    font-size: 12px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.pbr-capital-tool-flow-position {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    margin-top: 9px;
+}
+
+.pbr-capital-tool-flow-position span {
+    color: #87948e;
+    font-family: Manrope, sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.pbr-capital-tool-flow-position strong {
+    color: #1f3b30;
+    font-family: Manrope, sans-serif;
+    font-size: 14px;
+}
+
+.pbr-capital-tool-current-state {
+    min-width: 190px;
+    padding: 11px 13px;
+    border-radius: 13px;
+    background: #f0f3f1;
+}
+
+.pbr-capital-tool-current-state.approved {
+    background: #eaf7f0;
+}
+
+.pbr-capital-tool-current-state.working {
+    background: #fff4e2;
+}
+
+.pbr-capital-tool-current-state span,
+.pbr-capital-tool-current-state strong,
+.pbr-capital-tool-current-state small {
+    display: block;
+}
+
+.pbr-capital-tool-current-state span {
+    color: #7d8b84;
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+}
+
+.pbr-capital-tool-current-state strong {
+    margin-top: 3px;
+    color: #314a40;
+    font-size: 12px;
+}
+
+.pbr-capital-tool-current-state small {
+    margin-top: 4px;
+    color: #718078;
+    font-size: 10px;
+}
+
+.pbr-capital-tool-step-track {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 7px;
+    margin-top: 16px;
+}
+
+.pbr-capital-tool-step {
+    display: grid;
+    min-width: 0;
+    gap: 5px;
+    padding: 10px;
+    border: 1px solid #e1e8e4;
+    border-radius: 12px;
+    background: #fff;
+    text-decoration: none;
+}
+
+.pbr-capital-tool-step.current {
+    border-color: #5b8975;
+    box-shadow: 0 0 0 2px rgba(57, 113, 88, .09);
+}
+
+.pbr-capital-tool-step.approved {
+    background: #f7fcf9;
+}
+
+.pbr-capital-tool-step.working {
+    border-color: #ead4b2;
+    background: #fffaf1;
+}
+
+.pbr-capital-tool-step.locked {
+    opacity: .55;
+}
+
+.pbr-capital-tool-step b {
+    color: #708078;
+    font-family: Manrope, sans-serif;
+    font-size: 10px;
+}
+
+.pbr-capital-tool-step span {
+    overflow: hidden;
+    color: #2b4037;
+    font-size: 10px;
+    font-weight: 700;
+    line-height: 1.35;
+    text-overflow: ellipsis;
+}
+
+.pbr-capital-tool-step i {
+    color: #8a9690;
+    font-size: 9px;
+    font-style: normal;
+}
+
+.pbr-capital-tool-step.approved i {
+    color: #3d785f;
+}
+
+.pbr-capital-tool-step.working i {
+    color: #956b2f;
+}
+
+.pbr-capital-tool-connection {
+    display: flex;
+    justify-content: space-between;
+    gap: 22px;
+    align-items: center;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 14px;
+    background: #f6f9f7;
+}
+
+.pbr-capital-tool-connection > div:first-child {
+    max-width: 760px;
+}
+
+.pbr-capital-tool-connection span,
+.pbr-capital-tool-connection strong {
+    display: block;
+}
+
+.pbr-capital-tool-connection > div:first-child > span {
+    color: #4f7766;
+    font-family: Manrope, sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.pbr-capital-tool-connection > div:first-child > strong {
+    margin-top: 4px;
+    color: #2c483c;
+    font-size: 12px;
+}
+
+.pbr-capital-tool-connection p {
+    margin: 5px 0 0;
+    color: #6c7d75;
+    font-size: 11px;
+    line-height: 1.65;
+}
+
+.pbr-capital-tool-flow-stats {
+    display: flex;
+    flex: 0 0 auto;
+    gap: 8px;
+}
+
+.pbr-capital-tool-flow-stats > div {
+    min-width: 92px;
+    padding: 9px 10px;
+    border: 1px solid #dce6e1;
+    border-radius: 11px;
+    background: #fff;
+}
+
+.pbr-capital-tool-flow-stats span {
+    color: #89958f;
+    font-size: 8px;
+}
+
+.pbr-capital-tool-flow-stats strong {
+    margin-top: 3px;
+    color: #315345;
+    font-family: Manrope, sans-serif;
+    font-size: 14px;
+}
+
+.pbr-capital-tool-next {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #e4eae7;
+}
+
+.pbr-capital-tool-next span,
+.pbr-capital-tool-next strong,
+.pbr-capital-tool-next small {
+    display: block;
+}
+
+.pbr-capital-tool-next span {
+    color: #87948e;
+    font-family: Manrope, sans-serif;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .1em;
+}
+
+.pbr-capital-tool-next strong {
+    margin-top: 2px;
+    color: #29483b;
+    font-size: 11px;
+}
+
+.pbr-capital-tool-next small {
+    margin-top: 2px;
+    color: #849088;
+    font-size: 9px;
+}
+
+.pbr-capital-tool-next a {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    background: #244f3e;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+@media (max-width: 950px) {
+    .pbr-capital-tool-step-track {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pbr-capital-tool-connection {
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 680px) {
+    .pbr-capital-tool-flow-head,
+    .pbr-capital-tool-connection,
+    .pbr-capital-tool-next {
+        display: grid;
+    }
+
+    .pbr-capital-tool-current-state {
+        min-width: 0;
+    }
+
+    .pbr-capital-tool-step-track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-capital-tool-flow-stats {
+        width: 100%;
+    }
+
+    .pbr-capital-tool-flow-stats > div {
+        flex: 1;
+    }
+
+    .pbr-capital-tool-next a {
+        justify-content: center;
+        width: 100%;
+    }
+}

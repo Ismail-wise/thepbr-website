@@ -46,6 +46,15 @@
             </div>
         </header>
 
+        @include(
+            'workspaces.tools.partials.capital-tool-workflow',
+            [
+                'capitalWorkflow' => $capitalWorkflow,
+                'tool' => $tool,
+                'canManage' => $canManage,
+            ]
+        )
+
         <form
             id="startup-capital-builder"
             method="POST"

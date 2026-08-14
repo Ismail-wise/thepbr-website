@@ -36,6 +36,15 @@
             </div>
         </div>
 
+        @include(
+            'workspaces.tools.partials.capital-tool-workflow',
+            [
+                'capitalWorkflow' => $capitalWorkflow,
+                'tool' => $tool,
+                'canManage' => $canManage,
+            ]
+        )
+
         @if(session('status'))
             <div class="pbr-save-success">{{ session('status') }}</div>
         @endif

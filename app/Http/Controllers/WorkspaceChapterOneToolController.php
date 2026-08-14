@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
+use App\Services\PbrTools\CapitalWorkflowService;
 use App\Services\PbrTools\ChapterOneCapitalService;
 use App\Services\PbrTools\ChapterOneIntegrationService;
 use App\Services\PbrTools\ToolScenarioService;
@@ -14,6 +15,11 @@ use Illuminate\View\View;
 
 class WorkspaceChapterOneToolController extends Controller
 {
+    public function __construct(
+        private readonly CapitalWorkflowService $capitalWorkflow
+    ) {
+    }
+
     private const SUPPORTED_TOOLS = [
         'current_capital_position',
         'working_capital_calculator',
@@ -232,6 +238,11 @@ class WorkspaceChapterOneToolController extends Controller
             ? $scenarios->outputHistory($workspace, $tool)
             : collect([$latestAgreedOutput])->filter();
 
+        $capitalWorkflow = $this->capitalWorkflow->build(
+            $request->user(),
+            $workspace
+        );
+
         return view('workspaces.tools.chapter-one', compact(
             'workspace',
             'tool',
@@ -241,7 +252,8 @@ class WorkspaceChapterOneToolController extends Controller
             'drafts',
             'canManage',
             'latestAgreedOutput',
-            'outputHistory'
+            'outputHistory',
+            'capitalWorkflow'
         ));
     }
 
