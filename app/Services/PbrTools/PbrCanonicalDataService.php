@@ -2,6 +2,8 @@
 
 namespace App\Services\PbrTools;
 
+use LogicException;
+
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspacePartnerProfile;
@@ -47,6 +49,165 @@ class PbrCanonicalDataService
         }
 
         return $summaries;
+    }
+
+    /**
+     * Return only the approved canonical domains explicitly permitted for a
+     * specific tool prefill.
+     *
+     * This is deny-by-default. A tool cannot automatically inspect every
+     * business domain merely because those snapshots exist.
+     */
+    public function approvedPrefillSources(
+        PartnershipWorkspace $workspace,
+        string $toolKey
+    ): array {
+        $contract = $this->prefillContract(
+            $toolKey
+        );
+
+        $consumer = (string) (
+            $contract['consumer']
+            ?? ''
+        );
+
+        $sources = is_array(
+            $contract['sources'] ?? null
+        )
+            ? $contract['sources']
+            : [];
+
+        if ($consumer === '' || empty($sources)) {
+            return [];
+        }
+
+        $summaries = [];
+
+        foreach (
+            array_values(
+                array_unique($sources)
+            )
+            as $sourceDomain
+        ) {
+            $sourceDomain = (string) $sourceDomain;
+
+            if (
+                ! $this->canDomainRead(
+                    $consumer,
+                    $sourceDomain
+                )
+            ) {
+                throw new LogicException(
+                    'PBR canonical dependency violation: '
+                    .$toolKey
+                    .' in '
+                    .$consumer
+                    .' cannot read '
+                    .$sourceDomain
+                    .'.'
+                );
+            }
+
+            $snapshot = $this->operatingSystem
+                ->latestSnapshot(
+                    $workspace,
+                    $sourceDomain,
+                    'agreed'
+                );
+
+            if (! $snapshot) {
+                continue;
+            }
+
+            $summaries[$sourceDomain] =
+                is_array($snapshot->summary)
+                    ? $snapshot->summary
+                    : [];
+        }
+
+        return $summaries;
+    }
+
+    public function canDomainRead(
+        string $consumerDomain,
+        string $sourceDomain
+    ): bool {
+        $consumer = config(
+            'pbr_canonical_data.domains.'
+            .$consumerDomain
+        );
+
+        $source = config(
+            'pbr_canonical_data.domains.'
+            .$sourceDomain
+        );
+
+        if (
+            ! is_array($consumer)
+            || ! is_array($source)
+        ) {
+            return false;
+        }
+
+        if ($consumerDomain === $sourceDomain) {
+            return true;
+        }
+
+        $dependencies = is_array(
+            $consumer['reads_from'] ?? null
+        )
+            ? $consumer['reads_from']
+            : [];
+
+        return in_array(
+            $sourceDomain,
+            $dependencies,
+            true
+        );
+    }
+
+    public function prefillContract(
+        string $toolKey
+    ): array {
+        $contract = config(
+            'pbr_canonical_data.prefill_contracts.'
+            .$toolKey,
+            []
+        );
+
+        return is_array($contract)
+            ? $contract
+            : [];
+    }
+
+    public function allowsAdvisorySource(
+        string $toolKey,
+        string $sourceKey
+    ): bool {
+        $sourceContract = config(
+            'pbr_canonical_data.advisory_sources.'
+            .$sourceKey
+        );
+
+        if (! is_array($sourceContract)) {
+            return false;
+        }
+
+        $toolContract = $this->prefillContract(
+            $toolKey
+        );
+
+        $allowed = is_array(
+            $toolContract['advisory'] ?? null
+        )
+            ? $toolContract['advisory']
+            : [];
+
+        return in_array(
+            $sourceKey,
+            $allowed,
+            true
+        );
     }
 
     public function approvedState(

@@ -53,6 +53,7 @@ return [
             'chapter' => 4,
             'name' => 'Profit, Salary & Distribution',
             'reads_from' => [
+                'capital',
                 'ownership',
                 'contribution',
             ],
@@ -112,6 +113,154 @@ return [
             'reads_from' => [
                 'governance',
             ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Tool Prefill Dependency Contracts
+    |--------------------------------------------------------------------------
+    |
+    | Cross-domain prefills are explicit and deny-by-default.
+    |
+    | A tool may read:
+    | - its own approved domain state, or
+    | - an approved domain declared in reads_from.
+    |
+    | Advisory sources are separate and can never silently become canonical
+    | operating state.
+    |
+    */
+
+    'prefill_contracts' => [
+
+        'equity_split_simulator' => [
+            'consumer' => 'ownership',
+            'sources' => ['capital'],
+            'advisory' => [],
+        ],
+
+        'cap_table_builder' => [
+            'consumer' => 'ownership',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'ownership_chart' => [
+            'consumer' => 'ownership',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'voting_power_calculator' => [
+            'consumer' => 'ownership',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'share_value_calculator' => [
+            'consumer' => 'ownership',
+            'sources' => ['ownership'],
+            'advisory' => ['business_valuation'],
+        ],
+
+        'future_dilution_simulator' => [
+            'consumer' => 'ownership',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'time_contribution_tracker' => [
+            'consumer' => 'contribution',
+            'sources' => [],
+            'advisory' => [],
+        ],
+
+        'partner_contribution_scorecard' => [
+            'consumer' => 'contribution',
+            'sources' => [],
+            'advisory' => [],
+        ],
+
+        'contribution_balance_chart' => [
+            'consumer' => 'contribution',
+            'sources' => [],
+            'advisory' => [],
+        ],
+
+        'profit_distribution_calculator' => [
+            'consumer' => 'distribution',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'loss_sharing_simulator' => [
+            'consumer' => 'distribution',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'salary_profit_share_planner' => [
+            'consumer' => 'distribution',
+            'sources' => [
+                'distribution',
+                'ownership',
+            ],
+            'advisory' => [],
+        ],
+
+        'reserve_fund_planner' => [
+            'consumer' => 'distribution',
+            'sources' => ['capital'],
+            'advisory' => [],
+        ],
+
+        'cashflow_dashboard' => [
+            'consumer' => 'financial_controls',
+            'sources' => ['capital'],
+            'advisory' => [],
+        ],
+
+        'voting_simulator' => [
+            'consumer' => 'governance',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'partner_buyout_calculator' => [
+            'consumer' => 'exit',
+            'sources' => [],
+            'advisory' => ['business_valuation'],
+        ],
+
+        'exit_value_simulator' => [
+            'consumer' => 'exit',
+            'sources' => [],
+            'advisory' => ['business_valuation'],
+        ],
+
+        'ownership_transition_simulator' => [
+            'consumer' => 'continuity',
+            'sources' => [],
+            'advisory' => ['business_valuation'],
+        ],
+
+        'share_transfer_simulator' => [
+            'consumer' => 'share_transfer',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'ownership_before_after_chart' => [
+            'consumer' => 'share_transfer',
+            'sources' => ['ownership'],
+            'advisory' => [],
+        ],
+
+        'share_valuation_calculator' => [
+            'consumer' => 'share_transfer',
+            'sources' => ['ownership'],
+            'advisory' => ['business_valuation'],
         ],
     ],
 

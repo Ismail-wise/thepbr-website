@@ -20,16 +20,33 @@ class PbrToolPrefillService
         array $input
     ): array {
         $snapshots = $this->canonicalData
-            ->approvedDomainSummaries($workspace);
+            ->approvedPrefillSources(
+                $workspace,
+                $tool->tool_key
+            );
 
-        $valuation = BusinessValuation::query()
-            ->where('workspace_id', $workspace->id)
-            ->latest('id')
-            ->first();
+        $valuationResult = [];
 
-        $valuationResult = is_array($valuation?->result)
-            ? $valuation->result
-            : [];
+        if (
+            $this->canonicalData->allowsAdvisorySource(
+                $tool->tool_key,
+                'business_valuation'
+            )
+        ) {
+            $valuation = BusinessValuation::query()
+                ->where(
+                    'workspace_id',
+                    $workspace->id
+                )
+                ->latest('id')
+                ->first();
+
+            $valuationResult = is_array(
+                $valuation?->result
+            )
+                ? $valuation->result
+                : [];
+        }
 
         $partners = WorkspacePartnerProfile::query()
             ->where('workspace_id', $workspace->id)
