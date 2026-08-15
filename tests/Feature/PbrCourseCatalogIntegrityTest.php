@@ -297,14 +297,17 @@ test('partner sees only the active startup capital plan in a professional read o
         ->assertDontSee('Partner Read-Only View');
 });
 
-test('dashboard polish keeps draft KPIs and partner roster semantics clear', function () {
+test('dashboard polish keeps draft KPI semantics without rewriting server rendered business state', function () {
     $javascript = file_get_contents(public_path('js/pbr-operating-system.js'));
     $styles = file_get_contents(public_path('css/pbr-operating-fixes.css'));
 
     expect($javascript)
         ->toContain('function polishBusinessDashboard()')
         ->toContain('Draft ခန့်မှန်းချက်')
-        ->toContain('Partner Profile အရေအတွက်')
+        ->not->toContain('const partnerMetric = metrics[2]')
+        ->not->toContain("mmLabel.textContent = 'Partner Profile အရေအတွက်'")
+        ->not->toContain("enLabel.textContent = 'Partner Roster'")
+        ->not->toContain('pbr-dashboard-settings-link')
         ->toContain('အခု စစ်ဆေးရမည့်အချက်များ')
         ->toContain("value.textContent = '—'")
         ->and($styles)
