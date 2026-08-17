@@ -108,7 +108,11 @@
                             <div class="pbr-workspace-kpis">
                                 <div>
                                     <span>Funding Gap</span>
-                                    <strong>{{ $currency }} {{ number_format((float) $metrics['funding_gap'], 0) }}</strong>
+                                    <strong>
+                                        {{ ($metrics['capital_data_available'] ?? false)
+                                            ? $currency.' '.number_format((float) $metrics['funding_gap'], 0)
+                                            : '—' }}
+                                    </strong>
                                 </div>
                                 <div>
                                     <span>Active Rules</span>

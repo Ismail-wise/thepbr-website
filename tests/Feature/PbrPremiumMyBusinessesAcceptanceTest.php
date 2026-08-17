@@ -108,11 +108,15 @@ test('my businesses uses the operating partner profile source of truth', functio
         ->actingAs($owner)
         ->get(route('workspaces.index'))
         ->assertOk()
-        ->assertSee('Partner Profiles 2');
+        ->assertSee('Partner Profiles 2')
+        ->assertSee('Funding Gap')
+        ->assertSee('—')
+        ->assertDontSee('THB 0');
 
     $business = $response->viewData('businesses')->first();
 
-    expect($business['metrics']['partner_count'])->toBe(2);
+    expect($business['metrics']['partner_count'])->toBe(2)
+        ->and($business['metrics']['capital_data_available'])->toBeFalse();
 });
 
 test('partner access businesses are separated from managed businesses and stay read only', function () {
