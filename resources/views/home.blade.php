@@ -64,15 +64,75 @@
 </section>
 
 {{-- ===================== INSTRUCTOR ===================== --}}
-<section>
+<section class="instructor-section" aria-labelledby="instructor-name">
   <div class="wrap tutor">
-    <div class="portrait"><span>ဆရာ့ဓာတ်ပုံ<br>နေရာ<br><br>(4:5)</span></div>
-    <div>
+    <div class="tutor-visual">
+      <figure class="portrait">
+        <img
+          src="{{ asset('images/instructors/nyan-lin-aung.webp') }}"
+          alt="ဆရာ ဥာဏ်လင်းအောင် — PBR Instructor & Business Consultant"
+          width="960"
+          height="1200"
+          loading="lazy"
+          decoding="async"
+        >
+        <figcaption class="portrait-caption">
+          <span>PBR Instructor</span>
+          <strong>Myanmar · Thailand</strong>
+        </figcaption>
+      </figure>
+
+      <div class="tutor-highlights" aria-label="Instructor milestones">
+        <article>
+          <strong>2019</strong>
+          <span>Partnership Turning Point</span>
+        </article>
+        <article>
+          <strong>2025</strong>
+          <span>PBR စတင်သင်ကြား</span>
+        </article>
+        <article>
+          <strong>Batch 4</strong>
+          <span>သင်ကြားပြီးသောအဆင့်</span>
+        </article>
+        <article>
+          <strong>MM + TH</strong>
+          <span>လက်တွေ့လုပ်ငန်းများ</span>
+        </article>
+      </div>
+    </div>
+
+    <div class="tutor-content">
       <div class="eyebrow">About the instructor</div>
-      <h3>ဆရာ စည်သူအောင်</h3>
-      <div class="role">Partnership Business Rules — Instructor</div>
-      <p>မြန်မာနှင့် ထိုင်းနိုင်ငံရှိ SME လုပ်ငန်းရှင်များနှင့် နှစ်ပေါင်းများစွာ လက်တွေ့ လုပ်ကိုင်ခဲ့သည့် အတွေ့အကြုံများမှ ဤသင်တန်းကို ရေးဆွဲထားပါသည်။ ဥပဒေဘာသာရပ်ကို ကျမ်းစာအုပ်ပုံစံ မဟုတ်ဘဲ လုပ်ငန်းရှင်တစ်ဦး နားလည်လွယ်သည့် ဘာသာစကားဖြင့် ရှင်းပြထားခြင်း ဖြစ်ပါသည်။</p>
-      <p style="margin-top:14px">သင်တန်းတွင် သုံးခဲ့သည့် စာချုပ်ပုံစံများ၊ စစ်ဆေးရန် စာရင်းများနှင့် ဥပမာများအားလုံးကို Student Portal တွင် ပြန်လည် ရယူနိုင်ပါသည်။</p>
+      <h2 id="instructor-name">ဆရာ ဥာဏ်လင်းအောင်</h2>
+      <div class="role">PBR Instructor &amp; Business Consultant</div>
+
+      <div class="tutor-story">
+        <p>ဆရာ ဥာဏ်လင်းအောင်သည် လူငယ်ဘဝကတည်းက စပ်တူလုပ်ငန်းများကို ကိုယ်တိုင် လက်တွေ့လုပ်ကိုင်ခဲ့ပြီး အောင်မြင်မှုများသာမက မအောင်မြင်မှုများနှင့် ငွေကြေးဆုံးရှုံးမှုများကိုပါ ကိုယ်တိုင်ကြုံတွေ့ခဲ့သူ ဖြစ်ပါသည်။ ၂၀၁၉ ခုနှစ်တွင် အရွယ်အစားကြီးမားသည့် စပ်တူလုပ်ငန်းတစ်ခုမှ ငွေကြေးဆုံးရှုံးမှုကြီးမားစွာ ကြုံတွေ့ခဲ့ရခြင်းသည် စပ်တူလုပ်ငန်းအပေါ် အမြင်ကို ပြောင်းလဲစေခဲ့သည့် အရေးကြီးသော Turning Point ဖြစ်ခဲ့ပါသည်။</p>
+
+        <p>ထိုအချိန်မှစ၍ Partner ရွေးချယ်မှု၊ Ownership Structure၊ Role &amp; Responsibility၊ Profit Sharing၊ Decision Making၊ Conflict Management နှင့် Exit Plan များကို စနစ်တကျလေ့လာပြီး ကိုယ်တိုင်၏ လုပ်ငန်းများတွင် ပြန်လည်အသုံးချခဲ့ပါသည်။ ယနေ့တွင် မြန်မာနိုင်ငံနှင့် ထိုင်းနိုင်ငံ၊ ချင်းမိုင်မြို့တို့တွင် စပ်တူလုပ်ငန်းများကို လက်တွေ့လုပ်ကိုင်လျက်ရှိပါသည်။</p>
+
+        <p>၂၀၂၅ ခုနှစ်မှစတင်၍ Partnership Business Rules (PBR) ကို သင်ကြားခဲ့ပြီး ယခု Batch 4 အထိ ရောက်ရှိလာပြီဖြစ်ပါသည်။ သင်တန်းများနှင့် Business Consultation Sessions များမှတစ်ဆင့် လုပ်ငန်းရှင်များအား အမှားများကို ကြိုတင်မြင်နိုင်ရန်၊ ရှိပြီးသား Partnership များကို ပိုမိုစနစ်တကျ တည်ဆောက်နိုင်ရန်နှင့် Partner ကြောင့် ဖြစ်လာနိုင်သော ထိခိုက်မှုများကို လျှော့ချနိုင်ရန် ကူညီပေးလျက်ရှိပါသည်။</p>
+      </div>
+
+      <div class="tutor-expertise" aria-label="Areas of expertise">
+        <span>Partner Selection</span>
+        <span>Ownership Structure</span>
+        <span>Roles &amp; Responsibilities</span>
+        <span>Profit Sharing</span>
+        <span>Decision Making</span>
+        <span>Conflict Management</span>
+        <span>Exit Planning</span>
+      </div>
+
+      <div class="tutor-mission">
+        <strong>ဆရာဥာဏ်၏ ရည်ရွယ်ချက်</strong>
+        <p>မြန်မာလုပ်ငန်းရှင်များ စပ်တူလုပ်ငန်းကို မှန်ကန်စွာ တည်ဆောက်နိုင်စေရန်၊ Myanmar SMEs များ ပိုမိုခိုင်မာလာစေရန်နှင့် ပိုမိုကောင်းမွန်သော Myanmar Business Culture တစ်ခုကို ဖန်တီးပေးရန် ဖြစ်ပါသည်။</p>
+      </div>
+
+      <blockquote class="tutor-quote">
+        “ယုံကြည်မှုရှိလို့ Rules မလိုတာ မဟုတ်ပါဘူး။ ယုံကြည်မှုကို ရေရှည်ထိန်းထားချင်လို့ Rules လိုတာပါ။”
+      </blockquote>
     </div>
   </div>
 </section>

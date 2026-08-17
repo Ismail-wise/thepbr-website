@@ -351,12 +351,29 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
 .prob p{margin-top:14px;color:var(--muted);font-size:15.5px;line-height:1.95}
 
 /* instructor */
-.tutor{display:grid;grid-template-columns:300px 1fr;gap:56px;align-items:center}
-.portrait{aspect-ratio:4/5;border-radius:14px;background:var(--sage-deep);display:grid;place-items:center;overflow:hidden}
-.portrait span{font-family:'Noto Sans',sans-serif;font-size:13px;color:var(--moss);text-align:center;padding:20px;line-height:1.7}
-.tutor h3{font-family:'Noto Serif Myanmar',serif;font-size:27px;font-weight:600;line-height:1.6}
-.tutor .role{font-family:'Noto Sans',sans-serif;font-size:14px;color:var(--signal-ink);font-weight:600;letter-spacing:.03em;margin-top:4px}
-.tutor p{margin-top:20px;color:var(--muted);font-size:16.5px;max-width:52ch}
+.instructor-section{background:linear-gradient(135deg,var(--paper) 0%,var(--sage) 100%)}
+.tutor{display:grid;grid-template-columns:minmax(300px,360px) minmax(0,1fr);gap:68px;align-items:start}
+.tutor-visual{min-width:0}
+.portrait{position:relative;aspect-ratio:4/5;margin:0;border-radius:24px;background:var(--sage-deep);overflow:hidden;border:1px solid var(--rule);box-shadow:0 28px 60px -38px rgba(4,43,30,.5)}
+.portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+.portrait-caption{position:absolute;inset:auto 0 0;padding:52px 24px 22px;background:linear-gradient(180deg,transparent 0%,rgba(4,43,30,.92) 72%);color:var(--paper)}
+.portrait-caption span{display:block;font-family:'Noto Sans',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sage-deep)}
+.portrait-caption strong{display:block;margin-top:4px;font-family:'Noto Sans',sans-serif;font-size:14px;letter-spacing:.04em}
+.tutor-highlights{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:12px}
+.tutor-highlights article{min-height:92px;padding:17px 18px;border:1px solid var(--rule);border-radius:14px;background:rgba(251,252,250,.88)}
+.tutor-highlights strong{display:block;font-family:'Noto Sans',sans-serif;font-size:18px;color:var(--deep)}
+.tutor-highlights span{display:block;margin-top:5px;font-size:12.5px;line-height:1.55;color:var(--muted)}
+.tutor-content{min-width:0;padding-top:5px}
+.tutor h2{font-family:'Noto Serif Myanmar',serif;font-size:clamp(30px,3vw,42px);font-weight:600;line-height:1.45}
+.tutor .role{font-family:'Noto Sans',sans-serif;font-size:14px;color:var(--signal-ink);font-weight:600;letter-spacing:.03em;margin-top:5px}
+.tutor-story{display:grid;gap:15px;margin-top:25px}
+.tutor-story p{margin:0;color:var(--muted);font-size:16px;line-height:2;max-width:68ch}
+.tutor-expertise{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+.tutor-expertise span{padding:8px 12px;border:1px solid var(--rule);border-radius:999px;background:var(--paper);font-family:'Noto Sans',sans-serif;font-size:11.5px;font-weight:600;color:var(--moss)}
+.tutor-mission{margin-top:24px;padding:22px 24px;border:1px solid var(--rule);border-radius:16px;background:rgba(251,252,250,.86)}
+.tutor-mission strong{font-size:15px;color:var(--deep)}
+.tutor-mission p{margin:8px 0 0;color:var(--muted);font-size:15px;line-height:1.9;max-width:68ch}
+.tutor-quote{margin:16px 0 0;padding:22px 24px;border-left:4px solid var(--signal);border-radius:0 14px 14px 0;background:var(--deep);color:var(--paper);font-family:'Noto Serif Myanmar',serif;font-size:17px;line-height:1.9}
 
 /* reviews */
 .revs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
@@ -377,8 +394,9 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
 
 @media (max-width:960px){
   .hero-grid{grid-template-columns:1fr;gap:48px}
-  .tutor{grid-template-columns:1fr;gap:34px}
-  .portrait{max-width:260px}
+  .tutor{grid-template-columns:1fr;gap:38px}
+  .tutor-visual{max-width:520px}
+  .portrait{max-width:360px}
   .revs{grid-template-columns:1fr}
 }
 @media (max-width:720px){
@@ -386,6 +404,10 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
   .cta{padding:74px 0}
   .probs{grid-template-columns:1fr}
   .prob{padding:30px 26px}
+  .tutor{gap:28px}
+  .portrait{max-width:100%}
+  .tutor h2{font-size:30px}
+  .tutor-mission,.tutor-quote{padding:20px}
 }
 
 /* ==========================================================================
