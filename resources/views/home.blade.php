@@ -13,8 +13,8 @@
       <h1>မိတ်ဖက်လုပ်ငန်း တစ်ခုကို စတင်ခြင်း၊ ပြန်လည်ဖွဲ့စည်းခြင်းအတွက် သိထားသင့်သည့် စည်းမျဉ်းများ</h1>
       <p class="lede">မြန်မာနှင့် ထိုင်းနိုင်ငံရှိ SME လုပ်ငန်းရှင်များအတွက် အထူးရေးဆွဲထားသော သင်တန်း။ သီအိုရီထက် လက်တွေ့ကျသော ဥပမာများ၊ ချက်ချင်း သုံးနိုင်သည့် စာချုပ်ပုံစံများနှင့်အတူ။</p>
       <div class="acts">
-        <a href="#" class="btn light">Sign Up</a>
-        <a href="#" class="btn outline-light">About the Class</a>
+        <a href="{{ route('register') }}" class="btn light">Create Account</a>
+        <a href="{{ route('about') }}" class="btn outline-light">About the Class</a>
       </div>
     </div>
 
@@ -275,8 +275,8 @@
       <span>သင်တန်းတက်ရောက်ပြီးသူများသည် အကောင့်ဖွင့်စဉ် ဆရာပေးထားသော Code ကို ထည့်သွင်းပါ။ စစ်ဆေးအတည်ပြုပြီးပါက Student Portal ကို ဝင်ရောက်နိုင်ပါမည်။</span>
     </div>
     <div class="acts">
-      <a href="#" class="btn light">Sign Up</a>
-      <a href="#" class="btn outline-light">Log In</a>
+      <a href="{{ route('register') }}" class="btn light">Create Account</a>
+      <a href="{{ route('login') }}" class="btn outline-light">Log In</a>
     </div>
   </div>
 </div>

@@ -268,7 +268,7 @@ section{padding:88px 0}
    Footer
    ========================================================================== */
 footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-size:15px}
-.fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:44px}
+.fgrid{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:44px}
 .fgrid h5{font-family:'Noto Sans',sans-serif;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);font-weight:600;margin-bottom:18px}
 .fgrid a,.fgrid p{display:block;color:var(--sage-deep);opacity:.8;padding:5px 0;line-height:1.8}
 .fgrid a:hover{opacity:1;color:var(--paper)}

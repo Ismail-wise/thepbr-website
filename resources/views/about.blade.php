@@ -385,48 +385,6 @@
   </div>
 </section>
 
-{{-- ===================== INSTRUCTOR ===================== --}}
-<section class="sec-sage">
-  <div class="wrap">
-    <div class="head-row">
-      <div>
-        <div class="eyebrow">Instructor</div>
-        <h2>သင်ကြားပေးမည့် ဆရာ</h2>
-      </div>
-    </div>
-
-    {{-- SAMPLE DATA — replace with real instructor information before production --}}
-    <div class="tutor">
-      <div class="portrait">
-        <span>
-          Sample Instructor Photo<br>
-          <small>ဓာတ်ပုံကို နောက်မှ အစားထိုးရန်</small>
-        </span>
-      </div>
-
-      <div>
-        <h3>နမူနာ ဆရာအမည်</h3>
-        <div class="role">Sample Instructor · Partnership Business Facilitator</div>
-
-        <p>
-          မိတ်ဖက်လုပ်ငန်းများ စတင်တည်ထောင်ရာတွင် လိုအပ်သော
-          Partnership Rules, Roles & Responsibilities, Decision Making,
-          Financial Agreement နှင့် Conflict Management စသည့်
-          အခြေခံစည်းမျဉ်းများကို လက်တွေ့ကျကျ ရေးဆွဲအသုံးချနိုင်အောင်
-          လမ်းညွှန်ပေးသည့် သင်ကြားပို့ချသူ ဖြစ်ပါသည်။
-        </p>
-
-        <p>
-          သင်တန်းတွင် သီအိုရီသက်သက်မဟုတ်ဘဲ မိတ်ဖက်များအကြား
-          ကြိုတင်သဘောတူထားသင့်သည့် စည်းမျဉ်းများ၊ လုပ်ပိုင်ခွင့်များနှင့်
-          အနာဂတ်အငြင်းပွားမှုများကို လျှော့ချနိုင်မည့်
-          Partnership Rulebook တည်ဆောက်ခြင်းကို အဓိကထား သင်ကြားပေးပါသည်။
-        </p>
-      </div>
-    </div>
-  </div>
-</section>
-
 {{-- ===================== CTA ===================== --}}
 <div class="cta on-dark">
   <div class="wrap">

@@ -42,7 +42,7 @@
         <div class="eyebrow">Upcoming</div>
         <h2>လာမည့် သင်တန်းများ</h2>
       </div>
-      <p>စာရင်းသွင်းလိုပါက Facebook Page သို့မဟုတ် Viber မှတဆင့် ဆက်သွယ်နိုင်ပါသည်။</p>
+      <p>သင်တန်းအသစ်များ ဖွင့်လှစ်သည့်အခါ အချိန်စာရင်းနှင့် စာရင်းသွင်းရန် အချက်အလက်များကို ဤစာမျက်နှာတွင် ဖော်ပြပေးပါမည်။</p>
     </div>
 
     @forelse($upcoming as $class)
@@ -80,9 +80,11 @@
             @endif
           @endif
 
-          <a href="#" class="btn {{ $class->is_full ? 'ghost' : '' }} sm">
-            {{ $class->is_full ? 'စာရင်းစောင့်ဆိုင်း' : 'စာရင်းသွင်းရန်' }}
-          </a>
+          @unless($class->is_full)
+            <a href="{{ route('register') }}" class="btn sm">
+              အခမဲ့ အကောင့်ဖွင့်ရန်
+            </a>
+          @endunless
         </div>
       </div>
 
@@ -90,9 +92,8 @@
     @empty
       <div class="empty">
         <b>လာမည့် သင်တန်း အချိန်စာရင်း မကြေညာရသေးပါ</b>
-        <p>သင်တန်းအသစ် ဖွင့်သည့်အခါ Facebook Page တွင် အကြောင်းကြားပါမည်။ ဆောင်းပါးများကိုတော့ အခမဲ့ ဖတ်ရှုနိုင်ပါသည်။</p>
+        <p>သင်တန်းအသစ် ဖွင့်သည့်အခါ အချိန်စာရင်းကို ဒီနေရာတွင် ဖော်ပြပေးပါမည်။ လက်ရှိတွင် ဆောင်းပါးများကို အခမဲ့ ဖတ်ရှုနိုင်ပါသည်။</p>
         <div class="acts">
-          <a href="#" class="btn">Facebook Page</a>
           <a href="{{ route('articles.index') }}" class="btn ghost">ဆောင်းပါးများ ဖတ်ရန်</a>
         </div>
       </div>
@@ -137,8 +138,8 @@
     <h2>သင်တန်း တက်ရောက်ပြီးသူများအတွက်</h2>
     <p>သင်တန်းတွင် သုံးခဲ့သည့် စာချုပ်ပုံစံများနှင့် အထောက်အကူ ပစ္စည်းများကို Student Portal တွင် ရယူနိုင်ပါသည်။ အကောင့်ဖွင့်စဉ် ဆရာပေးထားသော Code ကို ထည့်သွင်းပါ။</p>
     <div class="acts">
-      <a href="#" class="btn light">Sign Up</a>
-      <a href="#" class="btn outline-light">Contact Us</a>
+      <a href="{{ route('student.register') }}" class="btn light">Student Registration</a>
+      <a href="{{ route('login') }}" class="btn outline-light">Log In</a>
     </div>
   </div>
 </div>
