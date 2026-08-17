@@ -376,12 +376,27 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
 .tutor-quote{margin:16px 0 0;padding:22px 24px;border-left:4px solid var(--signal);border-radius:0 14px 14px 0;background:var(--deep);color:var(--paper);font-family:'Noto Serif Myanmar',serif;font-size:17px;line-height:1.9}
 
 /* reviews */
-.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}
-.rev{background:var(--paper);border:1px solid var(--rule);border-radius:14px;padding:30px 28px;display:flex;flex-direction:column}
-.rev .quote{font-size:16px;line-height:2;flex:1}
-.rev .who{margin-top:24px;padding-top:20px;border-top:1px solid var(--rule)}
-.rev .who b{display:block;font-weight:600;font-size:15.5px}
-.rev .who span{font-family:'Noto Sans',sans-serif;font-size:13px;color:var(--muted)}
+.student-reviews{overflow:hidden}
+.reviews-heading{align-items:end}
+.reviews-intro{margin-top:14px;max-width:58ch;color:var(--muted);font-size:15.5px;line-height:1.9}
+.reviews-count{min-width:156px;padding:17px 20px;border:1px solid var(--rule);border-radius:15px;background:rgba(251,252,250,.78);text-align:right}
+.reviews-count strong{display:block;font-family:'Noto Sans',sans-serif;font-size:30px;line-height:1;color:var(--deep)}
+.reviews-count span{display:block;margin-top:7px;font-family:'Noto Sans',sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.revs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:22px;align-items:start}
+.rev{position:relative;background:var(--paper);border:1px solid var(--rule);border-radius:18px;padding:28px;display:flex;flex-direction:column;box-shadow:0 20px 45px -38px rgba(4,43,30,.45);overflow:hidden}
+.rev::before{content:'“';position:absolute;right:22px;top:8px;font-family:Georgia,serif;font-size:72px;line-height:1;color:var(--sage-deep);opacity:.8}
+.rev-top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-right:42px;flex-wrap:wrap}
+.review-name{font-family:'Noto Sans',sans-serif;font-size:15.5px;font-weight:600;color:var(--deep)}
+.review-batch{display:inline-flex;padding:6px 9px;border-radius:999px;background:var(--sage);font-family:'Noto Sans',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--moss)}
+.rev .quote{margin:22px 0 0;font-size:15.5px;line-height:2;color:var(--ink)}
+.reviews-more{margin-top:24px}
+.reviews-more summary{display:flex;align-items:center;justify-content:center;gap:12px;min-height:54px;padding:12px 20px;border:1px solid var(--rule);border-radius:14px;background:var(--paper);cursor:pointer;list-style:none;font-weight:600;color:var(--moss);transition:.2s}
+.reviews-more summary::-webkit-details-marker{display:none}
+.reviews-more summary:hover{border-color:var(--moss);background:#fff}
+.reviews-more summary small{font-family:'Noto Sans',sans-serif;font-size:11px;font-weight:600;color:var(--muted)}
+.reviews-more summary::after{content:'＋';font-family:'Noto Sans',sans-serif;font-size:18px;color:var(--signal-ink)}
+.reviews-more[open] summary::after{content:'−'}
+.reviews-expanded{margin-top:22px}
 
 /* cta */
 .cta{background:var(--deep);color:var(--paper);text-align:center;padding:100px 0}
@@ -397,7 +412,7 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
   .tutor{grid-template-columns:1fr;gap:38px}
   .tutor-visual{max-width:520px}
   .portrait{max-width:360px}
-  .revs{grid-template-columns:1fr}
+  .revs{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media (max-width:720px){
   .hero{padding:64px 0}
@@ -408,6 +423,11 @@ footer{background:var(--night);color:var(--sage-deep);padding:70px 0 34px;font-s
   .portrait{max-width:100%}
   .tutor h2{font-size:30px}
   .tutor-mission,.tutor-quote{padding:20px}
+  .reviews-heading{align-items:start}
+  .reviews-count{min-width:0;text-align:left}
+  .revs{grid-template-columns:1fr}
+  .rev{padding:24px}
+  .reviews-more summary{flex-wrap:wrap}
 }
 
 /* ==========================================================================

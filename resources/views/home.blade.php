@@ -138,28 +138,97 @@
 </section>
 
 {{-- ===================== REVIEWS ===================== --}}
-<section class="sec-sage">
+@php
+  $studentReviews = [
+    [
+      'name' => 'LY Htunnaing',
+      'batch' => 'PBR Batch 1',
+      'quote' => 'လုပ်ငန်းကြီးတွေ လုပ်ပြီး Partnership Contract တွေ နားမလည်ခဲ့တာတွေကို သင်တန်းတက်ပြီး နားလည်ခဲ့ပါတယ်။ Future အတွက် အားအင်နဲ့ စွမ်းအင်တွေလည်း အများကြီးရရှိခဲ့ပါတယ်။ ကျေးဇူးတင်ပါတယ်။',
+    ],
+    [
+      'name' => 'Myint Kyi San',
+      'batch' => 'PBR Batch 2',
+      'quote' => 'Partner တွေကို Personal Type စစ်ဆေးခြင်းနဲ့ Earning After Tax ကို Agreement မှာ သေချာထည့်ချုပ်ရမယ့်အချက်တွေ အပါအဝင် Partnership Business Rules များကို စေ့စေ့စပ်စပ် သိခွင့်ရခဲ့ပါတယ်။ ဆရာ့သင်တန်းများကိုလည်း အဆက်မပြတ် Join ပြီး ဆက်လက်သင်ယူသွားပါမယ်ရှင့်။',
+    ],
+    [
+      'name' => 'Zayarsoe Sitoe',
+      'batch' => 'PBR Batch 2',
+      'quote' => 'PBR သင်တန်းကနေ သင်ယူမှုတွေ အများကြီးရလိုက်ပါတယ်။ ကိုယ်မသိနားမလည်ခဲ့တဲ့ အပိုင်းနဲ့ Q&A တွေကို ရှင်းပြပေးတဲ့အတွက် ဆရာနဲ့ဆရာမကို ကျေးဇူးတင်ပါတယ်ခင်ဗျာ။ လုပ်ငန်းရှင်တွေအတွက် PBR သင်တန်းလေးကို အထူးကျေးဇူးတင်ပါတယ်။',
+    ],
+    [
+      'name' => 'Hnin Ei Phyu',
+      'batch' => 'PBR Batch 1',
+      'quote' => 'ပြီးပြည့်စုံပြီး တကယ်အကျိုးရှိပါတယ်။ ဆရာ ကျေးဇူးအများကြီးတင်ပါတယ်ရှင်။',
+    ],
+    [
+      'name' => 'Rolly Rolly',
+      'batch' => 'PBR Batch 1',
+      'quote' => 'မသိတာတွေ သိခွင့်ရတယ်။ သင်တန်းသားတွေ တစ်ယောက်နဲ့တစ်ယောက် Share လုပ်ကြတဲ့ Idea အသစ်တွေလည်း သိခွင့်ရတဲ့အတွက် ကျေးဇူးအများကြီးတင်ပါတယ်။ အများကြီးအကျိုးရှိပါတယ်။',
+    ],
+    [
+      'name' => 'Nang Mo Hom',
+      'batch' => 'PBR Batch 1',
+      'quote' => 'အတွေ့အကြုံအများကြီး သိရပါတယ်။ Rules & Regulation တွေအပြင် တခြား Business Ideas တွေ၊ Concept တွေလည်း အများကြီးရရှိပါတယ်။ မေးသမျှကို စိတ်ရှည်လက်ရှည် ဆွေးနွေးပေးကြတဲ့ ဆရာနဲ့ဆရာမတို့ကို ကျေးဇူးအများကြီးတင်ပါတယ်။',
+    ],
+    [
+      'name' => 'Thu Zar',
+      'batch' => 'PBR Batch 1',
+      'quote' => 'သင်တန်းရဲ့ သင်ခန်းစာတွေ သဘောကျပါတယ်။ စီးပွားရေးနဲ့ပတ်သက်တဲ့ အကြောင်းအရာတွေ၊ မေးသမျှမေးခွန်းတိုင်းကို စိတ်ရှည်လက်ရှည် ဖြေကြားပေးတဲ့ ဆရာနဲ့ Trainer ကို ကျေးဇူးအများကြီးတင်ပါတယ်။',
+    ],
+    [
+      'name' => 'Hhin Wah Wah Wai',
+      'batch' => 'PBR Batch 2',
+      'quote' => 'သင်တန်းမှာ Partnership Share နဲ့ပတ်သက်ပြီး Risk တွေကို ကိုယ်တိုင် ရှာဖွေတွေ့ရှိခဲ့ပါတယ်။ သင်ယူပြီးနောက်ပိုင်းမှာ အောင်မြင်တဲ့ Business Owner တစ်ယောက်အဖြစ် ကြိုးစားသွားပါမယ်ရှင့်။ နောက်ထပ်ဖွင့်မယ့် သင်တန်းတွေလည်း တက်နိုင်အောင် ကြိုးစားပါမယ်။',
+    ],
+    [
+      'name' => 'Thura Aung',
+      'batch' => 'PBR Batch 2',
+      'quote' => 'စပ်တူလုပ်ငန်း လုပ်နေသူများ၊ စပ်တူလုပ်ငန်း လုပ်ဖို့ စိတ်ကူးရှိသူများအတွက် အထူးသင့်တော်တဲ့ သင်တန်းဖြစ်ပြီး လုပ်ငန်းရှင်တိုင်း တက်သင့်တဲ့ သင်တန်းတစ်ခု ဖြစ်ပါတယ်။',
+    ],
+    [
+      'name' => 'Thu Ra Aung',
+      'batch' => 'PBR Batch 2',
+      'quote' => 'မင်္ဂလာပါဆရာ။ PBR သင်တန်းတက်ပြီးတော့ လုပ်ငန်းနဲ့ပတ်သက်တဲ့ အချက်တွေကို ကွက်ကွက်ကွင်းကွင်း မြင်သွားတယ်။ ကျေးဇူးပါဆရာ။',
+    ],
+  ];
+
+  $featuredReviews = array_slice($studentReviews, 0, 3);
+  $additionalReviews = array_slice($studentReviews, 3);
+@endphp
+
+<section class="sec-sage student-reviews" aria-labelledby="student-reviews-title">
   <div class="wrap">
-    <div class="head-row">
+    <div class="head-row reviews-heading">
       <div>
         <div class="eyebrow">From past students</div>
-        <h2>သင်တန်းသားများ၏ အမြင်</h2>
+        <h2 id="student-reviews-title">သင်တန်းသားများ၏ အမြင်</h2>
+        <p class="reviews-intro">PBR Batch 1 နှင့် Batch 2 သင်တန်းသားများထံမှ ရရှိထားသော တကယ့်အတွေ့အကြုံနှင့် သုံးသပ်ချက်များ။</p>
+      </div>
+
+      <div class="reviews-count" aria-label="10 student reviews">
+        <strong>10</strong>
+        <span>Real Student Reviews</span>
       </div>
     </div>
+
     <div class="revs">
-      <div class="rev">
-        <div class="quote">“ကျွန်တော်တို့ ညီအစ်ကိုနှစ်ယောက် လုပ်နေတဲ့ လုပ်ငန်းကို စာချုပ်နဲ့ ပြန်ဖွဲ့ဖို့ ဒီသင်တန်းက အထောက်အကူ အများကြီး ဖြစ်ခဲ့ပါတယ်။”</div>
-        <div class="who"><b>ကိုမင်းသန့်</b><span>Construction supply · ရန်ကုန်</span></div>
-      </div>
-      <div class="rev">
-        <div class="quote">“အမြတ်ခွဲဝေမှုကို ပါးစပ်နဲ့ပဲ ပြောထားခဲ့တာ ဘယ်လောက် အန္တရာယ်များလဲဆိုတာ သင်တန်းတက်မှ သိလိုက်ရပါတယ်။”</div>
-        <div class="who"><b>ဒေါ်ခင်မာဝင်း</b><span>Trading · မန္တလေး</span></div>
-      </div>
-      <div class="rev">
-        <div class="quote">“ဥပဒေစကားလုံးတွေကို လုပ်ငန်းရှင်နားလည်အောင် ရှင်းပြပေးတာ အကောင်းဆုံးပါပဲ။ လက်တွေ့ သုံးလို့ရပါတယ်။”</div>
-        <div class="who"><b>ကိုအောင်ကျော်</b><span>Restaurant group · ချင်းမိုင်</span></div>
-      </div>
+      @foreach($featuredReviews as $review)
+        @include('partials.student-review-card', ['review' => $review])
+      @endforeach
     </div>
+
+    <details class="reviews-more">
+      <summary>
+        <span>Review ၁၀ ခုလုံး ကြည့်ရန်</span>
+        <small>နောက်ထပ် ၇ ခု</small>
+      </summary>
+
+      <div class="revs reviews-expanded">
+        @foreach($additionalReviews as $review)
+          @include('partials.student-review-card', ['review' => $review])
+        @endforeach
+      </div>
+    </details>
   </div>
 </section>
 
