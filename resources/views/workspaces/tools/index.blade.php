@@ -5,648 +5,638 @@
 @section('content')
 @php
     $currency = $workspace->currency_code ?? 'THB';
-    $metrics = $businessState['metrics'];
-    $systems = $businessState['systems'];
-    $actions = $businessState['action_items'];
-    $capital = $businessState['capital'];
-    $activeRules = $businessState['active_rules'];
-    $capitalSource = $businessState['capital_source'] ?? 'none';
-    $journey = $businessState['journey'];
-    $stageMm = $workspace->business_stage === 'new'
-        ? 'Partnership Business အသစ် စီစဉ်နေသည်'
-        : 'ရှိပြီးသား Partnership Business ကို စီမံနေသည်';
 
-    $formatRuleValue = static function ($value, $format = 'text') use ($currency) {
-        if ($value === null || $value === '') {
+    $stageMm = $workspace->business_stage === 'new'
+        ? 'Partnership Business အသစ်'
+        : 'ရှိပြီးသား Partnership Business';
+
+    $health = $dashboard['health'];
+    $capitalDashboard = $dashboard['capital'];
+    $rulebook = $dashboard['rulebook'];
+
+    $formatMoney = static function ($value) use ($currency) {
+        if ($value === null) {
             return '—';
         }
 
-        return match ($format) {
-            'money' => $currency.' '.number_format((float) $value, 2),
-            'percent' => number_format((float) $value, 2).'%',
-            'units' => number_format((float) $value, 2).' Units',
-            'months' => number_format((float) $value, 2).' Months',
-            'days' => number_format((float) $value, 0).' Days',
-            'number' => is_numeric($value) ? number_format((float) $value, 2) : (string) $value,
-            default => (string) $value,
-        };
+        return $currency.' '.number_format(
+            (float) $value,
+            2
+        );
     };
 @endphp
 
-<section class="pbr-business-page">
-    <div class="portal-wrap pbr-business-wrap">
-        <nav class="pbr-os-breadcrumb pbr-business-breadcrumb" aria-label="Breadcrumb">
-            <a href="{{ route('workspaces.show', $workspace) }}">{{ $workspace->business_name ?: $workspace->name }}</a>
+<section
+    class="pbr-dashboard-v2-page"
+    data-pbr-dashboard-v2
+>
+    <div class="portal-wrap pbr-dashboard-v2-wrap">
+
+        <nav
+            class="pbr-dashboard-v2-breadcrumb"
+            aria-label="Breadcrumb"
+        >
+            <a href="{{ route('workspaces.show', $workspace) }}">
+                {{ $workspace->business_name ?: $workspace->name }}
+            </a>
+
             <span>›</span>
+
             <span>Business Operating System</span>
         </nav>
 
-        <header class="pbr-business-hero">
-            <div class="pbr-business-hero-copy">
-                <span class="pbr-business-eyebrow">PBR BUSINESS OPERATING SYSTEM</span>
-                <h1>{{ $workspace->business_name ?: $workspace->name }}</h1>
-                <p class="pbr-business-hero-lead">
-                    Capital ကနေ Conflict Resolution အထိ <strong>actual company data၊ Working Changes၊ approved Rules နဲ့ Operating Records</strong>
-                    ကို ချိတ်ဆက်ပြီး Partnership ကို ဆက်တိုက်စီမံနိုင်ပါတယ်။
+        <header class="pbr-v2-card pbr-v2-hero">
+            <div>
+                <span class="pbr-v2-eyebrow">
+                    PBR BUSINESS OPERATING SYSTEM
+                </span>
+
+                <h1>
+                    {{ $workspace->business_name ?: $workspace->name }}
+                </h1>
+
+                <p>
+                    Partnership ရဲ့ လက်ရှိ Business Rules,
+                    Working Drafts, Partner responsibilities နဲ့
+                    အရေးကြီးဆုံး next actions တွေကို
+                    တစ်နေရာတည်းကနေ စီမံပါ။
                 </p>
-                <div class="pbr-business-tags">
+
+                <div class="pbr-v2-tags">
                     <span>{{ $stageMm }}</span>
                     <span>{{ $currency }}</span>
-                    <span>Partner {{ $metrics['partner_count'] }} ဦး</span>
-                    @unless($businessState['can_manage'])
+                    <span>
+                        Partner {{ $businessState['metrics']['partner_count'] }} ဦး
+                    </span>
+
+                    @unless($dashboard['can_manage'])
                         <span>Partner Read-Only</span>
                     @endunless
                 </div>
             </div>
 
-            <div class="pbr-business-hero-actions">
-                <a href="#business-operating-journey" class="pbr-business-btn secondary">Operating Journey</a>
-                <a href="{{ route('workspaces.rulebook.show', $workspace) }}" class="pbr-business-btn secondary">Business Rulebook</a>
-                <a href="{{ route('workspaces.partner-roster.index', $workspace) }}" class="pbr-business-btn secondary">Partner များ</a>
-
-                @if($canUsePbrAiAdvisor)
-                    <a href="{{ route('workspaces.ai-advisor.index', $workspace) }}" class="pbr-business-btn">PBR AI ကို မေးရန် ✦</a>
-                @endif
-            </div>
-        </header>
-
-        @unless($businessState['can_manage'])
-            <div class="pbr-os-readonly-banner">
-                <div>
-                    <strong>Partner Read-Only View</strong>
-                    <p>ဒီ View မှာ Owner/Admin က အတည်ပြုထားတဲ့ Active Business Rules နဲ့ shared operating data ကိုသာ ပြထားပါတယ်။ Working Draft နဲ့ private scenario inputs မပါပါဘူး။</p>
-                </div>
-                <span>Permission Safe</span>
-            </div>
-        @endunless
-
-        <section
-            id="business-operating-journey"
-            class="pbr-business-journey"
-            data-pbr-business-journey
-        >
-            <div class="pbr-journey-head">
-                <div>
-                    <span class="pbr-business-eyebrow">
-                        REAL BUSINESS JOURNEY
-                    </span>
-                    <h2>
-                        Business Setup ကနေ Rulebook အထိ
-                    </h2>
-                    <p>
-                        Area တစ်ခုမှာ Rule တစ်ခု approve လုပ်ထားတာနဲ့
-                        setup ပြီးသွားတယ်လို့ မယူပါဘူး။
-                        Current Rules, Working Changes နဲ့ upstream
-                        changes တွေကို တစ်ခုလုံးချိတ်ပြီး
-                        နောက်လုပ်ရမယ့်အဆင့်ကို ပြထားပါတယ်။
-                    </p>
-                </div>
-
-                <div class="pbr-journey-score">
-                    <span>RULE COVERAGE</span>
-                    <strong>
-                        {{ $journey['completion_percent'] }}%
-                    </strong>
-                    <small>
-                        {{
-                            $journey['metrics']['approved_rule_count']
-                        }}
-                        /
-                        {{
-                            $journey['metrics']['total_rule_count']
-                        }}
-                        Current Rules
-                    </small>
-                </div>
-            </div>
-
-            <div class="pbr-journey-preflight">
+            <div class="pbr-v2-hero-actions">
                 <a
-                    href="{{ $canManageContext ? route('workspaces.edit', $workspace) : route('workspaces.show', $workspace) }}"
+                    href="{{ route('workspaces.rulebook.show', $workspace) }}"
+                    class="pbr-v2-btn"
                 >
-                    <span>00A</span>
-                    <div>
-                        <strong>Business Context</strong>
-                        <small>
-                            Stage · Currency · Business Identity
-                        </small>
-                    </div>
+                    Business Rulebook
                 </a>
 
                 <a
                     href="{{ route('workspaces.partner-roster.index', $workspace) }}"
+                    class="pbr-v2-btn"
                 >
-                    <span>00B</span>
-                    <div>
-                        <strong>Partner Roster</strong>
-                        <small>
-                            Owner · Partners · Planned Roles
-                        </small>
-                    </div>
+                    Partner များ
                 </a>
+
+                @if($canUsePbrAiAdvisor)
+                    <a
+                        href="{{ route('workspaces.ai-advisor.index', $workspace) }}"
+                        class="pbr-v2-btn primary"
+                    >
+                        PBR AI ကို မေးရန် ✦
+                    </a>
+                @endif
+            </div>
+        </header>
+
+        @unless($dashboard['can_manage'])
+            <section class="pbr-v2-readonly">
+                <div>
+                    <strong>Partner Read-Only View</strong>
+
+                    <p>
+                        အတည်ပြုထားသော Current Rules နဲ့
+                        shared operating information ကိုသာ
+                        ပြထားပါတယ်။ Owner ရဲ့ Working Drafts
+                        နဲ့ private scenario data မပါပါဘူး။
+                    </p>
+                </div>
+
+                <span>Read-only</span>
+            </section>
+        @endunless
+
+        @if($dashboard['can_manage'])
+            @if(!empty($dashboard['primary_action']))
+                <a
+                    href="{{ $dashboard['primary_action']['url'] }}"
+                    class="pbr-v2-card pbr-v2-next"
+                >
+                    <div>
+                        <span class="pbr-v2-eyebrow">
+                            NEXT BUSINESS ACTION
+                        </span>
+
+                        <h2>
+                            {{ $dashboard['primary_action']['title_mm'] }}
+                        </h2>
+
+                        <p>
+                            {{ $dashboard['primary_action']['detail_mm'] }}
+                        </p>
+                    </div>
+
+                    <span class="pbr-v2-btn primary">
+                        {{ $dashboard['primary_action']['action_mm'] }}
+                    </span>
+                </a>
+            @else
+                <section class="pbr-v2-card pbr-v2-next-empty">
+                    <span class="pbr-v2-eyebrow">
+                        NEXT BUSINESS ACTION
+                    </span>
+
+                    <h2>အရေးပေါ် Review လုပ်ရန် မရှိပါ</h2>
+
+                    <p>
+                        လက်ရှိ approved business state ကို
+                        Rulebook မှာ ဆက်လက်ကြည့်ရှုနိုင်ပါတယ်။
+                    </p>
+                </section>
+            @endif
+        @endif
+
+        <section class="pbr-v2-card pbr-v2-health">
+            <div class="pbr-v2-section-head">
+                <div>
+                    <span class="pbr-v2-eyebrow">
+                        BUSINESS HEALTH
+                    </span>
+
+                    <h2>Business Setup အခြေအနေ</h2>
+
+                    <p>
+                        Tool အရေအတွက်မဟုတ်ဘဲ
+                        Operating Area တစ်ခုချင်းစီရဲ့
+                        လက်တွေ့ setup အခြေအနေကို ပြထားပါတယ်။
+                    </p>
+                </div>
             </div>
 
-            <div class="pbr-journey-progress">
+            <div class="pbr-v2-health-grid">
+                <article class="pbr-v2-health-item">
+                    <small>Areas Started</small>
+
+                    <strong>
+                        {{ $health['started_area_count'] }}
+                        /
+                        {{ $health['total_area_count'] }}
+                    </strong>
+
+                    <span>စတင်လုပ်ဆောင်ထားသော Areas</span>
+                </article>
+
+                <article
+                    class="pbr-v2-health-item
+                        {{ $health['working_change_count'] > 0 ? 'attention' : '' }}"
+                >
+                    <small>Working Changes</small>
+
+                    <strong>
+                        {{ $health['working_change_count'] }}
+                    </strong>
+
+                    <span>Approve မလုပ်ရသေးသော Drafts</span>
+                </article>
+
+                <article
+                    class="pbr-v2-health-item
+                        {{ $health['review_area_count'] > 0 ? 'attention' : '' }}"
+                >
+                    <small>Needs Review</small>
+
+                    <strong>
+                        {{ $health['review_area_count'] }}
+                    </strong>
+
+                    <span>ပြန်လည်စစ်ဆေးရန် Areas</span>
+                </article>
+
+                <article class="pbr-v2-health-item">
+                    <small>Approved Rules</small>
+
+                    <strong>
+                        {{ $health['active_rule_count'] }}
+                    </strong>
+
+                    <span>လက်ရှိအသုံးပြုနေသော Rules</span>
+                </article>
+
+                <article class="pbr-v2-health-item secondary">
+                    <small>Approved Areas</small>
+
+                    <strong>
+                        {{ $health['approved_area_count'] }}
+                        /
+                        {{ $health['total_area_count'] }}
+                    </strong>
+
+                    <span>Rule setup အပြည့်ပြီးသော Areas</span>
+                </article>
+            </div>
+
+
+            <div
+                class="pbr-v2-progress"
+                aria-label="Business setup progress"
+            >
                 <div
-                    style="width: {{ min(100, max(0, (int) $journey['completion_percent'])) }}%"
+                    style="width:
+                        {{
+                            min(
+                                100,
+                                max(
+                                    0,
+                                    (int) $health['setup_progress_percent']
+                                )
+                            )
+                        }}%"
                 ></div>
             </div>
+        </section>
 
-            <div class="pbr-journey-stats">
+        <section
+            class="pbr-v2-card pbr-v2-journey"
+            data-pbr-business-journey
+        >
+            <div class="pbr-v2-section-head">
                 <div>
-                    <span>Established Areas</span>
-                    <strong>
-                        {{
-                            $journey['metrics']['established_area_count']
-                        }}
-                        / 10
-                    </strong>
-                </div>
+                    <span class="pbr-v2-eyebrow">
+                        BUSINESS JOURNEY
+                    </span>
 
-                <div>
-                    <span>Missing Rules</span>
-                    <strong>
-                        {{
-                            $journey['metrics']['missing_rule_count']
-                        }}
-                    </strong>
-                </div>
+                    <h2>
+                        Build → Operate → Protect
+                    </h2>
 
-                <div>
-                    <span>Review Areas</span>
-                    <strong>
-                        {{
-                            $journey['metrics']['review_area_count']
-                        }}
-                    </strong>
-                </div>
-
-                <div>
-                    <span>Upstream Review Signals</span>
-                    <strong>
-                        {{
-                            $journey['metrics']['dependency_review_count']
-                        }}
-                    </strong>
+                    <p>
+                        Partnership တစ်ခုကို
+                        10 Chapters လို့မမြင်ဘဲ
+                        တည်ဆောက်ခြင်း၊ လည်ပတ်ခြင်းနဲ့
+                        ကာကွယ်ခြင်းဆိုတဲ့
+                        business journey အဖြစ် စီမံပါ။
+                    </p>
                 </div>
             </div>
 
-            @if(!empty($journey['next_action']))
-                <a
-                    href="{{ $journey['next_action']['url'] }}"
-                    class="pbr-journey-next"
-                >
-                    <span>NEXT BUSINESS ACTION</span>
-
-                    <strong>
-                        {{ $journey['next_action']['title_mm'] }}
-                    </strong>
-
-                    <small>
-                        {{ $journey['next_action']['detail_mm'] }}
-                    </small>
-
-                    <b>
-                        {{ $journey['next_action']['action_mm'] }}
-                    </b>
-                </a>
-            @endif
-
-            <div class="pbr-journey-grid">
-                @foreach($journey['steps'] as $step)
-                    <a
-                        href="{{ $step['next_module']['url'] ?? $step['url'] }}"
-                        class="pbr-journey-step {{ $step['status_key'] }}"
-                        data-journey-step="{{ $step['domain'] }}"
+            <div class="pbr-v2-phase-stack">
+                @foreach($dashboard['phases'] as $phase)
+                    <section
+                        class="pbr-v2-phase"
+                        data-pbr-phase="{{ $phase['key'] }}"
                     >
-                        <div class="pbr-journey-step-top">
-                            <span>
-                                {{
-                                    str_pad(
-                                        (string) $step['step_number'],
-                                        2,
-                                        '0',
-                                        STR_PAD_LEFT
-                                    )
-                                }}
-                            </span>
+                        <header class="pbr-v2-phase-head">
+                            <div>
+                                <h3>{{ $phase['title_mm'] }}</h3>
 
-                            <b>
-                                {{ $step['completion_percent'] }}%
-                            </b>
+                                <small>
+                                    {{ $phase['title_en'] }}
+                                </small>
+                            </div>
+
+                            <p>
+                                {{ $phase['description_mm'] }}
+                            </p>
+                        </header>
+
+                        <div class="pbr-v2-area-grid">
+                            @foreach($phase['areas'] as $area)
+                                <a
+                                    id="system-{{ $area['slug'] }}"
+                                    href="{{ $area['url'] }}"
+                                    class="
+                                        pbr-v2-area
+                                        {{ $area['status_key'] }}
+                                    "
+                                    data-journey-step="{{ $area['domain'] }}"
+                                >
+                                    <div class="pbr-v2-area-top">
+                                        <span class="pbr-v2-area-number">
+                                            {{
+                                                str_pad(
+                                                    (string) $area['number'],
+                                                    2,
+                                                    '0',
+                                                    STR_PAD_LEFT
+                                                )
+                                            }}
+                                        </span>
+
+                                        <span class="pbr-v2-status">
+                                            {{ $area['status_mm'] }}
+                                        </span>
+                                    </div>
+
+                                    <h4>
+                                        {{ $area['name_mm'] }}
+                                    </h4>
+
+                                    <small>
+                                        {{ $area['name_en'] }}
+                                    </small>
+
+                                    <div class="pbr-v2-area-progress">
+                                        <div class="pbr-v2-area-progress-row">
+                                            <span>
+                                                Setup
+                                                {{ $area['configured_rule_count'] }}
+                                                /
+                                                {{ $area['rule_count'] }}
+                                            </span>
+
+                                            <span>
+                                                Approved
+                                                {{ $area['approved_rule_count'] }}
+                                            </span>
+                                        </div>
+
+                                        <div class="pbr-v2-area-progress-bar">
+                                            <div
+                                                style="
+                                                    width:
+                                                    {{
+                                                        min(
+                                                            100,
+                                                            max(
+                                                                0,
+                                                                (int) $area['setup_percent']
+                                                            )
+                                                        )
+                                                    }}%
+                                                "
+                                            ></div>
+                                        </div>
+
+                                        @if(
+                                            $dashboard['can_manage']
+                                            && !empty($area['next_module'])
+                                        )
+                                            @php
+                                                $nextBusinessAction =
+                                                    match (true) {
+                                                        $area['status_key'] === 'draft'
+                                                            => 'Working Draft ကို ပြန်စစ်ရန်',
+
+                                                        $area['status_key'] === 'needs-review'
+                                                            => 'ပြောင်းလဲမှုသက်ရောက်ချက် ပြန်စစ်ရန်',
+
+                                                        $area['domain'] === 'capital'
+                                                            => $workspace->business_stage === 'new'
+                                                                ? 'Startup Capital ကို စီစဉ်ရန်'
+                                                                : 'လက်ရှိ Capital Position သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'ownership'
+                                                            => 'Ownership နှင့် Voting Rights သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'contribution'
+                                                            => 'Partner တာဝန်နှင့် Contribution သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'distribution'
+                                                            => 'Profit နှင့် Distribution Rules သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'financial_controls'
+                                                            => 'Financial Controls သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'governance'
+                                                            => 'Decision Rules သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'exit'
+                                                            => 'Exit နှင့် Buyout Plan သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'continuity'
+                                                            => 'Business Continuity Plan သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'share_transfer'
+                                                            => 'Share Transfer Rules သတ်မှတ်ရန်',
+
+                                                        $area['domain'] === 'dispute_resolution'
+                                                            => 'Conflict Resolution Process သတ်မှတ်ရန်',
+
+                                                        default
+                                                            => 'နောက်တစ်ဆင့် ဆက်လုပ်ရန်',
+                                                    };
+                                            @endphp
+
+                                            <div class="pbr-v2-area-next">
+                                                <span>Next</span>
+                                                <strong>
+                                                    {{ $nextBusinessAction }}
+                                                </strong>
+                                                <b>→</b>
+                                            </div>
+                                        @elseif(!$dashboard['can_manage'])
+                                            <div class="pbr-v2-area-next">
+                                                Approved state ကြည့်ရန် →
+                                            </div>
+                                        @endif
+                                    </div>
+                                </a>
+                            @endforeach
                         </div>
-
-                        <h3>{{ $step['name_mm'] }}</h3>
-                        <small>{{ $step['name_en'] }}</small>
-
-                        <div class="pbr-journey-step-state">
-                            {{ $step['status_label'] }}
-                        </div>
-
-                        <div class="pbr-journey-step-meta">
-                            <span>
-                                Rules
-                                {{
-                                    $step['approved_rule_count']
-                                }}
-                                /
-                                {{ $step['rule_count'] }}
-                            </span>
-
-                            @if($step['working_change_count'] > 0)
-                                <span>
-                                    Working
-                                    {{
-                                        $step['working_change_count']
-                                    }}
-                                </span>
-                            @endif
-
-                            @if($step['dependency_review_count'] > 0)
-                                <span class="attention">
-                                    Upstream Review
-                                    {{
-                                        $step['dependency_review_count']
-                                    }}
-                                </span>
-                            @endif
-                        </div>
-
-                        @if($businessState['can_manage'] && !empty($step['next_module']))
-                            <footer>
-                                <span>Next</span>
-                                <strong>
-                                    {{
-                                        $step['next_module']['title_en']
-                                    }}
-                                </strong>
-                            </footer>
-                        @elseif(!$businessState['can_manage'])
-                            <footer>
-                                <strong>
-                                    Approved business state
-                                </strong>
-                            </footer>
-                        @endif
-                    </a>
+                    </section>
                 @endforeach
             </div>
-
-            <footer class="pbr-journey-footer">
-                <a
-                    href="{{ route('workspaces.rulebook.show', $workspace) }}"
-                >
-                    Approved Business Rulebook →
-                </a>
-
-                <span>
-                    Working Draft ≠ Current Rule ·
-                    Operating Record ≠ Current Rule
-                </span>
-            </footer>
         </section>
 
-        @include(
-            'workspaces.tools.partials.capital-command-center',
-            ['capitalWorkflow' => $capitalWorkflow]
-        )
-
-        <section class="pbr-business-metrics" aria-label="Operating overview">
-            <article class="pbr-business-metric">
-                <span class="pbr-mm-label">လိုအပ်သော မတည်ငွေ</span>
-                <small class="pbr-en-label">Capital Required</small>
-                <strong>{{ $currency }} {{ number_format((float) $metrics['capital_required'], 2) }}</strong>
-                <div class="pbr-metric-foot">
-                    <span>
-                        @if($capitalSource === 'active')
-                            Current approved Capital Rule အပေါ်အခြေခံသည်
-                        @elseif($capitalSource === 'working')
-                            Working Capital Data အပေါ်အခြေခံသည်
-                        @else
-                            Capital Data မသတ်မှတ်ရသေး
-                        @endif
-                    </span>
-                </div>
-            </article>
-
-            <article class="pbr-business-metric {{ $metrics['funding_gap'] > 0 ? 'attention' : 'healthy' }}">
-                <span class="pbr-mm-label">လိုအပ်နေသေးသော ရင်းနှီးငွေ</span>
-                <small class="pbr-en-label">Funding Gap</small>
-                <strong>{{ $currency }} {{ number_format((float) $metrics['funding_gap'], 2) }}</strong>
-                <div class="pbr-metric-foot">
-                    <b class="{{ $metrics['funding_gap'] > 0 ? 'warning' : 'active' }}">
-                        {{ $metrics['funding_gap'] > 0 ? 'Action လိုသည်' : 'Funding လုံလောက်' }}
-                    </b>
-                </div>
-            </article>
-
-            <article class="pbr-business-metric">
-                <span class="pbr-mm-label">အသုံးပြုနေသော Business Rules</span>
-                <small class="pbr-en-label">Active Rules</small>
-                <strong>{{ $metrics['active_rule_count'] }}</strong>
-                <div class="pbr-metric-foot"><span>အတည်ပြုပြီး လက်ရှိအသုံးပြုနေသော Rules</span></div>
-            </article>
-
-            <article class="pbr-business-metric {{ $metrics['working_change_count'] > 0 ? 'draft' : '' }}">
-                <span class="pbr-mm-label">Review လုပ်ရန် ပြောင်းလဲမှု</span>
-                <small class="pbr-en-label">Working Changes</small>
-                <strong>{{ $metrics['working_change_count'] }}</strong>
-                <div class="pbr-metric-foot"><span>Active Rule မပြောင်းခင် Review လိုသော Draft</span></div>
-            </article>
-        </section>
-
-        <section class="pbr-business-attention">
-            <div class="pbr-business-section-head">
+        <section class="pbr-v2-card pbr-v2-capital">
+            <div class="pbr-v2-section-head">
                 <div>
-                    <span class="pbr-business-eyebrow">ACTION CENTER</span>
-                    <h2>လက်ရှိ Business မှာ အရင်ဆုံး စီမံရမယ့်အရာများ</h2>
-                    <p>ဆုံးဖြတ်ချက်၊ Review သို့မဟုတ် Setup လိုတဲ့အရာတွေကို priority အလိုက် Action အဖြစ် ပြပါတယ်။</p>
+                    <span class="pbr-v2-eyebrow">
+                        CURRENT BUSINESS POSITION
+                    </span>
+
+                    <h2>Capital Position</h2>
+
+                    <p>
+                        Approved capital data မရှိသေးရင်
+                        0.00 လို့ မပြပါဘူး။
+                        “Not Set” နဲ့ actual zero ကို
+                        သီးခြားခွဲထားပါတယ်။
+                    </p>
                 </div>
+
+                <span
+                    class="
+                        pbr-v2-capital-state
+                        {{
+                            $capitalDashboard['source'] === 'active'
+                                ? 'active'
+                                : (
+                                    $capitalDashboard['source'] === 'working'
+                                        ? 'working'
+                                        : ''
+                                )
+                        }}
+                    "
+                >
+                    {{ $capitalDashboard['source_label'] }}
+                </span>
             </div>
 
-            @if($actions->isNotEmpty())
-                <div class="pbr-business-attention-grid">
-                    @foreach($actions->take(8) as $action)
-                        <a href="{{ $action['url'] }}" class="pbr-business-attention-card {{ $action['level'] }}">
-                            <span class="pbr-en-label">{{ strtoupper(str_replace('_', ' ', $action['domain'])) }}</span>
-                            <strong>{{ $action['title_mm'] }}</strong>
-                            <small>{{ $action['detail_mm'] }}</small>
-                            <b>{{ $action['action_mm'] }}</b>
+            <div class="pbr-v2-capital-grid">
+                <article class="pbr-v2-capital-metric">
+                    <span>Capital Required</span>
+
+                    <strong>
+                        {{
+                            $formatMoney(
+                                $capitalDashboard['capital_required']
+                            )
+                        }}
+                    </strong>
+                </article>
+
+                <article class="pbr-v2-capital-metric">
+                    <span>Capital Secured</span>
+
+                    <strong>
+                        {{
+                            $formatMoney(
+                                $capitalDashboard['capital_secured']
+                            )
+                        }}
+                    </strong>
+                </article>
+
+                <article class="pbr-v2-capital-metric">
+                    <span>Funding Gap</span>
+
+                    <strong>
+                        {{
+                            $formatMoney(
+                                $capitalDashboard['funding_gap']
+                            )
+                        }}
+                    </strong>
+                </article>
+            </div>
+        </section>
+
+        @if(
+            $dashboard['can_manage']
+            && $dashboard['priority_actions']->isNotEmpty()
+        )
+            <section class="pbr-v2-card pbr-v2-priority">
+                <div class="pbr-v2-section-head">
+                    <div>
+                        <span class="pbr-v2-eyebrow">
+                            PRIORITY ACTIONS
+                        </span>
+
+                        <h2>နောက်ထပ် လုပ်သင့်သောအချက်များ</h2>
+
+                        <p>
+                            Dashboard မှာ
+                            အရေးကြီးဆုံး 3 ခုထက်ပိုမပြပါဘူး။
+                            အလုပ်မစရသေးတာတိုင်းကို
+                            urgent task လို့ မယူပါဘူး။
+                        </p>
+                    </div>
+                </div>
+
+                <div class="pbr-v2-action-grid">
+                    @foreach($dashboard['priority_actions'] as $action)
+                        <a
+                            href="{{ $action['url'] }}"
+                            class="
+                                pbr-v2-action
+                                {{ $action['level'] ?? 'normal' }}
+                            "
+                        >
+                            <strong>
+                                {{ $action['title_mm'] }}
+                            </strong>
+
+                            <p>
+                                {{ $action['detail_mm'] }}
+                            </p>
+
+                            <span>
+                                {{ $action['action_mm'] }}
+                            </span>
                         </a>
                     @endforeach
                 </div>
-            @else
-                <div class="pbr-business-healthy-banner">
-                    <span>✓</span>
+            </section>
+        @endif
+
+        <div class="pbr-v2-bottom-grid">
+            <section class="pbr-v2-card pbr-v2-rulebook">
+                <span class="pbr-v2-eyebrow">
+                    BUSINESS RULEBOOK
+                </span>
+
+                <h2>Partnership ရဲ့ Official Rules</h2>
+
+                <p>
+                    Working Draft,
+                    Approved Current Rule နဲ့
+                    Operating Record ကို
+                    မရောဘဲ သီးခြားထိန်းသိမ်းထားပါတယ်။
+                </p>
+
+                <div class="pbr-v2-rulebook-metrics">
                     <div>
-                        <strong>လက်ရှိ အရေးပေါ် Action မရှိပါ</strong>
-                        <p>Working Draft မကျန်ဘဲ Funding Gap မရှိတဲ့ အခြေအနေဖြစ်ပါတယ်။ Business ပြောင်းလဲလာတိုင်း သက်ဆိုင်ရာ Area ကို Update လုပ်နိုင်ပါတယ်။</p>
+                        <span>Approved Rules</span>
+
+                        <strong>
+                            {{ $rulebook['active_rule_count'] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Working Changes</span>
+
+                        <strong>
+                            {{ $rulebook['working_change_count'] }}
+                        </strong>
+                    </div>
+
+                    <div>
+                        <span>Operating Records</span>
+
+                        <strong>
+                            {{ $rulebook['operating_record_count'] }}
+                        </strong>
                     </div>
                 </div>
-            @endif
-        </section>
 
-        <details class="pbr-business-settings">
-            <summary>
-                <div>
-                    <span class="pbr-business-eyebrow">BUSINESS SETTINGS</span>
-                    <strong>Business အခြေခံအချက်အလက်</strong>
-                    <small>{{ $stageMm }} · {{ $currency }}</small>
-                </div>
-                <span class="pbr-business-settings-action">ပြင်ဆင်ရန် +</span>
-            </summary>
+                <a
+                    href="{{ $rulebook['url'] }}"
+                    class="pbr-v2-btn primary"
+                >
+                    Business Rulebook ကို ဖွင့်ရန် →
+                </a>
+            </section>
 
-            <div class="pbr-business-settings-body">
-                <p>Currency နဲ့ Business Stage ကို Financial calculations၊ Valuation၊ Operating Rules နဲ့ PBR AI က ဒီ Business ရဲ့ default context အဖြစ် အသုံးပြုပါတယ်။</p>
+            <section class="pbr-v2-card pbr-v2-settings">
+                <span class="pbr-v2-eyebrow">
+                    BUSINESS SETTINGS
+                </span>
+
+                <h2>Workspace Settings</h2>
+
+                <p>
+                    Business Stage:
+                    <strong>{{ $stageMm }}</strong>
+                    <br>
+                    Currency:
+                    <strong>{{ $currency }}</strong>
+                </p>
 
                 @if($canManageContext)
-                    <form method="POST" action="{{ route('workspaces.business-context.update', $workspace) }}">
-                        @csrf
-                        @method('PUT')
-
-                        <div class="pbr-context-grid">
-                            <div class="pbr-tools-field">
-                                <label for="business_stage">Partnership အခြေအနေ <span>Business Stage</span></label>
-                                <select id="business_stage" name="business_stage" required>
-                                    @foreach($businessStages as $value => $label)
-                                        <option value="{{ $value }}" @selected(old('business_stage', $workspace->business_stage) === $value)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                <small>Business အသစ် စီစဉ်နေတာလား၊ ရှိပြီးသား Partnership ကို စီမံနေတာလား သတ်မှတ်ပါ။</small>
-                            </div>
-
-                            <div class="pbr-tools-field">
-                                <label for="currency_code">အဓိက ငွေကြေး <span>Primary Currency</span></label>
-                                <select id="currency_code" name="currency_code" required>
-                                    @foreach($currencies as $value => $label)
-                                        <option value="{{ $value }}" @selected(old('currency_code', $workspace->currency_code) === $value)>{{ $label }}</option>
-                                    @endforeach
-                                </select>
-                                <small>Financial modules အားလုံးရဲ့ default currency ဖြစ်ပါတယ်။</small>
-                            </div>
-                        </div>
-
-                        <div class="pbr-context-actions">
-                            <button type="submit" class="pbr-tools-primary-button">Business Settings သိမ်းရန်</button>
-                        </div>
-                    </form>
-                @else
-                    <div class="pbr-context-readonly">
-                        <div><span>Partnership အခြေအနေ</span><strong>{{ $stageMm }}</strong></div>
-                        <div><span>အဓိက ငွေကြေး</span><strong>{{ $currency }}</strong></div>
-                    </div>
+                    <a
+                        href="{{ route('workspaces.edit', $workspace) }}"
+                        class="pbr-v2-btn"
+                    >
+                        Settings ပြင်ရန် →
+                    </a>
                 @endif
-            </div>
-        </details>
+            </section>
+        </div>
 
-        <section class="pbr-business-systems">
-            <div class="pbr-business-section-head">
-                <div>
-                    <span class="pbr-business-eyebrow">OPERATING AREAS</span>
-                    <h2>Partnership တစ်ခုလုံးရဲ့ Operating System</h2>
-                    <p>Business အခြေအနေပြောင်းတိုင်း Data၊ Decision နဲ့ Rule ကို Update လုပ်ပြီး Operating Area တစ်ခုချင်းစီကို ဆက်တိုက်အသုံးပြုနိုင်ပါတယ်။</p>
-                </div>
-            </div>
-
-            <div class="pbr-business-system-list">
-                @foreach($systems as $system)
-                    <details id="system-{{ $system['slug'] }}" class="pbr-business-system {{ $system['state']['key'] }}" @if($loop->first) open @endif>
-                        <summary>
-                            <div class="pbr-business-system-summary-main">
-                                <span class="pbr-business-state {{ $system['state']['key'] }}">{{ $system['state']['label_mm'] }}</span>
-                                <div>
-                                    <small>{{ $system['name_en'] }}</small>
-                                    <h3>{{ $system['name_mm'] }}</h3>
-                                    <p>{{ $system['purpose_mm'] }}</p>
-                                </div>
-                            </div>
-                            <div class="pbr-business-system-summary-meta">
-                                <span>Active {{ $system['active_count'] }}</span>
-                                @if($businessState['can_manage'])
-                                    <span>Review {{ $system['working_count'] }}</span>
-                                @endif
-                                <b>ဖွင့်ရန် +</b>
-                            </div>
-                        </summary>
-
-                        <div class="pbr-business-system-body">
-                            <div class="pbr-business-module-grid">
-                                @foreach($system['modules'] as $module)
-                                    <a href="{{ $module['url'] }}" class="pbr-business-module-card {{ $module['state']['key'] }}">
-                                        <div class="pbr-business-module-head">
-                                            <span class="pbr-business-state {{ $module['state']['key'] }}">{{ $module['state']['label_mm'] }}</span>
-                                            @if($module['active_revision'])
-                                                <small>Active Revision {{ $module['active_revision'] }}</small>
-                                            @elseif($module['draft_updated_at'])
-                                                <small>Updated {{ optional($module['draft_updated_at'])->diffForHumans() }}</small>
-                                            @endif
-                                        </div>
-                                        <h4>{{ $module['title_mm'] }}</h4>
-                                        <span class="pbr-business-module-en">{{ $module['title_en'] }}</span>
-                                        <p>{{ $module['purpose_mm'] }}</p>
-                                        <b>{{ $module['action_mm'] }}</b>
-                                    </a>
-                                @endforeach
-                            </div>
-                        </div>
-                    </details>
-                @endforeach
-            </div>
-        </section>
-
-        <section class="pbr-business-operating-summary">
-            <div>
-                <span class="pbr-business-eyebrow">CURRENT BUSINESS POSITION</span>
-                <h2>Capital Snapshot</h2>
-                <p>
-                    @if($capitalSource === 'active')
-                        Current approved Capital Rule ကို source of truth အဖြစ် ပြထားပါတယ်။
-                    @elseif($capitalSource === 'working')
-                        Active Capital Rule မရှိသေးလို့ Working Data ကို planning view အဖြစ် ပြထားပါတယ်။
-                    @else
-                        Capital information စတင်သတ်မှတ်နိုင်ပါတယ်။
-                    @endif
-                </p>
-            </div>
-            <div class="pbr-business-operating-summary-grid">
-                <div><span>Capital Required</span><strong>{{ $currency }} {{ number_format((float) ($capital['capital_required'] ?? 0), 2) }}</strong></div>
-                <div><span>Capital Secured</span><strong>{{ $currency }} {{ number_format((float) ($capital['capital_secured'] ?? 0), 2) }}</strong></div>
-                <div><span>Funding Gap</span><strong>{{ $currency }} {{ number_format((float) ($capital['funding_gap'] ?? 0), 2) }}</strong></div>
-                <div><span>Operating Records</span><strong>{{ $metrics['operating_record_count'] }}</strong></div>
-            </div>
-        </section>
-
-        <section id="current-business-rules" class="pbr-business-rulebook">
-            <div class="pbr-business-rulebook-head">
-                <div>
-                    <span class="pbr-business-eyebrow">DOCUMENTS & BUSINESS RULES</span>
-                    <h2>Current Business Rule Register</h2>
-                    <p>Approve & Activate လုပ်ထားတဲ့ Rules တွေကိုသာ ဒီ Register မှာ Current Business Rules အဖြစ် စုစည်းပြထားပါတယ်။ Working Draft တွေ ဒီ Register ထဲ မဝင်ပါဘူး။</p>
-                </div>
-                @if($activeRules->isNotEmpty())
-                    <button
-                        type="button"
-                        class="pbr-business-btn secondary pbr-no-print"
-                        onclick="document.body.classList.add('pbr-rulebook-print'); window.print(); setTimeout(() => document.body.classList.remove('pbr-rulebook-print'), 700);"
-                    >Print / Save PDF</button>
-                @endif
-            </div>
-
-            <div class="pbr-business-rulebook-meta">
-                <div><span>Business</span><strong>{{ $workspace->business_name ?: $workspace->name }}</strong></div>
-                <div><span>Currency</span><strong>{{ $currency }}</strong></div>
-                <div><span>Active Rules</span><strong>{{ $activeRules->count() }}</strong></div>
-                <div><span>Generated</span><strong>{{ now()->format('d M Y, H:i') }}</strong></div>
-            </div>
-
-            @forelse($activeRules->groupBy('domain') as $domain => $rules)
-                <article class="pbr-business-rulebook-area">
-                    <header>
-                        <span>{{ $rules->first()['area_name_en'] }}</span>
-                        <h3>{{ $rules->first()['area_name_mm'] }}</h3>
-                    </header>
-
-                    <div class="pbr-business-rulebook-rules">
-                        @foreach($rules as $rule)
-                            @php $ruleResult = $rule['active_result'] ?? []; @endphp
-                            <section class="pbr-business-rulebook-rule">
-                                <div class="pbr-business-rulebook-rule-head">
-                                    <div>
-                                        <h4>{{ $rule['title_mm'] }}</h4>
-                                        <small>{{ $rule['title_en'] }}</small>
-                                    </div>
-                                    <div>
-                                        <span>Revision {{ $rule['active_revision'] }}</span>
-                                        <small>{{ optional($rule['agreed_at'])->format('d M Y, H:i') }}</small>
-                                    </div>
-                                </div>
-
-                                @if(!empty($ruleResult['headline']))
-                                    <div class="pbr-business-rulebook-headline">
-                                        <span>{{ $ruleResult['headline']['label'] ?? 'Current Result' }}</span>
-                                        <strong>{{ $formatRuleValue($ruleResult['headline']['value'] ?? null, $ruleResult['headline']['format'] ?? 'text') }}</strong>
-                                    </div>
-                                @endif
-
-                                @if(!empty($ruleResult['metrics']))
-                                    <div class="pbr-business-rulebook-metrics">
-                                        @foreach($ruleResult['metrics'] as $metric)
-                                            <div>
-                                                <span>{{ $metric['label'] ?? '' }}</span>
-                                                <strong>{{ $formatRuleValue($metric['value'] ?? null, $metric['format'] ?? 'text') }}</strong>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                @endif
-
-                                @foreach($ruleResult['tables'] ?? [] as $table)
-                                    <div class="pbr-business-rulebook-table-wrap">
-                                        <h5>{{ $table['title'] ?? 'Details' }}</h5>
-                                        <table>
-                                            <thead>
-                                                <tr>
-                                                    @foreach($table['columns'] ?? [] as $columnLabel)
-                                                        <th>{{ $columnLabel }}</th>
-                                                    @endforeach
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @forelse($table['rows'] ?? [] as $row)
-                                                    <tr>
-                                                        @foreach($table['columns'] ?? [] as $columnKey => $columnLabel)
-                                                            @php $cell = $row[$columnKey] ?? null; @endphp
-                                                            <td>
-                                                                @if(is_numeric($cell) && str_contains(strtolower((string) $columnLabel), '%'))
-                                                                    {{ number_format((float) $cell, 2) }}%
-                                                                @elseif(is_numeric($cell))
-                                                                    {{ number_format((float) $cell, 2) }}
-                                                                @else
-                                                                    {{ $cell ?? '—' }}
-                                                                @endif
-                                                            </td>
-                                                        @endforeach
-                                                    </tr>
-                                                @empty
-                                                    <tr><td colspan="{{ count($table['columns'] ?? []) }}">—</td></tr>
-                                                @endforelse
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endforeach
-
-                                @if(!empty($ruleResult['notes']))
-                                    <div class="pbr-business-rulebook-notes">
-                                        <strong>Business Notes</strong>
-                                        <ul>
-                                            @foreach($ruleResult['notes'] as $note)
-                                                <li>{{ $note }}</li>
-                                            @endforeach
-                                        </ul>
-                                    </div>
-                                @endif
-
-                                <a class="pbr-business-rulebook-open pbr-no-print" href="{{ $rule['url'] }}">Current Rule ဖွင့်ရန် →</a>
-                            </section>
-                        @endforeach
-                    </div>
-                </article>
-            @empty
-                <div class="pbr-business-rulebook-empty">
-                    <strong>Current Business Rule မရှိသေးပါ</strong>
-                    <p>Operating Area တစ်ခုမှာ Working Plan ကို Review လုပ်ပြီး Approve & Activate လုပ်တာနဲ့ ဒီ Register ထဲ အလိုအလျောက်ဝင်လာပါမယ်။</p>
-                </div>
-            @endforelse
-
-            <footer class="pbr-business-rulebook-note">
-                <strong>Planning & Governance Record</strong>
-                <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
-            </footer>
-        </section>
-
-        <section class="pbr-business-legal-note pbr-no-print">
-            <strong>Planning & Governance Note</strong>
-            <p>{{ config('pbr_business_operating_system.legal_note_mm') }}</p>
-        </section>
     </div>
 </section>
 @endsection

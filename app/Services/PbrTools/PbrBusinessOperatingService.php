@@ -410,6 +410,12 @@ class PbrBusinessOperatingService
                 'capital_required' => $capitalRequired,
                 'capital_secured' => $capitalSecured,
                 'funding_gap' => $fundingGap,
+                'capital_data_available' =>
+                    $capitalState['source'] !== 'none',
+                'capital_data_source' =>
+                    $capitalState['source'],
+                'capital_has_approved_data' =>
+                    $capitalState['source'] === 'active',
                 'partner_count' => $this->partnerCount($workspace, $canManage),
                 'active_rule_count' => $activeRuleTotal,
                 'total_rule_count' =>
@@ -552,6 +558,7 @@ class PbrBusinessOperatingService
             $actions->push([
                 'priority' => 0,
                 'level' => 'high',
+                'kind' => 'funding_gap',
                 'domain' => 'capital',
                 'title_mm' => 'လိုအပ်နေသေးသော ရင်းနှီးငွေ ရှိသည်',
                 'detail_mm' => $currency.' '.number_format($fundingGap, 2).' Funding Gap ကို ဖြည့်မယ့် အရင်းအမြစ်နဲ့ အချိန်ကို သတ်မှတ်ပါ။',
@@ -589,6 +596,7 @@ class PbrBusinessOperatingService
                             ?? 50
                         ),
                     'level' => 'high',
+                    'kind' => 'working_change',
                     'domain' =>
                         $system['domain'],
                     'module_key' =>
@@ -642,6 +650,7 @@ class PbrBusinessOperatingService
                             ?? 50
                         ),
                     'level' => 'medium',
+                    'kind' => 'dependency_review',
                     'domain' =>
                         $system['domain'],
                     'module_key' =>
@@ -709,6 +718,7 @@ class PbrBusinessOperatingService
                     )
                         ? 'medium'
                         : 'normal',
+                'kind' => 'setup',
                 'domain' =>
                     $system['domain'],
                 'module_key' =>
@@ -718,19 +728,11 @@ class PbrBusinessOperatingService
                     .' မသတ်မှတ်ရသေး',
                 'detail_mm' =>
                     $system['name_mm']
-                    .' မှာ approved rules '
-                    .(int) (
-                        $system['active_count']
-                        ?? 0
-                    )
-                    .'/'
-                    .(int) (
-                        $system['rule_module_count']
-                        ?? 0
-                    )
-                    .' ရှိပါတယ်။ နောက် missing rule ကို business-specific data နဲ့ စတင်သတ်မှတ်ပါ။',
+                    .' အတွက် လိုအပ်တဲ့ business data ကို ဖြည့်ပြီး '
+                    .$missingRuleModule['title_mm']
+                    .' ကို သင့်လုပ်ငန်းအခြေအနေနဲ့ ကိုက်ညီအောင် သတ်မှတ်ပါ။',
                 'action_mm' =>
-                    'နောက် Rule ကို စတင်ရန် →',
+                    'ဆက်လက်သတ်မှတ်ရန် →',
                 'url' =>
                     $missingRuleModule['url'],
             ]);
