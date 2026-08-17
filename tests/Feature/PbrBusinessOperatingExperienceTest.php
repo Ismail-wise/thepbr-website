@@ -331,7 +331,8 @@ test('logged in product is organized as ten business operating areas without cou
         ->assertSee('Capital &amp; Funding', false)
         ->assertSee('Ownership &amp; Equity', false)
         ->assertSee('Conflict &amp; Resolution', false)
-        ->assertSee('Current Business Rule Register')
+        ->assertSee('Business Rulebook')
+        ->assertDontSee('Current Business Rule Register')
         ->assertDontSee('Chapter 1')
         ->assertDontSee('Completion percentage')
         ->assertDontSee('Lesson');

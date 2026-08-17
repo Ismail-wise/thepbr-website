@@ -67,6 +67,12 @@ test('unconfigured business is setup required and not counted as urgent attentio
         ->get(route('student.dashboard'))
         ->assertOk();
 
+    $response
+        ->assertSee('Partners 1')
+        ->assertSee('—')
+        ->assertDontSee('Team 1')
+        ->assertDontSee('THB 0');
+
     $metrics = $response->viewData('portfolioMetrics');
     $business = $response->viewData('businesses')->first();
 

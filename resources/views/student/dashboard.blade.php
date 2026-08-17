@@ -117,7 +117,7 @@
                                     <p>
                                         {{ $workspace->currency_code ?? 'THB' }}
                                         <span>•</span>
-                                        Team {{ $metrics['partner_count'] }}
+                                        Partners {{ $metrics['partner_count'] }}
                                         <span>•</span>
                                         {{ $metrics['active_area_count'] }} Active Areas
                                     </p>
@@ -132,7 +132,15 @@
                             <div class="pbr-premium-business-stats">
                                 <div>
                                     <span>Funding Gap</span>
-                                    <strong>{{ $workspace->currency_code ?? 'THB' }} {{ number_format((float) $metrics['funding_gap'], 0) }}</strong>
+
+                                    @if($metrics['capital_data_available'] ?? false)
+                                        <strong>
+                                            {{ $workspace->currency_code ?? 'THB' }}
+                                            {{ number_format((float) $metrics['funding_gap'], 0) }}
+                                        </strong>
+                                    @else
+                                        <strong>—</strong>
+                                    @endif
                                 </div>
                                 <div>
                                     <span>Active Rules</span>

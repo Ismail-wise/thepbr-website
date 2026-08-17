@@ -52,7 +52,17 @@ class StudentPortalController extends Controller
         $portfolioMetrics = [
             'business_count' => $businesses->count(),
             'needs_action_count' => $businesses
-                ->filter(fn (array $business): bool => (float) ($business['metrics']['funding_gap'] ?? 0) > 0)
+                ->filter(
+                    fn (array $business): bool =>
+                        (bool) (
+                            $business['metrics']['capital_data_available']
+                            ?? false
+                        )
+                        && (float) (
+                            $business['metrics']['funding_gap']
+                            ?? 0
+                        ) > 0
+                )
                 ->count(),
             'needs_review_count' => $businesses
                 ->filter(fn (array $business): bool => (int) ($business['metrics']['working_change_count'] ?? 0) > 0)
@@ -89,11 +99,20 @@ class StudentPortalController extends Controller
     private function portfolioStatus(array $state): array
     {
         $metrics = $state['metrics'] ?? [];
-        $fundingGap = (float) ($metrics['funding_gap'] ?? 0);
+        $capitalDataAvailable = (bool) (
+            $metrics['capital_data_available']
+            ?? false
+        );
+
+        $fundingGap = (float) (
+            $metrics['funding_gap']
+            ?? 0
+        );
+
         $workingChanges = (int) ($metrics['working_change_count'] ?? 0);
         $notConfigured = (int) ($metrics['not_configured_area_count'] ?? 0);
 
-        if ($fundingGap > 0) {
+        if ($capitalDataAvailable && $fundingGap > 0) {
             return [
                 'key' => 'needs_action',
                 'rank' => 10,

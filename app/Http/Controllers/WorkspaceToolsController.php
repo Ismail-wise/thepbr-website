@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PartnershipWorkspace;
 use App\Services\PbrTools\CapitalWorkflowService;
+use App\Services\PbrTools\PbrBusinessDashboardService;
 use App\Services\PbrTools\PbrBusinessOperatingService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,7 @@ class WorkspaceToolsController extends Controller
         PartnershipWorkspace $workspace,
         PbrOperatingSystemService $operatingSystem,
         PbrBusinessOperatingService $businessOperatingSystem,
+        PbrBusinessDashboardService $businessDashboard,
         CapitalWorkflowService $capitalWorkflowService
     ): View {
         abort_unless(
@@ -45,6 +47,11 @@ class WorkspaceToolsController extends Controller
             $workspace
         );
 
+        $dashboard = $businessDashboard->build(
+            $businessState,
+            $workspace
+        );
+
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
         $canUsePbrAiAdvisor =
@@ -56,6 +63,7 @@ class WorkspaceToolsController extends Controller
             'businessStages',
             'currencies',
             'businessState',
+            'dashboard',
             'capitalWorkflow',
             'canUsePbrAiAdvisor'
         ));

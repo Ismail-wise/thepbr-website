@@ -18,14 +18,16 @@ function capitalCommandCenterFixture(
     $owner = User::factory()->create([
         'role' => 'student',
         'account_status' => 'active',
-        'portal_access_expires_at' => now()->addDay(),
+        'portal_access_expires_at' =>
+            now()->addDay(),
         'is_admin' => false,
     ]);
 
     $workspace = PartnershipWorkspace::create([
         'owner_user_id' => $owner->id,
         'name' => 'Capital Command Business',
-        'business_name' => 'Capital Command Business',
+        'business_name' =>
+            'Capital Command Business',
         'business_stage' => $stage,
         'currency_code' => 'THB',
         'status' => 'active',
@@ -37,47 +39,19 @@ function capitalCommandCenterFixture(
     );
 }
 
-test('existing business shows a six step capital operating command center', function () {
+test('existing business dashboard sends capital work into current capital position', function () {
     extract(
         capitalCommandCenterFixture(
             'existing'
         )
     );
 
-    $response = $this
-        ->actingAs($owner)
-        ->get(
-            route(
-                'workspaces.tools.index',
-                $workspace
-            )
-        );
-
-    $response
-        ->assertOk()
-        ->assertSee('CAPITAL & FUNDING', false)
-        ->assertSee('Current Rule Progress')
-        ->assertSee('0 / 6')
-        ->assertSee(
-            'data-capital-step="current_capital_position"',
-            false
-        )
-        ->assertDontSee(
-            'data-capital-step="startup_capital_planner"',
-            false
-        )
-        ->assertSee(
-            'data-capital-manager-action',
-            false
-        )
-        ->assertSee('နောက်တစ်ဆင့် စတင်ရန်');
-});
-
-test('new business command center starts with startup capital instead of current capital position', function () {
-    extract(
-        capitalCommandCenterFixture(
-            'new'
-        )
+    $currentCapitalUrl = route(
+        'workspaces.tools.chapter-one.show',
+        [
+            $workspace,
+            'current-capital-position',
+        ]
     );
 
     $response = $this
@@ -92,17 +66,90 @@ test('new business command center starts with startup capital instead of current
     $response
         ->assertOk()
         ->assertSee(
-            'data-capital-step="startup_capital_planner"',
+            'data-pbr-dashboard-v2',
+            false
+        )
+        ->assertSee(
+            'data-journey-step="capital"',
+            false
+        )
+        ->assertSee(
+            'Capital &amp; Funding',
+            false
+        )
+        ->assertSee(
+            'လက်ရှိ Capital Position သတ်မှတ်ရန်'
+        )
+        ->assertSee(
+            $currentCapitalUrl,
             false
         )
         ->assertDontSee(
-            'data-capital-step="current_capital_position"',
+            'data-capital-step=',
             false
         )
-        ->assertSee('Startup Capital');
+        ->assertDontSee(
+            'Current Rule Progress'
+        );
 });
 
-test('partner command center is approved rule only and never exposes private capital draft metadata', function () {
+test('new business dashboard sends capital work into startup capital plan', function () {
+    extract(
+        capitalCommandCenterFixture(
+            'new'
+        )
+    );
+
+    $startupUrl = route(
+        'workspaces.tools.startup-capital.show',
+        $workspace
+    );
+
+    $currentCapitalUrl = route(
+        'workspaces.tools.chapter-one.show',
+        [
+            $workspace,
+            'current-capital-position',
+        ]
+    );
+
+    $response = $this
+        ->actingAs($owner)
+        ->get(
+            route(
+                'workspaces.tools.index',
+                $workspace
+            )
+        );
+
+    $response
+        ->assertOk()
+        ->assertSee(
+            'data-pbr-dashboard-v2',
+            false
+        )
+        ->assertSee(
+            'data-journey-step="capital"',
+            false
+        )
+        ->assertSee(
+            'Startup Capital ကို စီစဉ်ရန်'
+        )
+        ->assertSee(
+            $startupUrl,
+            false
+        )
+        ->assertDontSee(
+            $currentCapitalUrl,
+            false
+        )
+        ->assertDontSee(
+            'data-capital-step=',
+            false
+        );
+});
+
+test('partner dashboard remains approved state only and never exposes private capital draft metadata', function () {
     extract(
         capitalCommandCenterFixture(
             'existing'
@@ -162,18 +209,26 @@ test('partner command center is approved rule only and never exposes private cap
     $response
         ->assertOk()
         ->assertSee(
-            'data-capital-partner-view',
+            'data-pbr-dashboard-v2',
             false
         )
-        ->assertSee('Approved Rules Only')
+        ->assertSee(
+            'Partner Read-Only View'
+        )
+        ->assertSee(
+            'Approved state ကြည့်ရန်'
+        )
         ->assertDontSee(
-            'data-capital-manager-action',
-            false
+            'NEXT BUSINESS ACTION'
         )
         ->assertDontSee(
             'Private Capital Draft 999'
         )
         ->assertDontSee(
             'Working Change ရှိသည်'
+        )
+        ->assertDontSee(
+            'data-capital-manager-action',
+            false
         );
 });
