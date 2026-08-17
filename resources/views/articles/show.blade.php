@@ -64,8 +64,8 @@
       <h3>သင်တန်းသားများအတွက် Resources များ</h3>
       <p>သင်တန်းတွင် သုံးခဲ့သည့် စာချုပ်ပုံစံများ၊ စစ်ဆေးရန်စာရင်းများနှင့် တွက်ချက်ပုံစံများကို Student Portal တွင် ပြန်လည် ရယူနိုင်ပါသည်။ သင်တန်းတက်ရောက်ပြီးသူများသည် အကောင့်ဖွင့်စဉ် ဆရာပေးထားသော Code ကို ထည့်သွင်းပါ။</p>
       <div class="acts">
-        <a href="#" class="btn">Sign Up</a>
-        <a href="#" class="btn ghost">About the Class</a>
+        <a href="{{ route('student.register') }}" class="btn">Student Registration</a>
+        <a href="{{ route('about') }}" class="btn ghost">About the Class</a>
       </div>
     </div>
   </div>

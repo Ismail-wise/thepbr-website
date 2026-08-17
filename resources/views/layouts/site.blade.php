@@ -63,7 +63,6 @@
          class="item {{ request()->routeIs('about') ? 'on' : '' }}">
         About the Class
       </a>
-      <a href="#" class="item">Contact Us</a>
     </nav>
 
     <a href="{{ $portalUrl }}" class="btn">{{ $portalLabel }}</a>
@@ -79,7 +78,6 @@
     <a href="{{ route('articles.index') }}" class="sub">— Articles</a>
     <a href="{{ route('classes') }}" class="sub">— Classes</a>
     <a href="{{ route('about') }}">About the Class</a>
-    <a href="#">Contact Us</a>
     <a href="{{ $portalUrl }}" class="btn" style="width:100%;margin-top:14px">{{ $portalLabel }}</a>
   </div>
 </header>
@@ -108,12 +106,6 @@
         <a href="{{ route('register') }}">Create Public Account</a>
         <a href="{{ route('student.register') }}">Student Registration</a>
         <a href="{{ route('login') }}">Account Login</a>
-      </div>
-      <div>
-        <h5>Contact</h5>
-        <p>hello@thepbr.io</p>
-        <a href="#">Facebook Page</a>
-        <a href="#">Viber</a>
       </div>
     </div>
     <div class="fbot">
