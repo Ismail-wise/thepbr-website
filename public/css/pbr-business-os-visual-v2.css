@@ -1,0 +1,547 @@
+/*
+ * thePBR — Business OS dashboard visual refinement v2
+ *
+ * Dashboard-only override. No operating logic, permissions, routes,
+ * calculations, approval state or public website styles are changed here.
+ */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] {
+    --pbr-v2-canvas: #f3f6f4;
+    --pbr-v2-surface: #ffffff;
+    --pbr-v2-soft: #f7faf8;
+    --pbr-v2-ink: #10251f;
+    --pbr-v2-muted: #6b7a73;
+    --pbr-v2-border: #dce5e0;
+    --pbr-v2-border-strong: #cbd8d2;
+    --pbr-v2-brand: #08775c;
+    --pbr-v2-brand-dark: #075640;
+    --pbr-v2-brand-soft: #e9f5f0;
+    --pbr-v2-amber: #a56b18;
+    --pbr-v2-red: #b6433d;
+    --pbr-v2-radius-xl: 24px;
+    --pbr-v2-radius-lg: 18px;
+    --pbr-v2-radius-md: 14px;
+    background: var(--pbr-v2-canvas);
+    color: var(--pbr-v2-ink);
+}
+
+/* Typography: Manrope for Latin, Noto Sans Myanmar only where Myanmar glyphs need it. */
+.pbr-exec-page[data-pbr-client-ready-dashboard],
+.pbr-exec-page[data-pbr-client-ready-dashboard] *,
+.pbr-exec-page[data-pbr-client-ready-dashboard] button,
+.pbr-exec-page[data-pbr-client-ready-dashboard] input,
+.pbr-exec-page[data-pbr-client-ready-dashboard] select,
+.pbr-exec-page[data-pbr-client-ready-dashboard] textarea {
+    font-family: "Manrope", "Noto Sans Myanmar", "Noto Sans", sans-serif;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] h1,
+.pbr-exec-page[data-pbr-client-ready-dashboard] h2,
+.pbr-exec-page[data-pbr-client-ready-dashboard] h3,
+.pbr-exec-page[data-pbr-client-ready-dashboard] h4,
+.pbr-exec-page[data-pbr-client-ready-dashboard] strong {
+    letter-spacing: 0;
+    text-wrap: balance;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] h1,
+.pbr-exec-page[data-pbr-client-ready-dashboard] h2,
+.pbr-exec-page[data-pbr-client-ready-dashboard] h3,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-copy strong {
+    line-height: 1.5;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-eyebrow,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-eyebrow {
+    font-family: "Manrope", "Noto Sans Myanmar", sans-serif;
+    letter-spacing: .11em;
+    line-height: 1.2;
+}
+
+/* Main frame */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-wrap {
+    width: min(1400px, calc(100% - 44px));
+    padding: 24px 0 64px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-topbar {
+    margin-bottom: 14px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-back {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+/* Compact executive hero */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 32px;
+    padding: 28px 30px;
+    border: 1px solid var(--pbr-v2-border);
+    border-radius: var(--pbr-v2-radius-xl);
+    background: linear-gradient(135deg, #ffffff 0%, #f1f8f5 100%);
+    box-shadow: 0 10px 30px rgba(20, 52, 43, .055);
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero h1 {
+    margin: 8px 0 13px;
+    max-width: 780px;
+    font-size: clamp(34px, 3.2vw, 44px);
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-meta {
+    gap: 7px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-meta span,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-status-pill {
+    min-height: 30px;
+    padding: 5px 10px;
+    background: rgba(255,255,255,.9);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-actions {
+    max-width: 460px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-btn {
+    min-height: 44px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 12px;
+    line-height: 1.25;
+}
+
+/* Next best action */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next {
+    margin-top: 14px;
+    padding: 20px 24px;
+    border-color: #bdd8cd;
+    border-radius: var(--pbr-v2-radius-lg);
+    background: #eaf6f1;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next h2 {
+    margin: 6px 0 4px;
+    font-size: clamp(22px, 2.2vw, 28px);
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next p {
+    max-width: 900px;
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+/* Executive signals */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-summary {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat {
+    min-height: 116px;
+    padding: 17px 18px;
+    border-color: var(--pbr-v2-border);
+    border-radius: var(--pbr-v2-radius-lg);
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat.primary {
+    background: #0f2c24;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat small {
+    font-family: "Manrope", sans-serif;
+    font-size: 10px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat strong {
+    margin-top: 7px;
+    font-family: "Manrope", "Noto Sans Myanmar", sans-serif;
+    font-size: clamp(27px, 2.5vw, 35px);
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat span {
+    margin-top: 8px;
+    font-size: 11px;
+    line-height: 1.45;
+}
+
+/* Shared section language */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-section {
+    margin-top: 16px;
+    padding: 22px;
+    border-color: var(--pbr-v2-border);
+    border-radius: var(--pbr-v2-radius-xl);
+    box-shadow: none;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-section-head {
+    margin-bottom: 16px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-section-head h2 {
+    margin-top: 5px;
+    font-size: clamp(24px, 2.4vw, 31px);
+    font-weight: 750;
+    line-height: 1.45;
+}
+
+/* Decision Center: four clear executive choices on desktop */
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area {
+    grid-template-columns: auto minmax(0, 1fr);
+    min-height: 122px;
+    padding: 16px;
+    align-content: start;
+    background: #fbfcfb;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-side {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding-top: 10px;
+    border-top: 1px solid #e7ece9;
+}
+
+/* Operating Action Center: one concise command strip */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 20px;
+    align-items: center;
+    margin-top: 16px;
+    padding: 22px 24px;
+    border: 0;
+    border-radius: var(--pbr-v2-radius-xl);
+    background: #102c24;
+    color: #ffffff;
+    box-shadow: 0 12px 26px rgba(17, 43, 35, .10);
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry h2 {
+    margin: 6px 0 4px;
+    color: #fff;
+    font-size: clamp(21px, 2vw, 27px);
+    font-weight: 700;
+    line-height: 1.5;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry p {
+    margin: 0;
+    max-width: 660px;
+    color: #c6d7d1;
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry .pbr-v2-eyebrow {
+    color: #82d8bd;
+    font-size: 10px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 84px);
+    gap: 8px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary > div {
+    min-height: 74px;
+    padding: 11px 10px;
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 13px;
+    background: rgba(255,255,255,.06);
+    text-align: center;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary small {
+    display: block;
+    color: #aac1b8;
+    font-family: "Manrope", sans-serif;
+    font-size: 9px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary strong {
+    display: block;
+    margin-top: 6px;
+    color: #fff;
+    font-family: "Manrope", sans-serif;
+    font-size: 24px;
+    line-height: 1;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary .blocked strong {
+    color: #efb75f;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary .overdue strong {
+    color: #ef8179;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-button {
+    min-height: 44px;
+    padding: 10px 15px;
+    border: 1px solid rgba(255,255,255,.24);
+    border-radius: 12px;
+    background: #fff;
+    color: #13392e;
+    font-size: 11px;
+    font-weight: 800;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+/* Business Areas */
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] {
+    padding: 24px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-section-head {
+    align-items: center;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-search {
+    width: min(300px, 100%);
+    min-height: 42px;
+    padding: 9px 13px;
+    border-radius: 12px;
+    background: #fff;
+    font-size: 12px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase + .pbr-exec-phase {
+    margin-top: 22px;
+    padding-top: 20px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head {
+    align-items: center;
+    margin-bottom: 11px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head h3 {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.55;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head small {
+    padding: 5px 8px;
+    border-radius: 999px;
+    background: #f1f5f3;
+    font-size: 9px;
+    letter-spacing: .06em;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-grid {
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 10px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 12px;
+    min-height: 112px;
+    padding: 15px;
+    align-content: start;
+    border-radius: 15px;
+    background: #fafcfb;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-number {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    font-family: "Manrope", sans-serif;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-copy strong {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-copy small {
+    margin-top: 3px;
+    font-family: "Manrope", "Noto Sans Myanmar", sans-serif;
+    font-size: 10px;
+    line-height: 1.45;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-side {
+    grid-column: 1 / -1;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    gap: 10px;
+    padding-top: 9px;
+    border-top: 1px solid #e8eeeb;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-status {
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-progress {
+    max-width: 62%;
+    overflow: hidden;
+    color: var(--pbr-v2-muted);
+    font-family: "Manrope", "Noto Sans Myanmar", sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    line-height: 1.5;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Bottom business state cards */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-bottom {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-card {
+    padding: 20px;
+    border-color: var(--pbr-v2-border);
+    border-radius: var(--pbr-v2-radius-lg);
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-card-head h3 {
+    font-size: 20px;
+    line-height: 1.35;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-money-grid > div,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-rule-grid > div {
+    min-height: 76px;
+    padding: 13px;
+    border-radius: 12px;
+    background: #f8faf9;
+}
+
+/* Tablet */
+@media (max-width: 1120px) {
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry {
+        grid-template-columns: 1fr auto;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-button {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+}
+
+@media (max-width: 900px) {
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-actions {
+        justify-content: flex-start;
+        max-width: none;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-summary {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-entry-summary {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-button {
+        grid-column: auto;
+    }
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-wrap {
+        width: min(100% - 20px, 1400px);
+        padding-top: 16px;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero,
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-section,
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-card,
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry {
+        padding: 16px;
+        border-radius: 16px;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero h1 {
+        font-size: 30px;
+        line-height: 1.24;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        width: 100%;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-actions .primary {
+        grid-column: 1 / -1;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next {
+        padding: 16px;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next h2 {
+        font-size: 21px;
+        line-height: 1.6;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-summary,
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-grid,
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-bottom {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-area-progress {
+        max-width: 56%;
+    }
+}
