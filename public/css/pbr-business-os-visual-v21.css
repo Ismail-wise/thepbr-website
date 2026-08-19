@@ -1,0 +1,212 @@
+/*
+ * thePBR — Business OS dashboard visual refinement v2.1
+ *
+ * Focused dashboard-only polish layered on top of Visual V2.
+ * No business logic, permissions, routes, calculations, approval state,
+ * migrations, tools or public website styles are changed here.
+ */
+
+/* -------------------------------------------------------------------------
+ * Typography hierarchy
+ * ---------------------------------------------------------------------- */
+
+/* Keep clearly English-only UI in Manrope. */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-hero h1,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-eyebrow,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-eyebrow,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat small,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat strong,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-stat span,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-copy strong,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-copy small,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-status,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-progress,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-search,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head small,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-money-grid,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-rule-grid {
+    font-family: "Manrope", "Noto Sans", sans-serif;
+}
+
+/* Use one coherent family for Burmese and mixed Burmese/English copy. */
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next h2,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next p,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry h2,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry p,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-button,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head h3,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-copy strong,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-status,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-progress,
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-meta span {
+    font-family: "Noto Sans Myanmar", "Noto Sans", sans-serif;
+    letter-spacing: 0;
+}
+
+/* English subtitles remain visually distinct below mixed Myanmar headings. */
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-copy small {
+    font-family: "Manrope", "Noto Sans", sans-serif;
+}
+
+/* -------------------------------------------------------------------------
+ * Next best action — important, but no longer a second hero
+ * ---------------------------------------------------------------------- */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next {
+    padding: 17px 22px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next h2 {
+    margin: 5px 0 3px;
+    font-size: clamp(20px, 1.8vw, 24px);
+    font-weight: 600;
+    line-height: 1.58;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next p {
+    max-width: 980px;
+    font-size: 12.5px;
+    line-height: 1.8;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next-arrow {
+    min-width: 40px;
+    height: 40px;
+}
+
+/* -------------------------------------------------------------------------
+ * Decision Center — preserve current structure, improve readability
+ * ---------------------------------------------------------------------- */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-copy strong {
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-copy small {
+    margin-top: 5px;
+    font-size: 10.5px;
+    line-height: 1.5;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-status,
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-decision-center] .pbr-exec-area-progress {
+    font-size: 10.5px;
+}
+
+/* -------------------------------------------------------------------------
+ * Action Center — larger useful copy, same executive strip
+ * ---------------------------------------------------------------------- */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry h2 {
+    font-size: clamp(20px, 1.8vw, 25px);
+    font-weight: 600;
+    line-height: 1.58;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-entry p {
+    max-width: 720px;
+    font-size: 12.5px;
+    line-height: 1.82;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-v2-action-center-button {
+    font-size: 12px;
+    line-height: 1.55;
+}
+
+/* -------------------------------------------------------------------------
+ * Build · Operate · Protect — consistent three-column desktop rhythm
+ * ---------------------------------------------------------------------- */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area {
+    min-height: 122px;
+    padding: 16px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-phase-head h3 {
+    font-size: 18px;
+    font-weight: 600;
+    line-height: 1.7;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-copy strong {
+    font-size: 14.5px;
+    font-weight: 600;
+    line-height: 1.72;
+    text-wrap: pretty;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-copy small {
+    margin-top: 4px;
+    font-size: 10.75px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-side {
+    padding-top: 10px;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-status {
+    font-size: 10.75px;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-progress {
+    max-width: 58%;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.5;
+}
+
+/* Slightly stronger hover state without visual noise. */
+.pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area:hover {
+    border-color: #b7c9c1;
+    box-shadow: 0 8px 20px rgba(18, 47, 39, .05);
+}
+
+/* -------------------------------------------------------------------------
+ * Bottom state cards
+ * ---------------------------------------------------------------------- */
+
+.pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-card-head h3 {
+    font-family: "Manrope", "Noto Sans", sans-serif;
+    font-weight: 700;
+}
+
+/* -------------------------------------------------------------------------
+ * Responsive rhythm
+ * ---------------------------------------------------------------------- */
+
+@media (max-width: 1180px) {
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] .pbr-exec-next h2 {
+        font-size: 20px;
+        line-height: 1.7;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-copy strong {
+        font-size: 14px;
+        line-height: 1.72;
+    }
+
+    .pbr-exec-page[data-pbr-client-ready-dashboard] [data-pbr-business-journey] .pbr-exec-area-progress {
+        max-width: 52%;
+    }
+}
