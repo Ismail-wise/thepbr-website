@@ -31,12 +31,13 @@
     @if(request()->routeIs('workspaces.tools.*'))
         <link rel="stylesheet" href="{{ asset('css/pbr-premium-tools.css') }}?v={{ filemtime(public_path('css/pbr-premium-tools.css')) }}">
     @endif
-    @if(request()->routeIs('workspaces.tools.startup-capital.show'))
+    @if(request()->routeIs('workspaces.tools.startup-capital.*'))
         <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-reference.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-reference.css')) }}">
     @endif
     <link rel="stylesheet" href="{{ asset('css/pbr-client-ready-os.css') }}?v={{ filemtime(public_path('css/pbr-client-ready-os.css')) }}">
-    @if(request()->routeIs('workspaces.tools.startup-capital.show'))
+    @if(request()->routeIs('workspaces.tools.startup-capital.*'))
         <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-typography-polish.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-typography-polish.css')) }}">
+        <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-expense-ux.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-expense-ux.css')) }}">
     @endif
     @if(request()->routeIs('workspaces.tools.index'))
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v2.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v2.css')) }}">
@@ -45,6 +46,9 @@
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
     @if(request()->routeIs('workspaces.tools.*'))
         <script src="{{ asset('js/pbr-premium-tools.js') }}?v={{ filemtime(public_path('js/pbr-premium-tools.js')) }}" defer></script>
+    @endif
+    @if(request()->routeIs('workspaces.tools.startup-capital.*'))
+        <script src="{{ asset('js/pbr-startup-capital-expense-ux.js') }}?v={{ filemtime(public_path('js/pbr-startup-capital-expense-ux.js')) }}" defer></script>
     @endif
 </head>
 <body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }}">
