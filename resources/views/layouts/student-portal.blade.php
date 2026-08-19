@@ -43,9 +43,6 @@
     @if(request()->routeIs('workspaces.tools.*'))
         <script src="{{ asset('js/pbr-premium-tools.js') }}?v={{ filemtime(public_path('js/pbr-premium-tools.js')) }}" defer></script>
     @endif
-    @if(request()->routeIs('workspaces.tools.startup-capital.show'))
-        <script src="{{ asset('js/pbr-startup-capital-reference.js') }}?v={{ filemtime(public_path('js/pbr-startup-capital-reference.js')) }}" defer></script>
-    @endif
 </head>
 <body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }}">
     <header class="portal-header">
