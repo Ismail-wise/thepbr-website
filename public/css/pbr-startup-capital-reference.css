@@ -1,805 +1,411 @@
 /*
- * PBR Startup Capital Premium Reference
- * Route-scoped visual refinement for the Startup Capital Planner.
- * Business logic, calculations, routes, approvals and persisted data are unchanged.
+ * PBR Startup Capital — conservative production refinement
+ *
+ * Purpose:
+ * - preserve the existing PBR visual language and page structure
+ * - improve density, hierarchy, contrast and working-space focus
+ * - keep all current controls, governance fields, workflow information and actions visible
+ *
+ * No calculation, persistence, approval, route or business logic is changed here.
  */
 
-.pbr-startup-reference-v1 {
-    --pbr-ref-ink: #10261b;
-    --pbr-ref-ink-soft: #3d5147;
-    --pbr-ref-muted: #708078;
-    --pbr-ref-line: #dce6e0;
-    --pbr-ref-surface: #ffffff;
-    --pbr-ref-surface-soft: #f7faf8;
-    --pbr-ref-green: #0b6b3b;
-    --pbr-ref-green-dark: #074a2a;
-    --pbr-ref-green-soft: #eaf6ee;
-    --pbr-ref-amber: #95601f;
-    --pbr-ref-amber-soft: #fff6e8;
-    --pbr-ref-shadow: 0 14px 36px rgba(15, 43, 29, .055);
+.pbr-capital-plan-page.pbr-premium-capital-tool-page {
+    --pbr-startup-ref-ink: #163a2d;
+    --pbr-startup-ref-muted: #65776f;
+    --pbr-startup-ref-soft: #f7faf8;
+    --pbr-startup-ref-line: #d9e5de;
+    --pbr-startup-ref-green: #0b6b3b;
+    --pbr-startup-ref-green-dark: #07502d;
+    --pbr-startup-ref-shadow: 0 10px 28px rgba(20, 56, 40, .045);
 }
 
-.pbr-startup-reference-v1 .pbr-premium-toolbar {
+/* Keep the same PBR page frame, only tighten the vertical rhythm. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page {
+    padding-top: 20px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-wrap {
+    max-width: 1420px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-premium-toolbar {
     margin-bottom: 12px;
-    border-radius: 14px;
-    box-shadow: 0 8px 24px rgba(15, 43, 29, .045);
 }
 
-/* Compact decision header -------------------------------------------------- */
-.pbr-startup-reference-v1 .pbr-capital-plan-hero {
-    grid-template-columns: minmax(0, 1fr) minmax(210px, 265px) !important;
-    gap: 20px !important;
+/* Header: same composition, less wasted height, stronger readability. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+    gap: 24px !important;
     margin-bottom: 12px !important;
-    padding: 17px 20px !important;
-    border: 1px solid var(--pbr-ref-line) !important;
-    border-radius: 16px !important;
-    background:
-        radial-gradient(circle at 91% 4%, rgba(11, 107, 59, .075), transparent 24%),
-        linear-gradient(135deg, #fff, #fbfdfc) !important;
-    box-shadow: var(--pbr-ref-shadow) !important;
+    padding: 22px 24px !important;
+    border-radius: 20px !important;
+    box-shadow: var(--pbr-startup-ref-shadow) !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-back {
-    display: none !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-hero-copy > .portal-kicker {
-    margin-bottom: 3px;
-    color: var(--pbr-ref-green);
-    font-size: 9px;
-    letter-spacing: .11em;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-hero h1 {
-    margin: 2px 0 0 !important;
-    color: var(--pbr-ref-ink) !important;
-    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif !important;
-    font-size: clamp(24px, 2.25vw, 32px) !important;
-    font-weight: 800 !important;
-    line-height: 1.34 !important;
-    letter-spacing: -.025em !important;
-}
-
-.pbr-startup-reference-v1 .pbr-tool-en-subtitle {
-    margin: 1px 0 7px !important;
-    color: #687b70 !important;
-    font-size: 11px !important;
-    font-weight: 650 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-lead {
-    max-width: 900px;
-    margin: 0 !important;
-    color: #53665c !important;
-    font-size: 11px !important;
-    line-height: 1.75 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-lead strong {
-    color: #274638;
-    font-weight: 700;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-chips {
-    gap: 6px !important;
-    margin-top: 10px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-chips span {
-    min-height: 27px !important;
-    padding: 5px 9px !important;
-    border-color: #dbe6df !important;
-    border-radius: 999px !important;
-    background: #f9fbfa !important;
-    color: #61746a !important;
-    font-size: 8.5px !important;
-    font-weight: 700 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-business-card {
-    min-height: 0 !important;
-    padding: 15px 16px !important;
-    border: 1px solid rgba(255,255,255,.12) !important;
-    border-radius: 14px !important;
-    background:
-        radial-gradient(circle at 100% 0%, rgba(255,255,255,.10), transparent 34%),
-        linear-gradient(145deg, #114c34, #0a3526) !important;
-    box-shadow: 0 12px 28px rgba(9, 60, 38, .14) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-business-card small,
-.pbr-startup-reference-v1 .pbr-capital-business-card span {
-    color: rgba(239, 250, 244, .72) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-business-card strong {
-    margin: 5px 0 !important;
-    color: #fff !important;
-    font-size: 14px !important;
-    line-height: 1.45 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-business-card b {
-    color: #bdf0cf !important;
-}
-
-/* Workflow becomes orientation, not the main event ------------------------ */
-.pbr-startup-reference-v1 .pbr-capital-tool-flow {
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-back {
     margin-bottom: 12px !important;
-    padding: 12px 14px !important;
-    border: 1px solid var(--pbr-ref-line) !important;
-    border-radius: 14px !important;
-    background: rgba(255,255,255,.96) !important;
-    box-shadow: 0 7px 22px rgba(15, 43, 29, .035) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-flow-head {
-    margin: 0 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-flow-back {
-    display: none !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-flow-position {
-    gap: 8px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-flow-position span {
-    color: #7b8982 !important;
-    font-size: 8px !important;
-    letter-spacing: .11em !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-flow-position strong {
-    color: var(--pbr-ref-ink) !important;
-    font-size: 13px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-current-state {
-    min-width: 156px;
-    padding: 8px 10px !important;
-    border-radius: 9px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-current-state span {
-    font-size: 7.5px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-current-state strong {
-    font-size: 10px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-step-track {
-    gap: 5px !important;
-    margin-top: 9px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-step {
-    min-height: 50px !important;
-    padding: 8px 9px !important;
-    border-radius: 9px !important;
-    box-shadow: none !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-step b {
-    font-size: 8px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-step span {
-    font-size: 8.5px !important;
-    line-height: 1.35 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-step i {
-    font-size: 7.5px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-connection {
-    display: none !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-next {
-    display: grid !important;
-    grid-template-columns: minmax(0,1fr) auto !important;
-    gap: 12px !important;
-    align-items: center !important;
-    margin-top: 8px !important;
-    padding: 8px 10px !important;
-    border: 0 !important;
-    border-top: 1px solid #edf1ee !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-next span,
-.pbr-startup-reference-v1 .pbr-capital-tool-next small {
-    display: none !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-next strong {
-    font-size: 9px !important;
-    font-weight: 700 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-tool-next a {
-    min-height: 30px !important;
-    padding: 6px 9px !important;
-    border-radius: 8px !important;
-    font-size: 8px !important;
-}
-
-/* Plan identity ------------------------------------------------------------ */
-.pbr-startup-reference-v1 #startup-capital-builder {
-    display: flex;
-    flex-direction: column;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-plan-toolbar {
-    order: 1;
-    display: block !important;
-    margin-bottom: 12px !important;
-    padding: 11px 13px !important;
-    border: 1px solid var(--pbr-ref-line) !important;
-    border-radius: 13px !important;
-    background: #fff !important;
-    box-shadow: 0 5px 18px rgba(15,43,29,.025) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-draft-name {
-    display: grid !important;
-    grid-template-columns: 105px minmax(0, 1fr) !important;
-    gap: 6px 12px !important;
-    align-items: center !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-draft-name label {
-    margin: 0 !important;
-    color: #40574b !important;
-    font-size: 10px !important;
-    font-weight: 750 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-draft-name input {
-    min-height: 39px !important;
-    border-color: #d4dfd8 !important;
-    border-radius: 9px !important;
-    background: #fbfcfb !important;
-    font-size: 11px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-draft-name small {
-    grid-column: 2;
-    color: #7d8c84 !important;
-    font-size: 8.5px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-toolbar-actions {
-    display: none !important;
-}
-
-/* Primary planner ---------------------------------------------------------- */
-.pbr-startup-reference-v1 .pbr-capital-workspace-grid {
-    order: 2;
-    grid-template-columns: minmax(0, 1fr) minmax(355px, 390px) !important;
-    gap: 16px !important;
-    align-items: start !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-planner,
-.pbr-startup-reference-v1 .pbr-capital-summary-column {
-    min-width: 0;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-quick-start,
-.pbr-startup-reference-v1 .pbr-capital-costs-section,
-.pbr-startup-reference-v1 .pbr-capital-summary-card,
-.pbr-startup-reference-v1 .pbr-capital-comparison-card,
-.pbr-startup-reference-v1 .pbr-capital-help-card {
-    border-color: var(--pbr-ref-line) !important;
-    border-radius: 15px !important;
-    background: rgba(255,255,255,.98) !important;
-    box-shadow: var(--pbr-ref-shadow) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-quick-start {
-    margin-bottom: 12px !important;
-    padding: 16px 18px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-quick-start h2,
-.pbr-startup-reference-v1 .pbr-capital-costs-section h2,
-.pbr-startup-reference-v1 .pbr-capital-summary-card h2 {
-    color: var(--pbr-ref-ink) !important;
-    font-size: 17px !important;
-    line-height: 1.55 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-quick-start p,
-.pbr-startup-reference-v1 .pbr-capital-section-heading p,
-.pbr-startup-reference-v1 .pbr-capital-live-alert p,
-.pbr-startup-reference-v1 .pbr-capital-help-card li {
-    color: #687970 !important;
     font-size: 9.5px !important;
-    line-height: 1.7 !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-template-chips {
-    gap: 6px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+    margin-top: 5px !important;
+    font-size: clamp(27px, 2.55vw, 35px) !important;
+    line-height: 1.42 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-tool-en-subtitle {
+    color: #60736a !important;
+    font-size: 10.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-lead {
+    margin-top: 8px !important;
+    color: #536a5f !important;
+    font-size: 11px !important;
+    line-height: 1.8 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-chips {
     margin-top: 11px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-template-chips button {
-    min-height: 34px !important;
-    padding: 7px 11px !important;
-    border: 1px solid #d7e1db !important;
-    border-radius: 999px !important;
-    background: #fbfcfb !important;
-    color: #315f48 !important;
-    font-size: 9px !important;
-    font-weight: 700 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-template-chips button:hover,
-.pbr-startup-reference-v1 .pbr-capital-template-chips button:focus-visible {
-    border-color: #91b5a0 !important;
-    background: var(--pbr-ref-green-soft) !important;
-    color: var(--pbr-ref-green-dark) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-costs-section {
-    padding: 18px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-section-heading {
-    margin-bottom: 12px !important;
-    padding-bottom: 12px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-add-category {
-    min-height: 35px !important;
-    padding: 7px 11px !important;
-    border-color: #bcd3c5 !important;
-    border-radius: 9px !important;
-    background: #f3faf5 !important;
-    color: #185c38 !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-chips span {
+    color: #4f6b5e !important;
     font-size: 8.5px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-empty {
-    min-height: 152px !important;
-    padding: 24px !important;
-    border-color: #d6e2db !important;
-    border-radius: 13px !important;
-    background:
-        linear-gradient(180deg, rgba(248,251,249,.72), rgba(255,255,255,.94)) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-empty > div {
-    width: 42px !important;
-    height: 42px !important;
-    margin-bottom: 8px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-empty strong {
-    color: #294b3b !important;
-    font-size: 11px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-empty p {
-    margin-top: 4px !important;
-    color: #7b8a82 !important;
-    font-size: 9px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-category {
-    margin-top: 10px !important;
-    border-color: #dce6e0 !important;
-    border-radius: 13px !important;
-    background: #fbfcfb !important;
-    box-shadow: 0 5px 15px rgba(15,43,29,.025) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-category-head,
-.pbr-startup-reference-v1 .pbr-capital-item,
-.pbr-startup-reference-v1 .pbr-capital-category-footer {
-    border-color: #e7ece9 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-field label,
-.pbr-startup-reference-v1 .pbr-capital-category-name span {
-    color: #53675c !important;
-    font-size: 8.5px !important;
-    font-weight: 700 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-field input,
-.pbr-startup-reference-v1 .pbr-capital-field select,
-.pbr-startup-reference-v1 .pbr-capital-category-name input {
-    min-height: 39px !important;
-    border-color: #d5e0da !important;
-    border-radius: 9px !important;
-    background: #fff !important;
-    color: #263c31 !important;
-    font-size: 10px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-item-live-line {
-    color: #75867d !important;
-    font-size: 8px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-item-details > summary {
-    color: #4f6b5b !important;
-    font-size: 8.5px !important;
-}
-
-/* Live result is the visual decision anchor -------------------------------- */
-.pbr-startup-reference-v1 .pbr-capital-summary-column {
-    position: sticky !important;
-    top: 154px !important;
-    align-self: start !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-summary-card {
+/* Keep the existing dark business card, but fix low-contrast secondary copy. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card {
+    min-height: 0 !important;
     padding: 17px !important;
-    overflow: clip !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-summary-head {
-    margin-bottom: 11px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card small {
+    color: rgba(242, 250, 246, .76) !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-draft-badge {
-    border: 0 !important;
-    background: #eef3f7 !important;
-    color: #60748a !important;
-    font-size: 8px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card strong {
+    color: #ffffff !important;
+    font-size: 13.5px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-total {
-    padding: 16px !important;
-    border-radius: 12px !important;
-    background:
-        radial-gradient(circle at 95% 0%, rgba(255,255,255,.14), transparent 28%),
-        linear-gradient(142deg, #12613c, #073d27) !important;
-    box-shadow: 0 14px 28px rgba(8,71,43,.15) !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card span {
+    color: rgba(242, 250, 246, .70) !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-total span,
-.pbr-startup-reference-v1 .pbr-capital-total small {
-    color: rgba(242,250,246,.76) !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card b {
+    color: #c9f3d8 !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-total strong {
-    color: #fff !important;
-    font-size: clamp(25px, 2.4vw, 31px) !important;
-    line-height: 1.2 !important;
+/* Capital workflow remains fully visible; it simply stops dominating the page. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-flow {
+    margin-bottom: 12px !important;
+    padding: 13px 14px !important;
+    border-radius: 15px !important;
+    box-shadow: 0 7px 20px rgba(20, 56, 40, .035) !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-metric-grid {
-    gap: 7px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-flow-back {
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-current-state {
+    padding: 8px 10px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step-track {
+    gap: 6px !important;
     margin-top: 9px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-metric-grid > div {
-    min-height: 72px !important;
-    padding: 10px !important;
-    border: 1px solid #e1e8e4 !important;
-    border-radius: 10px !important;
-    background: #f8faf9 !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step {
+    min-height: 53px !important;
+    padding: 8px 9px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-metric-grid span {
-    color: #728178 !important;
-    font-size: 8px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step span {
+    font-size: 8.8px !important;
+    line-height: 1.38 !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-metric-grid strong {
-    color: #244637 !important;
-    font-size: 11px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-metric-grid .gap strong {
-    color: #98601d !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-live-alert {
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-connection,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-next {
     margin-top: 9px !important;
     padding: 10px 11px !important;
-    border-radius: 10px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-live-alert strong {
-    font-size: 9.5px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-connection p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-next small {
+    color: #697b72 !important;
+    font-size: 8.7px !important;
+    line-height: 1.6 !important;
 }
 
-.pbr-startup-reference-v1 .pbr-capital-summary-actions {
-    position: sticky !important;
-    bottom: 8px !important;
-    z-index: 6 !important;
-    gap: 7px !important;
-    margin: 11px -4px -4px !important;
-    padding: 8px !important;
-    border: 1px solid #d8e2dc !important;
-    border-radius: 11px !important;
-    background: rgba(255,255,255,.96) !important;
-    box-shadow: 0 12px 28px rgba(15,43,29,.10) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-summary-actions button {
-    min-height: 42px !important;
-    border-radius: 9px !important;
-    font-size: 9.5px !important;
-    font-weight: 750 !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-comparison-card {
-    margin-top: 10px !important;
-    padding: 13px !important;
-    box-shadow: 0 7px 22px rgba(15,43,29,.035) !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-comparison-head h3 {
-    font-size: 11px !important;
-}
-
-.pbr-startup-reference-v1 .pbr-capital-comparison-list a {
-    padding: 9px !important;
-    border-radius: 9px !important;
-}
-
-/* Progressive disclosure -------------------------------------------------- */
-.pbr-startup-reference-v1 .pbr-reference-details {
-    order: 3;
-    margin-top: 12px;
-    border: 1px solid var(--pbr-ref-line);
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 7px 22px rgba(15,43,29,.035);
-    overflow: clip;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 14px;
-    align-items: center;
-    min-height: 64px;
-    padding: 13px 15px;
-    cursor: pointer;
-    list-style: none;
-    user-select: none;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary::-webkit-details-marker {
-    display: none;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary strong,
-.pbr-startup-reference-v1 .pbr-reference-details > summary span,
-.pbr-startup-reference-v1 .pbr-reference-details > summary small {
-    display: block;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary strong {
-    color: var(--pbr-ref-ink);
-    font-size: 11px;
-    line-height: 1.5;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary small {
-    margin-top: 2px;
-    color: #7b8a82;
-    font-size: 8.5px;
-    line-height: 1.6;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details > summary > span {
-    min-width: 28px;
-    color: #547162;
-    font-size: 16px;
-    text-align: center;
-    transition: transform .16s ease;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details[open] > summary {
-    border-bottom: 1px solid #e8eeea;
-    background: #fbfcfb;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details[open] > summary > span {
-    transform: rotate(45deg);
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details .pbr-operating-context {
-    margin: 0 !important;
-    padding: 16px !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-    background: #fbfcfb !important;
-}
-
-.pbr-startup-reference-v1 .pbr-reference-details .pbr-operating-context-head {
+/* Governance stays where users expect it, but becomes denser and easier to scan. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context {
     margin-bottom: 12px !important;
+    padding: 15px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .025) !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-details .pbr-operating-context-head h3 {
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head {
+    gap: 18px;
+    margin-bottom: 12px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head h3 {
+    color: var(--pbr-startup-ref-ink) !important;
     font-size: 14px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-details .pbr-operating-context-head p,
-.pbr-startup-reference-v1 .pbr-reference-details .pbr-os-help {
-    color: #728078 !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field small,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-help {
+    color: #6d7f76 !important;
+    font-size: 8.8px !important;
+    line-height: 1.65 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field label,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field label {
+    color: #3f5e50 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field select,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field textarea,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field select {
+    border-color: #d6e2db !important;
+    background: #fbfdfc !important;
+}
+
+/* Plan name/actions: preserve existing controls and hierarchy. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-toolbar {
+    margin-bottom: 12px !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .03) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-draft-name input {
+    min-height: 40px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-draft-name small {
+    color: #74857d !important;
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-toolbar-actions button,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-actions button {
+    min-height: 39px !important;
     font-size: 9px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-help {
-    margin-top: 10px;
+/* Make the planner + live position the strongest visual block without changing layout. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(350px, 390px) !important;
+    gap: 14px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-help .pbr-capital-help-card {
-    margin: 0 !important;
-    padding: 13px !important;
-    border: 0 !important;
-    border-top: 1px solid #e8eeea !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-costs-section,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card {
+    border-color: var(--pbr-startup-ref-line) !important;
+    box-shadow: var(--pbr-startup-ref-shadow) !important;
 }
 
-.pbr-startup-reference-v1 #saved-plans {
-    margin-top: 12px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start {
+    padding: 17px 18px !important;
 }
 
-.pbr-startup-reference-v1 #saved-plans .pbr-reference-details {
-    margin-top: 0 !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start h2,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading h2,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-head h2 {
+    color: var(--pbr-startup-ref-ink) !important;
 }
 
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-manager {
-    margin: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading p {
+    color: #6c7e75 !important;
+    font-size: 9.5px !important;
 }
 
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-manager-head {
-    padding: 13px 15px !important;
-    background: #fbfcfb !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-template-chips {
+    margin-top: 11px !important;
 }
 
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-manager-head > div > p {
-    display: none !important;
-}
-
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-row {
-    align-items: center !important;
-    gap: 12px !important;
-    padding: 12px 15px !important;
-}
-
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-actions {
-    gap: 5px !important;
-}
-
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-actions button,
-.pbr-startup-reference-v1 #saved-plans .pbr-scenario-open {
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-template-chips button {
     min-height: 34px !important;
-    padding: 7px 9px !important;
-    border-radius: 8px !important;
+    color: #2f694b !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading {
+    padding: 16px 18px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-empty {
+    margin: 16px !important;
+    padding: 22px !important;
+    min-height: 138px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-empty p {
+    color: #75867e !important;
+    font-size: 8.8px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-category-list {
+    padding: 12px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field label {
+    color: #506a5e !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field select {
+    color: #294b3e !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-item-live-line,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-item-details > summary {
+    color: #6f8178 !important;
+}
+
+/* Live result: keep the familiar green PBR result card and improve legibility. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-column {
+    gap: 11px !important;
+    top: 150px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card {
+    padding: 17px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total {
+    margin-top: 11px !important;
+    padding: 15px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > span {
+    color: #d3eadb !important;
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > strong {
+    font-size: clamp(23px, 2.6vw, 28px) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > small {
+    color: #d8ece0 !important;
     font-size: 8px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-actions {
-    margin-top: 12px;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid > div {
+    min-height: 70px !important;
 }
 
-.pbr-startup-reference-v1 .pbr-reference-actions .pbr-operating-action-board {
-    margin: 0 !important;
-    border: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid span {
+    color: #687b72 !important;
+    font-size: 8px !important;
 }
 
-/* Stronger mixed-language legibility -------------------------------------- */
-.pbr-startup-reference-v1,
-.pbr-startup-reference-v1 input,
-.pbr-startup-reference-v1 select,
-.pbr-startup-reference-v1 textarea,
-.pbr-startup-reference-v1 button {
-    font-family: 'Manrope', 'Noto Sans Myanmar', 'Noto Sans', sans-serif;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid strong {
+    font-size: 11px !important;
 }
 
-.pbr-startup-reference-v1 p,
-.pbr-startup-reference-v1 small,
-.pbr-startup-reference-v1 label {
-    text-rendering: optimizeLegibility;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-live-alert {
+    padding: 11px !important;
 }
 
-/* Responsive --------------------------------------------------------------- */
-@media (max-width: 1120px) {
-    .pbr-startup-reference-v1 .pbr-capital-workspace-grid {
-        grid-template-columns: minmax(0, 1fr) 330px !important;
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-live-alert p {
+    font-size: 8.8px !important;
+    line-height: 1.65 !important;
+}
+
+/* Secondary cards stay visible, but visually step behind the planner. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card {
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .03) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card li,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-list small {
+    color: #6d7f76 !important;
+}
+
+/* Working plans: no hidden controls, just cleaner grouping and readable actions. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-manager {
+    margin-top: 14px !important;
+    border-color: var(--pbr-startup-ref-line) !important;
+    box-shadow: 0 8px 24px rgba(20, 56, 40, .035) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-manager-head p {
+    color: #697b72 !important;
+    font-size: 9px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions {
+    gap: 6px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions button,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions a {
+    min-height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 8.5px !important;
+}
+
+/* Keep responsive behavior aligned with the existing PBR tool system. */
+@media (max-width: 1240px) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 350px) !important;
     }
+}
 
-    .pbr-startup-reference-v1 .pbr-capital-plan-hero {
+@media (max-width: 1020px) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
         grid-template-columns: 1fr !important;
     }
 
-    .pbr-startup-reference-v1 .pbr-capital-business-card {
-        display: grid !important;
-        grid-template-columns: auto 1fr auto !important;
-        gap: 8px 12px !important;
-        align-items: center !important;
-    }
-}
-
-@media (max-width: 900px) {
-    .pbr-startup-reference-v1 .pbr-capital-workspace-grid {
-        grid-template-columns: 1fr !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-summary-column {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-column {
         position: static !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-tool-step-track {
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
     }
 }
 
 @media (max-width: 620px) {
-    .pbr-startup-reference-v1 .pbr-capital-plan-hero {
-        padding: 15px !important;
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page {
+        padding-top: 12px;
     }
 
-    .pbr-startup-reference-v1 .pbr-capital-plan-hero h1 {
-        font-size: 22px !important;
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+        padding: 17px !important;
     }
 
-    .pbr-startup-reference-v1 .pbr-capital-tool-flow-head,
-    .pbr-startup-reference-v1 .pbr-capital-tool-next,
-    .pbr-startup-reference-v1 .pbr-capital-draft-name,
-    .pbr-startup-reference-v1 .pbr-reference-details > summary {
-        grid-template-columns: 1fr !important;
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+        font-size: 23px !important;
     }
 
-    .pbr-startup-reference-v1 .pbr-capital-tool-current-state {
-        margin-top: 8px !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-tool-step-track {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-draft-name small {
-        grid-column: 1 !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-quick-start,
-    .pbr-startup-reference-v1 .pbr-capital-costs-section,
-    .pbr-startup-reference-v1 .pbr-capital-summary-card {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-toolbar,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card {
         padding: 14px !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-template-chips {
-        display: grid !important;
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-
-    .pbr-startup-reference-v1 .pbr-capital-template-chips button {
-        justify-content: center !important;
-        white-space: normal !important;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .pbr-startup-reference-v1 *,
-    .pbr-startup-reference-v1 *::before,
-    .pbr-startup-reference-v1 *::after {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *::before,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *::after {
         scroll-behavior: auto !important;
         transition-duration: .01ms !important;
         animation-duration: .01ms !important;
-        animation-iteration-count: 1 !important;
     }
 }
