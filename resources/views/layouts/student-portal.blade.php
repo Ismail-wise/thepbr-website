@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-shell.css') }}?v={{ filemtime(public_path('css/pbr-premium-shell.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-workspaces.css') }}?v={{ filemtime(public_path('css/pbr-premium-workspaces.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-business-overview.css') }}?v={{ filemtime(public_path('css/pbr-premium-business-overview.css')) }}">
+    <link rel="stylesheet" href="{{ asset('css/pbr-client-ready-os.css') }}?v={{ filemtime(public_path('css/pbr-client-ready-os.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
 </head>
 <body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }}">
