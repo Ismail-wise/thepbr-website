@@ -124,6 +124,65 @@
             </article>
         </section>
 
+        <section class="pbr-exec-section" data-pbr-decision-center>
+            <div class="pbr-exec-section-head">
+                <div>
+                    <span class="pbr-exec-eyebrow">DECISION CENTER</span>
+                    <h2>အရေးကြီးတဲ့ Business Decisions</h2>
+                </div>
+            </div>
+
+            <div class="pbr-exec-area-grid">
+                <a href="{{ route('workspaces.feasibility.show', $workspace) }}" class="pbr-exec-area in-progress">
+                    <span class="pbr-exec-area-number">01</span>
+                    <span class="pbr-exec-area-copy">
+                        <strong>Business Readiness</strong>
+                        <small>Feasibility & Go / Hold Decision</small>
+                    </span>
+                    <span class="pbr-exec-area-side">
+                        <span class="pbr-exec-area-status">Assess</span>
+                        <span class="pbr-exec-area-progress">Open →</span>
+                    </span>
+                </a>
+
+                <a href="{{ route('workspaces.valuation.show', $workspace) }}" class="pbr-exec-area in-progress">
+                    <span class="pbr-exec-area-number">02</span>
+                    <span class="pbr-exec-area-copy">
+                        <strong>Business Valuation</strong>
+                        <small>Indicative Value & Ownership Value</small>
+                    </span>
+                    <span class="pbr-exec-area-side">
+                        <span class="pbr-exec-area-status">Value</span>
+                        <span class="pbr-exec-area-progress">Open →</span>
+                    </span>
+                </a>
+
+                <a href="{{ route('workspaces.partner-dynamics.show', $workspace) }}" class="pbr-exec-area in-progress">
+                    <span class="pbr-exec-area-number">03</span>
+                    <span class="pbr-exec-area-copy">
+                        <strong>Partner Fit</strong>
+                        <small>Working Style & Complementary Partner</small>
+                    </span>
+                    <span class="pbr-exec-area-side">
+                        <span class="pbr-exec-area-status">Align</span>
+                        <span class="pbr-exec-area-progress">Open →</span>
+                    </span>
+                </a>
+
+                <a href="{{ route('workspaces.rulebook.show', $workspace) }}" class="pbr-exec-area approved">
+                    <span class="pbr-exec-area-number">04</span>
+                    <span class="pbr-exec-area-copy">
+                        <strong>Current Business Rules</strong>
+                        <small>Approved Rulebook & Operating Records</small>
+                    </span>
+                    <span class="pbr-exec-area-side">
+                        <span class="pbr-exec-area-status">Official</span>
+                        <span class="pbr-exec-area-progress">Open →</span>
+                    </span>
+                </a>
+            </div>
+        </section>
+
         <section class="pbr-exec-section" data-pbr-business-journey>
             <div class="pbr-exec-section-head">
                 <div>
