@@ -1,0 +1,1073 @@
+/*
+ * thePBR Premium Tool System V2
+ * Shared premium UI for the remaining 62 Business OS tools.
+ * Startup Capital and Working Capital remain frozen reference experiences.
+ */
+
+.pbr-premium-tool-page.pbr-ds-v2 {
+    --v2-ink: #17392d;
+    --v2-ink-soft: #36564b;
+    --v2-muted: #697d74;
+    --v2-line: #dce7e1;
+    --v2-line-strong: #cadbd2;
+    --v2-surface: #ffffff;
+    --v2-surface-soft: #f7faf8;
+    --v2-green: #0b6b3b;
+    --v2-green-dark: #07522d;
+    --v2-green-soft: #edf7f1;
+    --v2-amber: #9b641e;
+    --v2-amber-soft: #fff7e9;
+    --v2-danger: #a44a45;
+    --v2-danger-soft: #fff3f1;
+    --v2-shadow: 0 9px 28px rgba(21, 55, 42, .055);
+    --v2-shadow-strong: 0 16px 42px rgba(21, 55, 42, .08);
+    --v2-focus: 0 0 0 4px rgba(11, 107, 59, .11);
+    color: var(--v2-ink);
+    font-family: 'Noto Sans Myanmar', 'Noto Sans', sans-serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 *,
+.pbr-premium-tool-page.pbr-ds-v2 *::before,
+.pbr-premium-tool-page.pbr-ds-v2 *::after {
+    box-sizing: border-box;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 :is(h1,h2,h3,h4,p,label,small,li,button,a,summary,span) {
+    letter-spacing: 0;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 :is(input,select,textarea,button) {
+    font: inherit;
+}
+
+/* Shared shell ---------------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-os-page,
+.pbr-premium-tool-page.pbr-ds-v2.pbr-tools-section {
+    padding-top: 14px;
+    padding-bottom: 58px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .portal-wrap,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-wrap {
+    max-width: 1380px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-premium-toolbar {
+    margin-bottom: 12px;
+    border-radius: 14px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-breadcrumb {
+    margin: 0 0 8px;
+    font-size: 10.5px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-page-head {
+    min-height: 0 !important;
+    margin-bottom: 12px !important;
+    padding: 18px 21px !important;
+    border: 1px solid var(--v2-line) !important;
+    border-radius: 18px !important;
+    background: linear-gradient(135deg, #fff 0%, #fbfdfc 72%, #f1f8f4 100%) !important;
+    box-shadow: var(--v2-shadow) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero {
+    grid-template-columns: minmax(0, 1fr) 255px !important;
+    gap: 22px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero::before {
+    width: 3px !important;
+    background: var(--v2-green) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero h1,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-page-head h1 {
+    margin: 5px 0 2px !important;
+    color: var(--v2-ink) !important;
+    font-family: 'Noto Sans Myanmar', 'Noto Sans', sans-serif !important;
+    font-size: clamp(24px, 2vw, 32px) !important;
+    font-weight: 800 !important;
+    line-height: 1.45 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-purpose,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-page-head > div > p:last-child {
+    max-width: 840px;
+    margin: 7px 0 0 !important;
+    color: var(--v2-muted) !important;
+    font-size: 12.5px !important;
+    font-weight: 500 !important;
+    line-height: 1.72 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-en-title,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-en-subtitle {
+    margin-top: 2px !important;
+    color: #526b61 !important;
+    font-family: 'Manrope', 'Noto Sans', sans-serif !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-business-context,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-context-box {
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+    background: linear-gradient(145deg, #123d2c, #092b1e) !important;
+    box-shadow: 0 8px 20px rgba(12, 46, 32, .12) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-business-context strong,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-context-box strong {
+    color: #fff !important;
+    font-size: 14px !important;
+    line-height: 1.55 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-business-context small,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-context-box small {
+    color: #c3dbcf !important;
+    font-size: 10.5px !important;
+    line-height: 1.55 !important;
+}
+
+.pbr-ds-v2-family-badge {
+    display: inline-flex;
+    width: fit-content;
+    align-items: center;
+    min-height: 24px;
+    margin-left: 7px;
+    padding: 4px 9px;
+    border: 1px solid #d2e2da;
+    border-radius: 999px;
+    background: #f7faf8;
+    color: #557168;
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+/* Primary operating workspace ----------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-layout {
+    display: block !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-main {
+    display: grid;
+    gap: 13px;
+    min-width: 0;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-panel,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-calculator-panel,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-calculator-results {
+    border: 1px solid var(--v2-line) !important;
+    border-radius: 18px !important;
+    background: #fff !important;
+    box-shadow: var(--v2-shadow) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-input-panel {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-panel-head {
+    padding: 17px 19px 15px !important;
+    border-bottom: 1px solid #e8efeb !important;
+    background: linear-gradient(180deg, #fff, #fbfdfc) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-panel-head h2 {
+    margin: 4px 0 3px !important;
+    color: var(--v2-ink) !important;
+    font-size: 17px !important;
+    font-weight: 800 !important;
+    line-height: 1.55 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-panel-head p {
+    max-width: 780px;
+    margin: 0 !important;
+    color: var(--v2-muted) !important;
+    font-size: 11.5px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form {
+    display: flex !important;
+    flex-direction: column;
+    gap: 0 !important;
+    padding: 0 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form > .pbr-os-fields { order: 1; }
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form > .pbr-os-form-actions { order: 2; }
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form > .pbr-ds-v2-governance { order: 3; }
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-fields {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 11px !important;
+    padding: 17px 19px 19px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field {
+    min-width: 0;
+    padding: 12px !important;
+    border: 1px solid #e1ebe6 !important;
+    border-radius: 13px !important;
+    background: #fbfdfc !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field-wide {
+    grid-column: 1 / -1;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field > label,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field-heading label,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-mini-field label {
+    color: #294d40 !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+    line-height: 1.6 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field > label span,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-field-heading span {
+    display: block;
+    margin-top: 2px;
+    color: #72867d !important;
+    font-family: 'Manrope', 'Noto Sans', sans-serif !important;
+    font-size: 9.5px !important;
+    font-weight: 700 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-help {
+    color: #6d8178 !important;
+    font-size: 11px !important;
+    line-height: 1.75 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 :is(input:not([type='checkbox']):not([type='radio']), select, textarea) {
+    min-height: 46px;
+    padding: 10px 12px !important;
+    border: 1px solid #ceddd5 !important;
+    border-radius: 11px !important;
+    background: #fff !important;
+    color: var(--v2-ink) !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    line-height: 1.55 !important;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 textarea {
+    min-height: 108px;
+    resize: vertical;
+    line-height: 1.75 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 :is(input:not([type='checkbox']):not([type='radio']), select, textarea):focus {
+    outline: none !important;
+    border-color: #69af81 !important;
+    box-shadow: var(--v2-focus) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 :is(button, a, summary):focus-visible {
+    outline: none !important;
+    box-shadow: var(--v2-focus) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form-actions {
+    display: flex !important;
+    align-items: end !important;
+    justify-content: space-between !important;
+    gap: 14px !important;
+    padding: 15px 19px 18px !important;
+    border-top: 1px solid #e5eee9 !important;
+    background: #fbfdfc !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-save-cluster {
+    display: grid !important;
+    grid-template-columns: minmax(210px, 1fr) auto !important;
+    gap: 8px !important;
+    align-items: end !important;
+    max-width: 560px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-save-cluster > label {
+    grid-column: 1 / -1;
+    color: #587168 !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-btn,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tools-primary-button,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-save-draft-button {
+    display: inline-flex !important;
+    min-height: 42px;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 9px 15px !important;
+    border-radius: 11px !important;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    line-height: 1.35 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-btn.primary,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-tools-primary-button,
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-btn.approve {
+    border-color: var(--v2-green) !important;
+    background: linear-gradient(135deg, #0c7542, #075b34) !important;
+    color: #fff !important;
+    box-shadow: 0 8px 18px rgba(11, 107, 59, .14) !important;
+}
+
+/* Secondary sections --------------------------------------------------- */
+.pbr-ds-v2-governance,
+.pbr-ds-v2-workspace-meta,
+.pbr-ds-v2-connected-context {
+    margin-top: 12px;
+    border: 1px solid var(--v2-line);
+    border-radius: 15px;
+    background: #fff;
+    box-shadow: 0 5px 18px rgba(22, 55, 43, .035);
+    overflow: hidden;
+}
+
+.pbr-ds-v2-governance > summary,
+.pbr-ds-v2-workspace-meta > summary,
+.pbr-ds-v2-connected-context > summary {
+    display: flex;
+    min-height: 64px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 13px 17px;
+    cursor: pointer;
+    list-style: none;
+    background: linear-gradient(180deg, #fff, #fbfdfc);
+}
+
+.pbr-ds-v2-governance > summary::-webkit-details-marker,
+.pbr-ds-v2-workspace-meta > summary::-webkit-details-marker,
+.pbr-ds-v2-connected-context > summary::-webkit-details-marker {
+    display: none;
+}
+
+.pbr-ds-v2-governance > summary span,
+.pbr-ds-v2-workspace-meta > summary span,
+.pbr-ds-v2-connected-context > summary span {
+    display: grid;
+    gap: 2px;
+}
+
+.pbr-ds-v2-governance > summary strong,
+.pbr-ds-v2-workspace-meta > summary strong,
+.pbr-ds-v2-connected-context > summary strong {
+    color: var(--v2-ink);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.55;
+}
+
+.pbr-ds-v2-governance > summary small,
+.pbr-ds-v2-workspace-meta > summary small,
+.pbr-ds-v2-connected-context > summary small {
+    color: var(--v2-muted);
+    font-size: 10.5px;
+    line-height: 1.6;
+}
+
+.pbr-ds-v2-governance > summary i,
+.pbr-ds-v2-workspace-meta > summary i,
+.pbr-ds-v2-connected-context > summary i {
+    padding: 5px 9px;
+    border: 1px solid #d3e1da;
+    border-radius: 999px;
+    color: #557168;
+    font-family: 'Manrope', sans-serif;
+    font-size: 9px;
+    font-style: normal;
+    font-weight: 800;
+}
+
+.pbr-ds-v2-governance[open] > summary,
+.pbr-ds-v2-workspace-meta[open] > summary,
+.pbr-ds-v2-connected-context[open] > summary {
+    border-bottom: 1px solid #e5eee9;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-governance .pbr-operating-context {
+    margin: 0 !important;
+    padding: 17px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-connected-context .pbr-premium-tool-intelligence {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px !important;
+    margin: 0 !important;
+    padding: 13px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-connected-context .pbr-premium-tool-intelligence > * {
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-workspace-meta .pbr-os-sidebar {
+    position: static !important;
+    display: grid !important;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px !important;
+    padding: 13px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-workspace-meta .pbr-os-side-card {
+    margin: 0 !important;
+    padding: 13px !important;
+    border: 1px solid #e1eae5 !important;
+    border-radius: 13px !important;
+    background: #fbfdfc !important;
+    box-shadow: none !important;
+}
+
+/* Result system --------------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-panel {
+    padding: 17px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-hero {
+    padding: 18px !important;
+    border-radius: 15px !important;
+    background: linear-gradient(145deg, #0d7040, #0a5633) !important;
+    color: #fff !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-hero > span {
+    color: #d4ecdf !important;
+    font-size: 10px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-hero > strong {
+    color: #fff !important;
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif !important;
+    font-size: clamp(29px, 3vw, 42px) !important;
+    font-weight: 800 !important;
+    line-height: 1.12 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-hero > small {
+    color: #c9e2d6 !important;
+    font-size: 10.5px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-metrics {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px !important;
+    margin-top: 10px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-metrics article {
+    padding: 12px !important;
+    border: 1px solid var(--v2-line) !important;
+    border-radius: 12px !important;
+    background: #fbfdfc !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-metrics article span {
+    color: #6c8177 !important;
+    font-size: 10px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-metrics article strong {
+    color: var(--v2-ink) !important;
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif !important;
+    font-size: 15px !important;
+    line-height: 1.4 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-table-wrap {
+    margin-top: 12px !important;
+    border: 1px solid var(--v2-line) !important;
+    border-radius: 13px !important;
+    overflow: hidden;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-table th {
+    background: #f4f8f6 !important;
+    color: #49665b !important;
+    font-size: 9.5px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-result-table td {
+    color: #345549 !important;
+    font-size: 11.5px !important;
+    line-height: 1.55 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-insight {
+    margin-top: 10px !important;
+    padding: 13px !important;
+    border-radius: 12px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-approval-zone {
+    margin-top: 13px !important;
+    padding: 16px !important;
+    border: 1px solid #cfe3d8 !important;
+    border-radius: 15px !important;
+    background: linear-gradient(135deg, #f7fbf8, #eef7f1) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-approval-zone h3 {
+    color: var(--v2-ink) !important;
+    font-size: 16px !important;
+    line-height: 1.55 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-approval-zone p {
+    color: #60786e !important;
+    font-size: 11.5px !important;
+    line-height: 1.75 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2 .pbr-os-current-rule {
+    border-color: #bdddc9 !important;
+    background: linear-gradient(135deg, #f3faf5, #fff) !important;
+}
+
+/* Calculator family ---------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-ds-v2-primary-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(330px, .85fr);
+    gap: 14px;
+    align-items: start;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-ds-v2-primary-grid > .pbr-os-result-panel {
+    position: sticky;
+    top: 145px;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-os-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+/* Matrix / builder family --------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-repeater {
+    padding: 0 !important;
+    overflow: hidden;
+    background: #fff !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-field-heading {
+    padding: 14px 15px !important;
+    border-bottom: 1px solid #e4ece8 !important;
+    background: #f8fbf9 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-repeater > .pbr-os-help {
+    margin: 0 !important;
+    padding: 10px 15px !important;
+    border-bottom: 1px solid #e9f0ec;
+    background: #fcfdfd;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-repeater-rows {
+    display: grid !important;
+    gap: 0 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-repeater-row {
+    display: grid !important;
+    grid-template-columns: 34px repeat(var(--pbr-v2-cols, 3), minmax(120px, 1fr)) 38px !important;
+    gap: 8px !important;
+    align-items: end !important;
+    padding: 12px 13px !important;
+    border: 0 !important;
+    border-bottom: 1px solid #e8efeb !important;
+    border-radius: 0 !important;
+    background: #fff !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-row-number {
+    display: inline-flex !important;
+    width: 30px !important;
+    height: 30px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 9px !important;
+    background: var(--v2-green-soft) !important;
+    color: #487061 !important;
+    font-family: 'Manrope', sans-serif !important;
+    font-size: 9px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-mini-field {
+    min-width: 0;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-add-row {
+    min-height: 37px !important;
+    padding: 7px 11px !important;
+    border: 1px solid #bcdac9 !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: var(--v2-green) !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-remove-row {
+    width: 34px !important;
+    height: 34px !important;
+    border: 1px solid #efd2cd !important;
+    border-radius: 9px !important;
+    background: var(--v2-danger-soft) !important;
+    color: var(--v2-danger) !important;
+}
+
+/* Planner family ------------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-planner .pbr-os-fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-planner .pbr-os-field-wide,
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-planner .pbr-os-repeater {
+    grid-column: 1 / -1;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-planner .pbr-os-repeater-row {
+    border-color: #dbe7e1 !important;
+    background: #fff !important;
+}
+
+/* Checklist family ----------------------------------------------------- */
+.pbr-ds-v2-check-progress {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 7px 12px;
+    align-items: center;
+    margin: 12px 0;
+    padding: 12px 13px;
+    border: 1px solid #d4e5dc;
+    border-radius: 12px;
+    background: #f7fbf8;
+}
+
+.pbr-ds-v2-check-progress > span {
+    color: #527067;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.pbr-ds-v2-check-progress > strong {
+    color: var(--v2-green);
+    font-family: 'Manrope', sans-serif;
+    font-size: 11px;
+    font-weight: 800;
+}
+
+.pbr-ds-v2-check-progress > div {
+    grid-column: 1 / -1;
+    height: 6px;
+    border-radius: 999px;
+    background: #ddeae3;
+    overflow: hidden;
+}
+
+.pbr-ds-v2-check-progress i {
+    display: block;
+    width: 0;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--v2-green);
+    transition: width .2s ease;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-checklist .pbr-os-checklist {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-checklist .pbr-os-check-item {
+    min-height: 64px;
+    padding: 11px !important;
+    border: 1px solid #dce7e1 !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-checklist .pbr-os-check-item:has(input:checked) {
+    border-color: #9dc9ae !important;
+    background: #f1f9f4 !important;
+}
+
+/* Record family -------------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-record .pbr-os-panel-head .portal-kicker {
+    color: #735a2a !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-record .pbr-os-result-hero {
+    background: linear-gradient(145deg, #244f43, #173c32) !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-record .pbr-os-current-rule {
+    border-color: #d8dfc1 !important;
+    background: linear-gradient(135deg, #fbfbf4, #fff) !important;
+}
+
+/* Visual family -------------------------------------------------------- */
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-visual .pbr-os-result-panel {
+    padding: 20px !important;
+}
+
+.pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-visual .pbr-os-result-table-wrap {
+    box-shadow: 0 8px 24px rgba(22, 55, 43, .04);
+}
+
+/* Chapter 1 shared tools ---------------------------------------------- */
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-tool-page-head {
+    padding: 17px 20px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-flow {
+    margin-bottom: 12px !important;
+    padding: 13px 15px !important;
+    border-radius: 16px !important;
+    box-shadow: var(--v2-shadow) !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-flow-head {
+    margin-bottom: 9px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-flow-back {
+    display: none !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-flow-position {
+    gap: 8px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-current-state {
+    padding: 8px 11px !important;
+    border-radius: 11px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-step-track {
+    gap: 6px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-step {
+    min-height: 54px !important;
+    padding: 8px 9px !important;
+    border-radius: 10px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-step span {
+    font-size: 9.5px !important;
+    line-height: 1.35 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-step i {
+    display: none !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-connection {
+    margin-top: 9px !important;
+    padding: 10px 12px !important;
+    border-radius: 11px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-connection p {
+    display: none !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-next {
+    display: none !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-layout {
+    gap: 14px !important;
+    align-items: start !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-panel {
+    padding: 20px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-results {
+    position: sticky;
+    top: 145px;
+    padding: 19px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-ds-v2-plan-name {
+    display: grid !important;
+    grid-template-columns: minmax(190px, .55fr) minmax(280px, 1fr) !important;
+    gap: 12px !important;
+    align-items: center !important;
+    margin: 15px 0 0 !important;
+    padding: 13px !important;
+    border: 1px solid #dbe7e1 !important;
+    border-radius: 13px !important;
+    background: #f8fbf9 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-ds-v2-plan-name label {
+    color: var(--v2-ink) !important;
+    font-size: 12px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-ds-v2-plan-name small {
+    color: var(--v2-muted) !important;
+    font-size: 10px !important;
+    line-height: 1.6 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-action-guide {
+    margin-top: 10px !important;
+    padding: 10px 12px !important;
+    border-radius: 11px !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-actions {
+    margin-top: 10px !important;
+    padding-top: 12px !important;
+}
+
+/* Chapter 1 Working Plans --------------------------------------------- */
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-manager {
+    margin-top: 14px !important;
+    padding: 18px !important;
+    border: 1px solid var(--v2-line) !important;
+    border-radius: 18px !important;
+    background: #fff !important;
+    box-shadow: var(--v2-shadow) !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-manager-head p {
+    max-width: 820px;
+    color: var(--v2-muted) !important;
+    font-size: 11px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-row {
+    display: grid !important;
+    grid-template-columns: minmax(180px, 1fr) auto !important;
+    gap: 14px !important;
+    align-items: center !important;
+    padding: 12px 0 !important;
+    border-bottom: 1px solid #e5ede9 !important;
+}
+
+.pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-actions {
+    display: flex !important;
+    gap: 7px !important;
+    align-items: center !important;
+}
+
+.pbr-ds-v2-plan-primary {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+}
+
+.pbr-ds-v2-plan-primary > a,
+.pbr-ds-v2-plan-primary button {
+    display: inline-flex !important;
+    min-height: 38px !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 7px 12px !important;
+    border: 1px solid #c6ddd1 !important;
+    border-radius: 10px !important;
+    background: #fff !important;
+    color: #175e3b !important;
+    font-size: 10.5px !important;
+    font-weight: 800 !important;
+}
+
+.pbr-ds-v2-plan-primary form:last-child button {
+    border-color: var(--v2-green) !important;
+    background: var(--v2-green) !important;
+    color: #fff !important;
+}
+
+.pbr-ds-v2-plan-more {
+    position: relative;
+}
+
+.pbr-ds-v2-plan-more > summary {
+    display: inline-flex;
+    width: 40px;
+    height: 38px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid #d2e0d9;
+    border-radius: 10px;
+    background: #fff;
+    color: #5b776c;
+    cursor: pointer;
+    list-style: none;
+    font-weight: 800;
+}
+
+.pbr-ds-v2-plan-more > summary::-webkit-details-marker { display: none; }
+
+.pbr-ds-v2-plan-menu {
+    position: absolute;
+    z-index: 30;
+    top: calc(100% + 6px);
+    right: 0;
+    display: grid;
+    min-width: 230px;
+    gap: 6px;
+    padding: 9px;
+    border: 1px solid #d6e2dc;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 16px 36px rgba(22, 55, 43, .14);
+}
+
+.pbr-ds-v2-plan-menu form,
+.pbr-ds-v2-plan-menu .pbr-scenario-rename-form {
+    display: grid !important;
+    gap: 5px !important;
+}
+
+.pbr-ds-v2-plan-menu button,
+.pbr-ds-v2-plan-menu input {
+    width: 100% !important;
+    min-height: 36px !important;
+    border-radius: 9px !important;
+    font-size: 10px !important;
+}
+
+/* Responsive ----------------------------------------------------------- */
+@media (max-width: 1100px) {
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-ds-v2-primary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-ds-v2-primary-grid > .pbr-os-result-panel,
+    .pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-calculator-results {
+        position: static;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-workspace-meta .pbr-os-sidebar {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 820px) {
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-business-context,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-context-box {
+        width: 100% !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-fields,
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-planner .pbr-os-fields,
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-calculator .pbr-os-fields,
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-checklist .pbr-os-checklist,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-connected-context .pbr-premium-tool-intelligence,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-ds-v2-workspace-meta .pbr-os-sidebar {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form-actions,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-save-cluster {
+        grid-template-columns: 1fr !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-ds-v2-plan-name,
+    .pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-row {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 620px) {
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-os-page,
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-tools-section {
+        padding-top: 8px;
+        padding-bottom: 40px;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-page-head {
+        padding: 15px !important;
+        border-radius: 15px !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-hero h1,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-tool-page-head h1 {
+        font-size: 23px !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-fields,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-panel-head,
+    .pbr-premium-tool-page.pbr-ds-v2 .pbr-os-form-actions {
+        padding-left: 13px !important;
+        padding-right: 13px !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-repeater-row {
+        grid-template-columns: 30px 1fr 34px !important;
+    }
+
+    .pbr-premium-tool-page.pbr-ds-v2.pbr-ds-family-matrix .pbr-os-mini-field {
+        grid-column: 2 / 3;
+    }
+
+    .pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-capital-tool-step-track {
+        overflow-x: auto;
+        grid-template-columns: repeat(6, minmax(145px, 1fr)) !important;
+        padding-bottom: 4px;
+    }
+
+    .pbr-premium-capital-tool-page.pbr-ds-v2 .pbr-scenario-actions,
+    .pbr-ds-v2-plan-primary {
+        flex-wrap: wrap;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pbr-premium-tool-page.pbr-ds-v2 *,
+    .pbr-premium-tool-page.pbr-ds-v2 *::before,
+    .pbr-premium-tool-page.pbr-ds-v2 *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .001ms !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

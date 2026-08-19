@@ -41,6 +41,9 @@
     @if(request()->routeIs('workspaces.tools.chapter-one.*'))
         <link rel="stylesheet" href="{{ asset('css/pbr-premium-tool-design-system-v11.css') }}?v={{ filemtime(public_path('css/pbr-premium-tool-design-system-v11.css')) }}">
     @endif
+    @if(request()->routeIs('workspaces.tools.operating.*', 'workspaces.tools.chapter-one.*'))
+        <link rel="stylesheet" href="{{ asset('css/pbr-premium-tool-system-v2.css') }}?v={{ filemtime(public_path('css/pbr-premium-tool-system-v2.css')) }}">
+    @endif
     @if(request()->routeIs('workspaces.tools.startup-capital.*'))
         <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-typography-polish.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-typography-polish.css')) }}">
         <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-expense-ux.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-expense-ux.css')) }}">
@@ -58,6 +61,9 @@
     @endif
     @if(request()->routeIs('workspaces.tools.chapter-one.*'))
         <script src="{{ asset('js/pbr-premium-tool-design-system-v11.js') }}?v={{ filemtime(public_path('js/pbr-premium-tool-design-system-v11.js')) }}" defer></script>
+    @endif
+    @if(request()->routeIs('workspaces.tools.operating.*', 'workspaces.tools.chapter-one.*'))
+        <script src="{{ asset('js/pbr-premium-tool-system-v2.js') }}?v={{ filemtime(public_path('js/pbr-premium-tool-system-v2.js')) }}" defer></script>
     @endif
     @if(request()->routeIs('workspaces.tools.startup-capital.*'))
         <script src="{{ asset('js/pbr-startup-capital-expense-ux.js') }}?v={{ filemtime(public_path('js/pbr-startup-capital-expense-ux.js')) }}" defer></script>
