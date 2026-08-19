@@ -65,6 +65,14 @@ class ToolSession extends Model
         );
     }
 
+    public function toolActions(): HasMany
+    {
+        return $this->hasMany(
+            WorkspaceToolAction::class,
+            'source_tool_session_id'
+        );
+    }
+
     public function isCompleted(): bool
     {
         return $this->status === 'completed';

@@ -1,16 +1,31 @@
-<div class="pbr-calculator-panel-head">
-    <span class="portal-kicker">
-        Capital Requirement
-    </span>
+<div
+    class="pbr-capital-form-experience"
+    data-capital-form="funding-gap"
+>
+    <div class="pbr-calculator-panel-head">
+        <span class="portal-kicker">FUNDING POSITION</span>
 
-    <p>
-        လုပ်ငန်းအတွက်လိုအပ်တဲ့ Total Capital နဲ့
-        ရရှိထားတဲ့ Partner Capital / Other Funding ကို
-        နှိုင်းယှဉ်ပြီး Gap သို့မဟုတ် Surplus ကိုတွက်ပါ။
-    </p>
-</div>
+        <h2>လိုအပ်တဲ့ Capital နဲ့ Confirmed Funding ကို တိုက်ရိုက်နှိုင်းယှဉ်ပါ</h2>
 
-<div class="pbr-simple-grid">
+        <p>
+            Total capital requirement ထဲက partner capital နဲ့ အခြား confirmed funding ကိုနုတ်ပြီး
+            ဖြည့်ဆည်းရန်လိုနေတဲ့ gap သို့မဟုတ် available surplus ကိုတွက်ပေးပါတယ်။
+        </p>
+    </div>
+
+    <div class="pbr-capital-formula-card">
+        <span>HOW IT WORKS</span>
+        <div>
+            <strong>Total Capital Required</strong>
+            <b>−</b>
+            <strong>Partner Capital</strong>
+            <b>−</b>
+            <strong>Other Confirmed Funding</strong>
+        </div>
+        <p>Positive remainder က funding gap ဖြစ်ပြီး negative remainder က funding surplus ဖြစ်ပါတယ်။</p>
+    </div>
+
+    <div class="pbr-simple-grid pbr-simple-grid-three">
 
     <div class="pbr-simple-field">
         <label for="capital_required">
@@ -18,7 +33,7 @@
         </label>
 
         <small>
-            Total amount the partnership needs.
+            Partnership setup နဲ့ operations အတွက် စုစုပေါင်းလိုအပ်တဲ့ amount။
         </small>
 
         <div class="pbr-money-input">
@@ -31,7 +46,9 @@
                 name="capital_required"
                 type="number"
                 min="0"
+                max="999999999999.99"
                 step="0.01"
+                inputmode="decimal"
                 value="{{ old(
                     'capital_required',
                     $input['capital_required'] ?? ''
@@ -48,7 +65,7 @@
         </label>
 
         <small>
-            Capital committed by the partners.
+            Partner တွေက အတည်ပြုထားပြီး ထည့်ဝင်မယ့် capital amount။
         </small>
 
         <div class="pbr-money-input">
@@ -61,7 +78,9 @@
                 name="partner_capital"
                 type="number"
                 min="0"
+                max="999999999999.99"
                 step="0.01"
+                inputmode="decimal"
                 value="{{ old(
                     'partner_capital',
                     $input['partner_capital'] ?? ''
@@ -78,7 +97,7 @@
         </label>
 
         <small>
-            Loans, investors or other confirmed funding.
+            Loan, investor သို့မဟုတ် တကယ်အတည်ပြုထားတဲ့ အခြား funding။
         </small>
 
         <div class="pbr-money-input">
@@ -91,7 +110,9 @@
                 name="other_funding"
                 type="number"
                 min="0"
+                max="999999999999.99"
                 step="0.01"
+                inputmode="decimal"
                 value="{{ old(
                     'other_funding',
                     $input['other_funding'] ?? ''
@@ -101,4 +122,13 @@
         </div>
     </div>
 
+    </div>
+
+    <div class="pbr-capital-definition-note">
+        <strong>Confirmed funding ကိုပဲ ထည့်ပါ</strong>
+        <p>
+            ဆွေးနွေးနေဆဲ loan သို့မဟုတ် မသေချာသေးတဲ့ investor amount ကို confirmed funding အဖြစ်မထည့်ပါနဲ့။
+            Result ကို cash planning နဲ့ funding action အတွက် review လုပ်ပါ။
+        </p>
+    </div>
 </div>

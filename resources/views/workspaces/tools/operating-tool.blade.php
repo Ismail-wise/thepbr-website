@@ -31,8 +31,26 @@
     };
 @endphp
 
-<section class="pbr-os-page">
+<section
+    class="pbr-os-page pbr-premium-tool-page"
+    data-pbr-premium-tool
+    data-pbr-tool-chapter="{{ $internalNumber }}"
+>
     <div class="portal-wrap pbr-os-wrap">
+        @include(
+            'workspaces.tools.partials.premium-tool-command-bar',
+            [
+                'premiumToolTitleMm' => $definition['title_mm'] ?? $tool->title_mm ?? $tool->title_en,
+                'premiumToolTitleEn' => $tool->title_en,
+                'premiumToolAreaMm' => $areaNameMm,
+                'premiumToolAreaEn' => $areaNameEn,
+                'premiumToolCanManage' => $canManage,
+                'premiumToolHasDraft' => (bool) $activeSession,
+                'premiumToolHasActiveRule' => (bool) $latestAgreedOutput,
+                'premiumToolIsRecord' => $isRecordTool,
+            ]
+        )
+
         <nav class="pbr-os-breadcrumb" aria-label="Breadcrumb">
             <a href="{{ route('workspaces.show', $workspace) }}">{{ $workspace->business_name ?: $workspace->name }}</a>
             <span>›</span>
@@ -79,20 +97,22 @@
             <div class="pbr-os-alert success">{{ session('status') }}</div>
         @endif
 
-        @include(
-            'workspaces.tools.partials.connected-runtime',
-            [
-                'toolContract' => $toolContract,
-                'operatingRecords' => $operatingRecords,
-            ]
-        )
+        <div class="pbr-premium-tool-intelligence">
+            @include(
+                'workspaces.tools.partials.connected-runtime',
+                [
+                    'toolContract' => $toolContract,
+                    'operatingRecords' => $operatingRecords,
+                ]
+            )
 
-        @include(
-            'workspaces.tools.partials.business-guidance',
-            [
-                'businessGuidance' => $businessGuidance,
-            ]
-        )
+            @include(
+                'workspaces.tools.partials.business-guidance',
+                [
+                    'businessGuidance' => $businessGuidance,
+                ]
+            )
+        </div>
 
         @unless($canManage)
             <div class="pbr-os-readonly-banner">
@@ -196,7 +216,7 @@
 
             <main class="pbr-os-main">
                 @if($canManage)
-                    <section class="pbr-os-panel pbr-os-input-panel">
+                    <section class="pbr-os-panel pbr-os-input-panel" id="tool-workspace">
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">BUSINESS DATA</span>
@@ -216,6 +236,10 @@
                         >
                             @csrf
                             <input type="hidden" name="tool_session_id" value="{{ $activeSession?->id }}">
+
+                            @include(
+                                'workspaces.tools.partials.operating-context'
+                            )
 
                             <div class="pbr-os-fields">
                                 @foreach($definition['fields'] ?? [] as $field)
@@ -677,6 +701,10 @@
                         </p>
                     </section>
                 @endif
+
+                @include(
+                    'workspaces.tools.partials.operating-action-board'
+                )
 
                 <div class="pbr-os-legal-note">
                     <strong>Planning & Governance Note</strong>

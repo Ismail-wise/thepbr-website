@@ -1,17 +1,32 @@
 @php
     $currency = $workspace->currency_code ?? 'THB';
+    $emptyInstruction = match($toolKey) {
+        'current_capital_position' => 'Resources နဲ့ liabilities ကိုဖြည့်ပြီး current net position ကိုစစ်ပါ။',
+        'working_capital_calculator' => 'Monthly costs, receivables နဲ့ reserve period ကိုဖြည့်ပါ။',
+        'contingency_fund_calculator' => 'Reserve method ကိုရွေးပြီး သက်ဆိုင်ရာ capital သို့မဟုတ် operating cost ကိုဖြည့်ပါ။',
+        'partner_contribution_matrix' => 'Partner တစ်ဦးချင်းစီရဲ့ contribution items နဲ့ amounts ကိုဖြည့်ပါ။',
+        'funding_gap_calculator' => 'Required capital, confirmed funding နဲ့ reserve ကိုဖြည့်ပါ။',
+        'capital_allocation_chart' => 'Capital အသုံးပြုမယ့် categories နဲ့ amounts ကိုထည့်ပါ။',
+        default => 'Business data ကိုဖြည့်ပြီး result ကိုစစ်ပါ။',
+    };
 @endphp
 
 @if(! $result)
 
     <div class="pbr-empty-result">
+        <span aria-hidden="true">↗</span>
+
         <strong>
-            Your result will appear here.
+            Result စစ်ဖို့ အဆင်သင့်ပါ
         </strong>
 
         <p>
-            Data ထည့်ပြီး Calculate ကိုနှိပ်ပါ။
+            {{ $emptyInstruction }}
         </p>
+
+        <small>
+            Data ထည့်ပြီး “Result စစ်ရန်” ကိုနှိပ်ပါ။
+        </small>
     </div>
 
 @elseif($toolKey === 'current_capital_position')
@@ -184,6 +199,19 @@
         </strong>
     </div>
 
+    <div
+        class="pbr-result-interpretation"
+        data-result-interpretation="contingency-fund"
+    >
+        <span>PLANNING BUFFER</span>
+
+        <p>
+            ဒီ amount က မမျှော်လင့်ထားတဲ့ cost အတွက် သီးသန့်ထားမယ့်
+            planning reserve ဖြစ်ပါတယ်။ Base operating capital နဲ့မရောဘဲ
+            owner review လုပ်ပြီးမှ final buffer အဖြစ်သတ်မှတ်ပါ။
+        </p>
+    </div>
+
     <div class="pbr-result-stats">
         <div>
             <span>Base Capital</span>
@@ -245,6 +273,19 @@
         </strong>
     </div>
 
+    <div
+        class="pbr-result-interpretation"
+        data-result-interpretation="partner-contribution"
+    >
+        <span>CONTRIBUTION MIX — NOT LEGAL OWNERSHIP</span>
+
+        <p>
+            Breakdown percentage က ဒီ tool ထဲထည့်ထားတဲ့ contribution value
+            အချိုးကိုပဲပြပါတယ်။ Ownership %, voting rights သို့မဟုတ် legal share
+            ကို အလိုအလျောက် မသတ်မှတ်ပါ။
+        </p>
+    </div>
+
     <div class="pbr-result-stats">
         <div>
             <span>Partners</span>
@@ -286,7 +327,7 @@
                     </strong>
                 </div>
 
-                <div class="pbr-breakdown-track">
+                <div class="pbr-breakdown-track" aria-hidden="true">
                     <i
                         style="width: {{
                             min(
@@ -340,6 +381,31 @@
                 )
             }}
         </strong>
+    </div>
+
+    <div
+        class="pbr-result-interpretation {{ ($result['funding_gap'] ?? 0) > 0 ? 'attention' : 'positive' }}"
+        data-result-interpretation="funding-gap"
+    >
+        <span>
+            {{
+                ($result['funding_gap'] ?? 0) > 0
+                    ? 'FUNDING ACTION REQUIRED'
+                    : 'CAPITAL REQUIREMENT COVERED'
+            }}
+        </span>
+
+        <p>
+            @if(($result['funding_gap'] ?? 0) > 0)
+                Required capital နဲ့ reserve ကို အပြည့်အဝ cover လုပ်ဖို့
+                အပေါ်မှာပြထားတဲ့ gap amount ထပ်မံလိုအပ်နေပါတယ်။ Funding source,
+                timing နဲ့ owner responsibility ကို next action အဖြစ်သတ်မှတ်ပါ။
+            @else
+                Confirmed funding က current requirement နဲ့ reserve ကို cover
+                လုပ်နိုင်ပါတယ်။ Surplus ရှိရင် contingency သို့မဟုတ် staged spending
+                အတွက် သီးခြား review လုပ်ပါ။
+            @endif
+        </p>
     </div>
 
     <div class="pbr-result-stats">
@@ -404,6 +470,19 @@
         </strong>
     </div>
 
+    <div
+        class="pbr-result-interpretation"
+        data-result-interpretation="capital-allocation"
+    >
+        <span>CAPITAL USE MIX</span>
+
+        <p>
+            ဒီ breakdown က planned capital ကို ဘယ်နေရာတွေမှာသုံးမလဲဆိုတာ
+            နှိုင်းယှဉ်ပြပါတယ်။ Largest allocation ကို business priority,
+            timing နဲ့ expected outcome တို့နဲ့ ပြန်လည်စစ်ဆေးပါ။
+        </p>
+    </div>
+
     <div class="pbr-result-stats">
         <div>
             <span>Capital Uses</span>
@@ -451,7 +530,7 @@
                     </strong>
                 </div>
 
-                <div class="pbr-breakdown-track">
+                <div class="pbr-breakdown-track" aria-hidden="true">
                     <i
                         style="width: {{
                             min(

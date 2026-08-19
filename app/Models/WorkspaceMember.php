@@ -19,6 +19,7 @@ class WorkspaceMember extends Model
         'invitation_token_hash',
         'invited_by_user_id',
         'invited_at',
+        'invitation_expires_at',
         'accepted_at',
         'permissions',
     ];
@@ -27,6 +28,7 @@ class WorkspaceMember extends Model
     {
         return [
             'invited_at' => 'datetime',
+            'invitation_expires_at' => 'datetime',
             'accepted_at' => 'datetime',
             'permissions' => 'array',
         ];
@@ -60,5 +62,13 @@ class WorkspaceMember extends Model
     public function isPending(): bool
     {
         return $this->invitation_status === 'pending';
+    }
+
+    public function isInvitationUsable(): bool
+    {
+        return $this->isPending()
+            && $this->invitation_token_hash !== null
+            && $this->invitation_expires_at !== null
+            && $this->invitation_expires_at->isFuture();
     }
 }

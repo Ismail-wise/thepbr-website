@@ -864,6 +864,41 @@
     font-size:12px;
 }
 
+.pd-report-control{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+    padding:22px 24px;
+    border:1px solid #c9dfc1;
+    border-radius:18px;
+    background:linear-gradient(145deg,#f5fbf2,#ffffff);
+}
+
+.pd-report-control h2{
+    margin:5px 0 0;
+    color:var(--forest);
+    font-size:20px;
+}
+
+.pd-report-control p{
+    max-width:720px;
+    margin:7px 0 0;
+    color:var(--muted);
+    font-size:12px;
+    line-height:1.75;
+}
+
+.pd-report-control form{
+    flex:none;
+    margin:0;
+}
+
+.pd-report-control .portal-button{
+    margin:0;
+    white-space:nowrap;
+}
+
 .pd-alignment-section{
     margin-top:22px;
     padding:30px;
@@ -1215,6 +1250,15 @@
     }
 
     .pd-alignment-status{
+        width:100%;
+    }
+
+    .pd-report-control{
+        align-items:stretch;
+        flex-direction:column;
+    }
+
+    .pd-report-control .portal-button{
         width:100%;
     }
 

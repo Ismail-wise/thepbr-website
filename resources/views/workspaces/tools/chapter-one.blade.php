@@ -12,8 +12,27 @@
         : 'ရှိပြီးသား Partnership ကို စီမံနေသည်';
 @endphp
 
-<section class="pbr-tools-section">
+<section
+    class="pbr-tools-section pbr-premium-tool-page pbr-premium-capital-tool-page"
+    data-pbr-premium-tool
+    data-pbr-tool-chapter="1"
+>
     <div class="portal-wrap">
+        @include(
+            'workspaces.tools.partials.premium-tool-command-bar',
+            [
+                'premiumToolTitleMm' => $toolTitleMm,
+                'premiumToolTitleEn' => $tool->title_en,
+                'premiumToolAreaMm' => 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
+                'premiumToolAreaEn' => 'Capital & Funding',
+                'premiumToolCanManage' => $canManage,
+                'premiumToolHasDraft' => (bool) $activeSession,
+                'premiumToolHasActiveRule' => (bool) $latestAgreedOutput,
+                'premiumToolWorkspaceTarget' => 'capital-calculator-workspace',
+                'premiumToolResultTarget' => 'capital-tool-result',
+            ]
+        )
+
         <div class="pbr-tool-page-head">
             <div>
                 <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-tools-back">← Business Operating System သို့ ပြန်ရန်</a>
@@ -22,7 +41,9 @@
                 @if($toolTitleMm !== $tool->title_en)
                     <p class="pbr-tool-en-subtitle">{{ $tool->title_en }}</p>
                 @endif
-                <p>{{ $toolPurpose }}</p>
+                @if(filled($toolPurpose))
+                    <p>{{ $toolPurpose }}</p>
+                @endif
             </div>
 
             <div class="pbr-tool-context-box">
@@ -76,6 +97,11 @@
                     >
                 @endif
 
+                @include(
+                    'workspaces.tools.partials.operating-context',
+                    ['input' => $input]
+                )
+
                 <div class="pbr-scenario-box">
                     <div>
                         <label for="scenario_name">Draft အမည်</label>
@@ -106,24 +132,43 @@
                     </div>
                 @endif
 
-                <div class="pbr-calculator-layout">
+                <div class="pbr-calculator-layout" id="capital-calculator-workspace">
                     <div class="pbr-calculator-panel">
                         @include('workspaces.tools.chapter-one.'.$tool->slug)
+
+                        <div class="pbr-calculator-action-guide" id="capital-action-guide">
+                            <span>WORKING DRAFT</span>
+                            <p>
+                                <strong>Draft သိမ်းရန်</strong> က လက်ရှိ input ကို နောက်မှပြန်ဆက်နိုင်အောင် သိမ်းပေးပါတယ်။
+                                <strong>Result စစ်ရန်</strong> က ဒီစာမျက်နှာမှာ calculation ကို update လုပ်ပေးပါတယ်။
+                            </p>
+                        </div>
 
                         <div class="pbr-calculator-actions">
                             <button
                                 type="submit"
                                 class="pbr-save-draft-button"
+                                aria-describedby="capital-action-guide"
                                 formaction="{{ route('workspaces.tools.chapter-one.save', [$workspace, $tool->slug]) }}"
                                 formmethod="POST"
                             >Draft သိမ်းရန်</button>
 
-                            <button type="submit" class="pbr-tools-primary-button">Result စစ်ရန်</button>
+                            <button
+                                type="submit"
+                                class="pbr-tools-primary-button"
+                                aria-describedby="capital-action-guide"
+                            >Result စစ်ရန် →</button>
                         </div>
                     </div>
 
-                    <aside class="pbr-calculator-results">
+                    <aside
+                        class="pbr-calculator-results"
+                        id="capital-tool-result"
+                        aria-live="polite"
+                        aria-atomic="true"
+                    >
                         <span class="portal-kicker">တွက်ချက်ရလဒ် · Result</span>
+                        <h2 class="pbr-sr-only">Calculation Result</h2>
                         @include('workspaces.tools.chapter-one.results', ['toolKey' => $tool->tool_key])
                     </aside>
                 </div>
@@ -150,6 +195,8 @@
             @endif
 
             @include('workspaces.tools.partials.scenario-manager')
+
+            @include('workspaces.tools.partials.operating-action-board')
         @else
             @if($result)
                 <div class="pbr-calculator-layout">
@@ -167,13 +214,13 @@
                             </div>
                         @endif
                     </div>
-                    <aside class="pbr-calculator-results">
+                    <aside class="pbr-calculator-results" id="capital-tool-result">
                         <span class="portal-kicker">လက်ရှိ Result</span>
                         @include('workspaces.tools.chapter-one.results', ['toolKey' => $tool->tool_key])
                     </aside>
                 </div>
             @else
-                <section class="pbr-os-panel pbr-os-empty-state">
+                <section class="pbr-os-panel pbr-os-empty-state" id="capital-tool-result">
                     <div class="pbr-os-empty-icon">◎</div>
                     <h2>ဒီ Business System အတွက် အသုံးပြုနေသော Rule မရှိသေးပါ</h2>
                     <p>Owner/Admin က plan တစ်ခုကို Rule အဖြစ်အတည်ပြုပြီး အသုံးပြုလာတဲ့အခါ ဒီနေရာမှာ လက်ရှိ result ကိုမြင်ရပါမယ်။</p>

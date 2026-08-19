@@ -43,6 +43,7 @@
                     <button
                         type="button"
                         data-add-category-preset="{{ $quickCategory }}"
+                        aria-pressed="false"
                     >
                         + {{ $quickCategory }}
                     </button>
@@ -79,9 +80,10 @@
                 <div class="pbr-category-head">
 
                     <div class="pbr-category-name-wrap">
-                        <label>Category Name</label>
+                        <label for="{{ $field }}_category_{{ $categoryIndex }}">Category Name</label>
 
                         <input
+                            id="{{ $field }}_category_{{ $categoryIndex }}"
                             type="text"
                             name="{{ $field }}[{{ $categoryIndex }}][name]"
                             value="{{ $isOthers ? 'Others' : ($category['name'] ?? '') }}"
@@ -103,6 +105,7 @@
                             type="button"
                             class="pbr-remove-category"
                             data-remove-category
+                            aria-label="Remove {{ $category['name'] ?? 'category' }}"
                         >
                             Remove Category
                         </button>
@@ -117,17 +120,20 @@
                         <div class="pbr-dynamic-item" data-item>
 
                             <input
+                                id="{{ $field }}_item_{{ $categoryIndex }}_{{ $itemIndex }}_name"
                                 type="text"
                                 name="{{ $field }}[{{ $categoryIndex }}][items][{{ $itemIndex }}][name]"
                                 value="{{ $item['name'] ?? '' }}"
                                 placeholder="Item name"
                                 maxlength="150"
+                                aria-label="Item name in {{ $category['name'] ?? 'category' }}"
                             >
 
                             <div class="pbr-money-input">
                                 <span>{{ $currency }}</span>
 
                                 <input
+                                    id="{{ $field }}_item_{{ $categoryIndex }}_{{ $itemIndex }}_amount"
                                     type="number"
                                     name="{{ $field }}[{{ $categoryIndex }}][items][{{ $itemIndex }}][amount]"
                                     value="{{ $item['amount'] ?? '' }}"
@@ -136,6 +142,7 @@
                                     step="0.01"
                                     placeholder="0.00"
                                     data-item-amount
+                                    aria-label="Item amount in {{ $category['name'] ?? 'category' }}"
                                 >
                             </div>
 
@@ -167,7 +174,7 @@
                     <div>
                         <span>Category Subtotal</span>
 
-                        <strong data-category-subtotal>
+                        <strong data-category-subtotal aria-live="polite">
                             {{ $currency }} 0.00
                         </strong>
                     </div>

@@ -48,6 +48,36 @@
             </div>
         </div>
 
+        @if($canManageReport && $completedParticipantCount >= 2)
+            <section class="pd-report-control">
+                <div>
+                    <span class="portal-kicker">
+                        {{ $reportIsPreview ? 'Unsaved Preview' : 'Saved Alignment Report' }}
+                    </span>
+                    <h2>
+                        {{ $reportNeedsRefresh
+                            ? 'Latest profiles နဲ့ Report ကို Generate လုပ်ရန်'
+                            : 'Partner Dynamics Report က Update ဖြစ်နေပါပြီ' }}
+                    </h2>
+                    <p>
+                        ဒီ page ကိုဖွင့်ကြည့်ရုံနဲ့ data မပြောင်းပါဘူး။ Owner/Admin က button ကိုနှိပ်မှ
+                        latest completed profiles နဲ့ report ကို generate လုပ်ပြီး သိမ်းမှာပါ။
+                    </p>
+                </div>
+
+                <form method="POST" action="{{ route('workspaces.partner-dynamics.report.generate', $workspace) }}">
+                    @csrf
+                    <button class="portal-button" type="submit">
+                        {{ $reportNeedsRefresh ? 'Generate & Save Report' : 'Refresh Saved Report' }}
+                    </button>
+                </form>
+            </section>
+        @endif
+
+        @error('partner_dynamics')
+            <div class="field-error">{{ $message }}</div>
+        @enderror
+
 
         <section class="pd-alignment-section">
             <div class="pd-panel-heading">
@@ -130,14 +160,21 @@
         @if(!$report)
 
             <section class="pd-waiting-report">
-                <span class="portal-kicker">Alignment Pending</span>
-
-                <h2>Partner Assessment တစ်ခု ထပ်လိုပါတယ်</h2>
-
-                <p>
-                    Partnership Alignment report ထုတ်ဖို့ completed
-                    Partner Dynamics Assessments အနည်းဆုံး ၂ ခုလိုပါတယ်။
-                </p>
+                @if($completedParticipantCount < 2)
+                    <span class="portal-kicker">Alignment Pending</span>
+                    <h2>Partner Assessment တစ်ခု ထပ်လိုပါတယ်</h2>
+                    <p>
+                        Partnership Alignment report ထုတ်ဖို့ completed
+                        Partner Dynamics Assessments အနည်းဆုံး ၂ ခုလိုပါတယ်။
+                    </p>
+                @else
+                    <span class="portal-kicker">Saved Report Pending</span>
+                    <h2>Owner က Alignment Report ကို Generate လုပ်ရန်လိုပါတယ်</h2>
+                    <p>
+                        Completed profiles အလုံအလောက်ရှိပါပြီ။ Owner/Admin က explicit Generate action
+                        လုပ်ပြီးသိမ်းထားတဲ့ report ကို Partner Read-Only view မှာ ပြပေးမှာပါ။
+                    </p>
+                @endif
             </section>
 
         @else

@@ -187,11 +187,6 @@ test('dashboard v2 keeps backward compatible rule coverage while adding area bas
         $workspace
     );
 
-    /*
-     * Existing rule-level contracts remain available for Rulebook and
-     * operating logic. Dashboard V2 simply stops making them the dominant
-     * overview progress model.
-     */
     expect(
         $state['metrics']
     )->toHaveKeys([
@@ -228,7 +223,7 @@ test('dashboard v2 keeps backward compatible rule coverage while adding area bas
     )->toBe(0);
 });
 
-test('owner sees compact dashboard v2 instead of duplicated legacy overview sections', function () {
+test('owner sees client ready decision first dashboard without legacy tool clutter', function () {
     extract(
         dashboardV2Fixture()
     );
@@ -249,7 +244,15 @@ test('owner sees compact dashboard v2 instead of duplicated legacy overview sect
             false
         )
         ->assertSee(
+            'data-pbr-client-ready-dashboard',
+            false
+        )
+        ->assertSee(
             'data-pbr-business-journey',
+            false
+        )
+        ->assertSee(
+            'data-pbr-area-search',
             false
         )
         ->assertSee(
@@ -273,25 +276,23 @@ test('owner sees compact dashboard v2 instead of duplicated legacy overview sect
             false
         )
         ->assertSee(
-            'Build → Operate → Protect'
+            'Build · Operate · Protect'
         )
         ->assertSee(
-            'Business Rulebook'
+            'NEXT BEST ACTION'
         )
         ->assertSee(
-            'ဆက်လက်သတ်မှတ်ရန်'
+            'Rulebook'
+        )
+        ->assertSee(
+            'pbr-client-ready-os.css',
+            false
         )
         ->assertDontSee(
             'approved rules 0/6'
         )
         ->assertDontSee(
             'missing rule'
-        )
-        ->assertSee(
-            'Ownership နှင့် Voting Rights သတ်မှတ်ရန်'
-        )
-        ->assertSee(
-            'Financial Controls သတ်မှတ်ရန်'
         )
         ->assertDontSee(
             'Equity Split Simulator'
@@ -310,16 +311,11 @@ test('owner sees compact dashboard v2 instead of duplicated legacy overview sect
         );
 });
 
-test('dashboard v2 still hides student only ai from invited partner rendering contracts', function () {
+test('dashboard v2 still exposes ai only on the owner eligible rendering path', function () {
     extract(
         dashboardV2Fixture()
     );
 
-    /*
-     * Existing partner-access acceptance tests remain authoritative.
-     * This assertion protects the owner path while the complete suite
-     * verifies invited-partner permissions.
-     */
     $response = $this
         ->actingAs($owner)
         ->get(
@@ -332,6 +328,6 @@ test('dashboard v2 still hides student only ai from invited partner rendering co
     $response
         ->assertOk()
         ->assertSee(
-            'PBR AI ကို မေးရန်'
+            'Ask PBR AI'
         );
 });

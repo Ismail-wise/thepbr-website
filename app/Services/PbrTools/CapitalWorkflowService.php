@@ -53,6 +53,7 @@ class CapitalWorkflowService
         );
 
         $tools = ChapterTool::query()
+            ->published()
             ->whereIn('tool_key', $sequence)
             ->whereHas(
                 'chapter',

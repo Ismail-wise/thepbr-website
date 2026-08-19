@@ -18,6 +18,17 @@ class WorkspacePartnerProfileController extends Controller
     ): View {
         $this->authorizeManagement($request, $workspace, $operatingSystem);
         $operatingSystem->syncWorkspacePartners($workspace);
+        $workspace->load(['owner', 'acceptedMemberships.user']);
+
+        $ownerHasLoginAccess = (bool) $workspace->owner?->canAccessWorkspace($workspace);
+
+        $acceptedPartnerUserIds = $workspace->acceptedMemberships
+            ->filter(fn ($membership): bool =>
+                $membership->member_role === 'partner'
+                && $membership->user_id !== null
+                && (bool) $membership->user?->hasActiveAccount())
+            ->map(fn ($membership): int => (int) $membership->user_id)
+            ->values();
 
         $profiles = WorkspacePartnerProfile::query()
             ->where('workspace_id', $workspace->id)
@@ -27,7 +38,9 @@ class WorkspacePartnerProfileController extends Controller
 
         return view('workspaces.tools.partner-roster', compact(
             'workspace',
-            'profiles'
+            'profiles',
+            'acceptedPartnerUserIds',
+            'ownerHasLoginAccess'
         ));
     }
 

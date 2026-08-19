@@ -15,6 +15,7 @@
             <p>Business Name, လက်ရှိအခြေအနေ နဲ့ Currency ကို ပြောင်းနိုင်ပါတယ်။ Stage ပြောင်းလိုက်ရင် အသုံးပြုနိုင်တဲ့ Tools တွေလည်း အလိုက်သင့် ပြောင်းသွားပါမယ်။</p>
             <div class="pbr2-actions">
                 <a class="pbr2-btn secondary" href="{{ route('workspaces.show', $workspace) }}">Business ဆီပြန်သွားရန်</a>
+                <a class="pbr2-btn secondary" href="{{ route('workspaces.show', $workspace) }}#partner-access">Manage Partner Access</a>
             </div>
         </section>
 

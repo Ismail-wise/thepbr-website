@@ -18,6 +18,7 @@ class ChapterOneIntegrationService
     public function latestOutputs(PartnershipWorkspace $workspace): array
     {
         $tools = ChapterTool::query()
+            ->published()
             ->whereHas('chapter', fn ($query) => $query->where('chapter_number', 1))
             ->get(['id', 'tool_key', 'slug', 'title_en']);
 

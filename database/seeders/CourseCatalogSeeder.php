@@ -35,7 +35,7 @@ class CourseCatalogSeeder extends Seeder
                         'title_mm' => $chapterData['title_mm'],
                         'description' => $chapterData['description'] ?? null,
                         'topics' => $chapterData['topics'] ?? null,
-                        'is_published' => false,
+                        'is_published' => true,
                     ]
                 );
 
@@ -57,7 +57,7 @@ class CourseCatalogSeeder extends Seeder
                                 $toolData['new'] ?? true,
                             'supports_existing_business' =>
                                 $toolData['existing'] ?? true,
-                            'is_published' => false,
+                            'is_published' => true,
                         ]
                     );
                 }

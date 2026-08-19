@@ -31,6 +31,7 @@ class PbrBusinessRulebookService
                 );
 
         $toolMap = ChapterTool::query()
+            ->published()
             ->with(
                 'chapter:id,chapter_number,title_en,title_mm'
             )

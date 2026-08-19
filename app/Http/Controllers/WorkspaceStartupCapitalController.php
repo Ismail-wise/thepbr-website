@@ -5,7 +5,9 @@ namespace App\Http\Controllers;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
+use App\Models\WorkspaceToolAction;
 use App\Services\PbrTools\CapitalWorkflowService;
+use App\Services\PbrTools\PbrToolOperatingContextService;
 use App\Services\PbrTools\StartupCapitalCalculator;
 use App\Services\PbrTools\ToolScenarioService;
 use Illuminate\Http\Request;
@@ -15,7 +17,8 @@ use Illuminate\View\View;
 class WorkspaceStartupCapitalController extends Controller
 {
     public function __construct(
-        private readonly CapitalWorkflowService $capitalWorkflow
+        private readonly CapitalWorkflowService $capitalWorkflow,
+        private readonly PbrToolOperatingContextService $operatingContext
     ) {
     }
 
@@ -29,6 +32,7 @@ class WorkspaceStartupCapitalController extends Controller
         $canManage = $scenarios->canManage($request->user(), $workspace);
         $activeSession = null;
         $categories = [];
+        $input = ['categories' => []];
         $result = null;
 
         if (! $canManage) {
@@ -42,6 +46,7 @@ class WorkspaceStartupCapitalController extends Controller
                 $workspace,
                 $tool,
                 $categories,
+                $input,
                 $result,
                 null,
                 false,
@@ -60,24 +65,39 @@ class WorkspaceStartupCapitalController extends Controller
                 (int) $sessionId
             );
 
-            $categories = is_array($activeSession->input_data['categories'] ?? null)
-                ? $activeSession->input_data['categories']
+            $input = is_array($activeSession->input_data)
+                ? $activeSession->input_data
+                : $input;
+            $categories = is_array($input['categories'] ?? null)
+                ? $input['categories']
                 : [];
             $result = is_array($activeSession->result_data)
                 ? $activeSession->result_data
                 : null;
         } else {
             $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
-            $categories = is_array($approvedInput['categories'] ?? null)
-                ? $approvedInput['categories']
+
+            if (is_array($approvedInput)) {
+                unset($approvedInput['operating_actions']);
+                $input = $approvedInput;
+            }
+
+            $categories = is_array($input['categories'] ?? null)
+                ? $input['categories']
                 : [];
         }
+
+        $input = $this->operatingContext->withDefaults(
+            $input,
+            $request->user()->name
+        );
 
         return $this->render(
             $request,
             $workspace,
             $tool,
             $categories,
+            $input,
             $result,
             $activeSession,
             true,
@@ -97,6 +117,7 @@ class WorkspaceStartupCapitalController extends Controller
 
         $validated = $request->validate(array_merge(
             ['tool_session_id' => ['nullable', 'integer']],
+            $this->operatingContext->rules(),
             $this->rules()
         ));
 
@@ -111,14 +132,21 @@ class WorkspaceStartupCapitalController extends Controller
         }
 
         unset($validated['tool_session_id']);
-        $categories = $validated['categories'] ?? [];
-        $result = $calculator->calculate(['categories' => $categories]);
+
+        $input = $this->operatingContext->normalize(
+            $validated,
+            $request->user()->name
+        );
+        $toolInput = $this->operatingContext->toolInput($input);
+        $categories = $toolInput['categories'] ?? [];
+        $result = $calculator->calculate($toolInput);
 
         return $this->render(
             $request,
             $workspace,
             $tool,
             $categories,
+            $input,
             $result,
             $activeSession,
             true,
@@ -145,6 +173,7 @@ class WorkspaceStartupCapitalController extends Controller
     private function resolveTool(): ChapterTool
     {
         return ChapterTool::query()
+            ->published()
             ->where('tool_key', 'startup_capital_planner')
             ->where('supports_new_business', true)
             ->whereHas('chapter', fn ($query) => $query->where('chapter_number', 1))
@@ -157,6 +186,7 @@ class WorkspaceStartupCapitalController extends Controller
         PartnershipWorkspace $workspace,
         ChapterTool $tool,
         array $categories,
+        array $input,
         ?array $result,
         ?ToolSession $activeSession,
         bool $canManage,
@@ -204,10 +234,31 @@ class WorkspaceStartupCapitalController extends Controller
             $workspace
         );
 
+        $operatingActions = $canManage
+            ? WorkspaceToolAction::query()
+                ->where('workspace_id', $workspace->id)
+                ->where('chapter_tool_id', $tool->id)
+                ->where('status', '!=', 'superseded')
+                ->with('workspaceOutput:id,revision')
+                ->orderByRaw(
+                    "CASE
+                        WHEN status = 'blocked' THEN 0
+                        WHEN status = 'in_progress' THEN 1
+                        WHEN status = 'open' THEN 2
+                        ELSE 3
+                    END"
+                )
+                ->orderByRaw('due_date IS NULL')
+                ->orderBy('due_date')
+                ->orderByDesc('id')
+                ->get()
+            : collect();
+
         return view($view, compact(
             'workspace',
             'tool',
             'categories',
+            'input',
             'result',
             'activeSession',
             'drafts',
@@ -215,7 +266,8 @@ class WorkspaceStartupCapitalController extends Controller
             'canManage',
             'latestAgreedOutput',
             'outputHistory',
-            'capitalWorkflow'
+            'capitalWorkflow',
+            'operatingActions'
         ));
     }
 

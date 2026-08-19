@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class WorkspaceToolOutput extends Model
 {
@@ -60,6 +61,14 @@ class WorkspaceToolOutput extends Model
         return $this->belongsTo(
             User::class,
             'generated_by_user_id'
+        );
+    }
+
+    public function actions(): HasMany
+    {
+        return $this->hasMany(
+            WorkspaceToolAction::class,
+            'workspace_tool_output_id'
         );
     }
 

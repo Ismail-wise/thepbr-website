@@ -53,6 +53,7 @@ class PbrChapterStateService
         );
 
         $tools = ChapterTool::query()
+            ->published()
             ->whereHas(
                 'chapter',
                 fn ($query) =>

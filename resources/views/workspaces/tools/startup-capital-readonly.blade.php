@@ -14,8 +14,26 @@
     $fundedPercent = $total > 0 ? min(100, ($funded / $total) * 100) : 0;
 @endphp
 
-<section class="pbr-tools-section pbr-capital-plan-page">
+<section
+    class="pbr-tools-section pbr-capital-plan-page pbr-premium-tool-page pbr-premium-capital-tool-page"
+    data-pbr-premium-tool
+    data-pbr-tool-chapter="1"
+>
     <div class="portal-wrap pbr-capital-plan-wrap">
+        @include(
+            'workspaces.tools.partials.premium-tool-command-bar',
+            [
+                'premiumToolTitleMm' => 'စတင်မတည်ငွေ အစီအစဉ်',
+                'premiumToolTitleEn' => 'Startup Capital Planner',
+                'premiumToolAreaMm' => 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
+                'premiumToolAreaEn' => 'Capital & Funding',
+                'premiumToolCanManage' => false,
+                'premiumToolHasDraft' => false,
+                'premiumToolHasActiveRule' => (bool) $latestAgreedOutput,
+                'premiumToolResultTarget' => 'readonly-capital-result',
+            ]
+        )
+
         <header class="pbr-capital-plan-hero">
             <div class="pbr-capital-plan-hero-copy">
                 <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-tools-back pbr-capital-back">
@@ -41,7 +59,10 @@
         </header>
 
         @if($result)
-            <div class="pbr-capital-workspace-grid pbr-capital-readonly-grid">
+            <div
+                class="pbr-capital-workspace-grid pbr-capital-readonly-grid"
+                id="readonly-capital-result"
+            >
                 <main class="pbr-capital-planner">
                     <section class="pbr-capital-costs-section">
                         <div class="pbr-capital-section-heading">

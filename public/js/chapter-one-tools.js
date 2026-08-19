@@ -44,16 +44,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-item
                     >
                         <input
+                            id="${field}_item_${categoryIndex}_${itemIndex}_name"
                             type="text"
                             name="${field}[${categoryIndex}][items][${itemIndex}][name]"
                             placeholder="Item name"
                             maxlength="150"
+                            aria-label="Item name"
                         >
 
                         <div class="pbr-money-input">
                             <span>${currency}</span>
 
                             <input
+                                id="${field}_item_${categoryIndex}_${itemIndex}_amount"
                                 type="number"
                                 name="${field}[${categoryIndex}][items][${itemIndex}][amount]"
                                 min="0"
@@ -61,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 step="0.01"
                                 placeholder="0.00"
                                 data-item-amount
+                                aria-label="Item amount"
                             >
                         </div>
 
@@ -102,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 </label>
 
                                 <input
+                                    id="${field}_category_${index}"
                                     type="text"
                                     name="${field}[${index}][name]"
                                     placeholder="Type your category name"
@@ -115,6 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 type="button"
                                 class="pbr-remove-category"
                                 data-remove-category
+                                aria-label="Remove category"
                             >
                                 Remove Category
                             </button>
@@ -143,7 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                     Category Subtotal
                                 </span>
 
-                                <strong data-category-subtotal>
+                                <strong data-category-subtotal aria-live="polite">
                                     ${currency} 0.00
                                 </strong>
                             </div>
@@ -189,6 +195,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
 
                     updateAll();
+                    categories.lastElementChild
+                        ?.querySelector('input[type="text"]')
+                        ?.focus();
                     return;
                 }
 
@@ -210,6 +219,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     updateAll();
 
                     presetCategory.disabled = true;
+                    presetCategory.setAttribute(
+                        'aria-pressed',
+                        'true'
+                    );
                     presetCategory.classList.add(
                         'is-added'
                     );
@@ -235,6 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         );
 
                     updateAll();
+                    category
+                        .querySelector('[data-items]')
+                        .lastElementChild
+                        ?.querySelector('input[type="text"]')
+                        ?.focus();
                     return;
                 }
 
@@ -342,6 +360,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         name="partners[${partnerIndex}][contributions][${contributionIndex}][name]"
                         placeholder="Contribution name"
                         maxlength="150"
+                        aria-label="Contribution name for partner ${partnerIndex + 1}"
                     >
 
                     <div class="pbr-money-input">
@@ -355,6 +374,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             step="0.01"
                             placeholder="0.00"
                             data-contribution-amount
+                            aria-label="Contribution amount for partner ${partnerIndex + 1}"
                         >
                     </div>
 
@@ -362,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         type="button"
                         class="pbr-remove-item"
                         data-remove-contribution
+                        aria-label="Remove contribution for partner ${partnerIndex + 1}"
                     >
                         ×
                     </button>
@@ -390,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 name="partners[${partnerIndex}][name]"
                                 placeholder="Partner name"
                                 maxlength="120"
+                                aria-label="Partner ${partnerIndex + 1} name"
                             >
                         </div>
 
@@ -397,6 +419,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             type="button"
                             class="pbr-remove-category"
                             data-remove-partner
+                            aria-label="Remove partner ${partnerIndex + 1}"
                         >
                             Remove Partner
                         </button>
@@ -420,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div>
                             <span>Partner Total</span>
 
-                            <strong data-partner-total>
+                            <strong data-partner-total aria-live="polite">
                                 ${currency} 0.00
                             </strong>
                         </div>
@@ -450,12 +473,38 @@ document.addEventListener('DOMContentLoaded', () => {
                 target.textContent =
                     `${currency} ${moneyFormatter.format(total)}`;
             }
+
+            return total;
         };
 
         const updatePartners = () => {
-            partnerBuilder
-                .querySelectorAll('[data-partner]')
-                .forEach(updatePartner);
+            const partnerCards = [
+                ...partnerBuilder.querySelectorAll(
+                    '[data-partner]'
+                ),
+            ];
+
+            const grandTotal = partnerCards.reduce(
+                (sum, partner) => sum + updatePartner(partner),
+                0
+            );
+
+            const countTarget = partnerBuilder.querySelector(
+                '[data-partner-count]'
+            );
+
+            const totalTarget = partnerBuilder.querySelector(
+                '[data-partner-grand-total]'
+            );
+
+            if (countTarget) {
+                countTarget.textContent = partnerCards.length;
+            }
+
+            if (totalTarget) {
+                totalTarget.textContent =
+                    `${currency} ${moneyFormatter.format(grandTotal)}`;
+            }
         };
 
         partnerBuilder.addEventListener(
@@ -472,6 +521,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     );
 
                     updatePartners();
+                    partners.lastElementChild
+                        ?.querySelector('input[type="text"]')
+                        ?.focus();
                     return;
                 }
 
@@ -500,7 +552,12 @@ document.addEventListener('DOMContentLoaded', () => {
                             )
                         );
 
-                    updatePartner(partner);
+                    updatePartners();
+                    partner
+                        .querySelector('[data-contributions]')
+                        .lastElementChild
+                        ?.querySelector('input[type="text"]')
+                        ?.focus();
                     return;
                 }
 
@@ -522,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         ?.remove();
 
                     if (partner) {
-                        updatePartner(partner);
+                        updatePartners();
                     }
 
                     return;
@@ -537,6 +594,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     removePartner
                         .closest('[data-partner]')
                         ?.remove();
+
+                    updatePartners();
                 }
             }
         );
@@ -555,7 +614,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         );
 
                     if (partner) {
-                        updatePartner(partner);
+                        updatePartners();
                     }
                 }
             }
@@ -593,8 +652,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 '[data-allocations]'
             );
 
-        const allocationHtml = () => {
+        const allocationHtml = (presetName = '') => {
             const index = allocationSeed++;
+
+            const safePreset = String(presetName)
+                .replaceAll('&', '&amp;')
+                .replaceAll('"', '&quot;')
+                .replaceAll('<', '&lt;')
+                .replaceAll('>', '&gt;');
 
             return `
                 <div
@@ -606,6 +671,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         name="allocations[${index}][name]"
                         placeholder="Capital use"
                         maxlength="150"
+                        value="${safePreset}"
+                        aria-label="Capital use ${index + 1} name"
                     >
 
                     <div class="pbr-money-input">
@@ -619,6 +686,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             step="0.01"
                             placeholder="0.00"
                             data-allocation-amount
+                            aria-label="Capital use ${index + 1} amount"
                         >
                     </div>
 
@@ -626,11 +694,45 @@ document.addEventListener('DOMContentLoaded', () => {
                         type="button"
                         class="pbr-remove-item"
                         data-remove-allocation
+                        aria-label="Remove capital use ${index + 1}"
                     >
                         ×
                     </button>
                 </div>
             `;
+        };
+
+        const updateAllocations = () => {
+            const rows = [
+                ...allocationBuilder.querySelectorAll(
+                    '[data-allocation]'
+                ),
+            ];
+
+            const total = rows.reduce((sum, row) => {
+                const input = row.querySelector(
+                    '[data-allocation-amount]'
+                );
+
+                return sum + amount(input?.value);
+            }, 0);
+
+            const countTarget = allocationBuilder.querySelector(
+                '[data-allocation-count]'
+            );
+
+            const totalTarget = allocationBuilder.querySelector(
+                '[data-allocation-total]'
+            );
+
+            if (countTarget) {
+                countTarget.textContent = rows.length;
+            }
+
+            if (totalTarget) {
+                totalTarget.textContent =
+                    `${currency} ${moneyFormatter.format(total)}`;
+            }
         };
 
         allocationBuilder.addEventListener(
@@ -646,6 +748,33 @@ document.addEventListener('DOMContentLoaded', () => {
                         allocationHtml()
                     );
 
+                    updateAllocations();
+                    allocations.lastElementChild
+                        ?.querySelector('input[type="text"]')
+                        ?.focus();
+                    return;
+                }
+
+                const preset = event.target.closest(
+                    '[data-add-allocation-preset]'
+                );
+
+                if (preset) {
+                    allocations.insertAdjacentHTML(
+                        'beforeend',
+                        allocationHtml(
+                            preset.dataset.addAllocationPreset
+                            || ''
+                        )
+                    );
+
+                    preset.disabled = true;
+                    preset.setAttribute('aria-pressed', 'true');
+                    preset.classList.add('is-added');
+                    updateAllocations();
+                    allocations.lastElementChild
+                        ?.querySelector('[data-allocation-amount]')
+                        ?.focus();
                     return;
                 }
 
@@ -658,9 +787,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     remove
                         .closest('[data-allocation]')
                         ?.remove();
+
+                    updateAllocations();
                 }
             }
         );
+
+        allocationBuilder.addEventListener(
+            'input',
+            event => {
+                if (event.target.matches('[data-allocation-amount]')) {
+                    updateAllocations();
+                }
+            }
+        );
+
+        updateAllocations();
     }
 
 
@@ -691,6 +833,41 @@ document.addEventListener('DOMContentLoaded', () => {
                 '[data-month-fields]'
             );
 
+        const methodHelp =
+            contingency.querySelector(
+                '[data-contingency-method-help]'
+            );
+
+        const percentageInput =
+            contingency.querySelector('#percentage');
+
+        const monthsInput =
+            contingency.querySelector('#months');
+
+        const updatePresetState = (
+            selector,
+            input,
+            dataKey
+        ) => {
+            contingency
+                .querySelectorAll(selector)
+                .forEach(button => {
+                    const isActive =
+                        Number(button.dataset[dataKey])
+                        === Number(input?.value);
+
+                    button.classList.toggle(
+                        'is-active',
+                        isActive
+                    );
+
+                    button.setAttribute(
+                        'aria-pressed',
+                        isActive ? 'true' : 'false'
+                    );
+                });
+        };
+
         const updateMethod = () => {
             const method =
                 select?.value || 'percentage';
@@ -698,13 +875,94 @@ document.addEventListener('DOMContentLoaded', () => {
             if (percentageFields) {
                 percentageFields.hidden =
                     method !== 'percentage';
+
+                percentageFields.setAttribute(
+                    'aria-hidden',
+                    method === 'percentage'
+                        ? 'false'
+                        : 'true'
+                );
             }
 
             if (monthFields) {
                 monthFields.hidden =
                     method !== 'months';
+
+                monthFields.setAttribute(
+                    'aria-hidden',
+                    method === 'months'
+                        ? 'false'
+                        : 'true'
+                );
+            }
+
+            if (methodHelp) {
+                methodHelp.textContent =
+                    method === 'months'
+                        ? 'Operating Months method က monthly operating cost ကို reserve months နဲ့မြှောက်ပြီး buffer ကိုတွက်ပေးပါတယ်။'
+                        : 'Percentage method က base capital ပေါ်မူတည်ပြီး reserve ကိုတွက်ပေးပါတယ်။';
             }
         };
+
+        contingency.addEventListener('click', event => {
+            const percentagePreset = event.target.closest(
+                '[data-contingency-percentage]'
+            );
+
+            if (percentagePreset && percentageInput) {
+                percentageInput.value =
+                    percentagePreset.dataset
+                        .contingencyPercentage || '';
+
+                percentageInput.dispatchEvent(
+                    new Event('input', { bubbles: true })
+                );
+
+                updatePresetState(
+                    '[data-contingency-percentage]',
+                    percentageInput,
+                    'contingencyPercentage'
+                );
+
+                return;
+            }
+
+            const monthsPreset = event.target.closest(
+                '[data-contingency-months]'
+            );
+
+            if (monthsPreset && monthsInput) {
+                monthsInput.value =
+                    monthsPreset.dataset
+                        .contingencyMonths || '';
+
+                monthsInput.dispatchEvent(
+                    new Event('input', { bubbles: true })
+                );
+
+                updatePresetState(
+                    '[data-contingency-months]',
+                    monthsInput,
+                    'contingencyMonths'
+                );
+            }
+        });
+
+        percentageInput?.addEventListener('input', () => {
+            updatePresetState(
+                '[data-contingency-percentage]',
+                percentageInput,
+                'contingencyPercentage'
+            );
+        });
+
+        monthsInput?.addEventListener('input', () => {
+            updatePresetState(
+                '[data-contingency-months]',
+                monthsInput,
+                'contingencyMonths'
+            );
+        });
 
         select?.addEventListener(
             'change',
@@ -712,6 +970,18 @@ document.addEventListener('DOMContentLoaded', () => {
         );
 
         updateMethod();
+
+        updatePresetState(
+            '[data-contingency-percentage]',
+            percentageInput,
+            'contingencyPercentage'
+        );
+
+        updatePresetState(
+            '[data-contingency-months]',
+            monthsInput,
+            'contingencyMonths'
+        );
     }
 
     /* ---------------------------------------------------------------
