@@ -160,3 +160,39 @@ test('premium tool css keeps desktop density mobile actions and reduced motion s
         ->and($css)
         ->toContain(".pbr-premium-capital-tool-page .pbr-calculator-actions {\n    position: static;");
 });
+
+test('premium tool design system v1 is isolated to six representative pilot tools', function () {
+    $layout = file_get_contents(
+        resource_path('views/layouts/student-portal.blade.php')
+    );
+
+    $css = file_get_contents(
+        public_path('css/pbr-premium-tool-design-system-v1.css')
+    );
+
+    $javascript = file_get_contents(
+        public_path('js/pbr-premium-tool-design-system-v1.js')
+    );
+
+    expect($layout)
+        ->toContain('pbr-premium-tool-design-system-v1.css')
+        ->toContain('pbr-premium-tool-design-system-v1.js')
+        ->toContain("request()->routeIs('workspaces.tools.operating.*', 'workspaces.tools.chapter-one.*')")
+        ->and($css)
+        ->toContain('Startup Capital is intentionally')
+        ->toContain("[data-pbr-tool-family='calculator']")
+        ->toContain("[data-pbr-tool-family='matrix']")
+        ->toContain("[data-pbr-tool-family='visual']")
+        ->toContain("[data-pbr-tool-family='planner']")
+        ->toContain("[data-pbr-tool-family='checklist']")
+        ->toContain("[data-pbr-tool-family='record']")
+        ->toContain('@media (prefers-reduced-motion: reduce)')
+        ->and($javascript)
+        ->toContain("'working-capital-calculator': 'calculator'")
+        ->toContain("'decision-rights-matrix': 'matrix'")
+        ->toContain("'ownership-before-after-chart': 'visual'")
+        ->toContain("'exit-timeline': 'planner'")
+        ->toContain("'financial-control-checklist': 'checklist'")
+        ->toContain("'meeting-decision-log': 'record'")
+        ->toContain("page.classList.add('pbr-ds-v1')");
+});
