@@ -1,0 +1,411 @@
+/*
+ * PBR Startup Capital — conservative production refinement
+ *
+ * Purpose:
+ * - preserve the existing PBR visual language and page structure
+ * - improve density, hierarchy, contrast and working-space focus
+ * - keep all current controls, governance fields, workflow information and actions visible
+ *
+ * No calculation, persistence, approval, route or business logic is changed here.
+ */
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page {
+    --pbr-startup-ref-ink: #163a2d;
+    --pbr-startup-ref-muted: #65776f;
+    --pbr-startup-ref-soft: #f7faf8;
+    --pbr-startup-ref-line: #d9e5de;
+    --pbr-startup-ref-green: #0b6b3b;
+    --pbr-startup-ref-green-dark: #07502d;
+    --pbr-startup-ref-shadow: 0 10px 28px rgba(20, 56, 40, .045);
+}
+
+/* Keep the same PBR page frame, only tighten the vertical rhythm. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page {
+    padding-top: 20px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-wrap {
+    max-width: 1420px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-premium-toolbar {
+    margin-bottom: 12px;
+}
+
+/* Header: same composition, less wasted height, stronger readability. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+    gap: 24px !important;
+    margin-bottom: 12px !important;
+    padding: 22px 24px !important;
+    border-radius: 20px !important;
+    box-shadow: var(--pbr-startup-ref-shadow) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-back {
+    margin-bottom: 12px !important;
+    font-size: 9.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+    margin-top: 5px !important;
+    font-size: clamp(27px, 2.55vw, 35px) !important;
+    line-height: 1.42 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-tool-en-subtitle {
+    color: #60736a !important;
+    font-size: 10.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-lead {
+    margin-top: 8px !important;
+    color: #536a5f !important;
+    font-size: 11px !important;
+    line-height: 1.8 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-chips {
+    margin-top: 11px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-chips span {
+    color: #4f6b5e !important;
+    font-size: 8.5px !important;
+}
+
+/* Keep the existing dark business card, but fix low-contrast secondary copy. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card {
+    min-height: 0 !important;
+    padding: 17px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card small {
+    color: rgba(242, 250, 246, .76) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card strong {
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card span {
+    color: rgba(242, 250, 246, .70) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-business-card b {
+    color: #c9f3d8 !important;
+}
+
+/* Capital workflow remains fully visible; it simply stops dominating the page. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-flow {
+    margin-bottom: 12px !important;
+    padding: 13px 14px !important;
+    border-radius: 15px !important;
+    box-shadow: 0 7px 20px rgba(20, 56, 40, .035) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-flow-back {
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-current-state {
+    padding: 8px 10px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step-track {
+    gap: 6px !important;
+    margin-top: 9px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step {
+    min-height: 53px !important;
+    padding: 8px 9px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-step span {
+    font-size: 8.8px !important;
+    line-height: 1.38 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-connection,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-next {
+    margin-top: 9px !important;
+    padding: 10px 11px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-connection p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-tool-next small {
+    color: #697b72 !important;
+    font-size: 8.7px !important;
+    line-height: 1.6 !important;
+}
+
+/* Governance stays where users expect it, but becomes denser and easier to scan. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context {
+    margin-bottom: 12px !important;
+    padding: 15px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .025) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head {
+    gap: 18px;
+    margin-bottom: 12px;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head h3 {
+    color: var(--pbr-startup-ref-ink) !important;
+    font-size: 14px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context-head p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field small,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-help {
+    color: #6d7f76 !important;
+    font-size: 8.8px !important;
+    line-height: 1.65 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field label,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field label {
+    color: #3f5e50 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field select,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-context-field textarea,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-os-mini-field select {
+    border-color: #d6e2db !important;
+    background: #fbfdfc !important;
+}
+
+/* Plan name/actions: preserve existing controls and hierarchy. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-toolbar {
+    margin-bottom: 12px !important;
+    padding: 12px 14px !important;
+    border-radius: 14px !important;
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .03) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-draft-name input {
+    min-height: 40px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-draft-name small {
+    color: #74857d !important;
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-toolbar-actions button,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-actions button {
+    min-height: 39px !important;
+    font-size: 9px !important;
+}
+
+/* Make the planner + live position the strongest visual block without changing layout. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(350px, 390px) !important;
+    gap: 14px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-costs-section,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card {
+    border-color: var(--pbr-startup-ref-line) !important;
+    box-shadow: var(--pbr-startup-ref-shadow) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start {
+    padding: 17px 18px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start h2,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading h2,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-head h2 {
+    color: var(--pbr-startup-ref-ink) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start p,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading p {
+    color: #6c7e75 !important;
+    font-size: 9.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-template-chips {
+    margin-top: 11px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-template-chips button {
+    min-height: 34px !important;
+    color: #2f694b !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-section-heading {
+    padding: 16px 18px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-empty {
+    margin: 16px !important;
+    padding: 22px !important;
+    min-height: 138px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-empty p {
+    color: #75867e !important;
+    font-size: 8.8px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-category-list {
+    padding: 12px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field label {
+    color: #506a5e !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field input,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-field select {
+    color: #294b3e !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-item-live-line,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-item-details > summary {
+    color: #6f8178 !important;
+}
+
+/* Live result: keep the familiar green PBR result card and improve legibility. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-column {
+    gap: 11px !important;
+    top: 150px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card {
+    padding: 17px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total {
+    margin-top: 11px !important;
+    padding: 15px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > span {
+    color: #d3eadb !important;
+    font-size: 8.5px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > strong {
+    font-size: clamp(23px, 2.6vw, 28px) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-total > small {
+    color: #d8ece0 !important;
+    font-size: 8px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid > div {
+    min-height: 70px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid span {
+    color: #687b72 !important;
+    font-size: 8px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-metric-grid strong {
+    font-size: 11px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-live-alert {
+    padding: 11px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-live-alert p {
+    font-size: 8.8px !important;
+    line-height: 1.65 !important;
+}
+
+/* Secondary cards stay visible, but visually step behind the planner. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-card,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card {
+    box-shadow: 0 6px 18px rgba(20, 56, 40, .03) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-help-card li,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-comparison-list small {
+    color: #6d7f76 !important;
+}
+
+/* Working plans: no hidden controls, just cleaner grouping and readable actions. */
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-manager {
+    margin-top: 14px !important;
+    border-color: var(--pbr-startup-ref-line) !important;
+    box-shadow: 0 8px 24px rgba(20, 56, 40, .035) !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-manager-head p {
+    color: #697b72 !important;
+    font-size: 9px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions {
+    gap: 6px !important;
+}
+
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions button,
+.pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-scenario-actions a {
+    min-height: 34px !important;
+    border-radius: 9px !important;
+    font-size: 8.5px !important;
+}
+
+/* Keep responsive behavior aligned with the existing PBR tool system. */
+@media (max-width: 1240px) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(320px, 350px) !important;
+    }
+}
+
+@media (max-width: 1020px) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-column {
+        position: static !important;
+    }
+}
+
+@media (max-width: 620px) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page {
+        padding-top: 12px;
+    }
+
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+        padding: 17px !important;
+    }
+
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+        font-size: 23px !important;
+    }
+
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-operating-context,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-plan-toolbar,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page .pbr-capital-summary-card {
+        padding: 14px !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *::before,
+    .pbr-capital-plan-page.pbr-premium-capital-tool-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+        animation-duration: .01ms !important;
+    }
+}
