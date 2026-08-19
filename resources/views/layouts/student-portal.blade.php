@@ -35,6 +35,9 @@
         <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-reference.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-reference.css')) }}">
     @endif
     <link rel="stylesheet" href="{{ asset('css/pbr-client-ready-os.css') }}?v={{ filemtime(public_path('css/pbr-client-ready-os.css')) }}">
+    @if(request()->routeIs('workspaces.tools.startup-capital.show'))
+        <link rel="stylesheet" href="{{ asset('css/pbr-startup-capital-typography-polish.css') }}?v={{ filemtime(public_path('css/pbr-startup-capital-typography-polish.css')) }}">
+    @endif
     @if(request()->routeIs('workspaces.tools.index'))
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v2.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v2.css')) }}">
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v21.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v21.css')) }}">
