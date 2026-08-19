@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,6 +36,17 @@ class ChapterTool extends Model
         ];
     }
 
+    public function scopePublished(Builder $query): Builder
+    {
+        return $query
+            ->where('is_published', true)
+            ->whereHas(
+                'chapter',
+                fn (Builder $chapterQuery): Builder =>
+                    $chapterQuery->where('is_published', true)
+            );
+    }
+
     public function chapter(): BelongsTo
     {
         return $this->belongsTo(
@@ -54,6 +66,13 @@ class ChapterTool extends Model
     {
         return $this->hasMany(
             WorkspaceToolOutput::class
+        );
+    }
+
+    public function workspaceActions(): HasMany
+    {
+        return $this->hasMany(
+            WorkspaceToolAction::class
         );
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\ChapterTool;
+use App\Models\CourseChapter;
 use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceMember;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Route;
 uses(RefreshDatabase::class);
 
 test('PBR course catalog contains ten connected chapters and sixty four unique tools', function () {
+    app(CourseCatalogSeeder::class)->run();
+
     $chapters = config('pbr_course.chapters', []);
     $toolKeys = collect($chapters)
         ->flatMap(fn (array $chapter) => collect($chapter['tools'] ?? [])->pluck('key'))
@@ -38,7 +41,41 @@ test('PBR course catalog contains ten connected chapters and sixty four unique t
             'continuity',
             'share_transfer',
             'dispute_resolution',
-        ]);
+        ])
+        ->and(CourseChapter::query()->count())->toBe(10)
+        ->and(CourseChapter::query()->where('is_published', true)->count())->toBe(10)
+        ->and(ChapterTool::query()->count())->toBe(64)
+        ->and(ChapterTool::query()->published()->count())->toBe(64);
+});
+
+test('an unpublished catalog tool cannot be opened directly', function () {
+    app(CourseCatalogSeeder::class)->run();
+
+    $student = User::factory()->create([
+        'role' => 'student',
+        'account_status' => 'active',
+        'portal_access_expires_at' => now()->addDay(),
+    ]);
+
+    $workspace = PartnershipWorkspace::query()->create([
+        'owner_user_id' => $student->id,
+        'name' => 'Publication Boundary Business',
+        'business_name' => 'Publication Boundary Business',
+        'business_stage' => 'existing',
+        'currency_code' => 'THB',
+        'status' => 'active',
+    ]);
+
+    ChapterTool::query()
+        ->where('tool_key', 'current_capital_position')
+        ->update(['is_published' => false]);
+
+    $this->actingAs($student)
+        ->get(route('workspaces.tools.chapter-one.show', [
+            $workspace,
+            'current-capital-position',
+        ]))
+        ->assertNotFound();
 });
 
 test('active student portal is the premium business control center instead of a learning progress dashboard', function () {

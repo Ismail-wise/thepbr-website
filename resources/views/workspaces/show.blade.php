@@ -15,14 +15,8 @@
         ->where('invitation_status', 'accepted');
 
     $pendingInvitations = $workspace->memberships
-        ->where('invitation_status', 'pending');
-
-    $pendingEmailInvitations = $pendingInvitations->reject(
-        fn ($invitation) => str_ends_with(
-            strtolower((string) $invitation->invited_email),
-            '@invite.thepbr.local'
-        )
-    );
+        ->where('member_role', 'partner')
+        ->filter(fn ($invitation) => $invitation->isInvitationUsable());
 
     $notConfiguredCount = (int) ($metrics['not_configured_area_count'] ?? $systems
         ->filter(fn ($system) => ($system['state']['key'] ?? null) === 'not_configured')
@@ -226,7 +220,11 @@
                     <article class="ov-tool-card ai">
                         <span class="ov-eyebrow">PBR AI ADVISOR</span>
                         <h3>Business-aware AI Advisor</h3>
-                        <p>Permission-safe Current Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Business Records ပေါ်မူတည်ပြီး မေးမြန်းနိုင်ပါတယ်။</p>
+                        @if($canManageBusiness)
+                            <p>Permission-safe Current Rules၊ Partner Data၊ Valuation၊ Feasibility နဲ့ Business Records ပေါ်မူတည်ပြီး မေးမြန်းနိုင်ပါတယ်။</p>
+                        @else
+                            <p>ဒီ Workspace ရဲ့ approved shared context ကိုသာ အသုံးပြုပါတယ်။ Owner-private Feasibility၊ Valuation နဲ့ Working Draft data မပါဝင်ပါဘူး။</p>
+                        @endif
                         <a class="ov-btn primary" href="{{ route('workspaces.ai-advisor.index', $workspace) }}">Ask PBR AI ✦</a>
                     </article>
                 @endif
@@ -293,7 +291,15 @@
                                             <strong>{{ $partner->user?->name ?: 'Partner' }}</strong>
                                             <small>{{ $partner->user?->email ?: $partner->invited_email }}</small>
                                         </div>
-                                        <span>Partner</span>
+                                        <form
+                                            method="POST"
+                                            action="{{ route('workspace-members.destroy', [$workspace, $partner]) }}"
+                                            onsubmit="return confirm('Remove this partner access immediately?')"
+                                        >
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit">Remove Access</button>
+                                        </form>
                                     </div>
                                 @endforeach
                             </div>
@@ -303,41 +309,42 @@
                     </article>
 
                     <article class="ov-panel">
-                        <h3>Invite Partner</h3>
-                        <p>Email တစ်ခုကို တိုက်ရိုက်ဖိတ်နိုင်သလို single-use shareable link တစ်ခုလည်း ဖန်တီးနိုင်ပါတယ်။</p>
+                        <h3>Invite Partner by Email</h3>
+                        <p>
+                            Partner ရဲ့ exact email ကိုထည့်ပြီး 7 ရက်အတွင်းသက်တမ်းကုန်မယ့် single-use secure link ကိုဖန်တီးပါ။
+                            PBR က email အလိုအလျောက်မပို့သေးပါ—ဖန်တီးပြီးရင် ဒီ link ကို invited email ပိုင်ရှင်ထံပဲ ပို့ပါ။
+                        </p>
 
                         @if(session('invitation_link'))
                             <div class="ov-invite-link">
-                                <strong>{{ session('shareable_invitation') ? 'Shareable invitation created' : 'Partner invitation created' }}</strong>
-                                <small>ဒီ link ကို recipient ကိုပဲပို့ပါ။ Link က invitation acceptance အတွက်အသုံးပြုမှာပါ။</small>
+                                <strong>Secure email-bound invitation created</strong>
+                                <small>
+                                    For {{ session('invitation_email') }} only. Copy and send this link yourself;
+                                    it expires in 7 days and works once.
+                                </small>
                                 <input class="ov-input" type="text" readonly value="{{ session('invitation_link') }}" onclick="this.select()">
                             </div>
                         @endif
 
                         <div class="ov-invite-actions">
                             <div class="ov-invite-block">
-                                <strong>Invite by Email</strong>
+                                <strong>Create Secure Invitation Link</strong>
                                 <form class="ov-inline-form" method="POST" action="{{ route('workspace-invitations.store', $workspace) }}">
                                     @csrf
                                     <input class="ov-input" type="email" name="email" placeholder="partner@example.com" required>
-                                    <button class="ov-btn primary" type="submit">Create Invite</button>
-                                </form>
-                            </div>
-
-                            <div class="ov-invite-block">
-                                <strong>Single-use Shareable Link</strong>
-                                <form method="POST" action="{{ route('workspace-invitations.shareable.store', $workspace) }}">
-                                    @csrf
-                                    <button class="ov-btn" type="submit">Create Shareable Link →</button>
+                                    <button class="ov-btn primary" type="submit">Create Secure Link</button>
                                 </form>
                             </div>
                         </div>
 
-                        @if($pendingEmailInvitations->isNotEmpty())
+                        @if($pendingInvitations->isNotEmpty())
                             <div class="ov-pending">
-                                @foreach($pendingEmailInvitations as $invitation)
+                                @foreach($pendingInvitations as $invitation)
                                     <div class="ov-pending-row">
-                                        <span>Pending · {{ $invitation->invited_email }}</span>
+                                        <span>
+                                            Pending · {{ $invitation->invited_email }} ·
+                                            expires {{ $invitation->invitation_expires_at?->format('M j, Y g:i A T') ?? 'Not set' }}
+                                        </span>
                                         <form method="POST" action="{{ route('workspace-invitations.revoke', [$workspace, $invitation]) }}">
                                             @csrf
                                             @method('DELETE')

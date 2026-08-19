@@ -1,0 +1,1811 @@
+/*
+ * thePBR Premium Tool Experience
+ * Shared SaaS workspace for all 64 Business OS tools.
+ * This file is intentionally loaded last and does not change business logic.
+ */
+
+:root {
+    --pbr-tool-canvas: #f3f6f4;
+    --pbr-tool-surface: #ffffff;
+    --pbr-tool-surface-muted: #f8faf9;
+    --pbr-tool-ink: #11251b;
+    --pbr-tool-ink-soft: #34483d;
+    --pbr-tool-muted: #6f7f76;
+    --pbr-tool-line: #dfe7e2;
+    --pbr-tool-line-strong: #ccd9d1;
+    --pbr-tool-brand: #0b6b3b;
+    --pbr-tool-brand-dark: #074a2a;
+    --pbr-tool-brand-soft: #e8f5ed;
+    --pbr-tool-amber: #a46216;
+    --pbr-tool-amber-soft: #fff5e6;
+    --pbr-tool-blue: #2f638d;
+    --pbr-tool-blue-soft: #edf5fb;
+    --pbr-tool-danger: #a2473e;
+    --pbr-tool-danger-soft: #fff1ef;
+    --pbr-tool-shadow-xs: 0 1px 2px rgba(14, 34, 24, .025);
+    --pbr-tool-shadow-sm: 0 10px 28px rgba(14, 34, 24, .055);
+    --pbr-tool-shadow-md: 0 20px 50px rgba(14, 34, 24, .075);
+    --pbr-tool-shadow-focus: 0 0 0 4px rgba(11, 107, 59, .10);
+}
+
+body.pbr-tool-route {
+    background:
+        radial-gradient(circle at 2% -10%, rgba(11, 107, 59, .07), transparent 26%),
+        radial-gradient(circle at 98% 0%, rgba(226, 139, 33, .04), transparent 22%),
+        var(--pbr-tool-canvas);
+}
+
+body.pbr-tool-route .portal-header {
+    border-bottom-color: rgba(204, 217, 209, .82);
+}
+
+body.pbr-tool-route .portal-wrap {
+    width: min(1480px, calc(100% - 48px));
+}
+
+.pbr-premium-tool-page {
+    --pbr-tool-accent: var(--pbr-tool-brand);
+    --pbr-tool-accent-dark: var(--pbr-tool-brand-dark);
+    --pbr-tool-accent-soft: var(--pbr-tool-brand-soft);
+    min-width: 0;
+}
+
+.pbr-premium-tool-page *,
+.pbr-premium-tool-page *::before,
+.pbr-premium-tool-page *::after {
+    box-sizing: border-box;
+}
+
+.pbr-premium-tool-page[data-pbr-tool-chapter="2"],
+.pbr-premium-tool-page[data-pbr-tool-chapter="6"] {
+    --pbr-tool-accent: #285f78;
+    --pbr-tool-accent-dark: #173f52;
+    --pbr-tool-accent-soft: #eaf3f7;
+}
+
+.pbr-premium-tool-page[data-pbr-tool-chapter="3"],
+.pbr-premium-tool-page[data-pbr-tool-chapter="7"] {
+    --pbr-tool-accent: #536a3d;
+    --pbr-tool-accent-dark: #35492a;
+    --pbr-tool-accent-soft: #eef4e9;
+}
+
+.pbr-premium-tool-page[data-pbr-tool-chapter="4"],
+.pbr-premium-tool-page[data-pbr-tool-chapter="8"] {
+    --pbr-tool-accent: #82612d;
+    --pbr-tool-accent-dark: #5e431c;
+    --pbr-tool-accent-soft: #f8f1e6;
+}
+
+.pbr-premium-tool-page[data-pbr-tool-chapter="5"],
+.pbr-premium-tool-page[data-pbr-tool-chapter="9"],
+.pbr-premium-tool-page[data-pbr-tool-chapter="10"] {
+    --pbr-tool-accent: #4e5f70;
+    --pbr-tool-accent-dark: #33414e;
+    --pbr-tool-accent-soft: #eef2f5;
+}
+
+/* --------------------------------------------------------------------------
+   Sticky tool command bar
+   -------------------------------------------------------------------------- */
+
+.pbr-premium-toolbar {
+    position: sticky;
+    top: 76px;
+    z-index: 80;
+    display: grid;
+    grid-template-columns: minmax(260px, 1fr) auto auto;
+    gap: 18px;
+    align-items: center;
+    min-height: 62px;
+    margin: 0 0 16px;
+    padding: 9px 10px 9px 12px;
+    border: 1px solid rgba(204, 217, 209, .88);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .91);
+    box-shadow: 0 10px 32px rgba(14, 34, 24, .055);
+    backdrop-filter: blur(18px) saturate(1.18);
+    -webkit-backdrop-filter: blur(18px) saturate(1.18);
+    transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.pbr-premium-toolbar.is-scrolled {
+    border-color: rgba(184, 202, 190, .94);
+    box-shadow: 0 16px 38px rgba(14, 34, 24, .10);
+}
+
+.pbr-premium-toolbar-location {
+    display: flex;
+    align-items: center;
+    min-width: 0;
+    gap: 11px;
+}
+
+.pbr-premium-toolbar-back {
+    display: grid;
+    flex: 0 0 38px;
+    width: 38px;
+    height: 38px;
+    place-items: center;
+    border: 1px solid var(--pbr-tool-line);
+    border-radius: 10px;
+    background: #fff;
+    color: var(--pbr-tool-ink-soft);
+    box-shadow: var(--pbr-tool-shadow-xs);
+    transition: border-color .16s ease, background .16s ease, color .16s ease, transform .16s ease;
+}
+
+.pbr-premium-toolbar-back:hover {
+    border-color: color-mix(in srgb, var(--pbr-tool-accent) 36%, var(--pbr-tool-line));
+    background: var(--pbr-tool-accent-soft);
+    color: var(--pbr-tool-accent-dark);
+    transform: translateX(-1px);
+}
+
+.pbr-premium-toolbar-back svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.9;
+}
+
+.pbr-premium-toolbar-location > div {
+    min-width: 0;
+}
+
+.pbr-premium-toolbar-location span,
+.pbr-premium-toolbar-location strong {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.pbr-premium-toolbar-location span {
+    color: var(--pbr-tool-muted);
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: .035em;
+}
+
+.pbr-premium-toolbar-location span i {
+    margin: 0 4px;
+    color: #a5b0aa;
+    font-style: normal;
+}
+
+.pbr-premium-toolbar-location strong {
+    margin-top: 2px;
+    color: var(--pbr-tool-ink);
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif;
+    font-size: 13px;
+    font-weight: 750;
+    letter-spacing: -.01em;
+}
+
+.pbr-premium-toolbar-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.pbr-premium-tool-state,
+.pbr-premium-tool-currency,
+.pbr-premium-save-state {
+    display: inline-flex;
+    align-items: center;
+    min-height: 29px;
+    padding: 5px 9px;
+    border: 1px solid var(--pbr-tool-line);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--pbr-tool-muted);
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif;
+    font-size: 8.5px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.pbr-premium-tool-state i {
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 3px color-mix(in srgb, currentColor 12%, transparent);
+}
+
+.pbr-premium-tool-state.active {
+    border-color: #c8e3d4;
+    background: #eff9f3;
+    color: #1c7045;
+}
+
+.pbr-premium-tool-state.working {
+    border-color: #d8e3bf;
+    background: #f7faed;
+    color: #65782d;
+}
+
+.pbr-premium-tool-state.setup {
+    border-color: #edd8b8;
+    background: #fff8ed;
+    color: #91601e;
+}
+
+.pbr-premium-tool-state.readonly {
+    border-color: #d5e0e7;
+    background: #f2f7fa;
+    color: #4f6b7e;
+}
+
+.pbr-premium-tool-currency {
+    letter-spacing: .06em;
+}
+
+.pbr-premium-save-state {
+    border-color: transparent;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-save-state.is-dirty {
+    border-color: #edd6ad;
+    background: var(--pbr-tool-amber-soft);
+    color: #8d5d1c;
+}
+
+.pbr-premium-save-state.is-processing {
+    border-color: #caddea;
+    background: var(--pbr-tool-blue-soft);
+    color: var(--pbr-tool-blue);
+}
+
+.pbr-premium-toolbar-nav {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px;
+    border: 1px solid var(--pbr-tool-line);
+    border-radius: 11px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-toolbar-nav a {
+    padding: 7px 9px;
+    border-radius: 8px;
+    color: #68786f;
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    font-size: 8.5px;
+    font-weight: 750;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .15s ease, color .15s ease, box-shadow .15s ease;
+}
+
+.pbr-premium-toolbar-nav a:hover,
+.pbr-premium-toolbar-nav a.is-active {
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(14, 34, 24, .05);
+    color: var(--pbr-tool-accent-dark);
+}
+
+.pbr-premium-toolbar-nav a.is-disabled {
+    opacity: .42;
+    cursor: default;
+    pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Shared page geometry and controls
+   -------------------------------------------------------------------------- */
+
+.pbr-premium-tool-page input:not([type='checkbox']):not([type='radio']),
+.pbr-premium-tool-page select,
+.pbr-premium-tool-page textarea {
+    caret-color: var(--pbr-tool-accent);
+}
+
+.pbr-premium-tool-page input:not([type='checkbox']):not([type='radio']):focus,
+.pbr-premium-tool-page select:focus,
+.pbr-premium-tool-page textarea:focus,
+.pbr-premium-tool-page button:focus-visible,
+.pbr-premium-tool-page a:focus-visible,
+.pbr-premium-tool-page summary:focus-visible {
+    outline: none;
+    box-shadow: var(--pbr-tool-shadow-focus);
+}
+
+.pbr-premium-tool-page button,
+.pbr-premium-tool-page a,
+.pbr-premium-tool-page summary {
+    -webkit-tap-highlight-color: transparent;
+}
+
+.pbr-premium-tool-page [id] {
+    scroll-margin-top: 158px;
+}
+
+/* --------------------------------------------------------------------------
+   57 shared operating tools
+   -------------------------------------------------------------------------- */
+
+.pbr-premium-tool-page.pbr-os-page {
+    min-height: calc(100vh - 76px);
+    padding: 18px 0 68px;
+    background: transparent;
+    color: var(--pbr-tool-ink);
+}
+
+.pbr-premium-tool-page .pbr-os-wrap {
+    max-width: 1480px;
+}
+
+.pbr-premium-tool-page .pbr-os-breadcrumb {
+    display: none;
+}
+
+.pbr-premium-tool-page .pbr-os-hero {
+    position: relative;
+    grid-template-columns: minmax(0, 1fr) minmax(230px, 290px);
+    gap: 22px;
+    margin: 0 0 14px;
+    padding: 22px 24px;
+    overflow: hidden;
+    border: 1px solid var(--pbr-tool-line);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--pbr-tool-accent) 9%, transparent), transparent 25%),
+        linear-gradient(135deg, #fff, #fafcfb);
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-tool-page .pbr-os-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--pbr-tool-accent), color-mix(in srgb, var(--pbr-tool-accent) 35%, #fff));
+}
+
+.pbr-premium-tool-page .pbr-os-kickers {
+    margin-bottom: 9px;
+}
+
+.pbr-premium-tool-page .pbr-os-chapter-pill,
+.pbr-premium-tool-page .pbr-os-type-pill,
+.pbr-premium-tool-page .pbr-os-agreed-pill {
+    min-height: 26px;
+    padding: 5px 9px;
+    border-radius: 8px;
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif;
+    font-size: 8.5px;
+    letter-spacing: .04em;
+}
+
+.pbr-premium-tool-page .pbr-os-chapter-pill {
+    background: var(--pbr-tool-accent-soft);
+    color: var(--pbr-tool-accent-dark);
+}
+
+.pbr-premium-tool-page .pbr-os-hero h1 {
+    max-width: 920px;
+    font-size: clamp(24px, 2.6vw, 34px);
+    line-height: 1.38;
+    letter-spacing: -.025em;
+}
+
+.pbr-premium-tool-page .pbr-os-en-title {
+    margin-top: 4px;
+    color: var(--pbr-tool-ink-soft);
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    font-size: 12px;
+    letter-spacing: -.01em;
+}
+
+.pbr-premium-tool-page .pbr-os-purpose {
+    max-width: 900px;
+    margin-top: 10px;
+    color: var(--pbr-tool-muted);
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.pbr-premium-tool-page .pbr-os-business-context {
+    min-height: 118px;
+    padding: 17px;
+    border: 1px solid rgba(255, 255, 255, .09);
+    border-radius: 15px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, .12), transparent 38%),
+        linear-gradient(145deg, #123d2c, #092b1e);
+    box-shadow: 0 16px 32px rgba(6, 37, 24, .16), inset 0 1px rgba(255, 255, 255, .08);
+}
+
+.pbr-premium-tool-page .pbr-os-business-context > span {
+    color: #afd0be;
+    font-size: 8px;
+    font-weight: 800;
+    letter-spacing: .12em;
+}
+
+.pbr-premium-tool-page .pbr-os-business-context > strong {
+    margin: 7px 0 11px;
+    font-size: 16px;
+}
+
+.pbr-premium-tool-page .pbr-os-business-context small {
+    padding: 5px 7px;
+    font-size: 8px;
+}
+
+.pbr-premium-tool-intelligence {
+    display: grid;
+    grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr);
+    gap: 12px;
+    align-items: stretch;
+    margin-bottom: 14px;
+}
+
+.pbr-premium-tool-intelligence > .pbr-connected-runtime,
+.pbr-premium-tool-intelligence > .pbr-business-guidance {
+    height: 100%;
+    margin: 0;
+    border-color: var(--pbr-tool-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: var(--pbr-tool-shadow-xs);
+}
+
+.pbr-premium-tool-intelligence .pbr-connected-runtime-main {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+}
+
+.pbr-premium-tool-intelligence .pbr-runtime-mode,
+.pbr-premium-tool-intelligence .pbr-runtime-source,
+.pbr-premium-tool-intelligence .pbr-runtime-advisory,
+.pbr-premium-tool-intelligence .pbr-guidance-grid article {
+    padding: 10px;
+    border-color: #e5ebe7;
+    border-radius: 10px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-tool-intelligence .pbr-guidance-grid {
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.pbr-premium-tool-intelligence .pbr-guidance-signal {
+    min-width: 145px;
+    padding: 9px;
+}
+
+.pbr-premium-tool-intelligence .pbr-guidance-sources {
+    margin-top: 9px;
+    padding: 8px 10px;
+}
+
+.pbr-premium-tool-page .pbr-os-readonly-banner {
+    margin-bottom: 14px;
+    border-radius: 14px;
+    box-shadow: var(--pbr-tool-shadow-xs);
+}
+
+.pbr-premium-tool-page .pbr-os-layout {
+    grid-template-columns: 246px minmax(0, 1fr);
+    gap: 14px;
+}
+
+.pbr-premium-tool-page .pbr-os-sidebar {
+    top: 154px;
+    gap: 10px;
+}
+
+.pbr-premium-tool-page .pbr-os-side-card,
+.pbr-premium-tool-page .pbr-os-panel {
+    border-color: var(--pbr-tool-line);
+    border-radius: 16px;
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-tool-page .pbr-os-side-card {
+    padding: 14px;
+}
+
+.pbr-premium-tool-page .pbr-os-side-card:first-child {
+    position: relative;
+    overflow: hidden;
+}
+
+.pbr-premium-tool-page .pbr-os-side-card:first-child::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3px;
+    background: var(--pbr-tool-accent);
+}
+
+.pbr-premium-tool-page .pbr-os-side-label {
+    margin-bottom: 9px;
+    color: #7c8982;
+    font-size: 8px;
+    letter-spacing: .12em;
+}
+
+.pbr-premium-tool-page .pbr-os-steps {
+    gap: 4px;
+}
+
+.pbr-premium-tool-page .pbr-os-steps li {
+    position: relative;
+    gap: 9px;
+    padding: 8px;
+    border-radius: 10px;
+}
+
+.pbr-premium-tool-page .pbr-os-steps li.active {
+    background: var(--pbr-tool-accent-soft);
+}
+
+.pbr-premium-tool-page .pbr-os-steps li > span {
+    width: 24px;
+    height: 24px;
+    background: #edf1ee;
+    font-size: 9px;
+}
+
+.pbr-premium-tool-page .pbr-os-steps li.active > span {
+    background: var(--pbr-tool-accent);
+}
+
+.pbr-premium-tool-page .pbr-os-steps b {
+    color: var(--pbr-tool-ink-soft);
+    font-size: 10px;
+}
+
+.pbr-premium-tool-page .pbr-os-steps small {
+    color: var(--pbr-tool-muted);
+    font-size: 8px;
+}
+
+.pbr-premium-tool-page .pbr-os-draft-link {
+    margin-top: 5px;
+    border-radius: 9px;
+}
+
+.pbr-premium-tool-page .pbr-os-draft-link:hover,
+.pbr-premium-tool-page .pbr-os-draft-link.active {
+    border-color: color-mix(in srgb, var(--pbr-tool-accent) 18%, var(--pbr-tool-line));
+    background: var(--pbr-tool-accent-soft);
+}
+
+.pbr-premium-tool-page .pbr-os-main {
+    gap: 14px;
+}
+
+.pbr-premium-tool-page .pbr-os-panel {
+    padding: 20px;
+    background: rgba(255, 255, 255, .97);
+}
+
+.pbr-premium-tool-page .pbr-os-input-panel {
+    position: relative;
+    overflow: clip;
+}
+
+.pbr-premium-tool-page .pbr-os-input-panel::before,
+.pbr-premium-tool-page .pbr-os-result-panel::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pbr-tool-accent), color-mix(in srgb, var(--pbr-tool-accent) 18%, transparent) 72%, transparent);
+}
+
+.pbr-premium-tool-page .pbr-os-panel-head {
+    margin-bottom: 17px;
+    padding-bottom: 15px;
+}
+
+.pbr-premium-tool-page .pbr-os-panel-head h2 {
+    margin: 4px 0;
+    color: var(--pbr-tool-ink);
+    font-size: 17px;
+    line-height: 1.5;
+}
+
+.pbr-premium-tool-page .pbr-os-panel-head p {
+    color: var(--pbr-tool-muted);
+    font-size: 10.5px;
+}
+
+.pbr-premium-tool-page .pbr-operating-context {
+    margin-bottom: 17px;
+    padding: 15px;
+    border-color: #dce6e0;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #f8fbf9, #f4f8f6);
+}
+
+.pbr-premium-tool-page .pbr-operating-context-head {
+    margin-bottom: 13px;
+}
+
+.pbr-premium-tool-page .pbr-operating-context-head h3 {
+    font-size: 14px;
+}
+
+.pbr-premium-tool-page .pbr-os-fields {
+    gap: 13px;
+}
+
+.pbr-premium-tool-page .pbr-os-field {
+    gap: 6px;
+}
+
+.pbr-premium-tool-page .pbr-os-field > label,
+.pbr-premium-tool-page .pbr-os-field-heading label {
+    color: var(--pbr-tool-ink-soft);
+    font-size: 11px;
+}
+
+.pbr-premium-tool-page .pbr-os-field > label span,
+.pbr-premium-tool-page .pbr-os-field-heading span {
+    color: #87948c;
+    font-size: 8px;
+}
+
+.pbr-premium-tool-page .pbr-os-field input,
+.pbr-premium-tool-page .pbr-os-field select,
+.pbr-premium-tool-page .pbr-os-field textarea,
+.pbr-premium-tool-page .pbr-os-mini-field input,
+.pbr-premium-tool-page .pbr-os-mini-field select,
+.pbr-premium-tool-page .pbr-os-save-cluster input {
+    min-height: 42px;
+    border-color: var(--pbr-tool-line-strong);
+    border-radius: 10px;
+    background: #fff;
+    font-size: 11px;
+}
+
+.pbr-premium-tool-page .pbr-os-field input:focus,
+.pbr-premium-tool-page .pbr-os-field select:focus,
+.pbr-premium-tool-page .pbr-os-field textarea:focus,
+.pbr-premium-tool-page .pbr-os-mini-field input:focus,
+.pbr-premium-tool-page .pbr-os-mini-field select:focus,
+.pbr-premium-tool-page .pbr-os-save-cluster input:focus {
+    border-color: color-mix(in srgb, var(--pbr-tool-accent) 68%, #fff);
+    box-shadow: var(--pbr-tool-shadow-focus);
+}
+
+.pbr-premium-tool-page .pbr-os-help {
+    color: #7e8b84;
+    font-size: 9px;
+}
+
+.pbr-premium-tool-page .pbr-os-add-row {
+    min-height: 32px;
+    padding: 6px 10px;
+    border: 1px solid color-mix(in srgb, var(--pbr-tool-accent) 18%, var(--pbr-tool-line));
+    border-radius: 9px;
+    background: var(--pbr-tool-accent-soft);
+    color: var(--pbr-tool-accent-dark);
+}
+
+.pbr-premium-tool-page .pbr-os-repeater-row {
+    padding: 10px;
+    border-color: #e3e9e5;
+    border-radius: 12px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-tool-page .pbr-os-check-item {
+    border-color: #e0e7e2;
+    border-radius: 10px;
+    background: var(--pbr-tool-surface-muted);
+    transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+
+.pbr-premium-tool-page .pbr-os-check-item:hover {
+    border-color: color-mix(in srgb, var(--pbr-tool-accent) 30%, var(--pbr-tool-line));
+    background: #fff;
+    transform: translateY(-1px);
+}
+
+.pbr-premium-tool-page .pbr-os-check-item > input[type='checkbox'] {
+    accent-color: var(--pbr-tool-accent);
+}
+
+.pbr-premium-tool-page .pbr-os-form-actions {
+    position: sticky;
+    bottom: 10px;
+    z-index: 12;
+    margin: 20px -8px -8px;
+    padding: 12px;
+    border: 1px solid rgba(204, 217, 209, .9);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 14px 34px rgba(14, 34, 24, .11);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+.pbr-premium-tool-page .pbr-os-btn {
+    min-height: 39px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+
+.pbr-premium-tool-page .pbr-os-btn.primary,
+.pbr-premium-tool-page .pbr-os-btn.approve {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--pbr-tool-accent) 92%, #fff), var(--pbr-tool-accent-dark));
+    box-shadow: 0 9px 20px color-mix(in srgb, var(--pbr-tool-accent) 18%, transparent), inset 0 1px rgba(255, 255, 255, .16);
+}
+
+.pbr-premium-tool-page .pbr-os-btn.secondary {
+    border: 1px solid var(--pbr-tool-line-strong);
+    background: #fff;
+    color: var(--pbr-tool-ink-soft);
+}
+
+.pbr-premium-tool-page .pbr-os-result-panel {
+    position: relative;
+    overflow: clip;
+}
+
+.pbr-premium-tool-page .pbr-os-result-hero {
+    margin-bottom: 12px;
+    padding: 22px;
+    border-radius: 15px;
+    background:
+        radial-gradient(circle at 92% 0%, rgba(255, 255, 255, .16), transparent 28%),
+        linear-gradient(140deg, var(--pbr-tool-accent-dark), color-mix(in srgb, var(--pbr-tool-accent) 80%, #102d20));
+    box-shadow: 0 16px 34px color-mix(in srgb, var(--pbr-tool-accent) 16%, transparent);
+}
+
+.pbr-premium-tool-page .pbr-os-result-hero > strong {
+    font-size: clamp(27px, 3.2vw, 40px);
+}
+
+.pbr-premium-tool-page .pbr-os-metrics {
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.pbr-premium-tool-page .pbr-os-metrics article {
+    padding: 12px;
+    border-color: #e1e8e3;
+    border-radius: 11px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-tool-page .pbr-os-result-table-wrap {
+    border-color: var(--pbr-tool-line);
+    border-radius: 12px;
+}
+
+.pbr-premium-tool-page .pbr-os-result-table tbody tr:hover {
+    background: #f8fbf9;
+}
+
+.pbr-premium-tool-page .pbr-os-insight,
+.pbr-premium-tool-page .pbr-os-approval-zone,
+.pbr-premium-tool-page .pbr-os-current-rule {
+    border-radius: 13px;
+}
+
+.pbr-premium-tool-page .pbr-os-legal-note {
+    padding: 12px 14px;
+    border-color: #d3ddd7;
+    background: rgba(255, 255, 255, .55);
+}
+
+/* --------------------------------------------------------------------------
+   Chapter 1: six calculators
+   -------------------------------------------------------------------------- */
+
+.pbr-premium-capital-tool-page.pbr-tools-section {
+    min-height: calc(100vh - 76px);
+    padding: 18px 0 68px;
+    background: transparent;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(225px, 285px);
+    gap: 22px;
+    margin: 0 0 13px;
+    padding: 21px 23px;
+    overflow: hidden;
+    border: 1px solid var(--pbr-tool-line);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(11, 107, 59, .085), transparent 27%),
+        linear-gradient(135deg, #fff, #fafcfb);
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 4px;
+    background: linear-gradient(180deg, var(--pbr-tool-brand), #79b992);
+}
+
+.pbr-premium-capital-tool-page .pbr-tools-back {
+    display: none;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head .portal-kicker {
+    color: var(--pbr-tool-brand);
+    font-size: 9px;
+    letter-spacing: .11em;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head h1 {
+    margin-top: 5px;
+    font-size: clamp(24px, 2.6vw, 33px);
+    line-height: 1.38;
+    letter-spacing: -.025em;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head .pbr-tool-en-subtitle {
+    margin-top: 3px;
+    color: var(--pbr-tool-ink-soft);
+    font-family: 'Manrope', 'Noto Sans', sans-serif;
+    font-size: 12px;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head > div:first-child > p:last-child {
+    max-width: 900px;
+    margin-top: 9px;
+    color: var(--pbr-tool-muted);
+    font-size: 12px;
+    line-height: 1.75;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-context-box {
+    min-width: 0;
+    padding: 15px 16px;
+    border-color: rgba(255, 255, 255, .09);
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, .12), transparent 38%),
+        linear-gradient(145deg, #123d2c, #092b1e);
+    color: #fff;
+    box-shadow: 0 16px 30px rgba(6, 37, 24, .15);
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-context-box span,
+.pbr-premium-capital-tool-page .pbr-tool-context-box small {
+    color: #b9d5c5;
+    font-size: 8.5px;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-context-box strong {
+    margin: 5px 0 8px;
+    font-size: 15px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-flow {
+    margin: 0 0 13px;
+    padding: 15px;
+    border-color: var(--pbr-tool-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .95);
+    box-shadow: var(--pbr-tool-shadow-xs);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-flow-head {
+    align-items: center;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-flow-back {
+    font-size: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-current-state {
+    padding: 9px 11px;
+    border-radius: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-step-track {
+    gap: 6px;
+    margin-top: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-step {
+    min-height: 58px;
+    padding: 9px;
+    border-radius: 10px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-step.current {
+    border-color: rgba(11, 107, 59, .38);
+    background: var(--pbr-tool-brand-soft);
+    box-shadow: inset 0 0 0 1px rgba(11, 107, 59, .05);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-tool-connection,
+.pbr-premium-capital-tool-page .pbr-capital-tool-next {
+    margin-top: 10px;
+    padding: 11px 12px;
+    border-radius: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-operating-context {
+    margin: 0 0 13px;
+    padding: 14px;
+    border-color: #dce6e0;
+    border-radius: 13px;
+    background: linear-gradient(135deg, #f8fbf9, #f4f8f6);
+}
+
+.pbr-premium-capital-tool-page .pbr-scenario-box {
+    grid-template-columns: minmax(0, .85fr) minmax(280px, 1.15fr);
+    gap: 16px;
+    margin-bottom: 13px;
+    padding: 13px 15px;
+    border-color: var(--pbr-tool-line);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: var(--pbr-tool-shadow-xs);
+}
+
+.pbr-premium-capital-tool-page .pbr-scenario-box input {
+    min-height: 42px;
+    border-color: var(--pbr-tool-line-strong);
+    border-radius: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
+    gap: 14px;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-panel,
+.pbr-premium-capital-tool-page .pbr-calculator-results {
+    border-color: var(--pbr-tool-line);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .97);
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-panel {
+    padding: 20px;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-results {
+    top: 154px;
+    min-height: 360px;
+    padding: 18px;
+    overflow: clip;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-results::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pbr-tool-brand), #88c39e 66%, transparent);
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-results > .portal-kicker {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--pbr-tool-brand);
+    font-size: 9px;
+    letter-spacing: .11em;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-results > .portal-kicker::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #38a269;
+    box-shadow: 0 0 0 4px rgba(56, 162, 105, .12);
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-panel-head {
+    margin-bottom: 17px;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-panel-head h2 {
+    margin-top: 5px;
+    color: var(--pbr-tool-ink);
+    font-size: 18px;
+    line-height: 1.5;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-panel-head p {
+    color: var(--pbr-tool-muted);
+    font-size: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-form-guide {
+    gap: 7px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-form-guide article {
+    padding: 10px;
+    border-color: #e1e8e3;
+    border-radius: 10px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-definition-note,
+.pbr-premium-capital-tool-page .pbr-capital-formula-card {
+    padding: 12px 13px;
+    border-radius: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-shared-category-builder + .pbr-shared-category-builder {
+    margin-top: 18px;
+}
+
+.pbr-premium-capital-tool-page .pbr-builder-heading {
+    margin-bottom: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-builder-heading h3 {
+    color: var(--pbr-tool-ink);
+    font-size: 15px;
+}
+
+.pbr-premium-capital-tool-page .pbr-builder-heading p {
+    color: var(--pbr-tool-muted);
+    font-size: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-quick-category-presets {
+    margin: 9px 0 11px;
+    padding: 10px;
+    border-color: #d5e1da;
+    border-radius: 11px;
+    background: #fafcfb;
+}
+
+.pbr-premium-capital-tool-page .pbr-quick-category-presets button {
+    min-height: 32px;
+    padding: 6px 9px;
+    border-color: #dbe4df;
+    border-radius: 8px;
+    color: #3e6450;
+    font-size: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-quick-category-presets button:hover {
+    border-color: #86aa95;
+    background: var(--pbr-tool-brand-soft);
+    color: var(--pbr-tool-brand-dark);
+}
+
+.pbr-premium-capital-tool-page .pbr-dynamic-category {
+    margin-bottom: 11px;
+    padding: 13px;
+    border-color: #dce5df;
+    border-radius: 13px;
+    background: #fbfcfb;
+    box-shadow: 0 4px 14px rgba(14, 34, 24, .025);
+}
+
+.pbr-premium-capital-tool-page .pbr-category-head {
+    align-items: end;
+    margin-bottom: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-category-name-wrap label {
+    margin-bottom: 4px;
+    color: #718078;
+    font-size: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-category-name-wrap input,
+.pbr-premium-capital-tool-page .pbr-dynamic-item > input,
+.pbr-premium-capital-tool-page .pbr-simple-field select,
+.pbr-premium-capital-tool-page .pbr-simple-field > input {
+    min-height: 41px;
+    border-color: var(--pbr-tool-line-strong);
+    border-radius: 9px;
+    font-size: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-category-items {
+    gap: 7px;
+}
+
+.pbr-premium-capital-tool-page .pbr-dynamic-item {
+    grid-template-columns: minmax(0, 1fr) 190px 34px;
+    gap: 7px;
+}
+
+.pbr-premium-capital-tool-page .pbr-money-input {
+    border-color: var(--pbr-tool-line-strong);
+    border-radius: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-money-input input {
+    min-height: 41px;
+    font-size: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-remove-item {
+    width: 34px;
+    height: 34px;
+    border-color: #ead8d5;
+    background: var(--pbr-tool-danger-soft);
+    color: var(--pbr-tool-danger);
+}
+
+.pbr-premium-capital-tool-page .pbr-category-footer {
+    margin-top: 10px;
+    padding-top: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-add-item,
+.pbr-premium-capital-tool-page .pbr-add-category {
+    min-height: 34px;
+    border-radius: 9px;
+    font-size: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-add-category {
+    border-color: rgba(11, 107, 59, .58);
+    background: #f4faf6;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-divider {
+    margin: 18px 0;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-action-guide {
+    margin-top: 16px;
+    padding: 11px 13px;
+    border-radius: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-actions {
+    position: static;
+    margin: 14px 0 0;
+    padding: 10px;
+    border: 1px solid rgba(204, 217, 209, .9);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 13px 32px rgba(14, 34, 24, .10);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+}
+
+/* Desktop inspection refinements: keep content unobstructed and override the
+   legacy high-specificity type rules that load before this shared system. */
+.pbr-premium-tool-page .pbr-os-hero {
+    align-items: center;
+    padding: 19px 21px !important;
+    border-color: var(--pbr-tool-line) !important;
+    border-radius: 18px !important;
+    background:
+        radial-gradient(circle at 84% 8%, color-mix(in srgb, var(--pbr-tool-accent) 9%, transparent), transparent 25%),
+        linear-gradient(135deg, #fff, #fafcfb) !important;
+    box-shadow: var(--pbr-tool-shadow-sm) !important;
+}
+
+.pbr-premium-tool-page .pbr-os-hero h1 {
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif !important;
+    font-size: clamp(25px, 2.35vw, 36px) !important;
+    line-height: 1.3 !important;
+    letter-spacing: -.025em !important;
+}
+
+.pbr-premium-tool-page .pbr-os-purpose {
+    margin-top: 8px !important;
+    font-size: 12px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head {
+    align-items: center;
+    padding: 18px 20px !important;
+    border-color: var(--pbr-tool-line) !important;
+    border-radius: 18px !important;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(11, 107, 59, .085), transparent 27%),
+        linear-gradient(135deg, #fff, #fafcfb) !important;
+    box-shadow: var(--pbr-tool-shadow-sm) !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head h1 {
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif !important;
+    font-size: clamp(26px, 2.35vw, 37px) !important;
+    line-height: 1.3 !important;
+    letter-spacing: -.025em !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-tool-page-head > div:first-child > p:last-child {
+    margin-top: 8px !important;
+    font-size: 12px !important;
+    line-height: 1.7 !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-calculator-actions button,
+.pbr-premium-capital-tool-page .pbr-capital-toolbar-actions button,
+.pbr-premium-capital-tool-page .pbr-capital-summary-actions button {
+    min-height: 40px;
+    border-radius: 10px;
+    font-size: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-total-result {
+    margin-top: 12px;
+    padding: 18px;
+    border-radius: 13px;
+    background:
+        radial-gradient(circle at 95% 0%, rgba(255, 255, 255, .17), transparent 29%),
+        linear-gradient(140deg, #0c6339, #073e25);
+    box-shadow: 0 15px 32px rgba(9, 76, 43, .16);
+}
+
+.pbr-premium-capital-tool-page .pbr-total-result strong {
+    font-family: 'Manrope', 'Noto Sans Myanmar', sans-serif;
+    font-size: clamp(23px, 2.8vw, 29px);
+}
+
+.pbr-premium-capital-tool-page .pbr-result-stats {
+    gap: 7px;
+    margin-top: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-result-stats > div {
+    padding: 10px;
+    border-color: #e2e8e4;
+    border-radius: 9px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-capital-tool-page .pbr-result-interpretation,
+.pbr-premium-capital-tool-page .pbr-largest-cost,
+.pbr-premium-capital-tool-page .pbr-tool-next-note {
+    margin-top: 10px;
+    padding: 11px;
+    border-radius: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-empty-result {
+    min-height: 286px;
+}
+
+.pbr-premium-capital-tool-page .pbr-empty-result > span {
+    width: 48px;
+    height: 48px;
+    background: var(--pbr-tool-brand-soft);
+    color: var(--pbr-tool-brand);
+}
+
+.pbr-premium-capital-tool-page .pbr-scenario-manager,
+.pbr-premium-capital-tool-page .pbr-os-approval-zone,
+.pbr-premium-capital-tool-page .pbr-operating-action-board,
+.pbr-premium-capital-tool-page .pbr-os-current-rule {
+    border-color: var(--pbr-tool-line);
+    border-radius: 15px;
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Startup Capital planner
+   -------------------------------------------------------------------------- */
+
+.pbr-premium-capital-tool-page.pbr-capital-plan-page .pbr-capital-plan-wrap {
+    max-width: 1480px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+    margin: 0 0 13px;
+    padding: 21px 23px;
+    border-color: var(--pbr-tool-line);
+    border-radius: 18px;
+    background:
+        radial-gradient(circle at 88% 0%, rgba(11, 107, 59, .085), transparent 27%),
+        linear-gradient(135deg, #fff, #fafcfb);
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+    margin-top: 5px;
+    font-size: clamp(24px, 2.6vw, 33px) !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-lead {
+    max-width: 850px;
+    margin-top: 9px;
+    color: var(--pbr-tool-muted);
+    font-size: 12px !important;
+    line-height: 1.75;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-chips {
+    margin-top: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-chips span {
+    padding: 5px 8px;
+    border-radius: 8px;
+    font-size: 8.5px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-business-card {
+    padding: 15px 16px;
+    border-radius: 14px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(255, 255, 255, .12), transparent 38%),
+        linear-gradient(145deg, #123d2c, #092b1e);
+    box-shadow: 0 16px 30px rgba(6, 37, 24, .15);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-plan-toolbar {
+    top: auto;
+    margin-bottom: 13px;
+    padding: 12px 14px;
+    border-color: var(--pbr-tool-line);
+    border-radius: 13px;
+    background: rgba(255, 255, 255, .95);
+    box-shadow: var(--pbr-tool-shadow-xs);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-draft-name input {
+    min-height: 41px;
+    border-color: var(--pbr-tool-line-strong) !important;
+    border-radius: 9px !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+    grid-template-columns: minmax(0, 1fr) minmax(330px, 390px);
+    gap: 14px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-planner,
+.pbr-premium-capital-tool-page .pbr-capital-summary-column {
+    gap: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-summary-column {
+    top: 154px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+.pbr-premium-capital-tool-page .pbr-capital-costs-section,
+.pbr-premium-capital-tool-page .pbr-capital-summary-card,
+.pbr-premium-capital-tool-page .pbr-capital-comparison-card,
+.pbr-premium-capital-tool-page .pbr-capital-help-card {
+    border-color: var(--pbr-tool-line);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, .97);
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-quick-start,
+.pbr-premium-capital-tool-page .pbr-capital-costs-section {
+    padding: 17px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-template-chips button {
+    min-height: 34px;
+    border-color: #dbe4df;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-template-chips button:hover {
+    border-color: #86aa95;
+    background: var(--pbr-tool-brand-soft);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-category-list {
+    gap: 9px;
+    padding: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-category {
+    border-color: #dce5df;
+    border-radius: 13px;
+    box-shadow: 0 4px 14px rgba(14, 34, 24, .025);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-category-head {
+    padding: 10px 12px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-items {
+    gap: 7px;
+    padding: 9px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-item {
+    border-color: #e1e8e4;
+    border-radius: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-item-main {
+    grid-template-columns: minmax(170px, 1.55fr) minmax(120px, .75fr) minmax(110px, .65fr) 34px;
+    gap: 7px;
+    padding: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-field input,
+.pbr-premium-capital-tool-page .pbr-capital-field select {
+    min-height: 39px !important;
+    border-color: var(--pbr-tool-line-strong) !important;
+    border-radius: 8px !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-item-live-line,
+.pbr-premium-capital-tool-page .pbr-capital-item-details > summary,
+.pbr-premium-capital-tool-page .pbr-capital-category-footer {
+    padding: 8px 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-summary-card {
+    position: relative;
+    padding: 17px;
+    overflow: clip;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-summary-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 3px;
+    background: linear-gradient(90deg, var(--pbr-tool-brand), #88c39e 66%, transparent);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-total {
+    padding: 15px;
+    border-radius: 12px;
+    background:
+        radial-gradient(circle at 95% 0%, rgba(255, 255, 255, .16), transparent 29%),
+        linear-gradient(140deg, #0c6339, #073e25);
+    box-shadow: 0 15px 32px rgba(9, 76, 43, .16);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-total strong {
+    font-size: clamp(22px, 2.7vw, 28px);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-metric-grid {
+    gap: 7px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-metric-grid > div {
+    padding: 10px;
+    border-radius: 9px;
+    background: var(--pbr-tool-surface-muted);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-summary-actions {
+    position: sticky;
+    bottom: 8px;
+    z-index: 4;
+    margin: 11px -5px -5px;
+    padding: 8px;
+    border: 1px solid rgba(204, 217, 209, .88);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 11px 28px rgba(14, 34, 24, .09);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-categories {
+    gap: 8px;
+    padding: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category {
+    border-color: #dfe7e2;
+    border-radius: 12px;
+    box-shadow: 0 4px 13px rgba(14, 34, 24, .025);
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category-head {
+    padding: 11px 12px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category-head strong {
+    font-size: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category-head small,
+.pbr-premium-capital-tool-page .pbr-capital-readonly-items small {
+    font-size: 8.5px !important;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category-head span {
+    font-size: 11px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-category-head b {
+    font-size: 8px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-items > div {
+    padding: 9px 12px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-items strong,
+.pbr-premium-capital-tool-page .pbr-capital-readonly-items span {
+    font-size: 9.5px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-readonly-revision,
+.pbr-premium-capital-tool-page .pbr-capital-no-active-plan p {
+    font-size: 10px;
+}
+
+.pbr-premium-capital-tool-page .pbr-capital-no-active-plan {
+    border-color: var(--pbr-tool-line);
+    border-radius: 16px;
+    box-shadow: var(--pbr-tool-shadow-sm);
+}
+
+/* --------------------------------------------------------------------------
+   Responsive product behavior
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 1240px) {
+    body.pbr-tool-route .portal-wrap {
+        width: min(1180px, calc(100% - 40px));
+    }
+
+    .pbr-premium-toolbar {
+        grid-template-columns: minmax(230px, 1fr) auto;
+    }
+
+    .pbr-premium-toolbar-nav {
+        grid-column: 1 / -1;
+        justify-self: end;
+        margin-top: -3px;
+    }
+
+    .pbr-premium-tool-intelligence {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-calculator-layout,
+    .pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(310px, 350px);
+    }
+
+    .pbr-premium-capital-tool-page .pbr-dynamic-item {
+        grid-template-columns: minmax(0, 1fr) 170px 34px;
+    }
+}
+
+@media (max-width: 1020px) {
+    .pbr-premium-toolbar {
+        top: 76px;
+    }
+
+    .pbr-premium-toolbar-status {
+        justify-content: flex-end;
+    }
+
+    .pbr-premium-tool-page .pbr-os-hero,
+    .pbr-premium-capital-tool-page .pbr-tool-page-head,
+    .pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-tool-page .pbr-os-business-context,
+    .pbr-premium-capital-tool-page .pbr-tool-context-box,
+    .pbr-premium-capital-tool-page .pbr-capital-business-card {
+        min-height: 0;
+        max-width: none;
+    }
+
+    .pbr-premium-tool-page .pbr-os-layout {
+        grid-template-columns: 220px minmax(0, 1fr);
+    }
+
+    .pbr-premium-capital-tool-page .pbr-calculator-layout,
+    .pbr-premium-capital-tool-page .pbr-capital-workspace-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-calculator-results,
+    .pbr-premium-capital-tool-page .pbr-capital-summary-column {
+        position: static;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-capital-summary-column {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-premium-capital-tool-page .pbr-capital-summary-card {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 820px) {
+    body.pbr-tool-route .portal-wrap {
+        width: min(100% - 28px, 1480px);
+    }
+
+    .pbr-premium-toolbar {
+        position: relative;
+        top: auto;
+        grid-template-columns: 1fr;
+        gap: 8px;
+        padding: 10px;
+    }
+
+    .pbr-premium-toolbar-status {
+        justify-content: flex-start;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+
+    .pbr-premium-toolbar-nav {
+        grid-column: auto;
+        justify-self: stretch;
+        overflow-x: auto;
+    }
+
+    .pbr-premium-toolbar-nav a {
+        flex: 1 0 auto;
+        text-align: center;
+    }
+
+    .pbr-premium-tool-page .pbr-os-sidebar,
+    .pbr-premium-capital-tool-page .pbr-calculator-results,
+    .pbr-premium-capital-tool-page .pbr-capital-summary-column {
+        top: auto;
+    }
+
+    .pbr-premium-tool-page .pbr-os-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-tool-page .pbr-os-sidebar {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-premium-tool-page .pbr-os-sidebar .pbr-os-side-card:first-child {
+        grid-column: 1 / -1;
+    }
+
+    .pbr-premium-tool-page .pbr-os-steps {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .pbr-premium-tool-page .pbr-os-steps li {
+        display: grid;
+        align-content: start;
+    }
+
+    .pbr-premium-tool-page .pbr-os-form-actions,
+    .pbr-premium-capital-tool-page .pbr-calculator-actions {
+        position: static;
+        margin: 16px 0 0;
+        box-shadow: none;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-scenario-box {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 620px) {
+    .pbr-premium-tool-page.pbr-os-page,
+    .pbr-premium-capital-tool-page.pbr-tools-section {
+        padding-top: 12px;
+    }
+
+    .pbr-premium-toolbar-location span {
+        max-width: 250px;
+    }
+
+    .pbr-premium-toolbar-status {
+        scrollbar-width: none;
+    }
+
+    .pbr-premium-toolbar-status::-webkit-scrollbar,
+    .pbr-premium-toolbar-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    .pbr-premium-tool-page .pbr-os-hero,
+    .pbr-premium-capital-tool-page .pbr-tool-page-head,
+    .pbr-premium-capital-tool-page .pbr-capital-plan-hero {
+        padding: 17px !important;
+        border-radius: 15px !important;
+    }
+
+    .pbr-premium-tool-page .pbr-os-hero h1,
+    .pbr-premium-capital-tool-page .pbr-tool-page-head h1,
+    .pbr-premium-capital-tool-page .pbr-capital-plan-hero h1 {
+        font-size: 23px !important;
+    }
+
+    .pbr-premium-tool-page .pbr-os-sidebar {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-tool-page .pbr-os-steps {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-premium-tool-page .pbr-os-panel,
+    .pbr-premium-capital-tool-page .pbr-calculator-panel,
+    .pbr-premium-capital-tool-page .pbr-calculator-results {
+        padding: 16px;
+        border-radius: 14px;
+    }
+
+    .pbr-premium-tool-page .pbr-os-fields,
+    .pbr-premium-tool-page .pbr-os-checklist,
+    .pbr-premium-capital-tool-page .pbr-capital-form-guide,
+    .pbr-premium-capital-tool-page .pbr-simple-grid,
+    .pbr-premium-capital-tool-page .pbr-builder-live-summary,
+    .pbr-premium-capital-tool-page .pbr-capital-summary-column {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-capital-tool-step-track {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .pbr-premium-capital-tool-page .pbr-dynamic-item,
+    .pbr-premium-capital-tool-page .pbr-capital-item-main {
+        grid-template-columns: 1fr;
+    }
+
+    .pbr-premium-capital-tool-page .pbr-remove-item,
+    .pbr-premium-capital-tool-page .pbr-capital-remove-item {
+        width: 100%;
+        height: 34px;
+    }
+
+    .pbr-premium-tool-page .pbr-os-form-actions,
+    .pbr-premium-tool-page .pbr-os-approval-zone,
+    .pbr-premium-tool-page .pbr-os-current-rule,
+    .pbr-premium-capital-tool-page .pbr-capital-plan-toolbar,
+    .pbr-premium-capital-tool-page .pbr-capital-toolbar-actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .pbr-premium-tool-page .pbr-os-save-cluster {
+        grid-template-columns: 1fr;
+        width: 100%;
+    }
+
+    .pbr-premium-tool-page .pbr-os-save-cluster label {
+        grid-column: auto;
+    }
+
+    .pbr-premium-tool-page .pbr-os-btn,
+    .pbr-premium-capital-tool-page .pbr-calculator-actions button,
+    .pbr-premium-capital-tool-page .pbr-capital-toolbar-actions button {
+        width: 100%;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pbr-premium-tool-page *,
+    .pbr-premium-tool-page *::before,
+    .pbr-premium-tool-page *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .001ms !important;
+        animation-duration: .001ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}

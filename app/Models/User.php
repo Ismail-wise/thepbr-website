@@ -80,35 +80,57 @@ class User extends Authenticatable implements FilamentUser
 
     public function isAdmin(): bool
     {
-        return (bool) $this->is_admin || $this->role === 'admin';
+        return $this->hasActiveAccount()
+            && ((bool) $this->is_admin || $this->role === 'admin');
+    }
+
+    public function hasActiveAccount(): bool
+    {
+        return $this->account_status === 'active';
     }
 
     public function isStudent(): bool
     {
-        if ($this->relationLoaded('studentEnrollments')) {
-            return $this->studentEnrollments->contains(
-                fn (StudentEnrollment $enrollment): bool => $enrollment->isActive(),
-            );
+        if (! $this->hasActiveAccount()) {
+            return false;
         }
 
-        if ($this->studentEnrollments()
-            ->where('status', 'active')
-            ->where(function ($query): void {
-                $query->whereNull('access_expires_at')
-                    ->orWhere('access_expires_at', '>', now());
-            })
-            ->exists()) {
+        if ($this->relationLoaded('studentEnrollments')) {
+            $hasActiveEnrollment = $this->studentEnrollments->contains(
+                fn (StudentEnrollment $enrollment): bool => $enrollment->isActive(),
+            );
+            $hasAnyEnrollment = $this->studentEnrollments->isNotEmpty();
+        } else {
+            $hasActiveEnrollment = $this->studentEnrollments()
+                ->where('status', 'active')
+                ->where(function ($query): void {
+                    $query->whereNull('access_expires_at')
+                        ->orWhere('access_expires_at', '>', now());
+                })
+                ->exists();
+            $hasAnyEnrollment = $hasActiveEnrollment
+                || $this->studentEnrollments()->exists();
+        }
+
+        if ($hasActiveEnrollment) {
             return true;
         }
 
+        if ($hasAnyEnrollment) {
+            return false;
+        }
+
+        // Temporary compatibility for pre-entitlement accounts only. Once a
+        // user has any enrollment record, that entitlement is authoritative.
         return $this->role === 'student'
-            && $this->account_status === 'active'
-            && ($this->portal_access_expires_at === null || $this->portal_access_expires_at->isFuture());
+            && ($this->portal_access_expires_at === null
+                || $this->portal_access_expires_at->isFuture());
     }
 
     public function isPartner(): bool
     {
-        return $this->hasAcceptedPartnerWorkspaceMembership();
+        return $this->hasActiveAccount()
+            && $this->hasAcceptedPartnerWorkspaceMembership();
     }
 
     public function hasActivePortalAccess(): bool
@@ -118,14 +140,16 @@ class User extends Authenticatable implements FilamentUser
 
     public function hasAcceptedWorkspaceMembership(): bool
     {
-        return $this->workspaceMemberships()
+        return $this->hasActiveAccount()
+            && $this->workspaceMemberships()
             ->where('invitation_status', 'accepted')
             ->exists();
     }
 
     public function hasAcceptedPartnerWorkspaceMembership(): bool
     {
-        return $this->workspaceMemberships()
+        return $this->hasActiveAccount()
+            && $this->workspaceMemberships()
             ->where('member_role', 'partner')
             ->where('invitation_status', 'accepted')
             ->exists();
@@ -140,11 +164,15 @@ class User extends Authenticatable implements FilamentUser
 
     public function canUsePbrAiAdvisor(): bool
     {
-        return $this->isAdmin() || $this->isStudent();
+        return $this->isStudent();
     }
 
     public function canAccessWorkspace(PartnershipWorkspace $workspace): bool
     {
+        if (! $this->hasActiveAccount()) {
+            return false;
+        }
+
         if ($this->isAdmin()) {
             return true;
         }

@@ -3,6 +3,27 @@
 @section('title', 'My Account')
 
 @section('content')
+@php
+    $acceptedPartnerAccess = $user->workspaceMemberships
+        ->where('member_role', 'partner')
+        ->where('invitation_status', 'accepted');
+    $hasAuthoritativeEnrollment = $user->studentEnrollments->isNotEmpty();
+    $isStudent = $user->isStudent();
+    $isAdmin = $user->isAdmin();
+    $isPartner = $acceptedPartnerAccess->isNotEmpty();
+    $accountType = match (true) {
+        $isAdmin && $isStudent => 'Administrator + Active Student',
+        $isAdmin => 'Administrator',
+        $isStudent => 'Active Student',
+        $isPartner => 'Public Account + Invited Partner',
+        default => 'Public Account',
+    };
+    $studentAccessSource = match (true) {
+        ! $isStudent => 'Not active',
+        $hasAuthoritativeEnrollment => 'Active · Authoritative entitlement',
+        default => 'Active · Legacy compatibility',
+    };
+@endphp
 <section class="auth-section">
     <div class="auth-shell compact">
         <div class="auth-copy">
@@ -16,14 +37,46 @@
                 <strong>Email:</strong> {{ $user->email }}
             </div>
 
-            @if($user->isAdmin())
+            <section class="account-access-summary" aria-labelledby="account-access-heading">
+                <div>
+                    <span class="portal-kicker">Access Summary</span>
+                    <h2 id="account-access-heading">Your Account Type & Access</h2>
+                </div>
+                <div class="account-access-grid">
+                    <article class="account-access-card">
+                        <span>Account Type</span>
+                        <strong>{{ $accountType }}</strong>
+                    </article>
+                    <article class="account-access-card">
+                        <span>Student Access</span>
+                        <strong>{{ $studentAccessSource }}</strong>
+                    </article>
+                    <article class="account-access-card">
+                        <span>PBR AI</span>
+                        <strong>{{ $isStudent ? 'Available' : 'Not available · Students only' }}</strong>
+                    </article>
+                    <article class="account-access-card">
+                        <span>Invited Partner Access</span>
+                        <strong>{{ $acceptedPartnerAccess->count() }} {{ \Illuminate\Support\Str::plural('workspace', $acceptedPartnerAccess->count()) }}</strong>
+                    </article>
+                    <article class="account-access-card">
+                        <span>Admin Access</span>
+                        <strong>{{ $isAdmin ? 'Enabled' : 'Not enabled' }}</strong>
+                    </article>
+                </div>
+                <p class="account-access-help">
+                    Partner invitation က Account Type ကို မပြောင်းပါ။ PBR AI နဲ့ 64 operating tools ကို Active Student account တွေသာ အသုံးပြုနိုင်ပါတယ်။
+                </p>
+            </section>
+
+            @if($isAdmin)
                 <div class="auth-note">
                     <strong>Administrator:</strong> Full system access is enabled.
                 </div>
                 <a class="portal-button" href="{{ url('/admin') }}">Open Admin Portal</a>
             @endif
 
-            @if($user->isStudent())
+            @if($isStudent)
                 <div class="auth-note">
                     <strong>Business OS Access:</strong> PBR private business workspace access is active.
                 </div>
@@ -37,7 +90,7 @@
                 <a class="portal-button" href="{{ route('workspaces.index') }}">Open My Businesses</a>
             @endif
 
-            @unless($user->isAdmin() || $user->isStudent())
+            @unless($isAdmin || $isStudent)
                 <div class="auth-note">
                     PBR Access Code ရှိရင် Account အသစ်မဖန်တီးဘဲ private Business OS access ကို activate လုပ်နိုင်ပါတယ်။
                 </div>

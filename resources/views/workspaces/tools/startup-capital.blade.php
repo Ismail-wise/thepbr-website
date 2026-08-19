@@ -15,8 +15,26 @@
     $fundedPercent = (float) ($result['funded_percentage'] ?? ($total > 0 ? min(100, ($funded / $total) * 100) : 0));
 @endphp
 
-<section class="pbr-tools-section pbr-capital-plan-page">
+<section
+    class="pbr-tools-section pbr-capital-plan-page pbr-premium-tool-page pbr-premium-capital-tool-page"
+    data-pbr-premium-tool
+    data-pbr-tool-chapter="1"
+>
     <div class="portal-wrap pbr-capital-plan-wrap">
+        @include(
+            'workspaces.tools.partials.premium-tool-command-bar',
+            [
+                'premiumToolTitleMm' => 'စတင်မတည်ငွေ အစီအစဉ်',
+                'premiumToolTitleEn' => 'Startup Capital Planner',
+                'premiumToolAreaMm' => 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
+                'premiumToolAreaEn' => 'Capital & Funding',
+                'premiumToolCanManage' => $canManage,
+                'premiumToolHasDraft' => (bool) $activeSession,
+                'premiumToolHasActiveRule' => (bool) $latestAgreedOutput,
+                'premiumToolWorkspaceTarget' => 'startup-capital-workspace',
+            ]
+        )
+
         <header class="pbr-capital-plan-hero">
             <div class="pbr-capital-plan-hero-copy">
                 <a href="{{ route('workspaces.tools.index', $workspace) }}" class="pbr-tools-back pbr-capital-back">
@@ -72,6 +90,11 @@
                 >
             @endif
 
+            @include(
+                'workspaces.tools.partials.operating-context',
+                ['input' => $input]
+            )
+
             @if(session('status'))
                 <div class="pbr-save-success">{{ session('status') }}</div>
             @endif
@@ -114,7 +137,7 @@
                 </div>
             </section>
 
-            <div class="pbr-capital-workspace-grid">
+            <div class="pbr-capital-workspace-grid" id="startup-capital-workspace">
                 <main class="pbr-capital-planner">
                     <section class="pbr-capital-quick-start">
                         <div>
@@ -333,7 +356,7 @@
                 </main>
 
                 <aside class="pbr-capital-summary-column">
-                    <section class="pbr-capital-summary-card">
+                    <section class="pbr-capital-summary-card" id="result">
                         <div class="pbr-capital-summary-head">
                             <div>
                                 <span class="portal-kicker">LIVE CAPITAL POSITION</span>
@@ -439,6 +462,8 @@
         <div id="saved-plans" class="pbr-capital-saved-plans">
             @include('workspaces.tools.partials.scenario-manager')
         </div>
+
+        @include('workspaces.tools.partials.operating-action-board')
     </div>
 </section>
 

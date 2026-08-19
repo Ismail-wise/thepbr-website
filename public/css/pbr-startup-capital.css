@@ -298,3 +298,53 @@
     .pbr-capital-template-chips{display:grid;grid-template-columns:1fr 1fr}.pbr-capital-template-chips button{width:100%}.pbr-capital-metric-grid{grid-template-columns:1fr}.pbr-capital-item-main{grid-template-columns:1fr}.pbr-capital-item-name,.pbr-capital-priority-field,.pbr-capital-remove-item{grid-column:1}.pbr-capital-remove-item{justify-self:end}.pbr-capital-toolbar-actions{grid-template-columns:1fr}.pbr-capital-total>strong{font-size:23px}
 }
 @media(prefers-reduced-motion:reduce){.pbr-capital-plan-page *{scroll-behavior:auto!important;transition:none!important;animation:none!important}}
+
+/* Chapter 1 readability pass: keep operational detail legible at normal zoom. */
+.pbr-capital-plan-page .pbr-capital-back{font-size:12px!important}
+.pbr-capital-plan-page .pbr-capital-plan-lead{font-size:14px;line-height:1.85}
+.pbr-capital-plan-page .pbr-capital-plan-chips span{font-size:11px}
+.pbr-capital-plan-page .pbr-capital-business-card small,
+.pbr-capital-plan-page .pbr-capital-business-card span,
+.pbr-capital-plan-page .pbr-capital-business-card b{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-business-card strong{font-size:15px}
+.pbr-capital-plan-page .pbr-capital-draft-name label{font-size:12px}
+.pbr-capital-plan-page .pbr-capital-draft-name small{font-size:10.5px}
+.pbr-capital-plan-page .pbr-capital-toolbar-actions button{font-size:11px!important}
+.pbr-capital-plan-page .pbr-capital-saved-state{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-quick-start p,
+.pbr-capital-plan-page .pbr-capital-section-heading p{font-size:11.5px}
+.pbr-capital-plan-page .pbr-capital-template-chips button{font-size:10.5px}
+.pbr-capital-plan-page .pbr-capital-add-category{font-size:10.5px}
+.pbr-capital-plan-page .pbr-capital-empty strong{font-size:12px}
+.pbr-capital-plan-page .pbr-capital-empty p{font-size:10.5px}
+.pbr-capital-plan-page .pbr-capital-category-name span{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-category-name input{font-size:13px!important}
+.pbr-capital-plan-page .pbr-capital-category-meta small{font-size:9px!important}
+.pbr-capital-plan-page .pbr-capital-category-meta strong{font-size:11px}
+.pbr-capital-plan-page .pbr-capital-field label{font-size:10.5px!important}
+.pbr-capital-plan-page .pbr-capital-field input,
+.pbr-capital-plan-page .pbr-capital-field select{font-size:12px!important}
+.pbr-capital-plan-page .pbr-capital-money-input span{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-item-live-line{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-item-details>summary{font-size:10.5px}
+.pbr-capital-plan-page .pbr-capital-category-footer button,
+.pbr-capital-plan-page .pbr-capital-category-footer span{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-draft-badge{font-size:9px}
+.pbr-capital-plan-page .pbr-capital-total>span{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-total>small{font-size:9.5px!important}
+.pbr-capital-plan-page .pbr-capital-metric-grid span{font-size:9.5px}
+.pbr-capital-plan-page .pbr-capital-metric-grid strong{font-size:12px}
+.pbr-capital-plan-page .pbr-capital-live-alert strong{font-size:11px}
+.pbr-capital-plan-page .pbr-capital-live-alert p{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-summary-actions button{font-size:10.5px!important}
+.pbr-capital-plan-page .pbr-capital-comparison-head>span{font-size:9px}
+.pbr-capital-plan-page .pbr-capital-comparison-list strong{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-comparison-list small{font-size:9px!important}
+.pbr-capital-plan-page .pbr-capital-comparison-list span{font-size:10px}
+.pbr-capital-plan-page .pbr-capital-comparison-list b{font-size:8.5px}
+.pbr-capital-plan-page .pbr-capital-help-card ol{font-size:10.5px}
+
+@media(max-width:680px){
+    .pbr-capital-plan-page .pbr-capital-plan-lead{font-size:13px}
+    .pbr-capital-plan-page .pbr-capital-template-chips{grid-template-columns:1fr 1fr}
+}

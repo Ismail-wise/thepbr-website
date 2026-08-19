@@ -28,9 +28,16 @@
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-shell.css') }}?v={{ filemtime(public_path('css/pbr-premium-shell.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-workspaces.css') }}?v={{ filemtime(public_path('css/pbr-premium-workspaces.css')) }}">
     <link rel="stylesheet" href="{{ asset('css/pbr-premium-business-overview.css') }}?v={{ filemtime(public_path('css/pbr-premium-business-overview.css')) }}">
+    @if(request()->routeIs('workspaces.tools.*'))
+        <link rel="stylesheet" href="{{ asset('css/pbr-premium-tools.css') }}?v={{ filemtime(public_path('css/pbr-premium-tools.css')) }}">
+    @endif
+    <link rel="stylesheet" href="{{ asset('css/pbr-client-ready-os.css') }}?v={{ filemtime(public_path('css/pbr-client-ready-os.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
+    @if(request()->routeIs('workspaces.tools.*'))
+        <script src="{{ asset('js/pbr-premium-tools.js') }}?v={{ filemtime(public_path('js/pbr-premium-tools.js')) }}" defer></script>
+    @endif
 </head>
-<body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }}">
+<body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }}">
     <header class="portal-header">
         <div class="portal-wrap portal-bar">
             <a href="{{ auth()->check() && auth()->user()->isStudent() ? route('student.dashboard') : route('home') }}" class="portal-brand">

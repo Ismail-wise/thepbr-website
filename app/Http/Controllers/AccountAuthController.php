@@ -35,8 +35,19 @@ class AccountAuthController extends Controller
         }
 
         $request->session()->regenerate();
+        $user = $request->user();
 
-        return redirect()->intended($this->destinationFor($request->user()));
+        if (! $user || ! $user->hasActiveAccount()) {
+            Auth::logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            throw ValidationException::withMessages([
+                'email' => 'This account is inactive. Please contact the PBR team.',
+            ]);
+        }
+
+        return redirect()->intended($this->destinationFor($user));
     }
 
     public function showRegister(): View

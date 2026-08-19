@@ -198,19 +198,15 @@ class PbrAiContextBuilder
                 'completed_at' => $actorAssessment->completed_at?->toIso8601String(),
                 'scope_note' => 'This is the signed-in actor own latest completed Partner Dynamics profile only.',
             ] : null,
-            'feasibility' => $latestFeasibility ? [
+            'feasibility' => $canManage && $latestFeasibility ? [
                 'project_name' => $latestFeasibility->project_name,
                 'result' => $this->limitValue($latestFeasibility->result, 9000),
-                'inputs' => $canManage
-                    ? $this->limitValue($latestFeasibility->inputs, 9000)
-                    : null,
+                'inputs' => $this->limitValue($latestFeasibility->inputs, 9000),
                 'calculated_at' => $latestFeasibility->created_at?->toIso8601String(),
             ] : null,
-            'valuation' => $latestValuation ? [
+            'valuation' => $canManage && $latestValuation ? [
                 'result' => $this->limitValue($latestValuation->result, 10000),
-                'inputs' => $canManage
-                    ? $this->limitValue($latestValuation->inputs, 10000)
-                    : null,
+                'inputs' => $this->limitValue($latestValuation->inputs, 10000),
                 'calculated_at' => $latestValuation->created_at?->toIso8601String(),
             ] : null,
             'operating_system' => $this->limitValue($operatingSystem, 26000),

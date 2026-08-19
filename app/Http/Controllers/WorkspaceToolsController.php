@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartnershipWorkspace;
+use App\Models\WorkspaceToolAction;
 use App\Services\PbrTools\CapitalWorkflowService;
 use App\Services\PbrTools\PbrBusinessDashboardService;
 use App\Services\PbrTools\PbrBusinessOperatingService;
@@ -52,6 +53,44 @@ class WorkspaceToolsController extends Controller
             $workspace
         );
 
+        $operatingActionSummary = [
+            'active' => 0,
+            'blocked' => 0,
+            'overdue' => 0,
+        ];
+
+        if ($canManageContext) {
+            $actionQuery = WorkspaceToolAction::query()
+                ->where('workspace_id', $workspace->id)
+                ->where('status', '!=', 'superseded');
+
+            $operatingActionSummary = [
+                'active' => (clone $actionQuery)
+                    ->whereIn('status', [
+                        'open',
+                        'in_progress',
+                        'blocked',
+                    ])
+                    ->count(),
+                'blocked' => (clone $actionQuery)
+                    ->where('status', 'blocked')
+                    ->count(),
+                'overdue' => (clone $actionQuery)
+                    ->whereIn('status', [
+                        'open',
+                        'in_progress',
+                        'blocked',
+                    ])
+                    ->whereNotNull('due_date')
+                    ->whereDate(
+                        'due_date',
+                        '<',
+                        now()->toDateString()
+                    )
+                    ->count(),
+            ];
+        }
+
         $businessStages = PartnershipWorkspace::BUSINESS_STAGES;
         $currencies = PartnershipWorkspace::CURRENCIES;
         $canUsePbrAiAdvisor =
@@ -65,7 +104,8 @@ class WorkspaceToolsController extends Controller
             'businessState',
             'dashboard',
             'capitalWorkflow',
-            'canUsePbrAiAdvisor'
+            'canUsePbrAiAdvisor',
+            'operatingActionSummary'
         ));
     }
 

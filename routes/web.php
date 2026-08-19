@@ -94,15 +94,13 @@ Route::middleware('auth')->group(function (): void {
         ->middleware('throttle:workspace-invitations')
         ->name('workspace-invitations.store');
 
-    Route::post('/workspaces/{workspace}/shareable-invitations', [WorkspaceInvitationController::class, 'storeShareable'])
-        ->middleware('throttle:workspace-invitations')
-        ->name('workspace-invitations.shareable.store');
-
     Route::post('/workspace-invitations/connect', [WorkspaceInvitationController::class, 'connect'])
         ->middleware('throttle:workspace-invitation-accept')
         ->name('workspace-invitations.connect');
     Route::delete('/workspaces/{workspace}/invitations/{invitation}', [WorkspaceInvitationController::class, 'revoke'])
         ->name('workspace-invitations.revoke');
+    Route::delete('/workspaces/{workspace}/members/{membership}', [WorkspaceInvitationController::class, 'remove'])
+        ->name('workspace-members.destroy');
 
     Route::get(
         '/workspaces/{workspace}/tools/startup-capital-planner',
@@ -161,6 +159,11 @@ Route::middleware('auth')->group(function (): void {
         '/workspaces/{workspace}/partner-dynamics',
         [\App\Http\Controllers\WorkspacePartnerDynamicsController::class, 'show']
     )->name('workspaces.partner-dynamics.show');
+
+    Route::post(
+        '/workspaces/{workspace}/partner-dynamics/report',
+        [\App\Http\Controllers\WorkspacePartnerDynamicsController::class, 'generate']
+    )->name('workspaces.partner-dynamics.report.generate');
 
     Route::get(
         '/workspaces/{workspace}/partner-dynamics/profile/{assessment}',
@@ -314,6 +317,16 @@ Route::middleware('auth')->group(function (): void {
         '/workspaces/{workspace}/tools/operating/{toolSlug}/save-draft',
         [\App\Http\Controllers\WorkspaceOperatingToolController::class, 'save']
     )->name('workspaces.tools.operating.save');
+
+    Route::get(
+        '/workspaces/{workspace}/operating-actions',
+        [\App\Http\Controllers\WorkspaceOperatingActionCenterController::class, 'index']
+    )->name('workspaces.tool-actions.index');
+
+    Route::patch(
+        '/workspaces/{workspace}/operating-actions/{action}',
+        [\App\Http\Controllers\WorkspaceToolActionController::class, 'update']
+    )->name('workspaces.tool-actions.update');
 });
 
 require __DIR__.'/ai.php';

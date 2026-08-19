@@ -5,9 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
+use App\Models\WorkspaceToolAction;
 use App\Services\PbrTools\CapitalWorkflowService;
 use App\Services\PbrTools\ChapterOneCapitalService;
 use App\Services\PbrTools\ChapterOneIntegrationService;
+use App\Services\PbrTools\PbrToolOperatingContextService;
 use App\Services\PbrTools\ToolScenarioService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -16,7 +18,8 @@ use Illuminate\View\View;
 class WorkspaceChapterOneToolController extends Controller
 {
     public function __construct(
-        private readonly CapitalWorkflowService $capitalWorkflow
+        private readonly CapitalWorkflowService $capitalWorkflow,
+        private readonly PbrToolOperatingContextService $operatingContext
     ) {
     }
 
@@ -62,7 +65,9 @@ class WorkspaceChapterOneToolController extends Controller
 
         if ($request->query('session') === null) {
             $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
+
             if (! empty($approvedInput)) {
+                unset($approvedInput['operating_actions']);
                 $input = array_replace_recursive($input, $approvedInput);
             }
 
@@ -90,6 +95,11 @@ class WorkspaceChapterOneToolController extends Controller
                 : null;
         }
 
+        $input = $this->operatingContext->withDefaults(
+            $input,
+            $request->user()->name
+        );
+
         return $this->render(
             $request,
             $workspace,
@@ -112,9 +122,21 @@ class WorkspaceChapterOneToolController extends Controller
         $tool = $this->resolveTool($request, $workspace, $toolSlug);
         $this->authorizeManagement($request, $workspace, $scenarios);
 
-        $validated = $request->validate($this->rules($tool->tool_key));
-        $input = $this->toolInput($validated);
-        $result = $this->calculateTool($tool->tool_key, $input, $capital);
+        $validated = $request->validate(array_merge(
+            $this->operatingContext->rules(),
+            $this->rules($tool->tool_key)
+        ));
+
+        $input = $this->operatingContext->normalize(
+            $this->toolInput($validated),
+            $request->user()->name
+        );
+
+        $result = $this->calculateTool(
+            $tool->tool_key,
+            $this->operatingContext->toolInput($input),
+            $capital
+        );
         $activeSession = null;
 
         if (! empty($validated['tool_session_id'])) {
@@ -151,11 +173,23 @@ class WorkspaceChapterOneToolController extends Controller
         $rules = array_merge([
             'scenario_name' => ['required', 'string', 'max:120'],
             'tool_session_id' => ['nullable', 'integer'],
-        ], $this->rules($tool->tool_key, false));
+        ], $this->operatingContext->rules(), $this->rules(
+            $tool->tool_key,
+            false
+        ));
 
         $validated = $request->validate($rules);
-        $input = $this->toolInput($validated);
-        $result = $this->calculateTool($tool->tool_key, $input, $capital);
+
+        $input = $this->operatingContext->normalize(
+            $this->toolInput($validated),
+            $request->user()->name
+        );
+
+        $result = $this->calculateTool(
+            $tool->tool_key,
+            $this->operatingContext->toolInput($input),
+            $capital
+        );
 
         $session = $scenarios->saveDraft(
             $request->user(),
@@ -186,6 +220,7 @@ class WorkspaceChapterOneToolController extends Controller
         );
 
         $tool = ChapterTool::query()
+            ->published()
             ->where('slug', $toolSlug)
             ->whereIn('tool_key', self::SUPPORTED_TOOLS)
             ->whereHas(
@@ -243,6 +278,26 @@ class WorkspaceChapterOneToolController extends Controller
             $workspace
         );
 
+        $operatingActions = $canManage
+            ? WorkspaceToolAction::query()
+                ->where('workspace_id', $workspace->id)
+                ->where('chapter_tool_id', $tool->id)
+                ->where('status', '!=', 'superseded')
+                ->with('workspaceOutput:id,revision')
+                ->orderByRaw(
+                    "CASE
+                        WHEN status = 'blocked' THEN 0
+                        WHEN status = 'in_progress' THEN 1
+                        WHEN status = 'open' THEN 2
+                        ELSE 3
+                    END"
+                )
+                ->orderByRaw('due_date IS NULL')
+                ->orderBy('due_date')
+                ->orderByDesc('id')
+                ->get()
+            : collect();
+
         return view('workspaces.tools.chapter-one', compact(
             'workspace',
             'tool',
@@ -253,7 +308,8 @@ class WorkspaceChapterOneToolController extends Controller
             'canManage',
             'latestAgreedOutput',
             'outputHistory',
-            'capitalWorkflow'
+            'capitalWorkflow',
+            'operatingActions'
         ));
     }
 

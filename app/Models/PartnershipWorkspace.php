@@ -73,6 +73,11 @@ class PartnershipWorkspace extends Model
         return $this->hasMany(WorkspaceOperatingRecord::class, 'workspace_id');
     }
 
+    public function toolActions(): HasMany
+    {
+        return $this->hasMany(WorkspaceToolAction::class, 'workspace_id');
+    }
+
     public function isNewPartnership(): bool
     {
         return $this->business_stage === 'new';

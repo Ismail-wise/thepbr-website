@@ -21,23 +21,66 @@
     $currency = $workspace->currency_code ?? 'THB';
 @endphp
 
-<div class="pbr-calculator-panel-head">
-    <span class="portal-kicker">
-        Partner Capital
-    </span>
-
-    <p>
-        Partner တစ်ယောက်ချင်းစီက ထည့်ဝင်မယ့်
-        Cash, Equipment, Inventory သို့မဟုတ်
-        အခြား contribution တွေကို ကိုယ်တိုင်ထည့်နိုင်ပါတယ်။
-    </p>
-</div>
-
 <div
+    class="pbr-capital-form-experience"
+    data-capital-form="partner-contributions"
     data-partner-builder
     data-currency="{{ $currency }}"
     data-next-partner="{{ count($partners) + 100 }}"
 >
+    <div class="pbr-calculator-panel-head">
+        <span class="portal-kicker">PARTNER CAPITAL</span>
+
+        <h2>Partner တစ်ယောက်ချင်းစီရဲ့ Capital Contribution ကို စုစည်းပါ</h2>
+
+        <p>
+            Cash, equipment, inventory နဲ့ အခြား measurable contributions တွေကို
+            Partner အလိုက်ထည့်ပြီး total contribution နဲ့ relative share ကိုကြည့်နိုင်ပါတယ်။
+        </p>
+    </div>
+
+    <div class="pbr-capital-form-guide">
+        <article>
+            <span>01</span>
+            <div>
+                <strong>Partner ထည့်ပါ</strong>
+                <p>Business roster ထဲက တစ်ဦးချင်းနာမည်ကို အသုံးပြုပါ။</p>
+            </div>
+        </article>
+
+        <article>
+            <span>02</span>
+            <div>
+                <strong>Contribution ခွဲထည့်ပါ</strong>
+                <p>Cash, equipment နဲ့ inventory ကို သီးခြား rows အဖြစ်ထားပါ။</p>
+            </div>
+        </article>
+
+        <article>
+            <span>03</span>
+            <div>
+                <strong>Total ကို Review လုပ်ပါ</strong>
+                <p>Contribution share ကို ownership share နဲ့ မရောပါနဲ့။</p>
+            </div>
+        </article>
+    </div>
+
+    <div
+        class="pbr-builder-live-summary"
+        data-partner-builder-summary
+        role="status"
+        aria-live="polite"
+    >
+        <div>
+            <span>Partners</span>
+            <strong data-partner-count>{{ count($partners) }}</strong>
+        </div>
+        <div>
+            <span>Current Total</span>
+            <strong data-partner-grand-total>{{ $currency }} 0.00</strong>
+        </div>
+    </div>
+
     <div data-partners>
 
         @foreach($partners as $partnerIndex => $partner)
@@ -77,6 +120,7 @@
                             value="{{ $partner['name'] ?? '' }}"
                             placeholder="Partner name"
                             maxlength="120"
+                            aria-label="Partner {{ $partnerIndex + 1 }} name"
                         >
                     </div>
 
@@ -84,6 +128,7 @@
                         type="button"
                         class="pbr-remove-category"
                         data-remove-partner
+                        aria-label="Remove partner {{ $partnerIndex + 1 }}"
                     >
                         Remove Partner
                     </button>
@@ -107,6 +152,7 @@
                                 value="{{ $contribution['name'] ?? '' }}"
                                 placeholder="Contribution name"
                                 maxlength="150"
+                                aria-label="Contribution name for partner {{ $partnerIndex + 1 }}"
                             >
 
                             <div class="pbr-money-input">
@@ -121,6 +167,7 @@
                                     step="0.01"
                                     placeholder="0.00"
                                     data-contribution-amount
+                                    aria-label="Contribution amount for partner {{ $partnerIndex + 1 }}"
                                 >
                             </div>
 
@@ -128,6 +175,7 @@
                                 type="button"
                                 class="pbr-remove-item"
                                 data-remove-contribution
+                                aria-label="Remove contribution for partner {{ $partnerIndex + 1 }}"
                             >
                                 ×
                             </button>
@@ -171,17 +219,13 @@
     >
         + Add Partner
     </button>
-</div>
 
-<div class="pbr-tool-next-note">
-    <strong>
-        Contribution Share ≠ Ownership Share
-    </strong>
+    <div class="pbr-capital-definition-note">
+        <strong>Contribution Share ≠ Ownership Share</strong>
 
-    <p>
-        ဒီ tool က ဘယ် Partner က Capital ဘယ်လောက်
-        ထည့်ဝင်ထားလဲကိုပဲ ပြပါတယ်။
-        Ownership Percentage ကို Chapter 2 မှာ
-        သီးခြားဆုံးဖြတ်ပါမယ်။
-    </p>
+        <p>
+            ဒီ tool က Partner တစ်ဦးချင်းစီရဲ့ capital contribution ကိုပဲပြပါတယ်။
+            Ownership percentage နဲ့ voting rights ကို Chapter 2 မှာ သီးခြားဆုံးဖြတ်ရပါတယ်။
+        </p>
+    </div>
 </div>

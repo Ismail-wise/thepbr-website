@@ -20,6 +20,12 @@ class StudentAccessUpgradeService
                 ->lockForUpdate()
                 ->firstOrFail();
 
+            if (! $lockedUser->hasActiveAccount()) {
+                throw ValidationException::withMessages([
+                    'access_code' => 'This account is inactive. Please contact the PBR team.',
+                ]);
+            }
+
             if ($lockedUser->isStudent()) {
                 throw ValidationException::withMessages([
                     'access_code' => 'This account already has active Student Portal access.',
@@ -54,14 +60,18 @@ class StudentAccessUpgradeService
                 'portal_access_expires_at' => null,
             ]);
 
-            StudentEnrollment::query()->create([
-                'user_id' => $lockedUser->id,
-                'class_session_id' => $accessCode->class_session_id,
-                'student_access_code_id' => $accessCode->id,
-                'status' => 'active',
-                'started_at' => now(),
-                'access_expires_at' => null,
-            ]);
+            StudentEnrollment::query()->updateOrCreate(
+                [
+                    'user_id' => $lockedUser->id,
+                    'class_session_id' => $accessCode->class_session_id,
+                ],
+                [
+                    'student_access_code_id' => $accessCode->id,
+                    'status' => 'active',
+                    'started_at' => now(),
+                    'access_expires_at' => null,
+                ],
+            );
 
             $workspace = PartnershipWorkspace::query()->firstOrCreate(
                 ['owner_user_id' => $lockedUser->id],

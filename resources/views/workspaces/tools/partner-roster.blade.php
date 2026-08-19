@@ -25,13 +25,18 @@
                     Partner အမည်ကို Tool တစ်ခုချင်းစီမှာ ထပ်ခါထပ်ခါရိုက်စရာမလိုအောင် ဒီ Roster ကို source အဖြစ်သုံးပါတယ်။
                     PBR account နဲ့ connect လုပ်ထားတဲ့ Owner/Partner တွေကို automatically sync လုပ်ပြီး၊ မ invite ရသေးတဲ့ future partner ကို Planned Partner အဖြစ်ကြိုထည့်နိုင်ပါတယ်။
                 </p>
+                @if(auth()->user()->isAdmin() || (int) $workspace->owner_user_id === (int) auth()->id())
+                    <div class="pbr-os-hero-actions">
+                        <a class="pbr-os-btn secondary" href="{{ route('workspaces.show', $workspace) }}#partner-access">Manage Login Access & Invitations →</a>
+                    </div>
+                @endif
             </div>
             <aside class="pbr-os-business-context">
                 <span>Current Business</span>
                 <strong>{{ $workspace->business_name ?: $workspace->name }}</strong>
                 <div>
-                    <small>{{ $profiles->where('status', 'active')->count() }} Active</small>
-                    <small>{{ $profiles->where('status', 'planned')->count() }} Planned</small>
+                    <small>{{ $profiles->where('status', 'active')->count() }} Active Profiles</small>
+                    <small>{{ $profiles->where('status', 'planned')->count() }} Planned Profiles</small>
                 </div>
             </aside>
         </header>
@@ -54,22 +59,37 @@
                     <div class="pbr-os-panel-head">
                         <div>
                             <span class="portal-kicker">Current Roster</span>
-                            <h2>{{ $profiles->count() }} People / Planned Partners</h2>
-                            <p>Linked account ကိုဒီနေရာကနေဖျက်လို့မရပါ။ Membership changes ကို Business invitation/member flow ကနေ manage လုပ်ရပါမယ်။</p>
+                            <h2>{{ $profiles->count() }} Business Profiles</h2>
+                            <p>Business Profile status နဲ့ Login Access ကို သီးခြားပြထားပါတယ်။ Login Access ဖယ်ရှားထားလည်း approved business history အတွက် Profile ကို ဆက်ထိန်းထားနိုင်ပါတယ်။</p>
                         </div>
                     </div>
 
                     <div class="pbr-roster-grid">
                         @forelse($profiles as $profile)
-                            @php $profileData = $profile->profile_data ?? []; @endphp
+                            @php
+                                $profileData = $profile->profile_data ?? [];
+                                $isOwnerProfile = (int) $profile->user_id === (int) $workspace->owner_user_id;
+                                $hasLoginAccess = $profile->user_id !== null
+                                    && ($isOwnerProfile
+                                        ? $ownerHasLoginAccess
+                                        : $acceptedPartnerUserIds->contains((int) $profile->user_id));
+                                $loginAccessLabel = match (true) {
+                                    $isOwnerProfile && $hasLoginAccess => 'Owner Login Access',
+                                    $isOwnerProfile => 'Owner · No Login Access',
+                                    $hasLoginAccess => 'Partner Login Access',
+                                    $profile->user_id !== null => 'No Login Access',
+                                    default => 'Not Connected',
+                                };
+                            @endphp
                             <article class="pbr-roster-card {{ $profile->status }}">
                                 <div class="pbr-roster-card-head">
                                     <div class="pbr-roster-avatar">{{ mb_strtoupper(mb_substr($profile->display_name, 0, 1)) }}</div>
                                     <div>
                                         <strong>{{ $profile->display_name }}</strong>
                                         <span>{{ $profile->user_id ? 'Connected PBR Account' : 'Planned Partner' }}</span>
+                                        <span class="pbr-roster-access-state {{ $hasLoginAccess ? 'active' : 'none' }}">{{ $loginAccessLabel }}</span>
                                     </div>
-                                    <span class="pbr-roster-status">{{ ucfirst($profile->status) }}</span>
+                                    <span class="pbr-roster-status">{{ $profile->status === 'active' ? 'Active Business Profile' : 'Planned Business Profile' }}</span>
                                 </div>
 
                                 <form method="POST" action="{{ route('workspaces.partner-roster.update', [$workspace, $profile]) }}" class="pbr-roster-form">

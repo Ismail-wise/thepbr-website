@@ -17,7 +17,8 @@ class ToolScenarioService
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
         private readonly PbrChapterStateService $chapterState,
-        private readonly PbrToolApprovalReadinessService $approvalReadiness
+        private readonly PbrToolApprovalReadinessService $approvalReadiness,
+        private readonly PbrToolActionService $toolActions
     ) {
     }
 
@@ -268,6 +269,14 @@ class ToolScenarioService
                 $tool,
                 $session,
                 'agreed'
+            );
+
+            $this->toolActions->activateFromApprovedSession(
+                $user,
+                $workspace,
+                $tool,
+                $session,
+                $output
             );
 
             $definition = config(

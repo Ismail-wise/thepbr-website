@@ -6,7 +6,9 @@ use App\Models\PartnerDynamicsAssessment;
 use App\Models\PartnerDynamicsReport;
 use App\Models\PartnershipWorkspace;
 use App\Services\PartnerDynamics\PartnerDynamicsAlignmentService;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class WorkspacePartnerDynamicsController extends Controller
@@ -16,107 +18,37 @@ class WorkspacePartnerDynamicsController extends Controller
         PartnershipWorkspace $workspace,
         PartnerDynamicsAlignmentService $alignmentService
     ): View {
-        abort_unless(
-            $request->user()->canAccessWorkspace($workspace),
-            403
-        );
+        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
 
-        $workspace->load([
-            'owner',
-            'acceptedMemberships.user',
-        ]);
+        $workspace->load(['owner', 'acceptedMemberships.user']);
+        [$participantRows, $participants] = $this->participantData($workspace);
 
-        $userIds = collect([$workspace->owner_user_id])
-            ->merge(
-                $workspace->acceptedMemberships
-                    ->pluck('user_id')
-                    ->filter()
-            )
-            ->unique()
-            ->values();
+        $storedReport = PartnerDynamicsReport::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('report_version', 'v1')
+            ->where('status', 'ready')
+            ->latest('id')
+            ->first();
 
-        $participants = [];
-        $participantRows = [];
+        $canManageReport = $this->canManage($request, $workspace);
+        $reportNeedsRefresh = $canManageReport
+            && count($participants) >= 2
+            && ! $this->reportMatchesParticipants($storedReport, $participants);
+        $reportIsPreview = false;
+        $report = $storedReport;
 
-        foreach ($userIds as $userId) {
-            $user = $workspace->owner_user_id === $userId
-                ? $workspace->owner
-                : $workspace->acceptedMemberships
-                    ->firstWhere('user_id', $userId)
-                    ?->user;
-
-            if (! $user) {
-                continue;
-            }
-
-            $assessment = PartnerDynamicsAssessment::query()
-                ->where('user_id', $userId)
-                ->where('status', 'completed')
-                ->latest('completed_at')
-                ->latest('id')
-                ->first();
-
-            $participantRows[] = [
-                'user' => $user,
-                'assessment' => $assessment,
-                'is_owner' => $workspace->owner_user_id === $userId,
-            ];
-
-            if (! $assessment) {
-                continue;
-            }
-
-            $participants[] = [
-                'user_id' => $user->id,
-                'name' => $user->name,
-                'assessment_id' => $assessment->id,
-                'primary_profile' => $assessment->primary_profile,
-                'secondary_profile' => $assessment->secondary_profile,
-                'dimension_scores' => $assessment->dimension_scores,
-            ];
-        }
-
-        $report = null;
-
-        if (count($participants) >= 2) {
-            $analysis = $alignmentService->analyze($participants);
-
-            $report = PartnerDynamicsReport::query()
-                ->where('workspace_id', $workspace->id)
-                ->where('report_version', 'v1')
-                ->latest('id')
-                ->first();
-
-            if (! $report) {
-                $report = new PartnerDynamicsReport();
-                $report->workspace_id = $workspace->id;
-                $report->report_version = 'v1';
-            }
-
-            $report->fill([
-                'status' => 'ready',
-                'participants' => array_map(
-                    fn (array $participant): array => [
-                        'user_id' => $participant['user_id'],
-                        'name' => $participant['name'],
-                        'assessment_id' => $participant['assessment_id'],
-                        'primary_profile' => $participant['primary_profile'],
-                        'secondary_profile' => $participant['secondary_profile'],
-                    ],
-                    $participants
-                ),
-                'alignment_summary' => $analysis['alignment_summary'],
-                'shared_strengths' => $analysis['shared_strengths'],
-                'complementary_areas' => $analysis['complementary_areas'],
-                'important_differences' => $analysis['important_differences'],
-                'shared_blind_spots' => $analysis['shared_blind_spots'],
-                'role_suggestions' => $analysis['role_suggestions'],
-                'decision_recommendations' => $analysis['decision_recommendations'],
-                'discussion_priorities' => $analysis['discussion_priorities'],
-                'generated_at' => now(),
-            ]);
-
-            $report->save();
+        // GET remains read-only. Managers can preview fresh calculations, then
+        // explicitly save them with the POST action below.
+        if ($reportNeedsRefresh) {
+            $report = new PartnerDynamicsReport(
+                $this->reportAttributes(
+                    $participants,
+                    $alignmentService->analyze($participants)
+                )
+            );
+            $report->workspace_id = $workspace->id;
+            $report->report_version = 'v1';
+            $reportIsPreview = true;
         }
 
         return view('workspaces.partner-dynamics', [
@@ -124,7 +56,52 @@ class WorkspacePartnerDynamicsController extends Controller
             'participantRows' => $participantRows,
             'completedParticipantCount' => count($participants),
             'report' => $report,
+            'canManageReport' => $canManageReport,
+            'reportNeedsRefresh' => $reportNeedsRefresh,
+            'reportIsPreview' => $reportIsPreview,
         ]);
+    }
+
+    public function generate(
+        Request $request,
+        PartnershipWorkspace $workspace,
+        PartnerDynamicsAlignmentService $alignmentService
+    ): RedirectResponse {
+        abort_unless($request->user()->canAccessWorkspace($workspace), 403);
+        abort_unless($this->canManage($request, $workspace), 403);
+
+        $workspace->load(['owner', 'acceptedMemberships.user']);
+        [, $participants] = $this->participantData($workspace);
+
+        if (count($participants) < 2) {
+            throw ValidationException::withMessages([
+                'partner_dynamics' => 'At least two completed Partner Dynamics profiles are required.',
+            ]);
+        }
+
+        $report = PartnerDynamicsReport::query()
+            ->where('workspace_id', $workspace->id)
+            ->where('report_version', 'v1')
+            ->latest('id')
+            ->first()
+            ?? new PartnerDynamicsReport([
+                'workspace_id' => $workspace->id,
+                'report_version' => 'v1',
+            ]);
+
+        $report->fill(
+            $this->reportAttributes(
+                $participants,
+                $alignmentService->analyze($participants)
+            )
+        );
+        $report->workspace_id = $workspace->id;
+        $report->report_version = 'v1';
+        $report->save();
+
+        return redirect()
+            ->route('workspaces.partner-dynamics.show', $workspace)
+            ->with('success', 'Partner Dynamics report generated and saved.');
     }
 
     public function profile(
@@ -132,24 +109,12 @@ class WorkspacePartnerDynamicsController extends Controller
         PartnershipWorkspace $workspace,
         PartnerDynamicsAssessment $assessment
     ): View {
-        /*
-         * Security layer 1:
-         * The signed-in user must already have access to this workspace.
-         */
         abort_unless(
             $request->user()
                 && $request->user()->canAccessWorkspace($workspace),
             403
         );
 
-        /*
-         * Security layer 2:
-         * The requested assessment owner must actually belong
-         * to this workspace as either:
-         *
-         * - workspace owner
-         * - accepted workspace member
-         */
         $participantUserIds = collect([$workspace->owner_user_id])
             ->merge(
                 $workspace->acceptedMemberships()
@@ -165,23 +130,8 @@ class WorkspacePartnerDynamicsController extends Controller
             403
         );
 
-        /*
-         * Security layer 3:
-         * Workspace profiles expose completed results only.
-         */
-        abort_unless(
-            $assessment->isCompleted(),
-            404
-        );
+        abort_unless($assessment->isCompleted(), 404);
 
-        /*
-         * Security layer 4:
-         * Only the participant's latest completed assessment
-         * can be viewed inside the workspace.
-         *
-         * This prevents old assessment IDs being guessed
-         * and opened after a retake.
-         */
         $latestAssessment = PartnerDynamicsAssessment::query()
             ->where('user_id', $assessment->user_id)
             ->where('status', 'completed')
@@ -204,12 +154,118 @@ class WorkspacePartnerDynamicsController extends Controller
 
         return view(
             'workspaces.partner-dynamics-profile',
-            compact(
-                'workspace',
-                'assessment',
-                'participantRole'
-            )
+            compact('workspace', 'assessment', 'participantRole')
         );
     }
 
+    private function participantData(PartnershipWorkspace $workspace): array
+    {
+        $userIds = collect([$workspace->owner_user_id])
+            ->merge(
+                $workspace->acceptedMemberships
+                    ->pluck('user_id')
+                    ->filter()
+            )
+            ->unique()
+            ->values();
+
+        $participants = [];
+        $participantRows = [];
+
+        foreach ($userIds as $userId) {
+            $user = (int) $workspace->owner_user_id === (int) $userId
+                ? $workspace->owner
+                : $workspace->acceptedMemberships
+                    ->firstWhere('user_id', $userId)
+                    ?->user;
+
+            if (! $user) {
+                continue;
+            }
+
+            $assessment = PartnerDynamicsAssessment::query()
+                ->where('user_id', $userId)
+                ->where('status', 'completed')
+                ->latest('completed_at')
+                ->latest('id')
+                ->first();
+
+            $participantRows[] = [
+                'user' => $user,
+                'assessment' => $assessment,
+                'is_owner' => (int) $workspace->owner_user_id === (int) $userId,
+            ];
+
+            if (! $assessment) {
+                continue;
+            }
+
+            $participants[] = [
+                'user_id' => $user->id,
+                'name' => $user->name,
+                'assessment_id' => $assessment->id,
+                'primary_profile' => $assessment->primary_profile,
+                'secondary_profile' => $assessment->secondary_profile,
+                'dimension_scores' => $assessment->dimension_scores,
+            ];
+        }
+
+        return [$participantRows, $participants];
+    }
+
+    private function reportAttributes(array $participants, array $analysis): array
+    {
+        return [
+            'status' => 'ready',
+            'participants' => array_map(
+                fn (array $participant): array => [
+                    'user_id' => $participant['user_id'],
+                    'name' => $participant['name'],
+                    'assessment_id' => $participant['assessment_id'],
+                    'primary_profile' => $participant['primary_profile'],
+                    'secondary_profile' => $participant['secondary_profile'],
+                ],
+                $participants
+            ),
+            'alignment_summary' => $analysis['alignment_summary'],
+            'shared_strengths' => $analysis['shared_strengths'],
+            'complementary_areas' => $analysis['complementary_areas'],
+            'important_differences' => $analysis['important_differences'],
+            'shared_blind_spots' => $analysis['shared_blind_spots'],
+            'role_suggestions' => $analysis['role_suggestions'],
+            'decision_recommendations' => $analysis['decision_recommendations'],
+            'discussion_priorities' => $analysis['discussion_priorities'],
+            'generated_at' => now(),
+        ];
+    }
+
+    private function reportMatchesParticipants(
+        ?PartnerDynamicsReport $report,
+        array $participants
+    ): bool {
+        if (! $report) {
+            return false;
+        }
+
+        $signature = static fn (array $items): array => collect($items)
+            ->mapWithKeys(fn (array $item): array => [
+                (string) $item['user_id'] => (int) $item['assessment_id'],
+            ])
+            ->sortKeys()
+            ->all();
+
+        return $signature($report->participants ?? [])
+            === $signature($participants);
+    }
+
+    private function canManage(
+        Request $request,
+        PartnershipWorkspace $workspace
+    ): bool {
+        return $request->user()->isAdmin()
+            || (
+                $request->user()->isStudent()
+                && (int) $workspace->owner_user_id === (int) $request->user()->id
+            );
+    }
 }

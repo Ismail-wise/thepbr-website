@@ -6,8 +6,10 @@ use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\ToolSession;
 use App\Models\WorkspaceOperatingRecord;
+use App\Models\WorkspaceToolAction;
 use App\Services\PbrTools\PbrToolApprovalReadinessService;
 use App\Services\PbrTools\PbrToolBusinessGuidanceService;
+use App\Services\PbrTools\PbrToolOperatingContextService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\PbrToolPrefillService;
@@ -22,7 +24,8 @@ class WorkspaceOperatingToolController extends Controller
     public function __construct(
         private readonly PbrToolRuntimeContractService $runtimeContracts,
         private readonly PbrToolApprovalReadinessService $approvalReadiness,
-        private readonly PbrToolBusinessGuidanceService $businessGuidance
+        private readonly PbrToolBusinessGuidanceService $businessGuidance,
+        private readonly PbrToolOperatingContextService $operatingContext
     ) {
     }
 
@@ -71,6 +74,10 @@ class WorkspaceOperatingToolController extends Controller
             // working version; it never edits the active rule in place.
             $approvedInput = $scenarios->latestAgreedInput($workspace, $tool);
             if (! empty($approvedInput)) {
+                // Keep the approved business inputs and decision context,
+                // but do not recreate actions from the previous revision.
+                unset($approvedInput['operating_actions']);
+
                 $input = array_replace_recursive($input, $approvedInput);
             }
 
@@ -84,6 +91,13 @@ class WorkspaceOperatingToolController extends Controller
             $result = is_array($agreed?->output_data)
                 ? $agreed->output_data
                 : null;
+        }
+
+        if ($canManage) {
+            $input = $this->operatingContext->withDefaults(
+                $input,
+                $request->user()->name
+            );
         }
 
         return $this->render(
@@ -112,6 +126,7 @@ class WorkspaceOperatingToolController extends Controller
 
         $rules = array_merge(
             ['tool_session_id' => ['nullable', 'integer']],
+            $this->operatingContext->rules(),
             $engine->rules($tool->tool_key)
         );
         $validated = $request->validate($rules);
@@ -127,8 +142,17 @@ class WorkspaceOperatingToolController extends Controller
         }
 
         unset($validated['tool_session_id']);
-        $input = $validated;
-        $result = $engine->calculate($tool->tool_key, $input, $workspace);
+
+        $input = $this->operatingContext->normalize(
+            $validated,
+            $request->user()->name
+        );
+
+        $result = $engine->calculate(
+            $tool->tool_key,
+            $this->operatingContext->toolInput($input),
+            $workspace
+        );
 
         return $this->render(
             $request,
@@ -156,7 +180,7 @@ class WorkspaceOperatingToolController extends Controller
         $rules = array_merge([
             'scenario_name' => ['required', 'string', 'max:120'],
             'tool_session_id' => ['nullable', 'integer'],
-        ], $engine->rules($tool->tool_key));
+        ], $this->operatingContext->rules(), $engine->rules($tool->tool_key));
 
         $validated = $request->validate($rules);
         $scenarioName = (string) $validated['scenario_name'];
@@ -169,8 +193,16 @@ class WorkspaceOperatingToolController extends Controller
             $validated['tool_session_id']
         );
 
-        $input = $validated;
-        $result = $engine->calculate($tool->tool_key, $input, $workspace);
+        $input = $this->operatingContext->normalize(
+            $validated,
+            $request->user()->name
+        );
+
+        $result = $engine->calculate(
+            $tool->tool_key,
+            $this->operatingContext->toolInput($input),
+            $workspace
+        );
 
         $session = $scenarios->saveDraft(
             $request->user(),
@@ -210,6 +242,7 @@ class WorkspaceOperatingToolController extends Controller
         );
 
         $tool = ChapterTool::query()
+            ->published()
             ->where('slug', $toolSlug)
             ->whereHas('chapter', fn ($query) => $query
                 ->whereBetween('chapter_number', [2, 10]))
@@ -276,6 +309,29 @@ class WorkspaceOperatingToolController extends Controller
                     ->get()
                 : collect();
 
+        $operatingActions = $canManage
+            ? WorkspaceToolAction::query()
+                ->where('workspace_id', $workspace->id)
+                ->where('chapter_tool_id', $tool->id)
+                ->where('status', '!=', 'superseded')
+                ->with('workspaceOutput:id,revision')
+                ->orderByRaw(
+                    "CASE
+                        WHEN status = 'blocked' THEN 0
+                        WHEN status = 'in_progress' THEN 1
+                        WHEN status = 'open' THEN 2
+                        ELSE 3
+                    END"
+                )
+                ->orderByRaw(
+                    'CASE WHEN due_date IS NULL THEN 1 ELSE 0 END'
+                )
+                ->orderBy('due_date')
+                ->orderByDesc('id')
+                ->limit(25)
+                ->get()
+            : collect();
+
         $approvalState =
             $canManage && $activeSession
                 ? $this->approvalReadiness->assess(
@@ -309,6 +365,7 @@ class WorkspaceOperatingToolController extends Controller
             'outputHistory',
             'toolContract',
             'operatingRecords',
+            'operatingActions',
             'approvalState',
             'businessGuidance'
         ));

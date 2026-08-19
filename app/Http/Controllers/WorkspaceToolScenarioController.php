@@ -154,6 +154,7 @@ class WorkspaceToolScenarioController extends Controller
         );
 
         $tool = ChapterTool::query()
+            ->published()
             ->where('slug', $toolSlug)
             ->with('chapter:id,chapter_number')
             ->firstOrFail();
