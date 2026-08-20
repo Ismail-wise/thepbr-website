@@ -30,14 +30,20 @@ class PbrCanonicalDataService
             []
         );
 
+        // Single batched query for every contracted domain. Previously this
+        // loop issued one query per domain (10 queries on the dashboard read
+        // path); latestSnapshots() resolves the same 'agreed' snapshot per
+        // domain in one query, so draft isolation is unchanged.
+        $snapshots = $this->operatingSystem->latestSnapshots(
+            $workspace,
+            array_keys($contracts),
+            'agreed'
+        );
+
         $summaries = [];
 
         foreach ($contracts as $domainKey => $contract) {
-            $snapshot = $this->operatingSystem->latestSnapshot(
-                $workspace,
-                $domainKey,
-                'agreed'
-            );
+            $snapshot = $snapshots->get($domainKey);
 
             if (! $snapshot) {
                 continue;
