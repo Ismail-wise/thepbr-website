@@ -53,6 +53,7 @@
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v21.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v21.css')) }}">
     @endif
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
+    <script src="{{ asset('js/pbr-unsaved-changes-guard.js') }}?v={{ filemtime(public_path('js/pbr-unsaved-changes-guard.js')) }}" defer></script>
     @if(request()->routeIs('workspaces.tools.*'))
         <script src="{{ asset('js/pbr-premium-tools.js') }}?v={{ filemtime(public_path('js/pbr-premium-tools.js')) }}" defer></script>
     @endif

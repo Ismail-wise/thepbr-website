@@ -140,6 +140,61 @@ class PbrOperatingSystemService
             ->first();
     }
 
+    /**
+     * Batched equivalent of latestSnapshot() for many domains at once.
+     *
+     * Returns a map of domain_key => newest matching snapshot, using ONE
+     * query instead of one query per domain. Ordering and status filtering
+     * match latestSnapshot() exactly, so the resolved snapshot for any given
+     * domain is identical to calling latestSnapshot() for that domain.
+     *
+     * Draft/agreed semantics are unchanged: when $status is 'agreed' a newer
+     * draft can never be returned, and when $status is null the newest
+     * revision of any status wins — same as the single-domain path.
+     *
+     * @param  array<int, string>  $domainKeys
+     * @return \Illuminate\Support\Collection<string, WorkspaceOperatingSnapshot>
+     */
+    public function latestSnapshots(
+        PartnershipWorkspace $workspace,
+        array $domainKeys,
+        ?string $status = null
+    ): Collection {
+        $domainKeys = array_values(array_unique(array_filter(
+            $domainKeys,
+            static fn ($key): bool => is_string($key) && $key !== ''
+        )));
+
+        if ($domainKeys === []) {
+            return collect();
+        }
+
+        $query = WorkspaceOperatingSnapshot::query()
+            ->where('workspace_id', $workspace->id)
+            ->whereIn('domain_key', $domainKeys);
+
+        if ($status !== null) {
+            $query->where('status', $status);
+        }
+
+        // Highest revision first.
+        //
+        // NOTE: keyBy() must NOT be used to collapse these rows. Laravel's
+        // keyBy() is last-wins — a later row overwrites an earlier one with
+        // the same key — so keyBy() on a DESC-ordered result would keep the
+        // OLDEST revision per domain, which is the opposite of latestSnapshot().
+        //
+        // unique() is first-wins, so on a DESC-ordered result it keeps the
+        // highest revision per domain. keyBy() afterwards is then safe because
+        // exactly one row per domain remains.
+        return $query
+            ->orderByDesc('revision')
+            ->orderByDesc('id')
+            ->get()
+            ->unique('domain_key')
+            ->keyBy('domain_key');
+    }
+
     public function readableSnapshot(
         User $actor,
         PartnershipWorkspace $workspace,
