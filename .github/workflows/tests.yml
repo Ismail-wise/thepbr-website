@@ -1,0 +1,146 @@
+name: tests
+
+# Runs the full PBR suite on every push and pull request.
+#
+# Why this exists: on 2026-08-20 a correctness bug reached production and ran
+# for ~7 hours. php -l passed, Laravel booted, and every public page returned
+# 200 — because all of those check that code RUNS, not that it is RIGHT. The
+# Pest suite caught it in under a second. This workflow makes that check
+# automatic rather than something a human remembers to do.
+#
+# Safety note: tests always run against in-memory SQLite. phpunit.xml pins
+# DB_CONNECTION=sqlite and DB_DATABASE=:memory:, so a CI run can never reach
+# production MySQL even if a .env is present.
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: ['**']
+  # Allows a manual run from the Actions tab.
+  workflow_dispatch:
+
+# A newer push to the same branch cancels the older, still-running job.
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  pest:
+    name: Pest (PHP ${{ matrix.php }})
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        # 8.3 is the composer.json floor; 8.4 is what production runs.
+        php: ['8.3', '8.4']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          # sqlite3 + pdo_sqlite are what the in-memory test database needs.
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, bcmath, intl, zip
+          coverage: none
+          tools: composer:v2
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache composer packages
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: composer-${{ matrix.php }}-${{ hashFiles('**/composer.lock') }}
+          restore-keys: composer-${{ matrix.php }}-
+
+      - name: Install dependencies
+        # NOT --no-dev: Pest and PHPUnit live in require-dev.
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Prepare environment
+        run: |
+          cp .env.example .env
+          php artisan key:generate --force
+
+      - name: Confirm tests target SQLite, never MySQL
+        # Fails loudly rather than risking a run against a real database.
+        run: |
+          grep -q 'name="DB_CONNECTION" value="sqlite"' phpunit.xml \
+            || (echo "::error::phpunit.xml does not pin DB_CONNECTION=sqlite" && exit 1)
+          grep -q 'name="DB_DATABASE" value=":memory:"' phpunit.xml \
+            || (echo "::error::phpunit.xml does not pin DB_DATABASE=:memory:" && exit 1)
+          echo "Verified: tests use in-memory SQLite."
+
+      - name: Lint PHP syntax
+        # Cheap guard: catches a parse error before the suite spends 20s booting.
+        run: |
+          find app config database routes tests -name '*.php' -print0 \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Compile Blade templates
+        # A broken .blade.php will not fail php -l, so compile them explicitly.
+        run: php artisan view:cache
+
+      - name: Run Pest
+        run: ./vendor/bin/pest --ci
+
+  pint:
+    name: Code style (Pint)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Check formatting
+        # --test reports violations without rewriting files.
+        run: ./vendor/bin/pint --test
+
+  assets:
+    name: Frontend build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install packages
+        run: npm ci
+
+      - name: Check hand-written JS parses
+        # public/js/ is served directly and is not bundled, so nothing else
+        # would catch a syntax error in it before a user hit the page.
+        run: |
+          for f in public/js/*.js; do
+            node --check "$f" || exit 1
+          done
+          echo "All public/js files parse."
+
+      - name: Build
+        run: npm run build
