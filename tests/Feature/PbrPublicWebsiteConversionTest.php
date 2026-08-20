@@ -24,9 +24,15 @@ test('public website uses working conversion links without contact placeholders'
         ->assertDontSee('Contact Us');
 });
 
-test('about page does not repeat the homepage instructor profile or expose sample data', function () {
+test('about page presents the PBR System without the old contract section or sample data', function () {
     $this->get(route('about'))
         ->assertOk()
+        ->assertSee('The PBR System')
+        ->assertSee('PBR System ဆိုတာ ဘာလဲ')
+        ->assertSee('PBR AI Assistant')
+        ->assertDontSee('What you get')
+        ->assertDontSee('သင်တန်းအပြီး ရရှိမည့် စာချုပ်ပုံစံများ')
+        ->assertDontSee('ဥပဒေဆိုင်ရာ သတိပေးချက်')
         ->assertDontSee('Sample Instructor Photo')
         ->assertDontSee('နမူနာ ဆရာအမည်')
         ->assertDontSee('Sample Instructor');
