@@ -7,6 +7,9 @@
 <meta name="description" content="@yield('description', 'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။')">
 <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 @include('partials.seo')
+@if(request()->routeIs('videos.*'))
+    <link rel="stylesheet" href="{{ asset('css/site-videos.css') }}?v={{ filemtime(public_path('css/site-videos.css')) }}">
+@endif
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Serif+Myanmar:wght@500;600&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -48,13 +51,16 @@
     <nav class="desk">
       <a href="{{ route('home') }}" class="item {{ request()->routeIs('home') ? 'on' : '' }}">Home</a>
 
-      <div class="dd {{ request()->routeIs('articles.*','classes') ? 'on' : '' }}" id="dd">
+      <div class="dd {{ request()->routeIs('articles.*','classes','videos.*') ? 'on' : '' }}" id="dd">
         <button class="item" id="ddBtn" aria-expanded="false" aria-haspopup="true">
           Resources <i class="caret"></i>
         </button>
         <div class="menu" role="menu">
           <a href="{{ route('articles.index') }}" class="{{ request()->routeIs('articles.*') ? 'on' : '' }}" role="menuitem">
             Articles<small>ဆောင်းပါးများ</small>
+          </a>
+          <a href="{{ route('videos.index') }}" class="{{ request()->routeIs('videos.*') ? 'on' : '' }}" role="menuitem">
+            Videos<small>ဗီဒီယိုများ</small>
           </a>
           <a href="{{ route('classes') }}" class="{{ request()->routeIs('classes') ? 'on' : '' }}" role="menuitem">Classes<small>သင်တန်းများ</small></a>
         </div>
@@ -77,6 +83,7 @@
     <a href="{{ route('home') }}">Home</a>
     <a href="{{ route('articles.index') }}">Resources</a>
     <a href="{{ route('articles.index') }}" class="sub">— Articles</a>
+    <a href="{{ route('videos.index') }}" class="sub">— Videos</a>
     <a href="{{ route('classes') }}" class="sub">— Classes</a>
     <a href="{{ route('about') }}">About the Class</a>
     <a href="{{ $portalUrl }}" class="btn" style="width:100%;margin-top:14px">{{ $portalLabel }}</a>
@@ -100,6 +107,7 @@
         <h5>Explore</h5>
         <a href="{{ route('home') }}">Home</a>
         <a href="{{ route('articles.index') }}">Articles</a>
+        <a href="{{ route('videos.index') }}">Videos</a>
         <a href="{{ route('classes') }}">Classes</a>
       </div>
       <div>

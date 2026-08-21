@@ -1,0 +1,128 @@
+/*
+ * thePBR — Videos
+ * ---------------------------------------------------------------------------
+ * Extends the existing card grid in site.css rather than duplicating it, so a
+ * video card and an article card stay visually identical apart from the play
+ * affordance. Loaded only on video routes.
+ */
+
+/* --- Thumbnail with play affordance ------------------------------------- */
+.vthumb {
+    position: relative;
+}
+
+/* A play triangle drawn in CSS rather than shipped as an SVG or icon font:
+   it is one shape on a page that is already fetching remote thumbnails, and
+   every request saved matters on Myanmar mobile data. */
+.playmark {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: rgba(11, 61, 5, .82);
+    pointer-events: none;
+}
+
+.playmark::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 10px 0 10px 16px;
+    border-color: transparent transparent transparent #fff;
+    /* Nudged right: an equilateral triangle centred on its bounding box reads
+       as sitting slightly left inside a circle. */
+    transform: translateX(3px);
+}
+
+.playmark-lg {
+    width: 78px;
+    height: 78px;
+}
+
+.playmark-lg::after {
+    border-width: 15px 0 15px 24px;
+    transform: translateX(5px);
+}
+
+/* Duration badge */
+.vdur {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    padding: 4px 9px;
+    border-radius: 6px;
+    background: rgba(11, 61, 5, .88);
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+/* --- Click-to-play player ----------------------------------------------- */
+.vplayer {
+    position: relative;
+    /* Reserving the 16:9 box before anything loads prevents the page jumping
+       when the poster arrives or the iframe replaces it. */
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    margin: 0 0 28px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: var(--sage-deep, #0B3D05);
+}
+
+.vplayer iframe,
+.vplay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+.vplay {
+    padding: 0;
+    cursor: pointer;
+    background: none;
+    display: block;
+}
+
+.vplay img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.vplay:hover .playmark,
+.vplay:focus-visible .playmark {
+    background: rgba(21, 127, 9, .95);
+}
+
+.vplay:focus-visible {
+    outline: 3px solid var(--forest, #157F09);
+    outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .vplay .playmark {
+        transition: none;
+    }
+}
+
+@media (max-width: 720px) {
+    .playmark {
+        width: 44px;
+        height: 44px;
+    }
+
+    .playmark::after {
+        border-width: 8px 0 8px 13px;
+    }
+}

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\ClassSession;
+use App\Models\Video;
 use Illuminate\Http\Response;
 
 /**
@@ -40,6 +41,12 @@ class SitemapController extends Controller
             'priority' => '0.8',
         ];
 
+        $urls[] = [
+            'loc' => route('videos.index'),
+            'changefreq' => 'weekly',
+            'priority' => '0.8',
+        ];
+
         // The classes page changes whenever a session is added, so its
         // lastmod tracks the most recently touched visible session.
         $latestSession = ClassSession::query()
@@ -66,6 +73,23 @@ class SitemapController extends Controller
                 $urls[] = array_filter([
                     'loc' => route('articles.show', $article->slug),
                     'lastmod' => optional($article->updated_at ?? $article->published_at)
+                        ->toAtomString(),
+                    'changefreq' => 'monthly',
+                    'priority' => '0.7',
+                ]);
+            });
+
+        // Published videos, same rule as articles: a draft or a future-dated
+        // record in the sitemap sends a crawler to a 404.
+        Video::query()
+            ->whereNotNull('published_at')
+            ->where('published_at', '<=', now())
+            ->orderByDesc('published_at')
+            ->get(['slug', 'published_at', 'updated_at'])
+            ->each(function (Video $video) use (&$urls): void {
+                $urls[] = array_filter([
+                    'loc' => route('videos.show', $video->slug),
+                    'lastmod' => optional($video->updated_at ?? $video->published_at)
                         ->toAtomString(),
                     'changefreq' => 'monthly',
                     'priority' => '0.7',
