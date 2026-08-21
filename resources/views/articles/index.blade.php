@@ -53,7 +53,7 @@
         <a href="{{ route('articles.show', $article->slug) }}" class="feature">
           <div class="thumb">
             @if($article->cover_image)
-              <img src="{{ asset('storage/' . $article->cover_image) }}" alt="">
+              <img src="{{ asset('storage/' . $article->cover_image) }}" alt="{{ $article->title }}" loading="lazy" decoding="async">
             @endif
           </div>
           <div class="body">
@@ -72,7 +72,7 @@
         <a href="{{ route('articles.show', $article->slug) }}" class="card">
           <div class="thumb">
             @if($article->cover_image)
-              <img src="{{ asset('storage/' . $article->cover_image) }}" alt="">
+              <img src="{{ asset('storage/' . $article->cover_image) }}" alt="{{ $article->title }}" loading="lazy" decoding="async">
             @endif
           </div>
           <div class="body">

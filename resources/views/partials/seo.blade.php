@@ -10,7 +10,12 @@
     sensible site-wide defaults so a new page is never left with nothing.
 
         @section('og_type', 'article')
-        @section('og_image', $article->cover_image)
+        @section('og_image', 'storage/'.$article->cover_image)
+
+    Note the 'storage/' prefix: cover_image holds a path relative to the
+    storage disk, and every <img> on the site renders it as
+    asset('storage/'.$article->cover_image). Passing the bare value here
+    produced a social card pointing at an image that does not exist.
 --}}
 @php
     $seoTitle = trim($__env->yieldContent('title', 'thePBR — Partnership Business Rules'));

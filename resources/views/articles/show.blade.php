@@ -3,7 +3,7 @@
 @section('title', $article->title . ' — thePBR')
 @section('description', $article->excerpt)
 @section('og_type', 'article')
-@section('og_image', $article->cover_image ?? '')
+@section('og_image', $article->cover_image ? 'storage/'.$article->cover_image : '')
 @section('published_time', optional($article->published_at)->toIso8601String())
 
 @push('schema')
@@ -64,7 +64,7 @@
 
   @if($article->cover_image)
     <div class="cover">
-      <img src="{{ asset('storage/' . $article->cover_image) }}" alt="">
+      <img src="{{ asset('storage/' . $article->cover_image) }}" alt="{{ $article->title }}" decoding="async">
     </div>
   @endif
 
@@ -109,7 +109,7 @@
         <a href="{{ route('articles.show', $item->slug) }}" class="card">
           <div class="thumb">
             @if($item->cover_image)
-              <img src="{{ asset('storage/' . $item->cover_image) }}" alt="">
+              <img src="{{ asset('storage/' . $item->cover_image) }}" alt="{{ $item->title }}" loading="lazy" decoding="async">
             @endif
           </div>
           <div class="body">
