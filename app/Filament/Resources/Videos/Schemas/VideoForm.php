@@ -20,10 +20,10 @@ class VideoForm
                     ->maxLength(255)
                     ->columnSpanFull(),
 
+                // Optional — see ArticleForm.
                 TextInput::make('slug')
-                    ->label('Slug (URL)')
-                    ->helperText('အင်္ဂလိပ်စာလုံး၊ နံပါတ်နှင့် - သာ သုံးပါ။ ဥပမာ — how-to-split-profit')
-                    ->required()
+                    ->label('Slug (URL) — ဗလာထားနိုင်ပါသည်')
+                    ->helperText('ဗလာထားပါက ခေါင်းစဉ်ထဲက အင်္ဂလိပ်စာလုံးများမှ အလိုအလျောက် ဖန်တီးပါမည်။')
                     ->unique(ignoreRecord: true)
                     ->maxLength(255)
                     ->columnSpanFull(),

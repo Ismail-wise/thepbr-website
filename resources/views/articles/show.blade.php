@@ -16,6 +16,10 @@
     'datePublished' => optional($article->published_at)->toIso8601String(),
     'inLanguage' => 'my',
     'articleSection' => $article->category,
+    'author' => [
+        '@type' => 'Person',
+        'name' => config('pbr.author_name'),
+    ],
     'publisher' => [
         '@type' => 'Organization',
         'name' => 'thePBR',
@@ -42,7 +46,10 @@
       <div class="byline">
         <div class="who">
           <div class="av"></div>
-          <b>စည်သူအောင်</b>
+          {{-- Single author site, so the name is set once here rather than
+               stored per article. It previously read a different name from
+               the instructor shown on the homepage. --}}
+          <b>{{ config('pbr.author_name') }}</b>
         </div>
         <span class="dot">·</span>
         <span>{{ $article->burmese_date }}</span>
