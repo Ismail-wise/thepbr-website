@@ -2,10 +2,13 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\GeneratesSlug;
 use Illuminate\Database\Eloquent\Model;
 
 class Article extends Model
 {
+    use GeneratesSlug;
+
     protected $fillable = [
         'title',
         'slug',
