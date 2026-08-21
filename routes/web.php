@@ -5,6 +5,7 @@ use App\Http\Controllers\AccountAuthController;
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ClassController;
+use App\Http\Controllers\VideoController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\StudentAccessRedemptionController;
 use App\Http\Controllers\StudentAuthController;
@@ -20,6 +21,9 @@ Route::get('/articles', [ArticleController::class, 'index'])->name('articles.ind
 Route::get('/articles/{slug}', [ArticleController::class, 'show'])->name('articles.show');
 
 Route::get('/classes', [ClassController::class, 'index'])->name('classes');
+
+Route::get('/videos', [VideoController::class, 'index'])->name('videos.index');
+Route::get('/videos/{slug}', [VideoController::class, 'show'])->name('videos.show');
 
 Route::get('/about', [AboutController::class, 'index'])
     ->name('about');
