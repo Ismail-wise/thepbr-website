@@ -1,0 +1,485 @@
+/*
+ * thePBR — Tool Refinement Layer
+ * ---------------------------------------------------------------------------
+ * Loads LAST, after every other tool stylesheet. Changes legibility, touch
+ * targets and status clarity across the 62 shared tools without rewriting
+ * pbr-operating-system.css or the pbr-premium-* generations.
+ *
+ * WHY !important APPEARS HERE
+ * pbr-premium-tool-system-v2.css and pbr-premium-tool-design-system-v1.css
+ * each carry 354 !important declarations. A normal stylesheet cannot override
+ * them at any specificity, so matching that force is the only option short of
+ * rewriting those files. Every !important below is deliberate, not defensive.
+ *
+ * WHAT THIS FIXES (measured, not assumed)
+ *   - 29 selectors in v2 alone set font-size below 13px; the smallest is 8.5px.
+ *   - pbr-operating-system.css sets .pbr-os-result-table to 10px. That table
+ *     carries ownership percentages and capital figures.
+ *   - .pbr-os-mini-field inputs were 11px. Anything under 16px makes iOS
+ *     Safari zoom on focus, which throws the user out of position on every
+ *     repeater row they fill.
+ *   - Several controls sat at 24-38px tall, below the 44px accessibility floor.
+ *
+ * BURMESE TYPOGRAPHY
+ * Myanmar script stacks diacritics and medials above and below the baseline.
+ * At 10px those collapse into an unreadable smudge, and a tight line-height
+ * makes consecutive lines collide. Body copy is therefore 15px with
+ * line-height 1.75, well above the 1.4-1.5 that suits Latin.
+ */
+
+.pbr-os-page,
+.pbr-premium-tool-page {
+    /* Deepened ink for contrast; the seal green is kept from the existing
+       brand so tool pages still read as thePBR. */
+    --pbr-r-ink: #101f19;
+    --pbr-r-ink-soft: #334a41;
+    --pbr-r-muted: #5c7268;
+    --pbr-r-line: #e2eae5;
+    --pbr-r-seal: #0a5a33;
+    --pbr-r-provisional: #8a6a1f;
+
+    /* One scale, in rem, so a user's browser font-size setting is respected.
+       Nothing below --pbr-r-meta is permitted anywhere. */
+    --pbr-r-meta: 0.8125rem;
+    --pbr-r-body: 0.9375rem;
+    --pbr-r-label: 0.9375rem;
+    --pbr-r-field: 1rem;
+    --pbr-r-h3: 1.0625rem;
+    --pbr-r-h2: 1.375rem;
+
+    --pbr-r-lh: 1.75;
+    --pbr-r-touch: 44px;
+}
+
+/* --- Floor every small size to a readable minimum ----------------------- */
+.pbr-os-page .pbr-os-help,
+.pbr-premium-tool-page .pbr-os-help,
+.pbr-os-page .pbr-os-panel-head p,
+.pbr-premium-tool-page .pbr-os-panel-head p,
+.pbr-os-page .pbr-os-purpose,
+.pbr-premium-tool-page .pbr-os-purpose,
+.pbr-os-page .pbr-os-approval-zone p,
+.pbr-premium-tool-page .pbr-os-approval-zone p,
+.pbr-os-page .pbr-os-empty-state p,
+.pbr-premium-tool-page .pbr-os-empty-state p {
+    font-size: var(--pbr-r-body) !important;
+    line-height: var(--pbr-r-lh) !important;
+    color: var(--pbr-r-ink-soft) !important;
+}
+
+.pbr-os-page .pbr-os-breadcrumb,
+.pbr-premium-tool-page .pbr-os-breadcrumb,
+.pbr-os-page .pbr-os-side-label,
+.pbr-premium-tool-page .pbr-os-side-label,
+.pbr-os-page .pbr-os-metrics span,
+.pbr-premium-tool-page .pbr-os-metrics span,
+.pbr-os-page .pbr-os-legal-note p,
+.pbr-premium-tool-page .pbr-os-legal-note p,
+.pbr-os-page .pbr-os-insight li,
+.pbr-premium-tool-page .pbr-os-insight li {
+    font-size: var(--pbr-r-meta) !important;
+    line-height: var(--pbr-r-lh) !important;
+}
+
+/* --- Field labels: readable, and the English gloss is a real second line - */
+.pbr-os-page .pbr-os-field > label,
+.pbr-premium-tool-page .pbr-os-field > label,
+.pbr-os-page .pbr-os-field-heading label,
+.pbr-premium-tool-page .pbr-os-field-heading label {
+    font-size: var(--pbr-r-label) !important;
+    font-weight: 600 !important;
+    line-height: var(--pbr-r-lh) !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+/* Repeater column labels sit one per column inside a narrow row, so they stay
+   a step smaller than main field labels — still readable, but not wide enough
+   to push the row into overflow. 13px is the floor, not a return to 9px. */
+.pbr-os-page .pbr-os-mini-field label,
+.pbr-premium-tool-page .pbr-os-mini-field label {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 600 !important;
+    line-height: 1.5 !important;
+    color: var(--pbr-r-ink-soft) !important;
+    margin-bottom: 5px !important;
+}
+
+.pbr-os-page .pbr-os-field > label span,
+.pbr-premium-tool-page .pbr-os-field > label span,
+.pbr-os-page .pbr-os-field-heading span,
+.pbr-premium-tool-page .pbr-os-field-heading span {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 400 !important;
+    color: var(--pbr-r-muted) !important;
+    margin-top: 3px !important;
+}
+
+/* Group headings for repeater and checklist blocks. These were <label>
+   elements with no associated control, which is invalid HTML and makes a
+   screen reader announce a label for nothing. They are now <strong>, so they
+   need the label's visual weight restored here. */
+.pbr-os-page .pbr-os-group-label,
+.pbr-premium-tool-page .pbr-os-group-label {
+    display: block !important;
+    font-size: var(--pbr-r-label) !important;
+    font-weight: 600 !important;
+    line-height: var(--pbr-r-lh) !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+/* --- Inputs: 16px stops iOS zoom-on-focus; 44px is the touch floor ------ */
+.pbr-os-page :is(.pbr-os-field, .pbr-os-mini-field, .pbr-os-save-cluster) :is(input, select, textarea),
+.pbr-premium-tool-page :is(.pbr-os-field, .pbr-os-mini-field, .pbr-os-save-cluster) :is(input, select, textarea) {
+    font-size: var(--pbr-r-field) !important;
+    min-height: var(--pbr-r-touch) !important;
+    padding: 10px 12px !important;
+    line-height: 1.5 !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+/* Numeric fields align in columns when digits share one advance width. */
+.pbr-os-page input[type='number'],
+.pbr-premium-tool-page input[type='number'] {
+    font-variant-numeric: tabular-nums !important;
+}
+
+.pbr-os-page textarea,
+.pbr-premium-tool-page textarea {
+    line-height: var(--pbr-r-lh) !important;
+    min-height: 96px !important;
+}
+
+/* --- Buttons and row controls clear 44px -------------------------------- */
+.pbr-os-page .pbr-os-btn,
+.pbr-premium-tool-page .pbr-os-btn,
+.pbr-os-page .pbr-os-add-row,
+.pbr-premium-tool-page .pbr-os-add-row {
+    font-size: var(--pbr-r-label) !important;
+    font-weight: 600 !important;
+    min-height: var(--pbr-r-touch) !important;
+    padding: 11px 18px !important;
+}
+
+.pbr-os-page .pbr-os-remove-row,
+.pbr-premium-tool-page .pbr-os-remove-row,
+.pbr-os-page .pbr-os-row-number,
+.pbr-premium-tool-page .pbr-os-row-number {
+    width: 34px !important;
+    height: 34px !important;
+    font-size: var(--pbr-r-meta) !important;
+}
+
+/* --- Results table: this carries the money ------------------------------ */
+.pbr-os-page .pbr-os-result-table,
+.pbr-premium-tool-page .pbr-os-result-table {
+    font-size: var(--pbr-r-body) !important;
+}
+
+.pbr-os-page .pbr-os-result-table th,
+.pbr-premium-tool-page .pbr-os-result-table th {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.02em !important;
+    color: var(--pbr-r-muted) !important;
+    padding: 12px 14px !important;
+}
+
+.pbr-os-page .pbr-os-result-table td,
+.pbr-premium-tool-page .pbr-os-result-table td {
+    font-size: var(--pbr-r-body) !important;
+    padding: 12px 14px !important;
+    font-variant-numeric: tabular-nums !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+.pbr-os-page .pbr-os-metrics strong,
+.pbr-premium-tool-page .pbr-os-metrics strong {
+    font-size: 1.25rem !important;
+    font-variant-numeric: tabular-nums !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+/* --- Headings: Noto Serif Myanmar is already loaded and unused ---------- */
+.pbr-os-page .pbr-os-panel-head h2,
+.pbr-premium-tool-page .pbr-os-panel-head h2,
+.pbr-os-page .pbr-os-approval-zone h3,
+.pbr-premium-tool-page .pbr-os-approval-zone h3 {
+    font-family: 'Noto Serif Myanmar', 'Noto Sans Myanmar', serif !important;
+    font-size: var(--pbr-r-h2) !important;
+    font-weight: 600 !important;
+    line-height: 1.55 !important;
+    color: var(--pbr-r-ink) !important;
+}
+
+.pbr-os-page .pbr-os-en-title,
+.pbr-premium-tool-page .pbr-os-en-title {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 500 !important;
+    letter-spacing: 0.04em !important;
+    text-transform: uppercase !important;
+    color: var(--pbr-r-muted) !important;
+}
+
+/* --- The clause rail ---------------------------------------------------- *
+ * The product's core promise is that a working draft never looks like an
+ * agreed rule. A small coloured pill is too quiet for that job, so state is
+ * carried by a 3px spine down the left edge of the panel: dashed while
+ * provisional, solid once agreed. Border-radius is removed because a rounded
+ * corner on a single-sided border renders as a stray notch.
+ */
+.pbr-os-page .pbr-os-approval-zone,
+.pbr-premium-tool-page .pbr-os-approval-zone {
+    border-left: 3px dashed var(--pbr-r-provisional) !important;
+    border-radius: 0 !important;
+    padding: 18px 20px !important;
+}
+
+.pbr-os-page .pbr-os-current-rule,
+.pbr-premium-tool-page .pbr-os-current-rule {
+    border-left: 3px solid var(--pbr-r-seal) !important;
+    border-radius: 0 !important;
+}
+
+.pbr-os-page .pbr-os-history-list span,
+.pbr-premium-tool-page .pbr-os-history-list span {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 600 !important;
+    padding: 4px 9px !important;
+    letter-spacing: 0.02em !important;
+}
+
+.pbr-os-page .pbr-os-history-list b,
+.pbr-premium-tool-page .pbr-os-history-list b,
+.pbr-os-page .pbr-os-history-list small,
+.pbr-premium-tool-page .pbr-os-history-list small {
+    font-size: var(--pbr-r-meta) !important;
+}
+
+.pbr-os-page .pbr-os-agreed-pill,
+.pbr-premium-tool-page .pbr-os-agreed-pill,
+.pbr-os-page .pbr-os-session-badge,
+.pbr-premium-tool-page .pbr-os-session-badge,
+.pbr-os-page .pbr-os-type-pill,
+.pbr-premium-tool-page .pbr-os-type-pill {
+    font-size: var(--pbr-r-meta) !important;
+    font-weight: 600 !important;
+    letter-spacing: 0.01em !important;
+    padding: 7px 12px !important;
+}
+
+/* --- Keyboard focus must be obvious, not a faint tint ------------------- */
+.pbr-os-page :is(input, select, textarea, button, a):focus-visible,
+.pbr-premium-tool-page :is(input, select, textarea, button, a):focus-visible {
+    outline: 2px solid var(--pbr-r-seal) !important;
+    outline-offset: 2px !important;
+}
+
+/* --- Repeater rows: wrap instead of scrolling sideways ------------------ *
+ * The tool page is a two-column grid — form on the left, result panel on the
+ * right at minmax(330px, .85fr) — which leaves the form around 645px. A
+ * repeater row is laid out as
+ *     34px + repeat(N, minmax(120px, 1fr)) + 38px
+ * so five columns need roughly 720px before it can lay out. It cannot, so the
+ * row overflows and the last column ("Risk / Responsibility Value") is clipped
+ * behind a horizontal scrollbar.
+ *
+ * Horizontal scrolling inside a form is the worst option here: the user cannot
+ * see a field they are required to fill. Switching the row to flex-wrap lets
+ * the fields flow onto a second line at narrow widths and sit on one line when
+ * there is room. Each field keeps its own visible label, because once fields
+ * wrap there is no stable column above them to act as a header.
+ */
+.pbr-os-page .pbr-os-repeater-row,
+.pbr-premium-tool-page .pbr-os-repeater-row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: flex-end !important;
+    gap: 10px 12px !important;
+    overflow-x: visible !important;
+}
+
+.pbr-os-page .pbr-os-repeater-row > .pbr-os-row-number,
+.pbr-premium-tool-page .pbr-os-repeater-row > .pbr-os-row-number {
+    flex: 0 0 auto !important;
+    align-self: center !important;
+}
+
+.pbr-os-page .pbr-os-repeater-row > .pbr-os-remove-row,
+.pbr-premium-tool-page .pbr-os-repeater-row > .pbr-os-remove-row {
+    flex: 0 0 auto !important;
+    align-self: center !important;
+    margin-left: auto !important;
+}
+
+/* Grow to share the line, shrink to 150px before wrapping to the next. */
+.pbr-os-page .pbr-os-repeater-row > .pbr-os-mini-field,
+.pbr-premium-tool-page .pbr-os-repeater-row > .pbr-os-mini-field {
+    flex: 1 1 150px !important;
+    min-width: 150px !important;
+}
+
+/* --- Sticky toolbar: stop it covering the heading you scrolled to ------- *
+ * .pbr-premium-toolbar is position:sticky at top:76px with min-height:62px,
+ * so anything scrolled to sits underneath it. Reserving that distance means
+ * in-page anchors and keyboard focus land below the bar, not behind it.
+ */
+.pbr-os-page,
+.pbr-premium-tool-page {
+    scroll-padding-top: 152px;
+}
+
+.pbr-os-page :is(h2, h3, .pbr-os-panel, .pbr-os-field-heading),
+.pbr-premium-tool-page :is(h2, h3, .pbr-os-panel, .pbr-os-field-heading) {
+    scroll-margin-top: 152px;
+}
+
+/* --- Area rail ---------------------------------------------------------- *
+ * A horizontal strip of the ten business areas, directly under the command
+ * bar, so moving between tools no longer means navigating back out to the
+ * tools index. One dot per area carries the state; no counts, no percentages.
+ *
+ * It cannot live in .pbr-os-sidebar: pbr-premium-tool-system-v2.js lifts that
+ * sidebar into a collapsed "Working Plans & History" panel after load, which
+ * would hide the rail behind a click.
+ *
+ * Colour is never the only signal. The status word sits in .pbr-area-rail-sr
+ * for screen readers and in the link's title attribute for sighted users, so
+ * the rail still works for the ~8% of men with colour vision deficiency.
+ */
+.pbr-area-rail {
+    margin: 0 0 12px;
+    padding: 8px 10px;
+    background: var(--pbr-r-surface, #fff);
+    border: 1px solid var(--pbr-r-line);
+    border-radius: 14px;
+}
+
+.pbr-area-rail-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+}
+
+.pbr-area-rail-link {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    border-radius: 9px;
+    text-decoration: none;
+    color: var(--pbr-r-muted);
+    min-height: 36px;
+    white-space: nowrap;
+}
+
+.pbr-area-rail-link:hover {
+    background: #f2f7f4;
+    color: var(--pbr-r-ink);
+}
+
+.pbr-area-rail-item.is-current .pbr-area-rail-link {
+    background: #edf7f1;
+    color: var(--pbr-r-ink);
+    box-shadow: inset 0 0 0 1px #c8e3d3;
+}
+
+.pbr-area-rail-dot {
+    flex: 0 0 auto;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #cbd6d1;
+}
+
+.pbr-area-rail-dot.is-established { background: var(--pbr-r-seal); }
+.pbr-area-rail-dot.is-review { background: var(--pbr-r-provisional); }
+.pbr-area-rail-dot.is-dependency-review {
+    background: #fff;
+    box-shadow: inset 0 0 0 2px var(--pbr-r-provisional);
+}
+.pbr-area-rail-dot.is-in-progress {
+    background: #fff;
+    box-shadow: inset 0 0 0 2px var(--pbr-r-seal);
+}
+
+.pbr-area-rail-name {
+    font-size: var(--pbr-r-meta);
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+/* Visible to assistive technology only; the tooltip carries it for everyone
+   else. Printing ten status words across the strip would be the clutter this
+   rail exists to avoid. */
+.pbr-area-rail-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+@media (max-width: 820px) {
+    /* One line that scrolls sideways, rather than a block of wrapped chips
+       pushing the tool itself below the fold on a phone. */
+    .pbr-area-rail-list {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: 2px;
+    }
+}
+
+/* --- Mobile: single column, and repeater rows stop scrolling sideways --- */
+@media (max-width: 820px) {
+    .pbr-os-page .pbr-os-fields,
+    .pbr-premium-tool-page .pbr-os-fields,
+    .pbr-os-page .pbr-os-checklist,
+    .pbr-premium-tool-page .pbr-os-checklist {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* Rows already wrap; on a phone force one field per line so nothing is
+       squeezed to an unusable width. */
+    .pbr-os-page .pbr-os-repeater-row > .pbr-os-mini-field,
+    .pbr-premium-tool-page .pbr-os-repeater-row > .pbr-os-mini-field {
+        flex: 1 1 100% !important;
+        min-width: 0 !important;
+    }
+
+    .pbr-os-page .pbr-os-repeater-row,
+    .pbr-premium-tool-page .pbr-os-repeater-row {
+        padding: 14px !important;
+    }
+
+    .pbr-os-page .pbr-os-metrics,
+    .pbr-premium-tool-page .pbr-os-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    .pbr-os-page .pbr-os-approval-zone,
+    .pbr-premium-tool-page .pbr-os-approval-zone,
+    .pbr-os-page .pbr-os-current-rule,
+    .pbr-premium-tool-page .pbr-os-current-rule {
+        flex-direction: column !important;
+        align-items: stretch !important;
+    }
+
+    .pbr-os-page .pbr-os-btn,
+    .pbr-premium-tool-page .pbr-os-btn {
+        width: 100% !important;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .pbr-os-page .pbr-os-btn:hover,
+    .pbr-premium-tool-page .pbr-os-btn:hover {
+        transform: none !important;
+    }
+}

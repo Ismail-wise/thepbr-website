@@ -52,6 +52,9 @@
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v2.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v2.css')) }}">
         <link rel="stylesheet" href="{{ asset('css/pbr-business-os-visual-v21.css') }}?v={{ filemtime(public_path('css/pbr-business-os-visual-v21.css')) }}">
     @endif
+    {{-- Loads last on purpose: this layer overrides typography, touch targets
+         and status treatment across every tool stylesheet above it. --}}
+    <link rel="stylesheet" href="{{ asset('css/pbr-tool-refinement.css') }}?v={{ filemtime(public_path('css/pbr-tool-refinement.css')) }}">
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
     <script src="{{ asset('js/pbr-unsaved-changes-guard.js') }}?v={{ filemtime(public_path('js/pbr-unsaved-changes-guard.js')) }}" defer></script>
     @if(request()->routeIs('workspaces.tools.*'))
