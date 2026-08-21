@@ -129,3 +129,41 @@ it('states plainly that tool output is not legal advice', function (): void {
     $response->assertOk();
     $response->assertSee('ဥပဒေရေးရာ');
 });
+
+it('points the article social card at the real cover image path', function (): void {
+    // cover_image holds a path relative to the storage disk. Every <img> on
+    // the site renders it as asset('storage/'.$cover), so the social card
+    // must use the same prefix or Facebook fetches a 404.
+    $article = Article::create([
+        'title' => 'Cover image article',
+        'slug' => 'cover-image-article',
+        'excerpt' => 'Has a cover',
+        'category' => 'Guide',
+        'cover_image' => 'articles/cover.jpg',
+        'body' => 'Body',
+        'published_at' => now()->subDay(),
+    ]);
+
+    $response = $this->get('/articles/'.$article->slug);
+
+    $response->assertOk();
+    $response->assertSee('storage/articles/cover.jpg', false);
+});
+
+it('labels article cover images for screen readers', function (): void {
+    $article = Article::create([
+        'title' => 'မိတ်ဖက်လုပ်ငန်း အခြေခံ',
+        'slug' => 'labelled-cover',
+        'excerpt' => 'Excerpt',
+        'category' => 'Guide',
+        'cover_image' => 'articles/cover.jpg',
+        'body' => 'Body',
+        'published_at' => now()->subDay(),
+    ]);
+
+    $response = $this->get('/articles');
+
+    $response->assertOk();
+    // An empty alt on a content image announces nothing at all.
+    expect($response->getContent())->toContain('alt="မိတ်ဖက်လုပ်ငန်း အခြေခံ"');
+});
