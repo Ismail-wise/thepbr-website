@@ -69,6 +69,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Display Timezone
+    |--------------------------------------------------------------------------
+    |
+    | Timestamps are stored in UTC — the value above must not change, because
+    | Laravel writes whatever timezone is set here directly into the database
+    | rather than converting, so switching it would reinterpret every existing
+    | agreed_at, effective_date and invitation_expires_at by seven hours.
+    |
+    | This second value is for INPUT and DISPLAY only. Admin date pickers use
+    | it so that typing "2:22 PM" means 2:22 PM in Bangkok, not in UTC. It is
+    | applied per field, never globally.
+    |
+    */
+
+    'display_timezone' => env('APP_DISPLAY_TIMEZONE', 'Asia/Bangkok'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Locale Configuration
     |--------------------------------------------------------------------------
     |

@@ -45,9 +45,13 @@ class ListStudentAccessCodes extends ListRecords
                         ->maxValue(100)
                         ->default(30)
                         ->required(),
+                    // Bangkok time in, UTC in the database. This one matters
+                    // most of the three: an access code that expires seven
+                    // hours early locks a paying student out of the course.
                     DateTimePicker::make('expires_at')
-                        ->label('Expiry Date and Time')
-                        ->helperText('Leave empty for no expiry.'),
+                        ->label('Expiry Date and Time (Thailand)')
+                        ->helperText('Leave empty for no expiry.')
+                        ->timezone(config('app.display_timezone')),
                     Textarea::make('notes')
                         ->label('Notes')
                         ->rows(3)
