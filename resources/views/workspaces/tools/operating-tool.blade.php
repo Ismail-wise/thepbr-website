@@ -51,6 +51,14 @@
             ]
         )
 
+        {{-- Area rail sits here, between the command bar and the breadcrumb,
+             because pbr-premium-tool-system-v2.js rewrites other regions after
+             load: simplifyOperatingWorkspace() lifts .pbr-os-sidebar out and
+             buries it inside a collapsed "Working Plans & History" panel, so
+             anything placed in the sidebar is hidden from the owner by default.
+             This region is left untouched by that script. --}}
+        @include('workspaces.tools.partials.area-rail')
+
         <nav class="pbr-os-breadcrumb" aria-label="Breadcrumb">
             <a href="{{ route('workspaces.show', $workspace) }}">{{ $workspace->business_name ?: $workspace->name }}</a>
             <span>›</span>
@@ -253,7 +261,7 @@
                                         <div class="pbr-os-field pbr-os-field-wide pbr-os-repeater" data-pbr-repeater="{{ $fieldName }}">
                                             <div class="pbr-os-field-heading">
                                                 <div>
-                                                    <label>{{ $field['label_mm'] }}</label>
+                                                    <strong class="pbr-os-group-label">{{ $field['label_mm'] }}</strong>
                                                     <span>{{ $field['label_en'] }}</span>
                                                 </div>
                                                 <button type="button" class="pbr-os-add-row" data-repeater-add>+ Record ထည့်ရန်</button>
@@ -278,17 +286,19 @@
                                                                 $columnName = $column['name'];
                                                                 $columnValue = $row[$columnName] ?? '';
                                                                 $columnType = $column['type'] ?? 'text';
+                                                                $columnId = $fieldName . '_' . $rowIndex . '_' . $columnName;
                                                             @endphp
                                                             <div class="pbr-os-mini-field">
-                                                                <label>{{ $column['label_mm'] ?? $column['label_en'] }}</label>
+                                                                <label for="{{ $columnId }}">{{ $column['label_mm'] ?? $column['label_en'] }}</label>
                                                                 @if($columnType === 'select')
-                                                                    <select name="{{ $fieldName }}[{{ $rowIndex }}][{{ $columnName }}]">
+                                                                    <select id="{{ $columnId }}" name="{{ $fieldName }}[{{ $rowIndex }}][{{ $columnName }}]">
                                                                         @foreach($column['options'] ?? [] as $optionValue => $optionLabel)
                                                                             <option value="{{ $optionValue }}" @selected((string) $columnValue === (string) $optionValue)>{{ $optionLabel }}</option>
                                                                         @endforeach
                                                                     </select>
                                                                 @else
                                                                     <input
+                                                                        id="{{ $columnId }}"
                                                                         type="{{ $columnType === 'number' ? 'number' : 'text' }}"
                                                                         name="{{ $fieldName }}[{{ $rowIndex }}][{{ $columnName }}]"
                                                                         value="{{ $columnValue }}"
@@ -311,17 +321,21 @@
                                                 <div class="pbr-os-repeater-row" data-repeater-row>
                                                     <span class="pbr-os-row-number">__NUMBER__</span>
                                                     @foreach($field['columns'] ?? [] as $column)
-                                                        @php $columnType = $column['type'] ?? 'text'; @endphp
+                                                        @php
+                                                            $columnType = $column['type'] ?? 'text';
+                                                            $columnId = $fieldName . '___INDEX___' . $column['name'];
+                                                        @endphp
                                                         <div class="pbr-os-mini-field">
-                                                            <label>{{ $column['label_mm'] ?? $column['label_en'] }}</label>
+                                                            <label for="{{ $columnId }}">{{ $column['label_mm'] ?? $column['label_en'] }}</label>
                                                             @if($columnType === 'select')
-                                                                <select name="{{ $fieldName }}[__INDEX__][{{ $column['name'] }}]">
+                                                                <select id="{{ $columnId }}" name="{{ $fieldName }}[__INDEX__][{{ $column['name'] }}]">
                                                                     @foreach($column['options'] ?? [] as $optionValue => $optionLabel)
                                                                         <option value="{{ $optionValue }}">{{ $optionLabel }}</option>
                                                                     @endforeach
                                                                 </select>
                                                             @else
                                                                 <input
+                                                                    id="{{ $columnId }}"
                                                                     type="{{ $columnType === 'number' ? 'number' : 'text' }}"
                                                                     name="{{ $fieldName }}[__INDEX__][{{ $column['name'] }}]"
                                                                     value=""
@@ -343,7 +357,7 @@
                                         <div class="pbr-os-field pbr-os-field-wide">
                                             <div class="pbr-os-field-heading">
                                                 <div>
-                                                    <label>{{ $field['label_mm'] }}</label>
+                                                    <strong class="pbr-os-group-label">{{ $field['label_mm'] }}</strong>
                                                     <span>{{ $field['label_en'] }}</span>
                                                 </div>
                                             </div>

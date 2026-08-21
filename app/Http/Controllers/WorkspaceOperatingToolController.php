@@ -10,6 +10,7 @@ use App\Models\WorkspaceToolAction;
 use App\Services\PbrTools\PbrToolApprovalReadinessService;
 use App\Services\PbrTools\PbrToolBusinessGuidanceService;
 use App\Services\PbrTools\PbrToolOperatingContextService;
+use App\Services\PbrTools\PbrBusinessOperatingService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 use App\Services\PbrTools\PbrOperatingToolEngine;
 use App\Services\PbrTools\PbrToolPrefillService;
@@ -25,8 +26,74 @@ class WorkspaceOperatingToolController extends Controller
         private readonly PbrToolRuntimeContractService $runtimeContracts,
         private readonly PbrToolApprovalReadinessService $approvalReadiness,
         private readonly PbrToolBusinessGuidanceService $businessGuidance,
-        private readonly PbrToolOperatingContextService $operatingContext
+        private readonly PbrToolOperatingContextService $operatingContext,
+        private readonly PbrBusinessOperatingService $businessOperating
     ) {
+    }
+
+    /**
+     * Areas shown in the tool-page rail.
+     *
+     * Reuses the same workspace state the dashboard reads, so the rail can
+     * never disagree with the Business Control Center about what is approved.
+     * Reduced to the four fields the rail actually renders — passing the full
+     * system array into the view would invite the rail to grow counts and
+     * percentages it is deliberately not meant to show.
+     *
+     * @return array<int, array<string, mixed>>
+     */
+    private function railAreas(Request $request, PartnershipWorkspace $workspace): array
+    {
+        $state = $this->businessOperating->workspaceState(
+            $request->user(),
+            $workspace
+        );
+
+        return collect($state['systems'] ?? [])
+            ->map(fn (array $system): array => [
+                'domain' => $system['domain'] ?? null,
+                'name_mm' => $system['name_mm'] ?? '',
+                'url' => $system['url'] ?? '#',
+                'status_key' => $this->railStatusKey($system),
+            ])
+            ->filter(fn (array $area): bool => $area['domain'] !== null)
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Collapse an area's counts into one of five states.
+     *
+     * Order matters and mirrors PbrBusinessJourneyService: a working change
+     * outranks a dependency review, which outranks completeness. An area with
+     * an unapproved draft must never read as "established" — that distinction
+     * is the product's core promise.
+     *
+     * @param  array<string, mixed>  $system
+     */
+    private function railStatusKey(array $system): string
+    {
+        $modules = collect($system['modules'] ?? []);
+
+        $ruleCount = (int) ($system['rule_module_count'] ?? $modules
+            ->reject(fn (array $module): bool => (bool) ($module['is_record'] ?? false))
+            ->count());
+
+        $approved = (int) ($system['active_count'] ?? 0);
+
+        if ((int) ($system['working_count'] ?? 0) > 0) {
+            return 'review';
+        }
+
+        if ((int) ($system['dependency_review_count'] ?? 0) > 0) {
+            return 'dependency-review';
+        }
+
+        if ($ruleCount > 0 && $approved >= $ruleCount) {
+            return 'established';
+        }
+
+        return $approved > 0 ? 'in-progress' : 'setup';
     }
 
     public function show(
@@ -352,6 +419,9 @@ class WorkspaceOperatingToolController extends Controller
                 $activeSession !== null
             );
 
+        $railAreas = $this->railAreas($request, $workspace);
+        $currentDomain = $toolContract['domain'] ?? null;
+
         return view('workspaces.tools.operating-tool', compact(
             'workspace',
             'tool',
@@ -367,7 +437,9 @@ class WorkspaceOperatingToolController extends Controller
             'operatingRecords',
             'operatingActions',
             'approvalState',
-            'businessGuidance'
+            'businessGuidance',
+            'railAreas',
+            'currentDomain'
         ));
     }
 }
