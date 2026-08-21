@@ -41,9 +41,11 @@ class ArticleForm
                     ->required()
                     ->native(false),
 
+                // Bangkok time in, UTC in the database — see VideoForm.
                 DateTimePicker::make('published_at')
-                    ->label('ဖော်ပြမည့် ရက်စွဲ')
+                    ->label('ဖော်ပြမည့် ရက်စွဲ (ထိုင်းအချိန်)')
                     ->helperText('ဗလာထားပါက မဖော်ပြသေးပါ (draft)။')
+                    ->timezone(config('app.display_timezone'))
                     ->seconds(false),
 
                 Textarea::make('excerpt')

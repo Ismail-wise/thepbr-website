@@ -56,9 +56,14 @@ class VideoForm
                     ->minValue(1)
                     ->maxValue(600),
 
+                // Bangkok time in, UTC in the database. Without this the
+                // server reads a typed "2:22 PM" as 2:22 PM UTC — 9:22 PM in
+                // Thailand — and the record silently stays unpublished for
+                // another seven hours.
                 DateTimePicker::make('published_at')
-                    ->label('ဖော်ပြမည့် ရက်စွဲ')
+                    ->label('ဖော်ပြမည့် ရက်စွဲ (ထိုင်းအချိန်)')
                     ->helperText('ဗလာထားပါက မဖော်ပြသေးပါ (draft)။ နောင်ရက်စွဲ ထားပါက ထိုအချိန်ရောက်မှ ပေါ်ပါမည်။')
+                    ->timezone(config('app.display_timezone'))
                     ->seconds(false)
                     ->columnSpanFull(),
 
