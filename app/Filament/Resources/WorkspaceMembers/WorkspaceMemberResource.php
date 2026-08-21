@@ -18,13 +18,15 @@ class WorkspaceMemberResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUserGroup;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Business';
+
     protected static ?string $navigationLabel = 'Partner Memberships';
 
     protected static ?string $modelLabel = 'Partner Membership';
 
     protected static ?string $pluralModelLabel = 'Partner Memberships';
 
-    protected static ?int $navigationSort = 6;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
