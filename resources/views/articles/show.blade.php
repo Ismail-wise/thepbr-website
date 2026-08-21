@@ -2,6 +2,29 @@
 
 @section('title', $article->title . ' — thePBR')
 @section('description', $article->excerpt)
+@section('og_type', 'article')
+@section('og_image', $article->cover_image ?? '')
+@section('published_time', optional($article->published_at)->toIso8601String())
+
+@push('schema')
+<script type="application/ld+json">
+{!! json_encode([
+    '@context' => 'https://schema.org',
+    '@type' => 'Article',
+    'headline' => $article->title,
+    'description' => $article->excerpt,
+    'datePublished' => optional($article->published_at)->toIso8601String(),
+    'inLanguage' => 'my',
+    'articleSection' => $article->category,
+    'publisher' => [
+        '@type' => 'Organization',
+        'name' => 'thePBR',
+        'logo' => ['@type' => 'ImageObject', 'url' => asset('images/pbr-logo.png')],
+    ],
+    'mainEntityOfPage' => ['@type' => 'WebPage', '@id' => url()->current()],
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endpush
 
 @section('content')
 

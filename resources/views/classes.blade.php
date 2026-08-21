@@ -3,6 +3,35 @@
 @section('title', 'Classes — thePBR')
 @section('description', 'လာမည့် သင်တန်းအချိန်စာရင်းနှင့် ယခုအထိ ပြုလုပ်ခဲ့သည့် သင်တန်းများ မှတ်တမ်း။')
 
+@push('schema')
+{{-- Course + scheduled instances. Only real, visible upcoming sessions are
+     emitted: advertising a class that is not actually scheduled would be a
+     misrepresentation, and Google penalises unmatched structured data. --}}
+<script type="application/ld+json">
+{!! json_encode(array_filter([
+    '@context' => 'https://schema.org',
+    '@type' => 'Course',
+    'name' => 'thePBR — Partnership Business Rules',
+    'description' => 'မိတ်ဖက်လုပ်ငန်း စတင်ခြင်း၊ ပြန်လည်ဖွဲ့စည်းခြင်းအတွက် SME လုပ်ငန်းရှင်များအတွက် သင်တန်း။',
+    'inLanguage' => 'my',
+    'provider' => [
+        '@type' => 'Organization',
+        'name' => 'thePBR',
+        'url' => url('/'),
+    ],
+    'hasCourseInstance' => $upcoming->map(fn ($session) => array_filter([
+        '@type' => 'CourseInstance',
+        'courseMode' => 'onsite',
+        'startDate' => optional($session->starts_on)->toDateString(),
+        'location' => $session->location ? [
+            '@type' => 'Place',
+            'name' => $session->location,
+        ] : null,
+    ]))->values()->all() ?: null,
+]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+</script>
+@endpush
+
 @section('content')
 
 @php

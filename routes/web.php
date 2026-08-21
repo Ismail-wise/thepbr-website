@@ -24,6 +24,12 @@ Route::get('/classes', [ClassController::class, 'index'])->name('classes');
 Route::get('/about', [AboutController::class, 'index'])
     ->name('about');
 
+Route::get('/privacy', fn () => view('legal.privacy'))->name('privacy');
+Route::get('/terms', fn () => view('legal.terms'))->name('terms');
+
+Route::get('/sitemap.xml', [\App\Http\Controllers\SitemapController::class, 'index'])
+    ->name('sitemap');
+
 Route::get('/workspace-invitations/{token}', [WorkspaceInvitationController::class, 'show'])
     ->name('workspace-invitations.show');
 
