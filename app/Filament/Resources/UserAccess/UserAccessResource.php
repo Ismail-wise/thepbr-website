@@ -18,13 +18,15 @@ class UserAccessResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Access';
+
     protected static ?string $navigationLabel = 'Accounts & Access';
 
     protected static ?string $modelLabel = 'User Account';
 
     protected static ?string $pluralModelLabel = 'Accounts & Access';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Schema $schema): Schema
     {

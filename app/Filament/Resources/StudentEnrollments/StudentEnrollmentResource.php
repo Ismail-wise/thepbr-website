@@ -18,13 +18,15 @@ class StudentEnrollmentResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedAcademicCap;
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Access';
+
     protected static ?string $navigationLabel = 'Student Entitlements';
 
     protected static ?string $modelLabel = 'Student Entitlement';
 
     protected static ?string $pluralModelLabel = 'Student Entitlements';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 1;
 
     public static function form(Schema $schema): Schema
     {
