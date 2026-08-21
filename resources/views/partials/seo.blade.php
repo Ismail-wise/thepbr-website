@@ -32,8 +32,18 @@
 
     $seoImageRaw = trim($__env->yieldContent('og_image', ''));
 
+    // Site-wide fallback. og-default.png is the purpose-made 1200x630 social
+    // card; pbr-logo.png is 180x180 and gets letterboxed or cropped badly by
+    // Facebook, so it is only used until the real card exists. The file_exists
+    // check means the site never advertises an image that returns 404 — a
+    // missing og:image is worse than a poorly-shaped one, because Facebook
+    // then shows no preview at all.
+    $seoDefaultImage = file_exists(public_path('images/og-default.png'))
+        ? 'images/og-default.png'
+        : 'images/pbr-logo.png';
+
     if ($seoImageRaw === '') {
-        $seoImage = asset('images/pbr-logo.png');
+        $seoImage = asset($seoDefaultImage);
     } elseif (str_starts_with($seoImageRaw, 'http')) {
         $seoImage = $seoImageRaw;
     } else {
@@ -52,6 +62,14 @@
 <meta property="og:url" content="{{ $seoCanonical }}">
 <meta property="og:image" content="{{ $seoImage }}">
 <meta property="og:image:alt" content="thePBR — Partnership Business Rules">
+@if($seoImageRaw === '' && $seoDefaultImage === 'images/og-default.png')
+    {{-- Declaring dimensions lets Facebook render a preview on the very first
+         share instead of showing a bare link while it fetches the file. Only
+         emitted for the known 1200x630 card, never for article covers whose
+         size varies. --}}
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+@endif
 
 {{-- Twitter/X reads og:* as a fallback but needs the card type declared. --}}
 <meta name="twitter:card" content="summary_large_image">
