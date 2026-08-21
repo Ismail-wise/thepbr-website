@@ -1,2 +1,15 @@
+# thePBR — Partnership Business Rules
+# The authenticated portal is disallowed here and additionally sends
+# noindex,nofollow from the layout, so private workspace data cannot be
+# indexed even if a URL leaks into a crawler's queue.
+
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /account
+Disallow: /workspaces
+Disallow: /student
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /workspace-invitations
+
+Sitemap: https://thepbr.io/sitemap.xml

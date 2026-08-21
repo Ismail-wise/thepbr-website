@@ -6,6 +6,7 @@
 <title>@yield('title', 'thePBR — Partnership Business Rules')</title>
 <meta name="description" content="@yield('description', 'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။')">
 <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
+@include('partials.seo')
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Serif+Myanmar:wght@500;600&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
@@ -110,7 +111,7 @@
     </div>
     <div class="fbot">
       <span>© {{ date('Y') }} thePBR. All rights reserved.</span>
-      <span>Privacy · Terms</span>
+      <span><a href="{{ route('privacy') }}">Privacy</a> · <a href="{{ route('terms') }}">Terms</a></span>
     </div>
   </div>
 </footer>
