@@ -167,3 +167,40 @@ it('labels article cover images for screen readers', function (): void {
     // An empty alt on a content image announces nothing at all.
     expect($response->getContent())->toContain('alt="မိတ်ဖက်လုပ်ငန်း အခြေခံ"');
 });
+
+it('falls back to a real image when no social card exists yet', function (): void {
+    // Until images/og-default.png is created, the logo is used. A missing
+    // og:image is worse than a badly-shaped one: Facebook shows no preview
+    // at all rather than a cropped card.
+    $response = $this->get('/');
+
+    $response->assertOk();
+
+    $usesCard = str_contains($response->getContent(), 'images/og-default.png');
+    $usesLogo = str_contains($response->getContent(), 'images/pbr-logo.png');
+
+    expect($usesCard || $usesLogo)->toBeTrue();
+
+    // Whichever is used must actually exist on disk.
+    $file = $usesCard ? 'images/og-default.png' : 'images/pbr-logo.png';
+    expect(file_exists(public_path($file)))->toBeTrue();
+});
+
+it('only declares image dimensions for the known-size social card', function (): void {
+    // Article covers vary in size, so claiming 1200x630 for them would tell
+    // Facebook something false and produce a stretched preview.
+    $article = Article::create([
+        'title' => 'Sized cover',
+        'slug' => 'sized-cover',
+        'excerpt' => 'Excerpt',
+        'category' => 'Guide',
+        'cover_image' => 'articles/cover.jpg',
+        'body' => 'Body',
+        'published_at' => now()->subDay(),
+    ]);
+
+    $response = $this->get('/articles/'.$article->slug);
+
+    $response->assertOk();
+    $response->assertDontSee('og:image:width', false);
+});
