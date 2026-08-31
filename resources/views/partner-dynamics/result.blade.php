@@ -4,6 +4,12 @@
 
 @section('content')
 
+<link
+    rel="stylesheet"
+    href="{{ asset('css/partner-dynamics-result-reference.css') }}?v={{ filemtime(public_path('css/partner-dynamics-result-reference.css')) }}"
+>
+
+
 @php
 
     $profiles = [
@@ -83,10 +89,52 @@
             'description' => '',
         ];
 
+
+    /*
+    |--------------------------------------------------------------------------
+    | Partner Dynamics Visual Theme
+    |--------------------------------------------------------------------------
+    |
+    | Scoring logic remains inside the existing Partner Dynamics engine.
+    | This config controls visual identity only.
+    |
+    */
+
+    $visualThemes = config('partner_dynamics_visuals', []);
+
+    $primaryVisual = $visualThemes[$assessment->primary_profile]
+        ?? [
+            'primary' => '#157F09',
+            'secondary' => '#F28C28',
+            'soft' => '#F1F8EE',
+            'light' => '#E3F0DE',
+            'badge_mm' => '',
+            'illustration' => '',
+        ];
+
+    $secondaryVisual = $visualThemes[$assessment->secondary_profile]
+        ?? [
+            'primary' => '#64748B',
+            'secondary' => '#94A3B8',
+            'soft' => '#F8FAFC',
+            'light' => '#E2E8F0',
+            'badge_mm' => '',
+            'illustration' => '',
+        ];
+
 @endphp
 
 
-<section class="pd-result-section">
+<section
+    class="pd-result-section"
+    style="
+        --pd-primary: {{ $primaryVisual['primary'] }};
+        --pd-secondary: {{ $primaryVisual['secondary'] }};
+        --pd-soft: {{ $primaryVisual['soft'] }};
+        --pd-light: {{ $primaryVisual['light'] }};
+        --pd-secondary-profile: {{ $secondaryVisual['primary'] }};
+    "
+>
 
     <div class="portal-wrap">
 
@@ -94,449 +142,30 @@
            class="pd-back-home">
             ← Partner Dynamics
         </a>
+        @include(
+            'partner-dynamics.partials.result-reference-top'
+        )
+
+        <div id="partner-match"></div>
 
 
-        <div class="pd-result-hero">
-
-            <div class="pd-result-main">
-
-                <span class="portal-kicker">
-                    Your Partner Dynamics Result
-                </span>
-
-                <p class="pd-result-eyebrow">
-                    Your Primary Operating Style
-                </p>
-
-                <h1>{{ $primary['name'] }}</h1>
-
-                <h2>{{ $primary['mm'] }}</h2>
-
-                <p class="pd-result-description">
-                    {{ $primary['description'] }}
-                </p>
-
-
-                @if($assessment->is_blended)
-
-                    <div class="pd-blended-box">
-
-                        <span>Blended Operating Style</span>
-
-                        <strong>
-                            {{ $primary['name'] }}
-                            +
-                            {{ $secondary['name'] }}
-                        </strong>
-
-                        <p>
-                            သင့် Primary နဲ့ Secondary Profile score
-                            အရမ်းနီးကပ်နေတာကြောင့် သင်ဟာ profile တစ်ခုတည်းနဲ့
-                            သတ်မှတ်လို့မရတဲ့ blended style ဖြစ်ပါတယ်။
-                        </p>
-
-                    </div>
-
-                @endif
-
-            </div>
-
-
-            <aside class="pd-score-card">
-
-                <span>Primary</span>
-
-                <strong>
-                    {{ number_format($assessment->primary_score, 1) }}
-                </strong>
-
-                <small>{{ $primary['name'] }}</small>
-
-                <div class="pd-score-divider"></div>
-
-                <span>Secondary</span>
-
-                <strong class="secondary-score">
-                    {{ number_format($assessment->secondary_score, 1) }}
-                </strong>
-
-                <small>{{ $secondary['name'] }}</small>
-
-            </aside>
-
-        </div>
-
-
-        <div class="pd-result-grid">
-
-            <section class="pd-result-panel">
-
-                <div class="pd-panel-heading">
-                    <div>
-                        <span class="portal-kicker">
-                            Your Dimension Map
-                        </span>
-
-                        <h2>Partnership Operating Dimensions</h2>
-                    </div>
-                </div>
-
-
-                <div class="pd-dimension-list">
-
-                    @foreach($assessment->dimension_scores as $key => $score)
-
-                        <div class="pd-dimension-row">
-
-                            <div class="pd-dimension-heading">
-                                <span>
-                                    {{ $dimensions[$key] ?? ucfirst($key) }}
-                                </span>
-
-                                <strong>
-                                    {{ number_format($score, 0) }}
-                                </strong>
-                            </div>
-
-                            <div class="pd-dimension-track">
-                                <span style="width: {{ max(0, min(100, $score)) }}%">
-                                </span>
-                            </div>
-
-                        </div>
-
-                    @endforeach
-
-                </div>
-
-            </section>
-
-
-            <aside class="pd-result-panel pd-secondary-panel">
-
-                <span class="portal-kicker">
-                    Secondary Style
-                </span>
-
-                <h2>{{ $secondary['name'] }}</h2>
-
-                <h3>{{ $secondary['mm'] }}</h3>
-
-                <p>
-                    {{ $secondary['description'] }}
-                </p>
-
-
-                <div class="pd-confidence">
-
-                    <span>Result Confidence</span>
-
-                    <strong>
-                        {{ ucfirst($assessment->result_confidence) }}
-                    </strong>
-
-                    <p>
-                        @if($assessment->result_confidence === 'strong')
-                            သင့် answers တွေမှာ pattern consistency
-                            ကောင်းကောင်းရှိပါတယ်။
-                        @else
-                            သင့် responses မှာ operating style နှစ်မျိုး
-                            ရောနှောနေနိုင်ပါတယ်။ ဒါကို weakness လို့
-                            မယူဆပါဘူး။
-                        @endif
-                    </p>
-
-                </div>
-
-            </aside>
-
-        </div>
 
 
         @php
+
             $matchLabels = [
                 'အကောင်းဆုံး ဖြည့်ဆည်းမှု',
                 'ညီမျှစွာ ဖြည့်ဆည်းမှု',
                 'ထောက်ပံ့ ဖြည့်ဆည်းမှု',
             ];
+
         @endphp
 
-        <section class="pd-partner-match">
+        @include(
+            'partner-dynamics.partials.partner-match-folded'
+        )
 
-            <div class="pd-partner-match-hero">
 
-                <div class="pd-partner-match-copy">
-
-                    <span class="portal-kicker">
-                        သင့်အတွက် PARTNER MATCH
-                    </span>
-
-                    <h2>
-                        သင့် Working Style ကို
-                        <span>Balance</span>
-                        လုပ်ပေးနိုင်မယ့် Partner Types
-                    </h2>
-
-                    <p>
-                        ဒီ Recommendation က Primary Profile
-                        တစ်ခုတည်းကို ကြည့်ထားတာမဟုတ်ပါဘူး။
-                        သင့်ရဲ့ Dimension Scores (၈) ခုလုံးကို
-                        ဆန်းစစ်ပြီး သင်အားနည်းနိုင်တဲ့နေရာတွေကို
-                        ဖြည့်ဆည်းပေးနိုင်မယ့် Partner Type
-                        (၃) မျိုးကို ရွေးပေးထားတာပါ။
-                    </p>
-
-                </div>
-
-                <div class="pd-match-count">
-                    <strong>3</strong>
-
-                    <span>
-                        အကြံပြု<br>
-                        Partner Types
-                    </span>
-                </div>
-
-            </div>
-
-
-            @if(! empty($partnerMatch['priority_needs']))
-
-                <div class="pd-partner-needs">
-
-                    <div class="pd-partner-needs-title">
-
-                        <span>
-                            ဖြည့်ဆည်းပေးနိုင်မည့် နေရာများ
-                        </span>
-
-                        <strong>
-                            Partner တစ်ယောက်က
-                            ဖြည့်ဆည်းပေးနိုင်တဲ့ အဓိကနေရာများ
-                        </strong>
-
-                    </div>
-
-                    <div class="pd-partner-needs-list">
-
-                        @foreach(
-                            $partnerMatch['priority_needs']
-                            as $need
-                        )
-
-                            <span>
-                                {{ $need['label'] }}
-                            </span>
-
-                        @endforeach
-
-                    </div>
-
-                </div>
-
-            @endif
-
-
-            <div class="pd-partner-recommendation-grid">
-
-                @foreach(
-                    $partnerMatch['recommendations']
-                    as $index => $recommendation
-                )
-
-                    <article
-                        class="pd-partner-recommendation-card
-                        {{ $index === 0 ? 'featured' : '' }}"
-                    >
-
-                        <div class="pd-partner-card-top">
-
-                            <div class="pd-partner-rank-number">
-                                0{{ $index + 1 }}
-                            </div>
-
-                            <div class="pd-partner-match-badge">
-
-                                <strong>
-                                    {{
-                                        $matchLabels[$index]
-                                        ?? 'ဖြည့်ဆည်းနိုင်မှု'
-                                    }}
-                                </strong>
-
-                                <span>
-                                    {{
-                                        $recommendation[
-                                            'recommendation_label'
-                                        ]
-                                    }}
-                                </span>
-
-                            </div>
-
-                        </div>
-
-
-                        <div class="pd-partner-card-profile">
-
-                            <span>
-                                အကြံပြု PARTNER TYPE
-                            </span>
-
-                            <h3>
-                                {{ $recommendation['name'] }}
-                            </h3>
-
-                            <p>
-                                {{
-                                    $recommendation[
-                                        'description'
-                                    ]
-                                }}
-                            </p>
-
-                        </div>
-
-
-                        <div class="pd-partner-card-details">
-
-                            <div class="pd-partner-why">
-
-                                <span>
-                                    ဘာကြောင့် သင့်တော်နိုင်သလဲ
-                                </span>
-
-                                <strong>
-                                    သင့် Working Style နဲ့
-                                    ဘယ်လိုဖြည့်ဆည်းပေးနိုင်သလဲ?
-                                </strong>
-
-                                <p>
-                                    {{
-                                        $recommendation[
-                                            'reason'
-                                        ]
-                                    }}
-                                </p>
-
-                            </div>
-
-
-                            @if(
-                                ! empty(
-                                    $recommendation[
-                                        'strengthens'
-                                    ]
-                                )
-                            )
-
-                                <div class="pd-partner-strengthens">
-
-                                    <span>
-                                        ပိုအားကောင်းလာနိုင်သည့် AREAS
-                                    </span>
-
-                                    <strong>
-                                        Partner က
-                                        ဖြည့်ဆည်းပေးနိုင်သည့် နေရာများ
-                                    </strong>
-
-                                    <div>
-
-                                        @foreach(
-                                            $recommendation[
-                                                'strengthens'
-                                            ]
-                                            as $strength
-                                        )
-
-                                            <small>
-                                                {{
-                                                    $strength[
-                                                        'label'
-                                                    ]
-                                                }}
-                                            </small>
-
-                                        @endforeach
-
-                                    </div>
-
-                                </div>
-
-                            @endif
-
-
-                            @if(
-                                ! empty(
-                                    $recommendation[
-                                        'discussion_points'
-                                    ]
-                                )
-                            )
-
-                                <div class="pd-partner-discussion">
-
-                                    <span>
-                                        PARTNER မဖြစ်ခင်
-                                    </span>
-
-                                    <strong>
-                                        ကြိုတင်ဆွေးနွေးပြီး
-                                        သဘောတူထားသင့်သည့် အချက်များ
-                                    </strong>
-
-                                    <ul>
-
-                                        @foreach(
-                                            $recommendation[
-                                                'discussion_points'
-                                            ]
-                                            as $point
-                                        )
-
-                                            <li>
-                                                {{ $point }}
-                                            </li>
-
-                                        @endforeach
-
-                                    </ul>
-
-                                </div>
-
-                            @endif
-
-                        </div>
-
-                    </article>
-
-                @endforeach
-
-            </div>
-
-
-            <div class="pd-partner-match-note">
-
-                <div class="pd-note-icon">
-                    i
-                </div>
-
-                <div>
-
-                    <strong>
-                        အရေးကြီးတဲ့ မှတ်ချက်
-                    </strong>
-
-                    <p>
-                        {{ $partnerMatch['note'] }}
-                    </p>
-
-                </div>
-
-            </div>
-
-        </section>
 
 
         <section class="pd-next-stage">
@@ -547,7 +176,9 @@
                     What's Next?
                 </span>
 
-                <h2>Partner နဲ့ Alignment ကို ဆက်ကြည့်မယ်</h2>
+                <h2>
+                    Partner နဲ့ Alignment ကို ဆက်ကြည့်မယ်
+                </h2>
 
                 <p>
                     Partner တစ်ယောက်ချင်းစီ Assessment ပြီးသွားတဲ့အခါ
@@ -558,21 +189,31 @@
 
             </div>
 
+
             <div class="pd-result-actions">
 
-                <a href="{{ route('workspaces.index') }}"
-                   class="pd-primary-button pd-button-link">
+                <a
+                    href="{{ route('workspaces.index') }}"
+                    class="pd-primary-button pd-button-link"
+                >
                     My Workspace →
                 </a>
 
-                <form method="POST"
-                      action="{{ route('partner-dynamics.retake') }}">
+
+                <form
+                    method="POST"
+                    action="{{ route('partner-dynamics.retake') }}"
+                >
+
                     @csrf
 
-                    <button type="submit"
-                            class="pd-secondary-button">
+                    <button
+                        type="submit"
+                        class="pd-secondary-button"
+                    >
                         Assessment ပြန်ဖြေမယ်
                     </button>
+
                 </form>
 
             </div>

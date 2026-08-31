@@ -9,7 +9,7 @@ return [
         'soft' => '#F3E8FF',
         'light' => '#E9D5FF',
         'badge_mm' => 'အနာဂတ်ကို ဦးဆောင်မြင်နိုင်သူ',
-        'illustration' => 'visionary.webp',
+        'illustration' => 'visionary.png',
     ],
 
     'builder' => [
@@ -19,7 +19,7 @@ return [
         'soft' => '#FFF1EF',
         'light' => '#FED7D2',
         'badge_mm' => 'Idea ကို Action အဖြစ်ပြောင်းနိုင်သူ',
-        'illustration' => 'builder.webp',
+        'illustration' => 'builder.png',
     ],
 
     'connector' => [
@@ -29,7 +29,7 @@ return [
         'soft' => '#FFF7ED',
         'light' => '#FED7AA',
         'badge_mm' => 'လူတွေကို ချိတ်ဆက်ပေးနိုင်သူ',
-        'illustration' => 'connector.webp',
+        'illustration' => 'connector.png',
     ],
 
     'analyst' => [
@@ -39,7 +39,7 @@ return [
         'soft' => '#ECFDFB',
         'light' => '#CCFBF1',
         'badge_mm' => 'အချက်အလက်နဲ့ ဆုံးဖြတ်နိုင်သူ',
-        'illustration' => 'analyst.webp',
+        'illustration' => 'analyst.png',
     ],
 
     'operator' => [
@@ -49,7 +49,7 @@ return [
         'soft' => '#EFF6FF',
         'light' => '#DBEAFE',
         'badge_mm' => 'စနစ်တကျ အကောင်အထည်ဖော်နိုင်သူ',
-        'illustration' => 'operator.webp',
+        'illustration' => 'operator.png',
     ],
 
     'guardian' => [
@@ -59,7 +59,7 @@ return [
         'soft' => '#F0FDF4',
         'light' => '#DCFCE7',
         'badge_mm' => 'Business ကို ကာကွယ်ထိန်းသိမ်းနိုင်သူ',
-        'illustration' => 'guardian.webp',
+        'illustration' => 'guardian.png',
     ],
 
     'negotiator' => [
@@ -69,7 +69,7 @@ return [
         'soft' => '#EEF2FF',
         'light' => '#E0E7FF',
         'badge_mm' => 'မတူညီတဲ့အမြင်တွေကို ညှိနှိုင်းနိုင်သူ',
-        'illustration' => 'negotiator.webp',
+        'illustration' => 'negotiator.png',
     ],
 
     'optimizer' => [
@@ -79,7 +79,7 @@ return [
         'soft' => '#ECFEFF',
         'light' => '#CFFAFE',
         'badge_mm' => 'ရှိပြီးသား System ကို ပိုကောင်းအောင်လုပ်နိုင်သူ',
-        'illustration' => 'optimizer.webp',
+        'illustration' => 'optimizer.png',
     ],
 
 ];
