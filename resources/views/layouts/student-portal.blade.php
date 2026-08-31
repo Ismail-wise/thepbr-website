@@ -73,7 +73,7 @@
         <script src="{{ asset('js/pbr-startup-capital-expense-ux.js') }}?v={{ filemtime(public_path('js/pbr-startup-capital-expense-ux.js')) }}" defer></script>
     @endif
 </head>
-<body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }}">
+<body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }} {{ request()->routeIs('partner-dynamics.*') ? 'pbr-partner-dynamics-route' : '' }}">
     <header class="portal-header">
         <div class="portal-wrap portal-bar">
             <a href="{{ auth()->check() && auth()->user()->isStudent() ? route('student.dashboard') : route('home') }}" class="portal-brand">

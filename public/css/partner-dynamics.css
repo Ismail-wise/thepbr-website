@@ -2534,3 +2534,280 @@
     letter-spacing:.17em;
 }
 
+
+
+/* =========================================================
+   PARTNER DYNAMICS — FINAL RESPONSIVE POLISH
+   Tablet + Mobile only
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   TABLET — 900px and below
+   --------------------------------------------------------- */
+
+@media (max-width: 900px) {
+
+    body.pbr-partner-dynamics-route .portal-header {
+        position: relative;
+    }
+
+    body.pbr-partner-dynamics-route .portal-bar {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding-top: 12px;
+        padding-bottom: 10px;
+    }
+
+    body.pbr-partner-dynamics-route .portal-brand {
+        width: max-content;
+    }
+
+    body.pbr-partner-dynamics-route .portal-nav {
+        width: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    body.pbr-partner-dynamics-route .portal-nav::-webkit-scrollbar {
+        display: none;
+    }
+
+    body.pbr-partner-dynamics-route .portal-nav a,
+    body.pbr-partner-dynamics-route .portal-nav button {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 8px 10px;
+        font-size: 13px;
+    }
+
+
+    /* Result shell */
+
+    .pd-result-section {
+        padding-top: 22px;
+    }
+
+    .pd-result-section .pd-back-home {
+        margin-bottom: 8px;
+    }
+
+
+    /* Hero becomes clean single-column */
+
+    .pd-result-hero-v2 {
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding: 24px 0 30px;
+    }
+
+    .pd-result-main-v2 {
+        order: 1;
+        padding: 4px 0;
+    }
+
+    .pd-profile-illustration {
+        grid-column: auto;
+        order: 2;
+        min-height: 310px;
+        height: 310px;
+        border-radius: 22px;
+    }
+
+    .pd-profile-illustration-image {
+        border-radius: 22px;
+        object-position: center center;
+    }
+
+    .pd-score-card-v2 {
+        order: 3;
+        min-height: auto;
+        padding: 25px 26px;
+        border-radius: 22px;
+    }
+
+    .pd-result-main-v2 .portal-kicker {
+        margin-bottom: 16px;
+    }
+
+    .pd-result-main-v2 h1 {
+        font-size: clamp(52px, 10vw, 72px);
+    }
+
+}
+
+
+/* ---------------------------------------------------------
+   PHONE — 560px and below
+   --------------------------------------------------------- */
+
+@media (max-width: 560px) {
+
+    body.pbr-partner-dynamics-route .portal-bar {
+        gap: 8px;
+        padding-top: 9px;
+        padding-bottom: 8px;
+    }
+
+    body.pbr-partner-dynamics-route .portal-brand img {
+        width: 42px;
+        height: auto;
+    }
+
+    body.pbr-partner-dynamics-route .portal-brand > span {
+        font-size: 18px;
+    }
+
+    body.pbr-partner-dynamics-route .portal-product-label {
+        display: none;
+    }
+
+    body.pbr-partner-dynamics-route .portal-nav {
+        gap: 4px;
+    }
+
+    body.pbr-partner-dynamics-route .portal-nav a,
+    body.pbr-partner-dynamics-route .portal-nav button {
+        padding: 7px 8px;
+        font-size: 12px;
+    }
+
+
+    /* Result spacing */
+
+    .pd-result-section {
+        padding-top: 16px;
+    }
+
+    .pd-result-section .portal-wrap {
+        width: min(100% - 28px, 1180px);
+    }
+
+    .pd-result-section .pd-back-home {
+        margin-bottom: 6px;
+        font-size: 13px;
+    }
+
+
+    /* Hero */
+
+    .pd-result-hero-v2 {
+        gap: 14px;
+        padding: 18px 0 24px;
+    }
+
+    .pd-result-main-v2 {
+        padding: 0;
+    }
+
+    .pd-result-main-v2 .portal-kicker {
+        margin-bottom: 12px;
+        font-size: 10px;
+        letter-spacing: .12em;
+    }
+
+    .pd-result-main-v2 .pd-result-eyebrow {
+        margin-bottom: 6px;
+        font-size: 13px;
+    }
+
+    .pd-result-main-v2 h1 {
+        font-size: clamp(42px, 13vw, 58px);
+        line-height: 1;
+        letter-spacing: -.045em;
+    }
+
+    .pd-profile-badge {
+        margin-top: 12px;
+        padding: 7px 10px;
+        border-radius: 9px;
+        font-size: 12px;
+    }
+
+    .pd-profile-badge span {
+        font-size: 11px;
+    }
+
+    .pd-result-main-v2 h2 {
+        margin-top: 16px;
+        font-size: 17px;
+        line-height: 1.55;
+    }
+
+    .pd-result-main-v2 .pd-result-description {
+        margin-top: 10px;
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .pd-blended-box-v2 {
+        margin-top: 16px;
+        padding: 14px 15px;
+        border-radius: 13px;
+    }
+
+
+    /* Illustration */
+
+    .pd-profile-illustration {
+        min-height: 285px;
+        height: 285px;
+        border-radius: 18px;
+    }
+
+    .pd-profile-illustration-image {
+        border-radius: 18px;
+        object-position: center 42%;
+    }
+
+    .pd-profile-illustration .pd-illustration-kicker {
+        top: 16px;
+        left: 16px;
+        font-size: 9px;
+    }
+
+
+    /* Score card */
+
+    .pd-score-card-v2 {
+        min-height: auto;
+        padding: 21px 20px;
+        border-radius: 18px;
+    }
+
+    .pd-score-card-v2 .pd-primary-score {
+        margin-top: 6px;
+        font-size: 46px;
+    }
+
+    .pd-score-card-v2 .secondary-score {
+        margin-top: 6px;
+        font-size: 35px;
+    }
+
+    .pd-score-card-v2 .pd-score-divider {
+        margin: 20px 0;
+    }
+
+    .pd-score-profile {
+        margin-top: 6px;
+        font-size: 13px;
+    }
+
+    .pd-secondary-profile-pill {
+        margin-top: 8px !important;
+        padding: 6px 9px;
+        font-size: 11px !important;
+    }
+
+}
+
+
