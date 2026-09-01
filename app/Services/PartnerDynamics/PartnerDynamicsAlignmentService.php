@@ -2,20 +2,20 @@
 
 namespace App\Services\PartnerDynamics;
 
+use App\Support\PartnerDynamicsDimension;
 use InvalidArgumentException;
 
 class PartnerDynamicsAlignmentService
 {
-    private const DIMENSIONS = [
-        'vision' => 'Vision & Direction',
-        'execution' => 'Execution & Delivery',
-        'people' => 'People & Influence',
-        'analysis' => 'Analysis & Finance',
-        'structure' => 'Structure & Control',
-        'risk' => 'Risk & Opportunity',
-        'decision' => 'Decision & Conflict',
-        'adaptability' => 'Adaptability & Change',
-    ];
+    /**
+     * key => English label, from config/partner_dynamics_dimensions.php.
+     *
+     * @return array<string, string>
+     */
+    private function dimensions(): array
+    {
+        return PartnerDynamicsDimension::labels();
+    }
 
     private const ROLE_SUGGESTIONS = [
         'visionary' => [
@@ -69,7 +69,7 @@ class PartnerDynamicsAlignmentService
         $importantDifferences = [];
         $sharedBlindSpots = [];
 
-        foreach (self::DIMENSIONS as $dimension => $label) {
+        foreach ($this->dimensions() as $dimension => $label) {
             $scores = [];
 
             foreach ($participants as $participant) {
@@ -190,7 +190,7 @@ class PartnerDynamicsAlignmentService
                 }
             }
 
-            foreach (array_keys(self::DIMENSIONS) as $dimension) {
+            foreach (array_keys($this->dimensions()) as $dimension) {
                 if (! array_key_exists($dimension, $participant['dimension_scores'])) {
                     throw new InvalidArgumentException(
                         "Participant is missing dimension score: {$dimension}"

@@ -39,16 +39,7 @@
 
     ];
 
-    $dimensionLabels = [
-        'vision' => 'Vision & Direction',
-        'execution' => 'Execution & Delivery',
-        'people' => 'People & Influence',
-        'analysis' => 'Analysis & Finance',
-        'structure' => 'Structure & Control',
-        'risk' => 'Risk & Opportunity',
-        'decision' => 'Decision & Conflict',
-        'adaptability' => 'Adaptability & Change',
-    ];
+    $dimensionLabels = \App\Support\PartnerDynamicsDimension::labels();
 
 @endphp
 
