@@ -100,6 +100,6 @@ test('the score card names each profile in burmese as well as english', function
     );
 
     expect(substr_count($partial, 'pd-ref-score-mm'))->toBe(2);
-    expect($partial)->toContain("\$profileContent['title_mm']");
-    expect($partial)->toContain("\$secondaryContent['title_mm']");
+    expect($partial)->toContain("\$primary['title_mm']");
+    expect($partial)->toContain("\$secondary['title_mm']");
 });

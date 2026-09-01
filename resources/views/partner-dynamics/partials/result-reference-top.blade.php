@@ -125,18 +125,12 @@
 
                     <span>✦</span>
 
-                    {{
-                        $profileContent['title_mm']
-                        ?? $primaryVisual['badge_mm']
-                    }}
+                    {{ $primary['title_mm'] }}
 
                 </div>
 
                 <p class="pd-ref-description">
-                    {{
-                        $profileContent['who_you_are']
-                        ?? $primary['description']
-                    }}
+                    {{ $primary['description'] }}
                 </p>
 
 
@@ -245,10 +239,10 @@
                             {{ $primary['name'] }}
                         </small>
 
-                        @if(! empty($profileContent['title_mm']))
+                        @if(! empty($primary['title_mm']))
 
                             <span class="pd-ref-score-mm">
-                                {{ $profileContent['title_mm'] }}
+                                {{ $primary['title_mm'] }}
                             </span>
 
                         @endif
@@ -295,10 +289,10 @@
                             {{ $secondary['name'] }}
                         </small>
 
-                        @if(! empty($secondaryContent['title_mm']))
+                        @if(! empty($secondary['title_mm']))
 
                             <span class="pd-ref-score-mm">
-                                {{ $secondaryContent['title_mm'] }}
+                                {{ $secondary['title_mm'] }}
                             </span>
 
                         @endif
