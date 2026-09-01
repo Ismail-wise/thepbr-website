@@ -245,6 +245,14 @@
                             {{ $primary['name'] }}
                         </small>
 
+                        @if(! empty($profileContent['title_mm']))
+
+                            <span class="pd-ref-score-mm">
+                                {{ $profileContent['title_mm'] }}
+                            </span>
+
+                        @endif
+
                     </div>
 
                     <div class="pd-ref-score-icon">
@@ -287,15 +295,17 @@
                             {{ $secondary['name'] }}
                         </small>
 
+                        @if(! empty($secondaryContent['title_mm']))
+
+                            <span class="pd-ref-score-mm">
+                                {{ $secondaryContent['title_mm'] }}
+                            </span>
+
+                        @endif
+
                     </div>
 
-                    <div
-                        class="pd-ref-score-icon secondary"
-                        style="
-                            --pd-secondary-profile-color:
-                            {{ $secondaryVisual['primary'] }};
-                        "
-                    >
+                    <div class="pd-ref-score-icon secondary">
 
                         @include(
                             'partner-dynamics.partials.profile-symbol',

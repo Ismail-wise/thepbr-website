@@ -59,3 +59,47 @@ test('the score card no longer uses placeholder glyphs', function () {
     expect($partial)->toContain('partials.profile-symbol');
     expect(substr_count($partial, '◇'))->toBe(0);
 });
+
+test('both scores are rendered at the same size', function () {
+    $css = file_get_contents(
+        public_path('css/partner-dynamics-result-reference.css')
+    );
+
+    // A size step between primary and secondary reads as a much larger gap
+    // than the numbers usually describe, so the two must stay matched.
+    expect($css)->toContain(
+        ".pd-ref-score-line strong,\n.pd-ref-score-line strong.secondary{"
+    );
+
+    expect($css)->not->toContain('font-size:55px');
+    expect($css)->not->toContain('font-size:43px');
+});
+
+test('the secondary mark is softened rather than ringed', function () {
+    $css = file_get_contents(
+        public_path('css/partner-dynamics-result-reference.css')
+    );
+
+    expect($css)->toContain('.pd-ref-score-icon.secondary .pd-ref-symbol');
+    expect($css)->not->toContain('--pd-secondary-profile-color');
+
+    $partial = file_get_contents(
+        resource_path(
+            'views/partner-dynamics/partials/result-reference-top.blade.php'
+        )
+    );
+
+    expect($partial)->not->toContain('--pd-secondary-profile-color');
+});
+
+test('the score card names each profile in burmese as well as english', function () {
+    $partial = file_get_contents(
+        resource_path(
+            'views/partner-dynamics/partials/result-reference-top.blade.php'
+        )
+    );
+
+    expect(substr_count($partial, 'pd-ref-score-mm'))->toBe(2);
+    expect($partial)->toContain("\$profileContent['title_mm']");
+    expect($partial)->toContain("\$secondaryContent['title_mm']");
+});
