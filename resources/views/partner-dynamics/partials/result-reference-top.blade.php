@@ -31,7 +31,6 @@
             ];
         })
         ->sortByDesc('score')
-        ->take(4)
         ->values();
 
     $illustrationFile =
