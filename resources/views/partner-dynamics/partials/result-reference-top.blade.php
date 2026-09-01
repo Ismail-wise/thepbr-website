@@ -110,11 +110,11 @@
             <div class="pd-ref-hero-copy">
 
                 <span class="pd-ref-kicker">
-                    သင့်ရဲ့ Partner Dynamics ရလဒ်
+                    Your Partner Dynamics Result
                 </span>
 
                 <p class="pd-ref-eyebrow">
-                    သင့်ရဲ့ အဓိက လုပ်ဆောင်ပုံ
+                    Your Primary Operating Style
                 </p>
 
                 <h1>
@@ -156,7 +156,7 @@
                         </strong>
 
                         <small>
-                            ရောနှောထားသော လုပ်ဆောင်ပုံ
+                            Blended Operating Style
                         </small>
 
                         @if(
@@ -219,7 +219,7 @@
             <div class="pd-ref-score-block">
 
                 <span class="pd-ref-score-label">
-                    အဓိက
+                    Primary
                 </span>
 
                 <div class="pd-ref-score-line">
@@ -269,7 +269,7 @@
             <div class="pd-ref-score-block">
 
                 <span class="pd-ref-score-label">
-                    ဒုတိယ
+                    Secondary
                 </span>
 
                 <div class="pd-ref-score-line">
@@ -329,11 +329,11 @@
         <section class="pd-ref-card pd-ref-dimensions">
 
             <span class="pd-ref-card-kicker">
-                သင့်ရဲ့ ရမှတ် အခြေအနေ
+                Your Dimension Map
             </span>
 
             <h2>
-                မိတ်ဖက်လုပ်ငန်း လုပ်ဆောင်ရည် ရှစ်မျိုး
+                Partnership Operating Dimensions
             </h2>
 
 
@@ -419,7 +419,7 @@
         <section class="pd-ref-card pd-ref-strengths">
 
             <span class="pd-ref-card-kicker">
-                {{ $primary['name'] }} ရဲ့ အားသာချက်များ
+                {{ $primary['name'] }} Strengths
             </span>
 
 
@@ -447,7 +447,11 @@
 
             @if($extraStrengths->isNotEmpty())
 
-                <div class="pd-ref-inline-details">
+                <details class="pd-ref-inline-details">
+
+                    <summary>
+                        View all strengths
+                    </summary>
 
                     <ul>
 
@@ -464,7 +468,7 @@
 
                     </ul>
 
-                </div>
+                </details>
 
             @endif
 
@@ -473,7 +477,7 @@
 
 
             <span class="pd-ref-card-kicker pd-ref-role-kicker">
-                သင့်တော်တဲ့ လုပ်ငန်းတာဝန်များ
+                Best Business Roles
             </span>
 
 
@@ -506,7 +510,7 @@
                 <div class="pd-ref-environment">
 
                     <strong>
-                        ဘယ်လိုအခြေအနေမှာ အကောင်းဆုံးလဲ
+                        Works Best When
                     </strong>
 
                     <div>
@@ -571,7 +575,7 @@
                 <div>
 
                     <strong>
-                        သင်နဲ့ အလုပ်လုပ်သူများ သိထားသင့်တာ
+                        Working With You
                     </strong>
 
                     <p>
@@ -597,7 +601,7 @@
                 <div>
 
                     <strong>
-                        သတိထားရမယ့် အားနည်းချက်
+                        Watch-out Area
                     </strong>
 
                     <p>
@@ -611,7 +615,11 @@
 
                     @if(! empty($blindSpots))
 
-                        <div class="pd-ref-guidance-details">
+                        <details class="pd-ref-guidance-details" name="pd-guidance">
+
+                            <summary>
+                                See Blind Spots
+                            </summary>
 
                             <ul>
 
@@ -628,7 +636,7 @@
 
                             </ul>
 
-                        </div>
+                        </details>
 
                     @endif
 
@@ -646,7 +654,7 @@
                 <div>
 
                     <strong>
-                        ဖိအားနဲ့ သဘောထားကွဲလွဲမှု အောက်မှာ
+                        Under Pressure & Conflict
                     </strong>
 
                     @if(! empty($underStress))
@@ -667,7 +675,11 @@
                     @endif
 
 
-                    <div class="pd-ref-guidance-details">
+                    <details class="pd-ref-guidance-details" name="pd-guidance">
+
+                        <summary>
+                            View Guidance
+                        </summary>
 
                         @if(! empty($underStress))
 
@@ -699,7 +711,7 @@
 
                             <p>
                                 <strong>
-                                    သဘောထားကွဲလွဲတဲ့အခါ
+                                    Conflict Style
                                 </strong>
                                 <br>
 
@@ -731,7 +743,7 @@
 
                         @endif
 
-                    </div>
+                    </details>
 
                 </div>
 
@@ -796,7 +808,7 @@
         </div>
 
         <a href="#partner-match">
-            မိတ်ဖက် အကြံပြုချက် ကြည့်ရန်
+            View Partner Match
         </a>
 
     </section>
