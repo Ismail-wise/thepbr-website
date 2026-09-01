@@ -533,6 +533,55 @@
 
         </section>
 
+    </div>
+
+
+    {{-- =====================================================
+         SECOND ROW — STRENGTHS' COUNTERPART AND GUIDANCE
+         ===================================================== --}}
+
+    <div class="pd-ref-content-grid pd-ref-content-grid-b">
+
+
+        {{-- BLIND SPOTS --}}
+
+        <section class="pd-ref-card pd-ref-blindspots">
+
+            <span class="pd-ref-card-kicker">
+                Blind Spots
+            </span>
+
+            <h2>
+                မမြင်မိတတ်တဲ့ အားနည်းချက်
+            </h2>
+
+            @if(! empty($profileContent['blind_spot_intro']))
+
+                <p class="pd-ref-blindspot-intro">
+                    {{ $profileContent['blind_spot_intro'] }}
+                </p>
+
+            @endif
+
+            @if(! empty($blindSpots))
+
+                <ul class="pd-ref-blindspot-list">
+
+                    @foreach($blindSpots as $spot)
+
+                        <li>
+                            <span>!</span>
+                            <p>{{ $spot }}</p>
+                        </li>
+
+                    @endforeach
+
+                </ul>
+
+            @endif
+
+        </section>
+
 
         {{-- PARTNERSHIP GUIDANCE --}}
 
@@ -585,59 +634,6 @@
                             ?? ''
                         }}
                     </p>
-
-                </div>
-
-            </div>
-
-
-            <div class="pd-ref-guidance-item">
-
-                <div class="pd-ref-guidance-icon">
-                    !
-                </div>
-
-                <div>
-
-                    <strong>
-                        Watch-out Area
-                    </strong>
-
-                    <p>
-                        {{
-                            $profileContent[
-                                'blind_spot_intro'
-                            ]
-                            ?? ''
-                        }}
-                    </p>
-
-                    @if(! empty($blindSpots))
-
-                        <details class="pd-ref-guidance-details" name="pd-guidance">
-
-                            <summary>
-                                See Blind Spots
-                            </summary>
-
-                            <ul>
-
-                                @foreach(
-                                    $blindSpots
-                                    as $spot
-                                )
-
-                                    <li>
-                                        {{ $spot }}
-                                    </li>
-
-                                @endforeach
-
-                            </ul>
-
-                        </details>
-
-                    @endif
 
                 </div>
 
