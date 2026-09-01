@@ -18,15 +18,15 @@
 
             <h2>
                 သင့် Working Style ကို
-                <span>Balance</span>
-                လုပ်ပေးနိုင်မယ့် Partner Types
+                <span>ဟန်ချက်</span>
+                လုပ်ပေးနိုင်မယ့် မိတ်ဖက် အမျိုးအစားများ
             </h2>
 
             <p>
                 ဒီ Recommendation က Primary Profile
                 တစ်ခုတည်းကို ကြည့်ထားတာမဟုတ်ဘဲ
                 သင့် Dimension Scores အားလုံးကို
-                အသုံးပြုပြီး complementary Partner Types
+                အသုံးပြုပြီး complementary မိတ်ဖက် အမျိုးအစားများ
                 တွေကို ရွေးပေးထားတာပါ။
             </p>
 
@@ -38,8 +38,8 @@
             </strong>
 
             <span>
-                Recommended<br>
-                Partner Types
+                အကြံပြုထားသော<br>
+                မိတ်ဖက် အမျိုးအစားများ
             </span>
         </div>
 
@@ -78,7 +78,7 @@
             as $index => $recommendation
         )
 
-            <details class="pd-fold-item" name="pd-partner-match">
+            <details class="pd-fold-item" @if($index === 0) open @endif>
 
                 <summary>
 
@@ -116,7 +116,7 @@
                         </small>
 
                         <span class="pd-fold-toggle">
-                            View Details
+                            အသေးစိတ်
                         </span>
 
                     </div>
@@ -230,18 +230,18 @@
 
     @if(! empty($partnerMatch['note']))
 
-        <details class="pd-fold-note">
+        <div class="pd-fold-note">
 
-            <summary>
+            <strong>
                 <span>i</span>
                 အရေးကြီးတဲ့ မှတ်ချက်
-            </summary>
+            </strong>
 
             <p>
                 {{ $partnerMatch['note'] }}
             </p>
 
-        </details>
+        </div>
 
     @endif
 
