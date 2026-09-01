@@ -30,7 +30,7 @@
     height="{{ $pdSymbolSize }}"
     fill="none"
     stroke="currentColor"
-    stroke-width="2.5"
+    stroke-width="2.75"
     stroke-linecap="round"
     stroke-linejoin="round"
     aria-hidden="true"

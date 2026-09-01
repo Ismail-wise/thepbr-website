@@ -199,11 +199,11 @@
 
 .pd-ref-score-label{
     display:block;
-    color:rgba(255,255,255,.72);
+    color:rgba(255,255,255,.6);
     font-family:'Manrope',sans-serif;
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:.12em;
+    font-size:12px;
+    font-weight:700;
+    letter-spacing:.14em;
     text-transform:uppercase;
 }
 
@@ -212,51 +212,51 @@
     align-items:center;
     justify-content:space-between;
     gap:22px;
-    margin-top:9px;
+    margin-top:10px;
 }
 
-.pd-ref-score-line strong{
+/* Both scores share one size. The primary and secondary are usually within
+   a point or two of each other, and a size step reads as a much larger gap
+   than the numbers actually describe. Rank is carried by the label above
+   and by the softer secondary mark, not by scale. */
+
+.pd-ref-score-line strong,
+.pd-ref-score-line strong.secondary{
     display:block;
     font-family:'Manrope',sans-serif;
-    font-size:55px;
-    font-weight:800;
+    font-size:40px;
+    font-weight:700;
     line-height:1;
-    letter-spacing:-.04em;
-}
-
-.pd-ref-score-line strong.secondary{
-    font-size:43px;
+    letter-spacing:-.02em;
 }
 
 .pd-ref-score-line small{
     display:block;
-    margin-top:8px;
+    margin-top:10px;
     color:#fff;
-    font-size:14px;
+    font-size:21px;
     font-weight:700;
+    line-height:1.3;
+}
+
+.pd-ref-score-mm{
+    display:block;
+    margin-top:5px;
+    color:rgba(255,255,255,.72);
+    font-size:13px;
+    font-weight:500;
+    line-height:1.6;
 }
 
 .pd-ref-score-icon{
     flex:none;
-    width:78px;
-    height:78px;
+    width:72px;
+    height:72px;
     display:grid;
     place-items:center;
     border-radius:50%;
-    background:rgba(255,255,255,.12);
+    background:rgba(255,255,255,.14);
     color:#fff;
-    font-family:'Manrope',sans-serif;
-    font-size:32px;
-}
-
-.pd-ref-score-icon.secondary{
-    box-shadow:
-        inset 0 0 0 2px
-        color-mix(
-            in srgb,
-            var(--pd-secondary-profile-color) 70%,
-            white
-        );
 }
 
 .pd-ref-score-divider{
@@ -1346,17 +1346,22 @@
         padding:27px 32px;
     }
 
-    .pd-ref-score-line strong{
-        font-size:50px;
+    .pd-ref-score-line strong,
+    .pd-ref-score-line strong.secondary{
+        font-size:34px;
     }
 
-    .pd-ref-score-line strong.secondary{
-        font-size:39px;
+    .pd-ref-score-line small{
+        font-size:18px;
+    }
+
+    .pd-ref-score-mm{
+        font-size:12px;
     }
 
     .pd-ref-score-icon{
-        width:70px;
-        height:70px;
+        width:62px;
+        height:62px;
     }
 
     .pd-ref-score-divider{
@@ -1384,12 +1389,16 @@
 
 .pd-ref-score-icon .pd-ref-symbol{
     display:block;
-    width:38px;
-    height:38px;
+    width:40px;
+    height:40px;
 }
 
+/* The secondary mark is softened rather than ringed. An outline in the
+   secondary profile's own colour sat as a foreign element on the primary
+   gradient and competed with the strokes inside it. */
+
 .pd-ref-score-icon.secondary .pd-ref-symbol{
-    opacity:.9;
+    opacity:.75;
 }
 
 @media(max-width:620px){
@@ -1398,5 +1407,6 @@
         width:34px;
         height:34px;
     }
+
 
 }
