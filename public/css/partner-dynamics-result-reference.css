@@ -1186,61 +1186,90 @@
 }
 
 
+/* Illustrative examples.
+
+   Previously a collapsed <details> holding 8px name chips. The names are
+   the part of this section a reader actually engages with, and at 8px in
+   Burmese script the supporting line was unreadable, so the section is
+   open and the type is sized to be read.
+
+   Initials rather than photographs: a portrait carries the photographer's
+   copyright and the subject's publicity rights, and a real face inside a
+   paid product reads as endorsement. */
+
 .pd-ref-examples{
-    margin-top:11px;
-    padding:0 16px;
+    margin-top:18px;
+    padding:26px 28px;
     border:1px solid #eaedea;
-    border-radius:12px;
+    border-radius:16px;
     background:#fff;
 }
 
-.pd-ref-examples > summary{
-    padding:12px 0;
-    color:#69746c;
-    font-size:9px;
-    font-weight:750;
-    cursor:pointer;
-    list-style:none;
+.pd-ref-examples-title{
+    margin:0 0 18px;
+    color:#2f3a33;
+    font-size:17px;
+    font-weight:700;
+    line-height:1.5;
 }
 
-.pd-ref-examples > summary::-webkit-details-marker{
-    display:none;
+.pd-ref-example-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+    gap:16px;
 }
 
-.pd-ref-examples > summary::after{
-    content:"  ↓";
-    color:var(--ref-primary);
-}
-
-.pd-ref-examples[open] > summary::after{
-    content:"  ↑";
-}
-
-.pd-ref-example-body{
-    padding:0 0 14px;
-}
-
-.pd-ref-example-chips{
+.pd-ref-example{
     display:flex;
-    flex-wrap:wrap;
-    gap:7px;
+    align-items:center;
+    gap:14px;
 }
 
-.pd-ref-example-chips span{
-    padding:6px 9px;
-    border-radius:999px;
+.pd-ref-example-avatar{
+    flex:none;
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    border:1.5px solid var(--ref-primary);
+    border-radius:50%;
     background:var(--ref-soft);
     color:var(--ref-primary);
-    font-size:8px;
-    font-weight:750;
+    font-family:'Manrope',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:.02em;
 }
 
-.pd-ref-example-body p{
-    max-width:800px;
-    margin:10px 0 0;
+.pd-ref-example-text{
+    min-width:0;
+}
+
+.pd-ref-example-text strong{
+    display:block;
+    color:#2f3a33;
+    font-size:15px;
+    font-weight:700;
+    line-height:1.4;
+}
+
+.pd-ref-example-text span{
+    display:block;
+    margin-top:3px;
+    color:#69746c;
+    font-size:13px;
+    font-weight:400;
+    line-height:1.65;
+}
+
+.pd-ref-example-note{
+    max-width:760px;
+    margin:22px 0 0;
+    padding-top:16px;
+    border-top:1px solid #f0f2f0;
     color:#919991;
-    font-size:8px;
-    line-height:1.55;
+    font-size:12px;
+    line-height:1.75;
 }
 
 
@@ -1406,6 +1435,21 @@
     .pd-ref-score-icon .pd-ref-symbol{
         width:34px;
         height:34px;
+    }
+
+    .pd-ref-examples{
+        padding:20px;
+    }
+
+    .pd-ref-example-grid{
+        grid-template-columns:1fr;
+        gap:14px;
+    }
+
+    .pd-ref-example-avatar{
+        width:44px;
+        height:44px;
+        font-size:15px;
     }
 
 

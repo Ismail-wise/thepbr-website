@@ -90,9 +90,9 @@
         $profileContent['development_skills']
         ?? [];
 
-    $examples =
-        $profileContent['examples']
-        ?? [];
+    $examples = \App\Support\PartnerDynamicsExample::resolve(
+        $profileContent['examples'] ?? []
+    );
 
 @endphp
 
@@ -820,41 +820,55 @@
 
     @if(! empty($examples))
 
-        <details class="pd-ref-examples">
+        <section class="pd-ref-examples">
 
-            <summary>
-                People commonly associated with similar traits
-            </summary>
+            <h2 class="pd-ref-examples-title">
+                ဤလုပ်ဆောင်ပုံနဲ့ ဆင်တူသူများ
+            </h2>
 
-            <div class="pd-ref-example-body">
+            <div class="pd-ref-example-grid">
 
-                <div class="pd-ref-example-chips">
+                @foreach($examples as $example)
 
-                    @foreach(
-                        $examples
-                        as $example
-                    )
+                    <div class="pd-ref-example">
 
-                        <span>
-                            {{ $example }}
+                        <span
+                            class="pd-ref-example-avatar"
+                            aria-hidden="true"
+                        >
+                            {{ $example['initials'] }}
                         </span>
 
-                    @endforeach
+                        <div class="pd-ref-example-text">
 
-                </div>
+                            <strong>
+                                {{ $example['name'] }}
+                            </strong>
 
-                <p>
-                    {{
-                        $contentProfiles[
-                            'example_disclaimer'
-                        ]
-                        ?? ''
-                    }}
-                </p>
+                            @if(! empty($example['note']))
+
+                                <span>
+                                    {{ $example['note'] }}
+                                </span>
+
+                            @endif
+
+                        </div>
+
+                    </div>
+
+                @endforeach
 
             </div>
 
-        </details>
+            <p class="pd-ref-example-note">
+                {{
+                    $contentProfiles['example_disclaimer']
+                    ?? ''
+                }}
+            </p>
+
+        </section>
 
     @endif
 
