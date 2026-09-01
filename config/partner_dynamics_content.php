@@ -1,10 +1,24 @@
 <?php
 
+/*
+|--------------------------------------------------------------------------
+| Partner Dynamics — Rich Profile Content (Burmese)
+|--------------------------------------------------------------------------
+|
+| Source of truth for the Burmese label ('title_mm') and all long-form
+| guidance copy for each profile.
+|
+| The ENGLISH name is NOT stored here. It lives in
+| config/partner_dynamics.php ('profiles.*.name'), which the scoring and
+| match services already read. Resolve every label through
+| App\Support\PartnerDynamicsProfile so the two can never drift apart.
+|
+*/
+
 return [
 
     'visionary' => [
 
-        'name' => 'Visionary',
         'title_mm' => 'အနာဂတ်အမြင်ဖန်တီးသူ',
 
         'who_you_are' =>
@@ -92,7 +106,6 @@ return [
 
     'builder' => [
 
-        'name' => 'Builder',
         'title_mm' => 'အကောင်အထည်ဖော်သူ',
 
         'who_you_are' =>
@@ -179,7 +192,6 @@ return [
 
     'connector' => [
 
-        'name' => 'Connector',
         'title_mm' => 'လူတွေကိုချိတ်ဆက်သူ',
 
         'who_you_are' =>
@@ -265,7 +277,6 @@ return [
 
     'analyst' => [
 
-        'name' => 'Analyst',
         'title_mm' => 'အချက်အလက်နဲ့ဆုံးဖြတ်သူ',
 
         'who_you_are' =>
@@ -351,7 +362,6 @@ return [
 
     'operator' => [
 
-        'name' => 'Operator',
         'title_mm' => 'စနစ်တကျလည်ပတ်စေသူ',
 
         'who_you_are' =>
@@ -437,7 +447,6 @@ return [
 
     'guardian' => [
 
-        'name' => 'Guardian',
         'title_mm' => 'လုပ်ငန်းကိုကာကွယ်သူ',
 
         'who_you_are' =>
@@ -523,7 +532,6 @@ return [
 
     'negotiator' => [
 
-        'name' => 'Negotiator',
         'title_mm' => 'အမြင်မတူမှုကိုညှိနှိုင်းသူ',
 
         'who_you_are' =>
@@ -609,7 +617,6 @@ return [
 
     'optimizer' => [
 
-        'name' => 'Optimizer',
         'title_mm' => 'ရှိပြီးသားစနစ်ကိုပိုကောင်းအောင်လုပ်သူ',
 
         'who_you_are' =>

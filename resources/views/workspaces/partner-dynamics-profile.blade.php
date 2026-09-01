@@ -9,16 +9,7 @@
 
 @php
 
-    $profileLabels = [
-        'visionary' => 'Visionary',
-        'builder' => 'Builder',
-        'connector' => 'Connector',
-        'analyst' => 'Analyst',
-        'operator' => 'Operator',
-        'guardian' => 'Guardian',
-        'negotiator' => 'Negotiator',
-        'optimizer' => 'Optimizer',
-    ];
+    $profileLabels = \App\Support\PartnerDynamicsProfile::labels();
 
     $profileDescriptions = [
 
