@@ -265,11 +265,67 @@
     background:rgba(255,255,255,.2);
 }
 
+/* Two rows of two rather than one row of three. The third column had
+   become a drawer holding four separate sections as icon items; splitting
+   it lets each one be a section, and lets the first two breathe. */
+
 .pd-ref-content-grid{
     display:grid;
-    grid-template-columns:1.22fr .95fr .82fr;
+    grid-template-columns:1.05fr 1fr;
     gap:18px;
     margin-top:18px;
+}
+
+.pd-ref-content-grid-b{
+    grid-template-columns:1fr 1.05fr;
+}
+
+.pd-ref-blindspots h2{
+    margin:6px 0 0;
+}
+
+.pd-ref-blindspot-intro{
+    margin:14px 0 0;
+    color:#5c665e;
+    font-size:13px;
+    line-height:1.75;
+}
+
+.pd-ref-blindspot-list{
+    margin:16px 0 0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.pd-ref-blindspot-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+}
+
+.pd-ref-blindspot-list li span{
+    flex:none;
+    width:22px;
+    height:22px;
+    margin-top:1px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--ref-primary);
+    color:#fff;
+    font-family:'Manrope',sans-serif;
+    font-size:12px;
+    font-weight:800;
+}
+
+.pd-ref-blindspot-list li p{
+    margin:0;
+    color:#3c463e;
+    font-size:13px;
+    line-height:1.75;
 }
 
 .pd-ref-card{
@@ -572,12 +628,7 @@
         grid-template-columns:1fr 1fr;
     }
 
-    .pd-ref-content-grid{
-        grid-template-columns:1fr 1fr;
-    }
-
     .pd-ref-guidance{
-        grid-column:1 / -1;
         display:grid;
         grid-template-columns:1fr 1fr;
     }
@@ -619,12 +670,12 @@
             );
     }
 
-    .pd-ref-content-grid{
+    .pd-ref-content-grid,
+    .pd-ref-content-grid-b{
         grid-template-columns:1fr;
     }
 
     .pd-ref-guidance{
-        grid-column:auto;
         display:block;
     }
 
