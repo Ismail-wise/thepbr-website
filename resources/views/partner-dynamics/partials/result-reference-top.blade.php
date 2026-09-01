@@ -248,7 +248,12 @@
                     </div>
 
                     <div class="pd-ref-score-icon">
-                        ✦
+
+                        @include(
+                            'partner-dynamics.partials.profile-symbol',
+                            ['symbol' => $assessment->primary_profile]
+                        )
+
                     </div>
 
                 </div>
@@ -291,7 +296,12 @@
                             {{ $secondaryVisual['primary'] }};
                         "
                     >
-                        ◇
+
+                        @include(
+                            'partner-dynamics.partials.profile-symbol',
+                            ['symbol' => $assessment->secondary_profile]
+                        )
+
                     </div>
 
                 </div>
