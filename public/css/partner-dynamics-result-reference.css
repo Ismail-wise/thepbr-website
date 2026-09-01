@@ -292,20 +292,20 @@
 .pd-ref-dimension-list{
     display:flex;
     flex-direction:column;
-    gap:22px;
-    margin-top:24px;
+    gap:15px;
+    margin-top:22px;
 }
 
 .pd-ref-dimension{
     display:flex;
     align-items:center;
-    gap:13px;
+    gap:11px;
 }
 
 .pd-ref-dimension-icon{
     flex:none;
-    width:38px;
-    height:38px;
+    width:30px;
+    height:30px;
     display:grid;
     place-items:center;
     border-radius:50%;
@@ -325,7 +325,7 @@
     display:flex;
     justify-content:space-between;
     gap:12px;
-    margin-bottom:7px;
+    margin-bottom:5px;
     color:#2b342e;
     font-size:12px;
     font-weight:700;
