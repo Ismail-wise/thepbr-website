@@ -97,9 +97,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို future-oriented thinking, opportunity awareness နဲ့ creative direction ပိုပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Steve Jobs',
-            'Walt Disney',
-            'Elon Musk',
+            'steve_jobs',
+            'walt_disney',
+            'elon_musk',
         ],
     ],
 
@@ -183,9 +183,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို action bias, speed နဲ့ stronger execution drive ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Henry Ford',
-            'Sara Blakely',
-            'Richard Branson',
+            'henry_ford',
+            'sara_blakely',
+            'richard_branson',
         ],
     ],
 
@@ -268,9 +268,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို people-awareness, empathy နဲ့ stronger relationship orientation ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Oprah Winfrey',
-            'Howard Schultz',
-            'Richard Branson',
+            'oprah_winfrey',
+            'howard_schultz',
+            'richard_branson',
         ],
     ],
 
@@ -353,9 +353,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို evidence-based thinking, financial awareness နဲ့ stronger validation ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Warren Buffett',
-            'Charlie Munger',
-            'Susan Wojcicki',
+            'warren_buffett',
+            'charlie_munger',
+            'susan_wojcicki',
         ],
     ],
 
@@ -438,9 +438,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို structure, consistency နဲ့ stronger follow-through ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Tim Cook',
-            'Indra Nooyi',
-            'Mary Barra',
+            'tim_cook',
+            'indra_nooyi',
+            'mary_barra',
         ],
     ],
 
@@ -523,9 +523,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို caution, downside awareness နဲ့ stronger safeguards ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Warren Buffett',
-            'Jamie Dimon',
-            'Mary Barra',
+            'warren_buffett',
+            'jamie_dimon',
+            'mary_barra',
         ],
     ],
 
@@ -608,9 +608,9 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို diplomacy, compromise awareness နဲ့ stronger stakeholder sensitivity ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Nelson Mandela',
-            'Satya Nadella',
-            'Indra Nooyi',
+            'nelson_mandela',
+            'satya_nadella',
+            'indra_nooyi',
         ],
     ],
 
@@ -693,14 +693,14 @@ return [
             'ဒီ style က Secondary ဖြစ်လာရင် Primary Style ကို adaptability, process improvement နဲ့ stronger efficiency focus ပေးနိုင်ပါတယ်။',
 
         'examples' => [
-            'Jeff Bezos',
-            'Taiichi Ohno',
-            'Andy Grove',
+            'jeff_bezos',
+            'taiichi_ohno',
+            'andy_grove',
         ],
     ],
 
 
     'example_disclaimer' =>
-        'ဤဥပမာများသည် PBR Assessment Result မဟုတ်ဘဲ လူသိများသော public leadership/business characteristics များကို နားလည်လွယ်စေရန် illustrative reference အဖြစ်သာ အသုံးပြုထားခြင်းဖြစ်သည်။',
+        'ဤသူများသည် PBR ဖြေဆိုထားခြင်း မဟုတ်ပါ။ လူသိများသော လုပ်ငန်းလုပ်ဆောင်ပုံများကို ဥပမာအဖြစ် ပြထားခြင်းသာ ဖြစ်ပါသည်။',
 
 ];
