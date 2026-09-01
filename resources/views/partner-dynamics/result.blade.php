@@ -12,16 +12,7 @@
 
 @php
 
-    $dimensions = [
-        'vision' => 'Vision & Direction',
-        'execution' => 'Execution & Delivery',
-        'people' => 'People & Influence',
-        'analysis' => 'Analysis & Finance',
-        'structure' => 'Structure & Control',
-        'risk' => 'Risk & Opportunity',
-        'decision' => 'Decision & Conflict',
-        'adaptability' => 'Adaptability & Change',
-    ];
+    $dimensions = \App\Support\PartnerDynamicsDimension::labels();
 
 
     $primary = \App\Support\PartnerDynamicsProfile::describe(

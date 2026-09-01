@@ -2,33 +2,19 @@
 
 namespace App\Services\PartnerDynamics;
 
+use App\Support\PartnerDynamicsDimension;
+
 class PartnerMatchRecommendationService
 {
-    private const DIMENSIONS = [
-        'vision' =>
-            'အနာဂတ်ဦးတည်ချက် (Vision & Direction)',
-
-        'execution' =>
-            'အကောင်အထည်ဖော်မှု (Execution & Delivery)',
-
-        'people' =>
-            'လူမှုဆက်ဆံရေး (People & Influence)',
-
-        'analysis' =>
-            'ဒေတာနှင့် ဘဏ္ဍာရေး (Analysis & Finance)',
-
-        'structure' =>
-            'ဖွဲ့စည်းပုံနှင့် ထိန်းချုပ်မှု (Structure & Control)',
-
-        'risk' =>
-            'အခွင့်အလမ်းနှင့် အန္တရာယ် (Risk & Opportunity)',
-
-        'decision' =>
-            'ဆုံးဖြတ်ချက်နှင့် ပဋိပက္ခ (Decision & Conflict)',
-
-        'adaptability' =>
-            'အပြောင်းအလဲနှင့် လိုက်လျောညီထွေမှု (Adaptability & Change)',
-    ];
+    /**
+     * key => Burmese label, from config/partner_dynamics_dimensions.php.
+     *
+     * @return array<string, string>
+     */
+    private function dimensions(): array
+    {
+        return PartnerDynamicsDimension::labelsMm();
+    }
 
     private const PROFILE_DESCRIPTIONS = [
         'visionary' =>
@@ -244,7 +230,7 @@ class PartnerMatchRecommendationService
         $normalized = [];
 
         foreach (
-            self::DIMENSIONS
+            $this->dimensions()
             as $key => $label
         ) {
             $value = $dimensionScores[$key] ?? 50;
@@ -267,7 +253,7 @@ class PartnerMatchRecommendationService
         $needs = [];
 
         foreach (
-            self::DIMENSIONS
+            $this->dimensions()
             as $key => $label
         ) {
             if ($key === 'risk') {
