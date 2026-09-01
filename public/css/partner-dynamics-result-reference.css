@@ -1378,3 +1378,25 @@
 .pd-fold-item[open]{
     position:relative;
 }
+
+
+/* Profile symbols inside the hero score card */
+
+.pd-ref-score-icon .pd-ref-symbol{
+    display:block;
+    width:38px;
+    height:38px;
+}
+
+.pd-ref-score-icon.secondary .pd-ref-symbol{
+    opacity:.9;
+}
+
+@media(max-width:620px){
+
+    .pd-ref-score-icon .pd-ref-symbol{
+        width:34px;
+        height:34px;
+    }
+
+}
