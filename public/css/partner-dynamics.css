@@ -11,12 +11,20 @@
     padding:34px 0 56px;
 }
 
+/* 68px on a 1.16 line box is a Latin display setting. Burmese carries
+   stacked vowels and medials well above and below the baseline, so at
+   that ratio the marks of one line reach into the line beneath — visible
+   in "ဘယ်လိုလူမျိုးလဲ?", where the lower marks collide with the row under
+   them. Smaller, and given room to breathe.
+
+   .pd-result-main is no longer rendered; only the index hero uses this. */
+
 .pd-hero-copy h1,
 .pd-result-main h1{
     margin:0;
     max-width:760px;
-    font-size:clamp(38px,5.5vw,68px);
-    line-height:1.16;
+    font-size:clamp(32px,4.4vw,52px);
+    line-height:1.42;
     letter-spacing:-.045em;
 }
 
@@ -171,10 +179,15 @@
 }
 
 .pd-info-card > span{
-    display:block;
-    margin-bottom:28px;
-    color:var(--orange);
-    font:700 13px 'Noto Sans',sans-serif;
+    width:34px;
+    height:34px;
+    display:grid;
+    place-items:center;
+    margin-bottom:20px;
+    border-radius:50%;
+    background:var(--orange);
+    color:#fff;
+    font:700 13px 'Manrope',sans-serif;
 }
 
 .pd-info-card h3{
@@ -188,26 +201,34 @@
     font-size:14px;
 }
 
+/* Nothing else on these pages is drawn with a dashed edge. */
+
 .pd-disclaimer{
     display:flex;
-    gap:26px;
+    gap:22px;
     margin-top:28px;
-    padding:22px 26px;
-    border:1px dashed #b9cdb0;
-    border-radius:14px;
+    padding:27px;
+    border:1px solid #cfe0c7;
+    border-radius:19px;
     background:rgba(234,245,228,.52);
+    box-shadow:0 12px 36px -34px rgba(16,24,40,.32);
 }
 
 .pd-disclaimer strong{
     flex:none;
     color:var(--forest);
-    font-size:13px;
+    font-family:'Manrope',sans-serif;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.13em;
+    text-transform:uppercase;
 }
 
 .pd-disclaimer p{
     margin:0;
     color:var(--muted);
-    font-size:13px;
+    font-size:14px;
+    line-height:1.85;
 }
 
 
@@ -2110,26 +2131,12 @@
 }
 
 .pd-result-section .pd-disclaimer{
-    gap:22px;
-    padding:27px;
-    border:1px solid var(--pd-light);
-    border-radius:19px;
+    border-color:var(--pd-light);
     background:var(--pd-soft);
-    box-shadow:0 12px 36px -34px rgba(16,24,40,.32);
 }
 
 .pd-result-section .pd-disclaimer strong{
     color:var(--pd-primary);
-    font-family:'Manrope',sans-serif;
-    font-size:11px;
-    font-weight:800;
-    letter-spacing:.13em;
-    text-transform:uppercase;
-}
-
-.pd-result-section .pd-disclaimer p{
-    font-size:14px;
-    line-height:1.85;
 }
 
 
