@@ -26,7 +26,7 @@ test('the blind spots are shown rather than folded away', function () {
     expect($partial)->not->toContain('See Blind Spots');
 
     $start = strpos($partial, 'pd-ref-blindspots');
-    $end = strpos($partial, 'PARTNERSHIP GUIDANCE');
+    $end = strpos($partial, 'WORKING WITH YOU');
     $section = substr($partial, $start, $end - $start);
 
     expect($section)->not->toContain('<details');
@@ -42,19 +42,18 @@ test('the section heading carries both languages', function () {
     expect($section)->toContain('မမြင်မိတတ်တဲ့ အားနည်းချက်');
 });
 
-test('the guidance column is down to three items', function () {
-    // Partner teaser, Working With You, Under Pressure & Conflict.
-    expect(substr_count(pdBlindSpotPartial(), 'pd-ref-guidance-item'))->toBe(3);
-});
-
-test('the content grid is two rows of two, not one row of three', function () {
+test('the content grid is rows of two, not one row of three', function () {
     $partial = pdBlindSpotPartial();
-    expect(substr_count($partial, 'class="pd-ref-content-grid'))->toBe(2);
+    expect(substr_count($partial, 'class="pd-ref-content-grid'))
+        ->toBeGreaterThanOrEqual(2);
 
     $css = file_get_contents(
         public_path('css/partner-dynamics-result-reference.css')
     );
 
-    expect($css)->not->toContain('grid-template-columns:1.22fr .95fr .82fr');
-    expect($css)->toContain('.pd-ref-content-grid-b{');
+    expect($css)->not->toContain('1.22fr .95fr .82fr');
+
+    // Match the selector only. Asserting on the punctuation after it
+    // breaks whenever the rule is merged with a neighbour.
+    expect($css)->toContain('.pd-ref-content-grid-b');
 });

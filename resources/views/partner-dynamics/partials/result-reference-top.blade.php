@@ -63,12 +63,6 @@
         ?? []
     );
 
-    $visibleStrengths =
-        $strengths->take(5);
-
-    $extraStrengths =
-        $strengths->skip(5);
-
     $blindSpots =
         $profileContent['blind_spots']
         ?? [];
@@ -424,10 +418,7 @@
 
             <div class="pd-ref-strength-list">
 
-                @foreach(
-                    $visibleStrengths
-                    as $strength
-                )
+                @foreach($strengths as $strength)
 
                     <div>
 
@@ -444,32 +435,7 @@
             </div>
 
 
-            @if($extraStrengths->isNotEmpty())
 
-                <details class="pd-ref-inline-details">
-
-                    <summary>
-                        View all strengths
-                    </summary>
-
-                    <ul>
-
-                        @foreach(
-                            $extraStrengths
-                            as $strength
-                        )
-
-                            <li>
-                                {{ $strength }}
-                            </li>
-
-                        @endforeach
-
-                    </ul>
-
-                </details>
-
-            @endif
 
 
             <div class="pd-ref-role-divider"></div>
@@ -583,168 +549,95 @@
         </section>
 
 
-        {{-- PARTNERSHIP GUIDANCE --}}
+        {{-- WORKING WITH YOU --}}
 
-        <aside class="pd-ref-card pd-ref-guidance">
+        <section class="pd-ref-card pd-ref-section">
 
+            <span class="pd-ref-card-kicker">
+                Working With You
+            </span>
 
-            <div class="pd-ref-guidance-item">
+            <h2>
+                သင်နဲ့ အလုပ်လုပ်သူများ သိထားသင့်တာ
+            </h2>
 
-                <div class="pd-ref-guidance-icon">
-                    ✦
-                </div>
+            <p class="pd-ref-section-lead">
+                {{ $profileContent['working_with_you'] ?? '' }}
+            </p>
 
-                <div>
+        </section>
 
-                    <strong>
-                        သင့်အတွက် သင့်တော်တဲ့ Partner
-                    </strong>
-
-                    <p>
-                        {{
-                            $profileContent[
-                                'best_partner_principle'
-                            ]
-                            ?? ''
-                        }}
-                    </p>
-
-                </div>
-
-            </div>
+    </div>
 
 
-            <div class="pd-ref-guidance-item">
+    {{-- =====================================================
+         THIRD ROW — UNDER STRESS AND CONFLICT STYLE
+         ===================================================== --}}
 
-                <div class="pd-ref-guidance-icon">
-                    ↔
-                </div>
-
-                <div>
-
-                    <strong>
-                        Working With You
-                    </strong>
-
-                    <p>
-                        {{
-                            $profileContent[
-                                'working_with_you'
-                            ]
-                            ?? ''
-                        }}
-                    </p>
-
-                </div>
-
-            </div>
+    <div class="pd-ref-content-grid pd-ref-content-grid-c">
 
 
-            <div class="pd-ref-guidance-item">
+        {{-- UNDER STRESS --}}
 
-                <div class="pd-ref-guidance-icon">
-                    ⚡
-                </div>
+        <section class="pd-ref-card pd-ref-section">
 
-                <div>
+            <span class="pd-ref-card-kicker">
+                Under Stress
+            </span>
 
-                    <strong>
-                        Under Pressure & Conflict
-                    </strong>
+            <h2>
+                ဖိအားအောက်မှာ ဘယ်လိုပြောင်းလဲတတ်လဲ
+            </h2>
 
-                    @if(! empty($underStress))
+            @if(! empty($underStress))
 
-                        <p>
-                            {{
-                                implode(
-                                    ' · ',
-                                    array_slice(
-                                        $underStress,
-                                        0,
-                                        2
-                                    )
-                                )
-                            }}
-                        </p>
+                <ul class="pd-ref-marker-list">
 
-                    @endif
+                    @foreach($underStress as $stress)
 
+                        <li>
+                            <span>⚡</span>
+                            <p>{{ $stress }}</p>
+                        </li>
 
-                    <details class="pd-ref-guidance-details" name="pd-guidance">
+                    @endforeach
 
-                        <summary>
-                            View Guidance
-                        </summary>
+                </ul>
 
-                        @if(! empty($underStress))
+            @endif
 
-                            <ul>
-
-                                @foreach(
-                                    $underStress
-                                    as $stress
-                                )
-
-                                    <li>
-                                        {{ $stress }}
-                                    </li>
-
-                                @endforeach
-
-                            </ul>
-
-                        @endif
+        </section>
 
 
-                        @if(
-                            ! empty(
-                                $profileContent[
-                                    'conflict_style'
-                                ]
-                            )
-                        )
+        {{-- CONFLICT STYLE --}}
 
-                            <p>
-                                <strong>
-                                    Conflict Style
-                                </strong>
-                                <br>
+        <section class="pd-ref-card pd-ref-section">
 
-                                {{
-                                    $profileContent[
-                                        'conflict_style'
-                                    ]
-                                }}
-                            </p>
+            <span class="pd-ref-card-kicker">
+                Conflict Style
+            </span>
 
-                        @endif
+            <h2>
+                သဘောထားကွဲလွဲတဲ့အခါ
+            </h2>
 
+            @if(! empty($profileContent['conflict_style']))
 
-                        @if(
-                            ! empty(
-                                $profileContent[
-                                    'stress_question'
-                                ]
-                            )
-                        )
+                <p class="pd-ref-section-lead">
+                    {{ $profileContent['conflict_style'] }}
+                </p>
 
-                            <blockquote>
-                                “{{
-                                    $profileContent[
-                                        'stress_question'
-                                    ]
-                                }}”
-                            </blockquote>
+            @endif
 
-                        @endif
+            @if(! empty($profileContent['stress_question']))
 
-                    </details>
+                <blockquote class="pd-ref-section-quote">
+                    “{{ $profileContent['stress_question'] }}”
+                </blockquote>
 
-                </div>
+            @endif
 
-            </div>
-
-        </aside>
+        </section>
 
     </div>
 

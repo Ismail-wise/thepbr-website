@@ -276,8 +276,72 @@
     margin-top:18px;
 }
 
-.pd-ref-content-grid-b{
-    grid-template-columns:1fr 1.05fr;
+.pd-ref-content-grid-b,
+.pd-ref-content-grid-c{
+    grid-template-columns:1fr 1fr;
+}
+
+/* Shared shape for the sections lifted out of the old guidance column.
+   Each was a pd-ref-guidance-item: an icon, a bold line and a paragraph,
+   four of them stacked in a .82fr column. */
+
+.pd-ref-section h2{
+    margin:6px 0 0;
+}
+
+.pd-ref-section-lead{
+    margin:14px 0 0;
+    color:#3c463e;
+    font-size:14px;
+    line-height:1.85;
+}
+
+.pd-ref-section-quote{
+    margin:18px 0 0;
+    padding:14px 18px;
+    border-left:3px solid var(--ref-primary);
+    border-radius:0;
+    background:var(--ref-soft);
+    color:#4a544c;
+    font-family:'Manrope',sans-serif;
+    font-size:14px;
+    font-style:italic;
+    line-height:1.8;
+}
+
+.pd-ref-marker-list{
+    margin:16px 0 0;
+    padding:0;
+    list-style:none;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+}
+
+.pd-ref-marker-list li{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+}
+
+.pd-ref-marker-list li span{
+    flex:none;
+    width:22px;
+    height:22px;
+    margin-top:1px;
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--ref-primary);
+    color:#fff;
+    font-size:11px;
+}
+
+.pd-ref-marker-list li p{
+    margin:0;
+    color:#3c463e;
+    font-size:13px;
+    line-height:1.75;
 }
 
 .pd-ref-blindspots h2{
@@ -519,48 +583,11 @@
     font-weight:700;
 }
 
-.pd-ref-guidance{
-    padding:0;
-    overflow:hidden;
-}
 
-.pd-ref-guidance-item{
-    display:flex;
-    gap:12px;
-    padding:18px;
-}
 
-.pd-ref-guidance-item + .pd-ref-guidance-item{
-    border-top:1px solid #edf0ee;
-}
 
-.pd-ref-guidance-icon{
-    flex:none;
-    width:31px;
-    height:31px;
-    display:grid;
-    place-items:center;
-    border-radius:50%;
-    background:var(--ref-primary);
-    color:#fff;
-    font-family:'Manrope',sans-serif;
-    font-size:12px;
-    font-weight:800;
-}
 
-.pd-ref-guidance-item strong{
-    display:block;
-    color:var(--ref-primary);
-    font-size:11px;
-    line-height:1.5;
-}
 
-.pd-ref-guidance-item p{
-    margin:6px 0 0;
-    color:#707c73;
-    font-size:10px;
-    line-height:1.65;
-}
 
 .pd-ref-development{
     display:grid;
@@ -628,14 +655,7 @@
         grid-template-columns:1fr 1fr;
     }
 
-    .pd-ref-guidance{
-        display:grid;
-        grid-template-columns:1fr 1fr;
-    }
 
-    .pd-ref-guidance-item:nth-child(2){
-        border-top:0;
-    }
 
 }
 
@@ -671,17 +691,12 @@
     }
 
     .pd-ref-content-grid,
-    .pd-ref-content-grid-b{
+    .pd-ref-content-grid-b,
+    .pd-ref-content-grid-c{
         grid-template-columns:1fr;
     }
 
-    .pd-ref-guidance{
-        display:block;
-    }
 
-    .pd-ref-guidance-item:nth-child(2){
-        border-top:1px solid #edf0ee;
-    }
 
     .pd-ref-development{
         grid-template-columns:auto 1fr;
@@ -1118,28 +1133,12 @@
 }
 
 .pd-ref-inline-details summary,
-.pd-ref-guidance-details summary{
-    color:var(--ref-primary);
-    font-size:9px;
-    font-weight:800;
-    cursor:pointer;
-    list-style:none;
-}
 
 .pd-ref-inline-details summary::-webkit-details-marker,
-.pd-ref-guidance-details summary::-webkit-details-marker{
-    display:none;
-}
 
 .pd-ref-inline-details summary::after,
-.pd-ref-guidance-details summary::after{
-    content:" ↓";
-}
 
 .pd-ref-inline-details[open] summary::after,
-.pd-ref-guidance-details[open] summary::after{
-    content:" ↑";
-}
 
 .pd-ref-inline-details ul{
     margin:9px 0 0;
@@ -1186,37 +1185,10 @@
 }
 
 
-.pd-ref-guidance-details{
-    margin-top:9px;
-}
 
-.pd-ref-guidance-details ul{
-    margin:9px 0 0;
-    padding-left:16px;
-}
 
-.pd-ref-guidance-details li{
-    margin-top:5px;
-    color:#707b72;
-    font-size:9px;
-    line-height:1.55;
-}
 
-.pd-ref-guidance-details p{
-    margin-top:10px;
-}
 
-.pd-ref-guidance-details blockquote{
-    margin:10px 0 0;
-    padding:9px 10px;
-    border-left:3px solid var(--ref-primary);
-    border-radius:0 8px 8px 0;
-    background:var(--ref-soft);
-    color:#526057;
-    font-size:9px;
-    font-weight:700;
-    line-height:1.55;
-}
 
 
 .pd-ref-development-skills{
@@ -1453,9 +1425,6 @@
 
 /* Expanded guidance should not stretch neighbour cards */
 
-.pd-ref-guidance-details[open]{
-    padding-bottom:2px;
-}
 
 
 /* Keep Partner Match compact even when exploring */
@@ -1504,4 +1473,28 @@
     }
 
 
+}
+
+
+/* The best-partner principle moved out of the old guidance column and
+   into the partner match header, where the rest of that thought lives. */
+
+.pd-fold-principle{
+    display:flex;
+    align-items:flex-start;
+    gap:11px;
+    max-width:820px;
+    margin:16px 0 0;
+    padding:14px 18px;
+    border-radius:12px;
+    background:var(--pd-soft,#fff7f1);
+    color:#3c463e;
+    font-size:14px;
+    line-height:1.85;
+}
+
+.pd-fold-principle span{
+    flex:none;
+    color:var(--pd-primary);
+    font-size:15px;
 }
