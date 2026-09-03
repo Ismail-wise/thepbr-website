@@ -1,4 +1,10 @@
 @php
+    $matchPrinciple = config(
+        'partner_dynamics_content.'
+        .$assessment->primary_profile
+        .'.best_partner_principle'
+    );
+
     $matchLabels = [
         'အကောင်းဆုံး ဖြည့်ဆည်းမှု',
         'ညီမျှစွာ ဖြည့်ဆည်းမှု',
@@ -29,6 +35,15 @@
                 အသုံးပြုပြီး complementary Partner Types
                 တွေကို ရွေးပေးထားတာပါ။
             </p>
+
+            @if(! empty($matchPrinciple))
+
+                <p class="pd-fold-principle">
+                    <span>✦</span>
+                    {{ $matchPrinciple }}
+                </p>
+
+            @endif
 
         </div>
 
