@@ -810,11 +810,16 @@
     text-transform:uppercase;
 }
 
+/* Label above, chips below. Side by side they competed for the same
+   line: the label wrapped mid-phrase and the chips spilled onto a second
+   row with one stranded on the right. Stacking removes the competition
+   and the chips read as one group. */
+
 .pd-fold-priority{
     display:flex;
-    justify-content:space-between;
-    gap:24px;
-    align-items:center;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
     margin-top:25px;
     padding:16px 18px;
     border:1px solid #e3ebe0;
@@ -823,15 +828,19 @@
 }
 
 .pd-fold-priority > strong{
-    color:#344238;
-    font-size:13px;
+    color:var(--pd-primary);
+    font-family:'Manrope',sans-serif;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.13em;
+    text-transform:uppercase;
 }
 
 .pd-fold-priority > div{
     display:flex;
     flex-wrap:wrap;
-    justify-content:flex-end;
-    gap:7px;
+    justify-content:flex-start;
+    gap:8px;
 }
 
 .pd-fold-priority span{
@@ -1078,15 +1087,6 @@
 
     .pd-fold-count{
         align-self:flex-start;
-    }
-
-    .pd-fold-priority{
-        align-items:flex-start;
-        flex-direction:column;
-    }
-
-    .pd-fold-priority > div{
-        justify-content:flex-start;
     }
 
     .pd-fold-body{

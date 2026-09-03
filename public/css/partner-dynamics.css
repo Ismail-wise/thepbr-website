@@ -2085,18 +2085,51 @@
     background:var(--pd-secondary);
 }
 
+/* These two close the result page, but they were built before the cards
+   above them and kept their own shell: 32px and 26px padding against 27,
+   a 17px and 14px radius against 19, a dashed border on the note, and no
+   shadow. Scoped to .pd-result-section so the same markup elsewhere in
+   Partner Dynamics is untouched. */
+
 .pd-result-section .pd-next-stage{
-    border-color:var(--pd-light);
+    padding:27px;
+    border:1px solid var(--pd-light);
+    border-radius:19px;
     background:var(--pd-soft);
+    box-shadow:0 12px 36px -34px rgba(16,24,40,.32);
+}
+
+.pd-result-section .pd-next-stage h2{
+    font-size:21px;
+    line-height:1.45;
+}
+
+.pd-result-section .pd-next-stage p{
+    font-size:14px;
+    line-height:1.85;
 }
 
 .pd-result-section .pd-disclaimer{
-    border-color:var(--pd-light);
+    gap:22px;
+    padding:27px;
+    border:1px solid var(--pd-light);
+    border-radius:19px;
     background:var(--pd-soft);
+    box-shadow:0 12px 36px -34px rgba(16,24,40,.32);
 }
 
 .pd-result-section .pd-disclaimer strong{
     color:var(--pd-primary);
+    font-family:'Manrope',sans-serif;
+    font-size:11px;
+    font-weight:800;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+}
+
+.pd-result-section .pd-disclaimer p{
+    font-size:14px;
+    line-height:1.85;
 }
 
 
