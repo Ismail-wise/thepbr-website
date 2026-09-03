@@ -726,17 +726,19 @@
    PARTNER MATCH — COMPACT FOLDED VERSION
    ========================================================= */
 
+/* The partner match panel is the same kind of thing as the cards above
+   it — a section of the result — but it was built with its own scale:
+   a 46px display headline over 8-10px body text, against 21px headings
+   and 14px body everywhere else. It now uses the same shell, the same
+   heading size and the same text sizes as .pd-ref-card. */
+
 .pd-fold-match{
-    margin-top:34px;
-    padding:34px;
-    border:1px solid #dfe8dc;
-    border-radius:24px;
-    background:
-        linear-gradient(
-            145deg,
-            #fff 0%,
-            #f7fbf5 100%
-        );
+    margin-top:18px;
+    padding:27px;
+    border:1px solid #e7e9ec;
+    border-radius:19px;
+    background:#fff;
+    box-shadow:0 12px 36px -34px rgba(16,24,40,.32);
 }
 
 .pd-fold-match-header{
@@ -759,12 +761,16 @@
     text-transform:uppercase;
 }
 
+/* At 46px the Burmese wrapped mid-word and the stacked vowel marks
+   collided with the line beneath. */
+
 .pd-fold-match-header h2{
-    margin:12px 0 0;
-    color:#17261b;
-    font-size:clamp(28px,3.3vw,46px);
-    line-height:1.25;
-    letter-spacing:-.025em;
+    margin:8px 0 0;
+    color:#202a23;
+    font-family:'Manrope',sans-serif;
+    font-size:21px;
+    line-height:1.45;
+    letter-spacing:0;
 }
 
 .pd-fold-match-header h2 span{
@@ -775,8 +781,8 @@
     max-width:760px;
     margin:15px 0 0;
     color:#6d786f;
-    font-size:13px;
-    line-height:1.8;
+    font-size:14px;
+    line-height:1.85;
 }
 
 .pd-fold-count{
@@ -798,7 +804,7 @@
 
 .pd-fold-count span{
     color:#69736b;
-    font-size:10px;
+    font-size:12px;
     font-weight:750;
     line-height:1.45;
     text-transform:uppercase;
@@ -818,7 +824,7 @@
 
 .pd-fold-priority > strong{
     color:#344238;
-    font-size:11px;
+    font-size:13px;
 }
 
 .pd-fold-priority > div{
@@ -834,7 +840,7 @@
     border-radius:999px;
     background:var(--pd-soft);
     color:var(--pd-primary);
-    font-size:9px;
+    font-size:12px;
     font-weight:700;
 }
 
@@ -867,8 +873,8 @@
 .pd-fold-item summary{
     position:relative;
     display:grid;
-    grid-template-columns:52px minmax(0,1fr) auto;
-    gap:16px;
+    grid-template-columns:34px minmax(0,1fr) auto;
+    gap:14px;
     align-items:center;
     padding:17px 19px;
     cursor:pointer;
@@ -880,14 +886,14 @@
 }
 
 .pd-fold-rank{
-    width:44px;
-    height:44px;
+    width:34px;
+    height:34px;
     display:grid;
     place-items:center;
-    border-radius:13px;
+    border-radius:50%;
     background:var(--pd-primary);
     color:#fff;
-    font:800 12px 'Manrope',sans-serif;
+    font:700 13px 'Manrope',sans-serif;
 }
 
 .pd-fold-summary-main{
@@ -897,7 +903,7 @@
 .pd-fold-summary-main > span{
     display:block;
     color:#849087;
-    font-size:8px;
+    font-size:11px;
     font-weight:800;
     letter-spacing:.1em;
     text-transform:uppercase;
@@ -906,15 +912,15 @@
 .pd-fold-summary-main h3{
     margin:3px 0 0;
     color:var(--pd-primary);
-    font:800 23px/1.2 'Manrope',sans-serif;
+    font:700 19px/1.3 'Manrope',sans-serif;
 }
 
 .pd-fold-summary-main p{
     margin:5px 0 0;
     overflow:hidden;
     color:#717c73;
-    font-size:10px;
-    line-height:1.55;
+    font-size:13px;
+    line-height:1.75;
     text-overflow:ellipsis;
     white-space:nowrap;
 }
@@ -927,7 +933,7 @@
 .pd-fold-summary-right > small{
     display:block;
     color:#7d887f;
-    font-size:8px;
+    font-size:11px;
     font-weight:700;
     text-transform:uppercase;
 }
@@ -936,7 +942,7 @@
     display:inline-flex;
     margin-top:7px;
     color:var(--pd-primary);
-    font-size:9px;
+    font-size:12px;
     font-weight:800;
 }
 
@@ -954,27 +960,27 @@
 
 .pd-fold-item[open] .pd-fold-toggle::before{
     content:"Hide Details";
-    font-size:9px;
+    font-size:12px;
 }
 
 .pd-fold-body{
     display:grid;
     grid-template-columns:1fr 1fr 1fr;
     gap:14px;
-    padding:0 19px 19px 87px;
+    padding:0 19px 19px 67px;
 }
 
 .pd-fold-detail{
     min-width:0;
-    padding:15px;
+    padding:16px;
     border-radius:12px;
-    background:#f9fbf8;
+    background:#fafbfa;
 }
 
 .pd-fold-detail > span{
     display:block;
     color:var(--pd-primary);
-    font-size:8px;
+    font-size:11px;
     font-weight:800;
     letter-spacing:.08em;
     text-transform:uppercase;
@@ -984,15 +990,15 @@
     display:block;
     margin-top:5px;
     color:#273229;
-    font-size:10px;
+    font-size:14px;
     line-height:1.5;
 }
 
 .pd-fold-detail p,
 .pd-fold-detail li{
     color:#747f76;
-    font-size:9px;
-    line-height:1.7;
+    font-size:13px;
+    line-height:1.8;
 }
 
 .pd-fold-detail p{
@@ -1017,7 +1023,7 @@
     border-radius:999px;
     background:#fff;
     color:var(--pd-primary);
-    font-size:8px;
+    font-size:12px;
     font-weight:700;
 }
 
@@ -1035,7 +1041,7 @@
     gap:9px;
     padding:13px 0;
     color:#58635a;
-    font-size:10px;
+    font-size:13px;
     font-weight:800;
     cursor:pointer;
     list-style:none;
@@ -1060,8 +1066,8 @@
     margin:0;
     padding:0 0 14px 31px;
     color:#778178;
-    font-size:9px;
-    line-height:1.7;
+    font-size:13px;
+    line-height:1.8;
 }
 
 @media(max-width:900px){
@@ -1097,7 +1103,7 @@
     }
 
     .pd-fold-item summary{
-        grid-template-columns:44px minmax(0,1fr);
+        grid-template-columns:34px minmax(0,1fr);
     }
 
     .pd-fold-summary-right{
