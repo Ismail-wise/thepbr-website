@@ -2,20 +2,22 @@
 
 use App\Services\PbrTools\PbrV2ComponentRegistryService;
 
-test('v2 component registry validates five representative pilot components', function () {
+test('v2 component registry preserves representative foundation components', function () {
     $registry = app(
         PbrV2ComponentRegistryService::class
     );
 
-    expect($registry->keys())->toBe([
+    foreach ([
         'funding_gap_calculator',
         'equity_split_simulator',
         'final_share_register',
         'cashflow_dashboard',
         'governance_decision_record',
-    ]);
-
-    expect($registry->all())->toHaveCount(5);
+    ] as $componentKey) {
+        expect(
+            $registry->has($componentKey)
+        )->toBeTrue();
+    }
 });
 
 test('v2 component registry exposes explicit populated and deferred domain metadata', function () {
@@ -26,6 +28,9 @@ test('v2 component registry exposes explicit populated and deferred domain metad
     expect($registry->domainSources())->toBe([
         'capital' =>
             'pbr_v2_components.capital',
+
+        'contribution' =>
+            'pbr_v2_components.contribution',
 
         'ownership' =>
             'pbr_v2_components.ownership',
@@ -58,6 +63,12 @@ test('v2 pilot components keep legacy reuse explicit and separate from v2 identi
                 'cap_table_builder',
             'treatment' =>
                 'adapt',
+        ],
+        [
+            'tool_key' =>
+                'ownership_chart',
+            'treatment' =>
+                'support',
         ],
     ]);
 

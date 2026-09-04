@@ -77,14 +77,17 @@ return [
     | Populated Domain Sources
     |--------------------------------------------------------------------------
     |
-    | Only pilot domains are populated here today. Additional approved
-    | domains are added batch by batch during F4 registry population.
+    | Approved domains are populated batch by batch during F4 registry
+    | population while the V1 operating-tool catalog remains untouched.
     |
     */
 
     'domain_sources' => [
         'capital' =>
             'pbr_v2_components.capital',
+
+        'contribution' =>
+            'pbr_v2_components.contribution',
 
         'ownership' =>
             'pbr_v2_components.ownership',
