@@ -16,13 +16,33 @@ test('the partner name heading has room for a burmese name', function () {
     $rule = substr($css, $start, strpos($css, '}', $start) - $start);
 
     preg_match('/font-size:clamp\([^,]+,[^,]+,(\d+)px\)/', $rule, $size);
-    preg_match('/line-height:([\d.]+)/', $rule, $leading);
+    preg_match(
+        '/line-height:([\d.]+|var\(--pd-lh-[a-z]+\))/',
+        $rule,
+        $leading
+    );
 
     expect($size)->not->toBeEmpty();
     expect($leading)->not->toBeEmpty();
 
+    // The leading is a token now, so resolve it from the token sheet.
+    $value = $leading[1];
+
+    if (str_starts_with($value, 'var(')) {
+        $name = trim($value, 'var()');
+        $tokens = file_get_contents(
+            public_path('css/partner-dynamics-tokens.css')
+        );
+
+        preg_match('/' . preg_quote($name, '/') . ':([\d.]+);/', $tokens, $resolved);
+
+        expect($resolved)->not->toBeEmpty("token {$name} is not defined");
+
+        $value = $resolved[1];
+    }
+
     $largest = (int) $size[1];
-    $lineBox = $largest * (float) $leading[1];
+    $lineBox = $largest * (float) $value;
 
     // Burmese with stacked marks occupies about 1.38em.
     expect($lineBox)->toBeGreaterThanOrEqual($largest * 1.38);
@@ -30,21 +50,23 @@ test('the partner name heading has room for a burmese name', function () {
     expect($rule)->not->toContain('line-height:1.12');
 });
 
-test('the heading resolves without a themed wrapper', function () {
-    // This page has no .pd-themed section yet, so a --pd-* token here
-    // would not resolve and the browser would drop the declaration.
+test('the heading has a wrapper that resolves its token', function () {
+    // The leading was written out while this page had no .pd-themed
+    // section, because a --pd-* token would not have resolved and the
+    // browser would have dropped the declaration. The page has one now,
+    // so the two must stay together: token here, wrapper there.
     $css = file_get_contents(public_path('css/partner-dynamics.css'));
 
     $start = strpos($css, '.pd-workspace-profile-hero h1{');
     $rule = substr($css, $start, strpos($css, '}', $start) - $start);
 
-    expect($rule)->not->toContain('var(--pd-');
-
     $view = file_get_contents(
         resource_path('views/workspaces/partner-dynamics-profile.blade.php')
     );
 
-    expect($view)->not->toContain('pd-themed');
+    if (str_contains($rule, 'var(--pd-')) {
+        expect($view)->toContain('pd-themed');
+    }
 });
 
 test('no partner dynamics heading is left on latin leading', function () {
