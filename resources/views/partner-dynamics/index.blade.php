@@ -4,11 +4,28 @@
 
 @section('content')
 
+<link
+    rel="stylesheet"
+    href="{{ asset('css/partner-dynamics-tokens.css') }}?v={{ filemtime(public_path('css/partner-dynamics-tokens.css')) }}"
+>
+
 @php
     $profileLabels = \App\Support\PartnerDynamicsProfile::labels();
+
+    /*
+    | Before an assessment exists there is no profile, so the brand
+    | palette stands. Once one is finished this page takes the reader's
+    | own colour, the same one the result page uses.
+    */
+    $themeProfile = $latestAssessment?->isCompleted()
+        ? $latestAssessment->primary_profile
+        : null;
 @endphp
 
-<section class="pd-section">
+<section
+    class="pd-section pd-themed"
+    style="{{ \App\Support\PartnerDynamicsTheme::variables($themeProfile) }}"
+>
     <div class="portal-wrap">
 
         <div class="pd-hero">
@@ -138,8 +155,8 @@
 
         <div class="pd-info-grid">
 
-            <article class="pd-info-card">
-                <span>01</span>
+            <article class="pd-info-card pd-card">
+                <span class="pd-marker">01</span>
                 <h3>သင့် Strength ကို သိမယ်</h3>
                 <p>
                     Partnership ထဲမှာ သင်က naturally အားသာတတ်တဲ့
@@ -147,8 +164,8 @@
                 </p>
             </article>
 
-            <article class="pd-info-card">
-                <span>02</span>
+            <article class="pd-info-card pd-card">
+                <span class="pd-marker">02</span>
                 <h3>Partner နဲ့ Difference ကို နားလည်မယ်</h3>
                 <p>
                     တစ်ယောက်နဲ့တစ်ယောက် ဘာကြောင့် အမြင်မတူနိုင်လဲဆိုတာကို
@@ -156,8 +173,8 @@
                 </p>
             </article>
 
-            <article class="pd-info-card">
-                <span>03</span>
+            <article class="pd-info-card pd-card">
+                <span class="pd-marker">03</span>
                 <h3>Role တွေကို ပိုရှင်းအောင်လုပ်မယ်</h3>
                 <p>
                     ဘယ်သူက ဘယ်အပိုင်းမှာ ownership ယူသင့်လဲဆိုတာကို
