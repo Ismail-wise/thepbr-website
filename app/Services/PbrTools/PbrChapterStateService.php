@@ -2,6 +2,7 @@
 
 namespace App\Services\PbrTools;
 
+use LogicException;
 use App\Models\ChapterTool;
 use App\Models\PartnershipWorkspace;
 use App\Models\WorkspaceToolOutput;
@@ -33,20 +34,44 @@ class PbrChapterStateService
     ) {
     }
 
+    /**
+     * Legacy V1 catalog compatibility.
+     *
+     * Chapter number remains catalog metadata only. Domain identity and
+     * engine routing are resolved through buildForDomain().
+     */
     public function build(
         PartnershipWorkspace $workspace,
         int $chapterNumber,
         string $status = 'agreed'
     ): array {
-        $area = $this->domainRegistry
-            ->findByLegacyChapter($chapterNumber);
+        $domainKey = $this->domainRegistry
+            ->domainForLegacyChapter(
+                $chapterNumber
+            );
 
-        abort_unless(
-            is_array($area),
-            404
+        return $this->buildForDomain(
+            $workspace,
+            $domainKey,
+            $status
         );
+    }
 
-        $domainKey = (string) $area['domain_key'];
+    /**
+     * Build operating state by stable business-domain identity.
+     */
+    public function buildForDomain(
+        PartnershipWorkspace $workspace,
+        string $domainKey,
+        string $status = 'agreed'
+    ): array {
+        $area = $this->domainRegistry
+            ->domain($domainKey);
+
+        $chapterNumber = (int) (
+            $area['legacy_chapter_number']
+            ?? 0
+        );
 
         abort_unless(
             in_array(
@@ -158,9 +183,9 @@ class PbrChapterStateService
             ];
         }
 
-        $summary = $this->summaryForChapter(
+        $summary = $this->summaryForDomain(
             $workspace,
-            $chapterNumber,
+            $domainKey,
             $toolPayload
         );
 
@@ -195,46 +220,53 @@ class PbrChapterStateService
         ];
     }
 
-    private function summaryForChapter(
+    private function summaryForDomain(
         PartnershipWorkspace $workspace,
-        int $chapter,
+        string $domainKey,
         array $tools
     ): array {
-        return match ($chapter) {
-            1 => $this->capitalDomain
+        return match ($domainKey) {
+            'capital' => $this->capitalDomain
                 ->summarize(
                     $workspace,
                     $tools
                 ),
 
-            2 => $this->ownershipDomain
+            'ownership' => $this->ownershipDomain
                 ->summarize($tools),
 
-            3 => $this->contributionDomain
+            'contribution' => $this->contributionDomain
                 ->summarize($tools),
 
-            4 => $this->distributionDomain
+            'distribution' => $this->distributionDomain
                 ->summarize($tools),
 
-            5 => $this->financialControlsDomain
+            'financial_controls' =>
+                $this->financialControlsDomain
+                    ->summarize($tools),
+
+            'governance' => $this->governanceDomain
                 ->summarize($tools),
 
-            6 => $this->governanceDomain
+            'exit' => $this->exitDomain
                 ->summarize($tools),
 
-            7 => $this->exitDomain
+            'continuity' => $this->continuityDomain
                 ->summarize($tools),
 
-            8 => $this->continuityDomain
-                ->summarize($tools),
+            'share_transfer' =>
+                $this->shareTransferDomain
+                    ->summarize($tools),
 
-            9 => $this->shareTransferDomain
-                ->summarize($tools),
+            'dispute_resolution' =>
+                $this->disputeResolutionDomain
+                    ->summarize($tools),
 
-            10 => $this->disputeResolutionDomain
-                ->summarize($tools),
-
-            default => [],
+            default => throw new LogicException(
+                'No PBR domain state engine is registered for '
+                .$domainKey
+                .'.'
+            ),
         };
     }
 }

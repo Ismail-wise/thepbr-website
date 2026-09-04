@@ -5,6 +5,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceToolOutput;
 use App\Services\PbrTools\PbrChapterStateService;
+use App\Services\PbrTools\PbrDomainRegistryService;
 use Database\Seeders\CourseCatalogSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -142,20 +143,71 @@ test('chapters two to ten route canonical summaries through dedicated domain eng
                 now(),
         ]);
 
-        $state = app(
+        $stateService = app(
             PbrChapterStateService::class
-        )->build(
+        );
+
+        $legacyState = $stateService->build(
             $workspace,
             $chapter,
             'agreed'
         );
 
-        expect(
-            $state['summary'][
-                $case['summary_key']
-            ]
-        )->toBe(
-            $case['result']
+        $domainKey = app(
+            PbrDomainRegistryService::class
+        )->domainForLegacyChapter(
+            $chapter
         );
+
+        $domainState =
+            $stateService->buildForDomain(
+                $workspace,
+                $domainKey,
+                'agreed'
+            );
+
+        expect(
+            $domainState['payload']['domain']
+        )->toBe($domainKey)
+            ->and(
+                $domainState['summary'][
+                    $case['summary_key']
+                ]
+            )
+            ->toBe(
+                $case['result']
+            )
+            ->and(
+                $domainState['summary']
+            )
+            ->toBe(
+                $legacyState['summary']
+            );
     }
+});
+
+
+test('state engine dispatch is keyed by stable domain identity', function () {
+    $source = file_get_contents(
+        base_path(
+            'app/Services/PbrTools/PbrChapterStateService.php'
+        )
+    );
+
+    expect($source)
+        ->toContain(
+            'public function buildForDomain'
+        )
+        ->toContain(
+            'private function summaryForDomain'
+        )
+        ->toContain(
+            'match ($domainKey)'
+        )
+        ->not->toContain(
+            'private function summaryForChapter'
+        )
+        ->not->toContain(
+            'match ($chapter)'
+        );
 });
