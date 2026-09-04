@@ -10,7 +10,8 @@ use App\Models\WorkspaceOperatingRecord;
 class PbrBusinessRulebookService
 {
     public function __construct(
-        private readonly PbrOperatingSystemService $operatingSystem
+        private readonly PbrOperatingSystemService $operatingSystem,
+        private readonly PbrDomainRegistryService $domainRegistry
     ) {
     }
 
@@ -59,20 +60,19 @@ class PbrBusinessRulebookService
                 ->get();
 
         $sections = collect(
-            PbrOperatingSystemService::DOMAINS
+            $this->domainRegistry->all()
         )
             ->map(function (
-                string $domain,
-                int $chapterNumber
+                array $area,
+                string $domain
             ) use (
                 $approvedDomains,
                 $toolMap,
                 $records
             ): array {
-                $area = config(
-                    'pbr_business_operating_system.areas.'
-                    .$chapterNumber,
-                    []
+                $chapterNumber = (int) (
+                    $area['legacy_chapter_number']
+                    ?? 0
                 );
 
                 $snapshot =

@@ -28,7 +28,8 @@ class PbrChapterStateService
         private readonly ExitDomainEngine $exitDomain,
         private readonly ContinuityDomainEngine $continuityDomain,
         private readonly ShareTransferDomainEngine $shareTransferDomain,
-        private readonly DisputeResolutionDomainEngine $disputeResolutionDomain
+        private readonly DisputeResolutionDomainEngine $disputeResolutionDomain,
+        private readonly PbrDomainRegistryService $domainRegistry
     ) {
     }
 
@@ -37,11 +38,15 @@ class PbrChapterStateService
         int $chapterNumber,
         string $status = 'agreed'
     ): array {
+        $area = $this->domainRegistry
+            ->findByLegacyChapter($chapterNumber);
+
         abort_unless(
-            $chapterNumber >= 1
-            && $chapterNumber <= 10,
+            is_array($area),
             404
         );
+
+        $domainKey = (string) $area['domain_key'];
 
         abort_unless(
             in_array(
@@ -165,9 +170,7 @@ class PbrChapterStateService
                     $chapterNumber,
 
                 'domain' =>
-                    PbrOperatingSystemService::DOMAINS[
-                        $chapterNumber
-                    ],
+                    $domainKey,
 
                 'business_stage' =>
                     $workspace->business_stage,

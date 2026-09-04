@@ -95,3 +95,27 @@ test('legacy area compatibility resolves metadata through the stable registry', 
         $registry->findByLegacyChapter(999)
     )->toBeNull();
 });
+
+test('runtime domain identity consumers resolve through the domain registry', function () {
+    $files = [
+        'app/Services/PbrTools/PbrToolRuntimeContractService.php',
+        'app/Services/PbrTools/PbrBusinessOperatingService.php',
+        'app/Services/PbrTools/PbrBusinessRulebookService.php',
+        'app/Services/PbrTools/PbrChapterStateService.php',
+        'app/Services/Ai/PbrAiContextBuilder.php',
+    ];
+
+    foreach ($files as $file) {
+        $source = file_get_contents(
+            base_path($file)
+        );
+
+        expect($source)
+            ->not->toContain(
+                'PbrOperatingSystemService::DOMAINS'
+            )
+            ->not->toContain(
+                "pbr_business_operating_system.areas."
+            );
+    }
+});

@@ -10,12 +10,14 @@ use App\Models\PartnershipWorkspace;
 use App\Models\User;
 use App\Models\WorkspaceOperatingRecord;
 use App\Models\WorkspaceToolOutput;
+use App\Services\PbrTools\PbrDomainRegistryService;
 use App\Services\PbrTools\PbrOperatingSystemService;
 
 class PbrAiContextBuilder
 {
     public function __construct(
-        private readonly PbrOperatingSystemService $operatingSystem
+        private readonly PbrOperatingSystemService $operatingSystem,
+        private readonly PbrDomainRegistryService $domainRegistry
     ) {
     }
 
@@ -72,11 +74,14 @@ class PbrAiContextBuilder
             ->values()
             ->map(function (WorkspaceToolOutput $output): array {
                 $internalNumber = (int) ($output->tool?->chapter?->chapter_number ?? 0);
-                $area = config('pbr_business_operating_system.areas.'.$internalNumber, []);
+
+                $area = $this->domainRegistry
+                    ->findByLegacyChapter($internalNumber)
+                    ?? [];
 
                 return [
                     'business_area' => [
-                        'domain' => $area['domain'] ?? null,
+                        'domain' => $area['domain_key'] ?? null,
                         'name_mm' => $area['name_mm'] ?? null,
                         'name_en' => $area['name_en'] ?? null,
                     ],
@@ -118,16 +123,16 @@ class PbrAiContextBuilder
                         ?? 0
                     );
 
-                    $area = config(
-                        'pbr_business_operating_system.areas.'
-                        .$internalNumber,
-                        []
-                    );
+                    $area = $this->domainRegistry
+                        ->findByLegacyChapter(
+                            $internalNumber
+                        )
+                        ?? [];
 
                     return [
                         'business_area' => [
                             'domain' =>
-                                $area['domain'] ?? null,
+                                $area['domain_key'] ?? null,
                             'name_mm' =>
                                 $area['name_mm'] ?? null,
                             'name_en' =>
