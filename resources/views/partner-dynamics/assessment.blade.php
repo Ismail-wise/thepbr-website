@@ -4,6 +4,11 @@
 
 @section('content')
 
+<link
+    rel="stylesheet"
+    href="{{ asset('css/partner-dynamics-tokens.css') }}?v={{ filemtime(public_path('css/partner-dynamics-tokens.css')) }}"
+>
+
 @php
     $progress = $step * 20;
 
@@ -16,7 +21,17 @@
     ];
 @endphp
 
-<section class="pd-assessment-section">
+{{--
+    The controller sends a completed assessment straight to the result
+    page, so this view is only ever reached before a profile exists.
+    PartnerDynamicsTheme::variables(null) supplies the brand palette,
+    which is both correct and honest: no result yet, no colour yet.
+--}}
+
+<section
+    class="pd-assessment-section pd-themed"
+    style="{{ \App\Support\PartnerDynamicsTheme::variables(null) }}"
+>
     <div class="pd-assessment-wrap">
 
         <header class="pd-assessment-header">
@@ -99,7 +114,7 @@
                     @endphp
 
 
-                    <article class="pd-question-card">
+                    <article class="pd-question-card pd-card">
 
                         <div class="pd-question-number">
                             Q{{ $number }}

@@ -263,11 +263,15 @@
     color:var(--forest);
 }
 
+/* 43px on a 1.28 line box is the Latin setting the index hero carried.
+   The Burmese heading here wraps on narrower screens, so it needs the
+   same treatment: smaller, with room between the lines. */
+
 .pd-assessment-header h1{
     margin:0;
-    font-size:clamp(29px,4vw,43px);
-    line-height:1.28;
-    letter-spacing:-.025em;
+    font-size:clamp(26px,3.4vw,36px);
+    line-height:var(--pd-lh-heading);
+    letter-spacing:0;
 }
 
 .pd-assessment-header p{
@@ -280,8 +284,8 @@
     display:flex;
     align-items:baseline;
     gap:5px;
-    color:var(--forest);
-    font:700 34px 'Noto Sans',sans-serif;
+    color:var(--pd-primary);
+    font:700 34px 'Manrope',sans-serif;
 }
 
 .pd-step-number small{
@@ -297,8 +301,8 @@
     display:flex;
     justify-content:space-between;
     margin-bottom:8px;
-    color:var(--muted);
-    font-size:12px;
+    color:var(--pd-muted);
+    font-size:var(--pd-fs-meta);
 }
 
 .pd-progress-info strong{
@@ -316,7 +320,7 @@
     display:block;
     height:100%;
     border-radius:inherit;
-    background:var(--forest);
+    background:var(--pd-primary);
     transition:width .25s ease;
 }
 
@@ -335,15 +339,16 @@
 
 .pd-question-number{
     margin-bottom:8px;
-    color:var(--forest);
-    font:700 12px 'Noto Sans',sans-serif;
-    letter-spacing:.1em;
+    color:var(--pd-primary);
+    font:800 var(--pd-fs-kicker) 'Manrope',sans-serif;
+    letter-spacing:.13em;
 }
 
 .pd-question-card h2{
     margin:0 0 24px;
-    font-size:18px;
-    line-height:1.7;
+    font-size:var(--pd-fs-h3);
+    line-height:var(--pd-lh-prose);
+    color:var(--pd-ink);
 }
 
 .pd-scale-options{
@@ -379,39 +384,43 @@
     transition:.16s;
 }
 
+/* The markers were 30px and grey-on-grey. Every other marker in
+   Partner Dynamics is 22px and carries the theme colour. */
+
 .pd-radio-ui > b{
-    width:30px;
-    height:30px;
+    width:var(--pd-marker-sm);
+    height:var(--pd-marker-sm);
     display:grid;
     place-items:center;
     margin:0 auto;
     border-radius:50%;
-    background:#f1f5ef;
-    color:var(--muted);
-    font:700 13px 'Noto Sans',sans-serif;
+    background:var(--pd-soft);
+    color:var(--pd-primary);
+    font:700 12px 'Manrope',sans-serif;
+    transition:.16s;
 }
 
 .pd-radio-ui > span{
-    color:var(--ink);
-    font-size:12px;
-    line-height:1.45;
+    color:var(--pd-ink);
+    font-size:var(--pd-fs-meta);
+    line-height:1.6;
 }
 
 .pd-radio-ui small{
     display:block;
     margin-top:4px;
-    color:var(--muted);
-    font:400 10px 'Noto Sans',sans-serif;
+    color:var(--pd-muted);
+    font:400 11px 'Manrope',sans-serif;
 }
 
 .pd-scale-option input:checked + .pd-radio-ui{
-    border-color:var(--forest);
-    background:#f1faed;
-    box-shadow:0 0 0 2px rgba(21,127,9,.09);
+    border-color:var(--pd-primary);
+    background:var(--pd-soft);
+    box-shadow:0 0 0 2px var(--pd-light);
 }
 
 .pd-scale-option input:checked + .pd-radio-ui > b{
-    background:var(--forest);
+    background:var(--pd-primary);
     color:#fff;
 }
 
@@ -434,39 +443,44 @@
     transition:.16s;
 }
 
+/* A 30px rounded square, where every other marker is a circle. */
+
 .pd-scenario-ui b{
     flex:none;
-    width:30px;
-    height:30px;
+    width:var(--pd-marker-sm);
+    height:var(--pd-marker-sm);
     display:grid;
     place-items:center;
-    border-radius:8px;
-    background:#f1f5ef;
-    color:var(--forest);
-    font:700 13px 'Noto Sans',sans-serif;
+    border-radius:50%;
+    background:var(--pd-soft);
+    color:var(--pd-primary);
+    font:700 12px 'Manrope',sans-serif;
+    margin-top:2px;
+    transition:.16s;
 }
 
 .pd-scenario-ui span{
-    padding-top:3px;
-    font-size:13px;
-    line-height:1.65;
+    padding-top:0;
+    font-size:var(--pd-fs-body);
+    line-height:var(--pd-lh-prose);
+    color:var(--pd-body);
 }
 
 .pd-scenario-option input:checked + .pd-scenario-ui{
-    border-color:var(--forest);
-    background:#f1faed;
-    box-shadow:0 0 0 2px rgba(21,127,9,.09);
+    border-color:var(--pd-primary);
+    background:var(--pd-soft);
+    box-shadow:0 0 0 2px var(--pd-light);
 }
 
 .pd-scenario-option input:checked + .pd-scenario-ui b{
-    background:var(--forest);
+    background:var(--pd-primary);
     color:#fff;
 }
 
 .pd-question-error{
     margin:12px 0 0;
     color:var(--danger);
-    font-size:12px;
+    font-size:var(--pd-fs-meta);
     font-weight:600;
 }
 
@@ -484,8 +498,8 @@
 
 .pd-save-message{
     margin-top:20px;
-    color:var(--muted);
-    font-size:12px;
+    color:var(--pd-muted);
+    font-size:var(--pd-fs-meta);
     text-align:center;
 }
 
@@ -1383,11 +1397,13 @@
     color:var(--ink);
 }
 
+.pd-themed .pd-primary-button,
 .pd-result-section .pd-primary-button{
     border-color:var(--pd-primary);
     background:var(--pd-primary);
 }
 
+.pd-themed .pd-primary-button:hover,
 .pd-result-section .pd-primary-button:hover{
     border-color:var(--pd-secondary);
     background:var(--pd-secondary);
