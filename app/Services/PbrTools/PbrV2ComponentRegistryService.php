@@ -16,59 +16,252 @@ class PbrV2ComponentRegistryService
      */
     public function all(): array
     {
-        $components = config(
-            'pbr_v2_components.components',
+        $sources = $this->domainSources();
+        $deferredDomains = $this->deferredDomains();
+
+        $resolved = [];
+        $legacyAssignments = [];
+
+        foreach ($sources as $domainKey => $configKey) {
+            if (
+                in_array(
+                    $domainKey,
+                    $deferredDomains,
+                    true
+                )
+            ) {
+                throw new LogicException(
+                    'Deferred PBR V2 domain '
+                    .$domainKey
+                    .' cannot also be a populated component source.'
+                );
+            }
+
+            $components = config(
+                $configKey,
+                []
+            );
+
+            if (! is_array($components)) {
+                throw new LogicException(
+                    'PBR V2 component source '
+                    .$configKey
+                    .' must be an array.'
+                );
+            }
+
+            foreach ($components as $componentKey => $definition) {
+                $componentKey = trim(
+                    (string) $componentKey
+                );
+
+                if ($componentKey === '') {
+                    throw new LogicException(
+                        'Every PBR V2 component must have a stable component key.'
+                    );
+                }
+
+                if (! is_array($definition)) {
+                    throw new LogicException(
+                        'Every PBR V2 component definition must be an array.'
+                    );
+                }
+
+                if (
+                    array_key_exists(
+                        $componentKey,
+                        $resolved
+                    )
+                ) {
+                    throw new LogicException(
+                        'Duplicate PBR V2 component key: '
+                        .$componentKey
+                    );
+                }
+
+                $definition = array_merge(
+                    $definition,
+                    [
+                        'component_key' => $componentKey,
+                    ]
+                );
+
+                $this->validateDefinition(
+                    $componentKey,
+                    $definition
+                );
+
+                if (
+                    $definition['domain_key']
+                    !== $domainKey
+                ) {
+                    throw new LogicException(
+                        'PBR V2 component '
+                        .$componentKey
+                        .' is stored under domain '
+                        .$domainKey
+                        .' but declares '
+                        .$definition['domain_key']
+                        .'.'
+                    );
+                }
+
+                foreach (
+                    $definition['legacy_mappings']
+                    as $mapping
+                ) {
+                    $legacyToolKey =
+                        $mapping['tool_key'];
+
+                    if (
+                        array_key_exists(
+                            $legacyToolKey,
+                            $legacyAssignments
+                        )
+                    ) {
+                        throw new LogicException(
+                            'Legacy PBR tool '
+                            .$legacyToolKey
+                            .' is mapped to more than one V2 component.'
+                        );
+                    }
+
+                    $legacyAssignments[
+                        $legacyToolKey
+                    ] = $componentKey;
+                }
+
+                $resolved[$componentKey] =
+                    $definition;
+            }
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    public function domainSources(): array
+    {
+        $sources = config(
+            'pbr_v2_components.domain_sources',
             []
         );
 
-        if (! is_array($components)) {
+        if (! is_array($sources)) {
             throw new LogicException(
-                'PBR V2 component registry must be an array.'
+                'PBR V2 component domain sources must be an array.'
             );
         }
 
         $resolved = [];
 
-        foreach ($components as $componentKey => $definition) {
-            $componentKey = trim(
-                (string) $componentKey
+        foreach ($sources as $domainKey => $configKey) {
+            $domainKey = trim(
+                (string) $domainKey
             );
 
-            if ($componentKey === '') {
+            if (
+                $domainKey === ''
+                || ! $this->domainRegistry->masterHas(
+                    $domainKey
+                )
+            ) {
                 throw new LogicException(
-                    'Every PBR V2 component must have a stable component key.'
+                    'PBR V2 component source references an unknown domain: '
+                    .$domainKey
                 );
             }
 
-            if (! is_array($definition)) {
+            if (
+                ! is_string($configKey)
+                || trim($configKey) === ''
+            ) {
                 throw new LogicException(
-                    'Every PBR V2 component definition must be an array.'
+                    'PBR V2 component source for '
+                    .$domainKey
+                    .' must declare a config key.'
                 );
             }
 
-            if (array_key_exists($componentKey, $resolved)) {
+            $configKey = trim($configKey);
+
+            if (
+                in_array(
+                    $configKey,
+                    $resolved,
+                    true
+                )
+            ) {
                 throw new LogicException(
-                    'Duplicate PBR V2 component key: '
-                    .$componentKey
+                    'Duplicate PBR V2 component config source: '
+                    .$configKey
                 );
             }
 
-            $definition = array_merge(
-                [
-                    'legacy_tool_key' => null,
-                ],
-                $definition,
-                [
-                    'component_key' => $componentKey,
-                ]
-            );
+            $resolved[$domainKey] =
+                $configKey;
+        }
 
-            $this->validateDefinition(
-                $componentKey,
-                $definition
-            );
+        return $resolved;
+    }
 
-            $resolved[$componentKey] = $definition;
+    /**
+     * @return array<int, string>
+     */
+    public function deferredDomains(): array
+    {
+        $domains = config(
+            'pbr_v2_components.deferred_domains',
+            []
+        );
+
+        if (! is_array($domains)) {
+            throw new LogicException(
+                'PBR V2 deferred domains must be an array.'
+            );
+        }
+
+        $resolved = [];
+
+        foreach ($domains as $domainKey) {
+            if (
+                ! is_string($domainKey)
+                || trim($domainKey) === ''
+            ) {
+                throw new LogicException(
+                    'Every deferred PBR V2 domain must have a stable domain key.'
+                );
+            }
+
+            $domainKey = trim($domainKey);
+
+            if (
+                ! $this->domainRegistry->masterHas(
+                    $domainKey
+                )
+            ) {
+                throw new LogicException(
+                    'Unknown deferred PBR V2 domain: '
+                    .$domainKey
+                );
+            }
+
+            if (
+                in_array(
+                    $domainKey,
+                    $resolved,
+                    true
+                )
+            ) {
+                throw new LogicException(
+                    'Duplicate deferred PBR V2 domain: '
+                    .$domainKey
+                );
+            }
+
+            $resolved[] = $domainKey;
         }
 
         return $resolved;
@@ -151,6 +344,7 @@ class PbrV2ComponentRegistryService
             'reads_from',
             'cross_domain_write',
             'stale_source_guard',
+            'legacy_mappings',
             'status',
         ];
 
@@ -416,25 +610,61 @@ class PbrV2ComponentRegistryService
             );
         }
 
-        $legacyToolKey =
-            $definition['legacy_tool_key'];
+        $this->validateLegacyMappings(
+            $componentKey,
+            $definition['legacy_mappings']
+        );
+    }
 
-        if ($legacyToolKey !== null) {
+    /**
+     * @param mixed $mappings
+     */
+    private function validateLegacyMappings(
+        string $componentKey,
+        mixed $mappings
+    ): void {
+        if (! is_array($mappings)) {
+            throw new LogicException(
+                'PBR V2 component '
+                .$componentKey
+                .' legacy_mappings must be an array.'
+            );
+        }
+
+        $legacyToolKeys =
+            $this->legacyToolKeys();
+
+        $seen = [];
+
+        foreach ($mappings as $index => $mapping) {
+            if (! is_array($mapping)) {
+                throw new LogicException(
+                    'PBR V2 component '
+                    .$componentKey
+                    .' has an invalid legacy mapping.'
+                );
+            }
+
+            $toolKey =
+                $mapping['tool_key'] ?? null;
+
             if (
-                ! is_string($legacyToolKey)
-                || trim($legacyToolKey) === ''
+                ! is_string($toolKey)
+                || trim($toolKey) === ''
             ) {
                 throw new LogicException(
                     'PBR V2 component '
                     .$componentKey
-                    .' has an invalid legacy tool key.'
+                    .' has a legacy mapping without a valid tool key.'
                 );
             }
 
+            $toolKey = trim($toolKey);
+
             if (
                 ! in_array(
-                    $legacyToolKey,
-                    $this->legacyToolKeys(),
+                    $toolKey,
+                    $legacyToolKeys,
                     true
                 )
             ) {
@@ -442,10 +672,37 @@ class PbrV2ComponentRegistryService
                     'PBR V2 component '
                     .$componentKey
                     .' references unknown legacy tool '
-                    .$legacyToolKey
+                    .$toolKey
                     .'.'
                 );
             }
+
+            if (
+                in_array(
+                    $toolKey,
+                    $seen,
+                    true
+                )
+            ) {
+                throw new LogicException(
+                    'PBR V2 component '
+                    .$componentKey
+                    .' declares duplicate legacy tool '
+                    .$toolKey
+                    .'.'
+                );
+            }
+
+            $seen[] = $toolKey;
+
+            $this->validatedAllowedValue(
+                $componentKey,
+                'legacy_mappings.'
+                    .$index
+                    .'.treatment',
+                $mapping['treatment'] ?? null,
+                'legacy_treatments'
+            );
         }
     }
 

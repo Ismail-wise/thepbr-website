@@ -12,10 +12,35 @@ test('v2 component registry validates five representative pilot components', fun
         'equity_split_simulator',
         'final_share_register',
         'cashflow_dashboard',
-        'meeting_decision_record',
+        'governance_decision_record',
     ]);
 
     expect($registry->all())->toHaveCount(5);
+});
+
+test('v2 component registry exposes explicit populated and deferred domain metadata', function () {
+    $registry = app(
+        PbrV2ComponentRegistryService::class
+    );
+
+    expect($registry->domainSources())->toBe([
+        'capital' =>
+            'pbr_v2_components.capital',
+
+        'ownership' =>
+            'pbr_v2_components.ownership',
+
+        'financial_controls' =>
+            'pbr_v2_components.financial_controls',
+
+        'governance' =>
+            'pbr_v2_components.governance',
+    ]);
+
+    expect($registry->deferredDomains())
+        ->toBe([
+            'dissolution',
+        ]);
 });
 
 test('v2 pilot components keep legacy reuse explicit and separate from v2 identity', function () {
@@ -26,20 +51,52 @@ test('v2 pilot components keep legacy reuse explicit and separate from v2 identi
     expect(
         $registry->component(
             'final_share_register'
-        )['legacy_tool_key']
-    )->toBe('cap_table_builder');
+        )['legacy_mappings']
+    )->toBe([
+        [
+            'tool_key' =>
+                'cap_table_builder',
+            'treatment' =>
+                'adapt',
+        ],
+    ]);
 
     expect(
         $registry->component(
-            'meeting_decision_record'
-        )['legacy_tool_key']
-    )->toBe('meeting_decision_log');
+            'governance_decision_record'
+        )['legacy_mappings']
+    )->toBe([
+        [
+            'tool_key' =>
+                'meeting_decision_log',
+            'treatment' =>
+                'adapt',
+        ],
+    ]);
 
     expect(
         $registry->component(
             'final_share_register'
         )['component_key']
     )->toBe('final_share_register');
+});
+
+test('pilot governance identity is normalized to the approved component key', function () {
+    $registry = app(
+        PbrV2ComponentRegistryService::class
+    );
+
+    expect(
+        $registry->has(
+            'meeting_decision_record'
+        )
+    )->toBeFalse();
+
+    expect(
+        $registry->has(
+            'governance_decision_record'
+        )
+    )->toBeTrue();
 });
 
 test('canonical v2 register requires approval engine publication and revisioned state', function () {
@@ -72,7 +129,7 @@ test('non canonical pilot components cannot publish current state', function () 
         'funding_gap_calculator',
         'equity_split_simulator',
         'cashflow_dashboard',
-        'meeting_decision_record',
+        'governance_decision_record',
     ] as $componentKey) {
         $component = $registry->component(
             $componentKey
@@ -111,22 +168,24 @@ test('pilot component dependencies remain inside approved v2 domain contracts', 
             )->toBeTrue();
         }
 
-        expect($component['cross_domain_write'])
-            ->toBeFalse();
+        expect(
+            $component['cross_domain_write']
+        )->toBeFalse();
     }
 });
 
 test('scenario cannot be given canonical authority', function () {
     $components = config(
-        'pbr_v2_components.components'
+        'pbr_v2_components.ownership'
     );
 
     $components[
         'equity_split_simulator'
-    ]['canonical_capability'] = 'register';
+    ]['canonical_capability'] =
+        'register';
 
     config([
-        'pbr_v2_components.components' =>
+        'pbr_v2_components.ownership' =>
             $components,
     ]);
 
@@ -139,7 +198,7 @@ test('scenario cannot be given canonical authority', function () {
 
 test('canonical register cannot bypass explicit approval', function () {
     $components = config(
-        'pbr_v2_components.components'
+        'pbr_v2_components.ownership'
     );
 
     $components[
@@ -147,7 +206,7 @@ test('canonical register cannot bypass explicit approval', function () {
     ]['approval_required'] = false;
 
     config([
-        'pbr_v2_components.components' =>
+        'pbr_v2_components.ownership' =>
             $components,
     ]);
 
@@ -160,7 +219,7 @@ test('canonical register cannot bypass explicit approval', function () {
 
 test('normal v2 component cannot write directly across domains', function () {
     $components = config(
-        'pbr_v2_components.components'
+        'pbr_v2_components.financial_controls'
     );
 
     $components[
@@ -168,7 +227,7 @@ test('normal v2 component cannot write directly across domains', function () {
     ]['cross_domain_write'] = true;
 
     config([
-        'pbr_v2_components.components' =>
+        'pbr_v2_components.financial_controls' =>
             $components,
     ]);
 
@@ -181,7 +240,7 @@ test('normal v2 component cannot write directly across domains', function () {
 
 test('v2 component cannot read outside its approved domain dependencies', function () {
     $components = config(
-        'pbr_v2_components.components'
+        'pbr_v2_components.ownership'
     );
 
     $components[
@@ -191,7 +250,7 @@ test('v2 component cannot read outside its approved domain dependencies', functi
     ];
 
     config([
-        'pbr_v2_components.components' =>
+        'pbr_v2_components.ownership' =>
             $components,
     ]);
 
@@ -204,7 +263,7 @@ test('v2 component cannot read outside its approved domain dependencies', functi
 
 test('proposal capable component cannot disable stale source protection', function () {
     $components = config(
-        'pbr_v2_components.components'
+        'pbr_v2_components.ownership'
     );
 
     $components[
@@ -212,7 +271,86 @@ test('proposal capable component cannot disable stale source protection', functi
     ]['stale_source_guard'] = false;
 
     config([
-        'pbr_v2_components.components' =>
+        'pbr_v2_components.ownership' =>
+            $components,
+    ]);
+
+    expect(
+        fn () => app(
+            PbrV2ComponentRegistryService::class
+        )->all()
+    )->toThrow(\LogicException::class);
+});
+
+test('legacy tool cannot be assigned to more than one v2 component', function () {
+    $components = config(
+        'pbr_v2_components.financial_controls'
+    );
+
+    $components[
+        'cashflow_dashboard'
+    ]['legacy_mappings'] = [
+        [
+            'tool_key' =>
+                'funding_gap_calculator',
+            'treatment' =>
+                'reuse',
+        ],
+    ];
+
+    config([
+        'pbr_v2_components.financial_controls' =>
+            $components,
+    ]);
+
+    expect(
+        fn () => app(
+            PbrV2ComponentRegistryService::class
+        )->all()
+    )->toThrow(\LogicException::class);
+});
+
+test('component domain must match the domain source that contains it', function () {
+    $components = config(
+        'pbr_v2_components.capital'
+    );
+
+    $components[
+        'funding_gap_calculator'
+    ]['domain_key'] =
+        'contribution';
+
+    $components[
+        'funding_gap_calculator'
+    ]['reads_from'] = [
+        'capital',
+    ];
+
+    config([
+        'pbr_v2_components.capital' =>
+            $components,
+    ]);
+
+    expect(
+        fn () => app(
+            PbrV2ComponentRegistryService::class
+        )->all()
+    )->toThrow(\LogicException::class);
+});
+
+test('legacy mapping treatment must use the approved reconciliation vocabulary', function () {
+    $components = config(
+        'pbr_v2_components.capital'
+    );
+
+    $components[
+        'funding_gap_calculator'
+    ]['legacy_mappings'][0][
+        'treatment'
+    ] = 'copy';
+
+    config([
+        'pbr_v2_components.capital' =>
             $components,
     ]);
 
