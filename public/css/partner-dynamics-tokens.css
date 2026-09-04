@@ -1,0 +1,116 @@
+/* =========================================================
+   PARTNER DYNAMICS — DESIGN TOKENS
+   =========================================================
+
+   One place for the shape and scale every Partner Dynamics
+   surface is drawn with.
+
+   The result page arrived at these values and they hold up, so
+   the other four pages adopt them rather than each carrying its
+   own. Before this file there were 36 distinct card shapes
+   across the five pages and five different heading scales.
+
+   Colour comes in per page from PartnerDynamicsTheme, set as an
+   inline style on the section. The values below are the brand
+   fallback, used until an assessment has been taken.
+
+   Scoped to .pd-themed so nothing here reaches the layout or
+   the Business OS, where green, orange and red already mean
+   healthy, attention and danger.
+   ========================================================= */
+
+.pd-themed{
+
+    /* Colour — overridden inline once a profile is known */
+    --pd-primary:#157f09;
+    --pd-secondary:#3da32f;
+    --pd-soft:#eaf5e4;
+    --pd-light:#cfe0c7;
+
+    /* Card shell */
+    --pd-card-radius:19px;
+    --pd-card-padding:27px;
+    --pd-card-border:#e7e9ec;
+    --pd-card-bg:#fff;
+    --pd-card-shadow:0 12px 36px -34px rgba(16,24,40,.32);
+
+    /* Type scale. Burmese stacks vowels and medials above and
+       below the baseline, so nothing carrying it drops under
+       14px and prose is set on 1.85. */
+    --pd-fs-display:clamp(32px,4.4vw,52px);
+    --pd-fs-h2:21px;
+    --pd-fs-h3:17px;
+    --pd-fs-lead:16px;
+    --pd-fs-body:14px;
+    --pd-fs-meta:13px;
+    --pd-fs-kicker:11px;
+
+    --pd-lh-display:1.42;
+    --pd-lh-heading:1.45;
+    --pd-lh-prose:1.85;
+
+    /* Markers — the numbered circles, tick markers and avatars
+       all share one diameter. */
+    --pd-marker:34px;
+    --pd-marker-sm:22px;
+
+    --pd-ink:#202a23;
+    --pd-body:#3c463e;
+    --pd-muted:#69746c;
+}
+
+
+/* Card ---------------------------------------------------- */
+
+.pd-themed .pd-card{
+    min-width:0;
+    padding:var(--pd-card-padding);
+    border:1px solid var(--pd-card-border);
+    border-radius:var(--pd-card-radius);
+    background:var(--pd-card-bg);
+    box-shadow:var(--pd-card-shadow);
+}
+
+
+/* Section heading pair ------------------------------------ */
+
+.pd-themed .pd-kicker{
+    display:block;
+    color:var(--pd-primary);
+    font-family:'Manrope',sans-serif;
+    font-size:var(--pd-fs-kicker);
+    font-weight:800;
+    letter-spacing:.13em;
+    text-transform:uppercase;
+}
+
+.pd-themed .pd-title{
+    margin:8px 0 0;
+    color:var(--pd-ink);
+    font-family:'Manrope',sans-serif;
+    font-size:var(--pd-fs-h2);
+    line-height:var(--pd-lh-heading);
+}
+
+.pd-themed .pd-lead{
+    margin:14px 0 0;
+    color:var(--pd-body);
+    font-size:var(--pd-fs-body);
+    line-height:var(--pd-lh-prose);
+}
+
+
+/* Numbered marker ----------------------------------------- */
+
+.pd-themed .pd-marker{
+    width:var(--pd-marker);
+    height:var(--pd-marker);
+    display:grid;
+    place-items:center;
+    border-radius:50%;
+    background:var(--pd-primary);
+    color:#fff;
+    font-family:'Manrope',sans-serif;
+    font-size:13px;
+    font-weight:700;
+}
