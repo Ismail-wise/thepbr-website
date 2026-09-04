@@ -44,7 +44,20 @@
 @endphp
 
 
-<section class="pd-workspace-profile-section">
+<link
+    rel="stylesheet"
+    href="{{ asset('css/partner-dynamics-tokens.css') }}?v={{ filemtime(public_path('css/partner-dynamics-tokens.css')) }}"
+>
+
+{{--
+    This page shows one partner's result to the rest of the workspace,
+    so it takes that partner's colour rather than the reader's own.
+--}}
+
+<section
+    class="pd-workspace-profile-section pd-themed"
+    style="{{ \App\Support\PartnerDynamicsTheme::variables($assessment->primary_profile) }}"
+>
 
     <div class="portal-wrap">
 
