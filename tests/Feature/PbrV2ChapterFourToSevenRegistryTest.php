@@ -353,7 +353,7 @@ test('chapters four to seven reconcile twenty legacy tools and defer deadlock de
         ->toBeFalse();
 });
 
-test('operations role move remains assigned while deadlock remains deferred', function () {
+test('operations role move and dispute deadlock move remain correctly assigned', function () {
     $registry = app(
         PbrV2ComponentRegistryService::class
     );
@@ -370,6 +370,7 @@ test('operations role move remains assigned while deadlock remains deferred', fu
         ) {
             $assignments[$mapping['tool_key']] = [
                 $componentKey,
+                $component['domain_key'],
                 $mapping['treatment'],
             ];
         }
@@ -380,15 +381,18 @@ test('operations role move remains assigned while deadlock remains deferred', fu
         ?? null
     )->toBe([
         'role_assignment_analysis',
+        'operations',
         'move',
     ]);
 
     expect(
-        array_key_exists(
-            'deadlock_detector',
-            $assignments
-        )
-    )->toBeFalse();
+        $assignments['deadlock_detector']
+        ?? null
+    )->toBe([
+        'deadlock_analysis',
+        'dispute_resolution',
+        'move',
+    ]);
 });
 
 test('chapter four to seven records and actions remain non canonical execution history', function () {

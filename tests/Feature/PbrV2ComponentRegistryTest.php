@@ -55,6 +55,15 @@ test('v2 component registry exposes explicit populated and deferred domain metad
 
         'continuity' =>
             'pbr_v2_components.continuity',
+
+        'share_transfer' =>
+            'pbr_v2_components.share_transfer',
+
+        'dispute_resolution' =>
+            'pbr_v2_components.dispute_resolution',
+
+        'implementation_review' =>
+            'pbr_v2_components.implementation_review',
     ]);
 
     expect($registry->deferredDomains())
