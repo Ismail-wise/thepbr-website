@@ -1150,11 +1150,28 @@
     padding:10px 0 20px;
 }
 
+/* This heading is a person's name, taken from the database, not static
+   copy — so it can be Burmese and it can be long.
+
+   58px on a 1.12 line box gives a 65px line. A Burmese name carries
+   stacked vowels and medials above and below the baseline and needs
+   roughly 80px at that size, so a name that wraps has its marks running
+   into the row beneath it. It was the largest heading in the product on
+   the tightest leading.
+
+   The index hero and the assessment heading carried the same Latin
+   setting and were corrected the same way.
+
+   1.42 is written out rather than taken from --pd-lh-display because
+   this page has no .pd-themed wrapper yet; the token would not resolve
+   and the declaration would be dropped. It becomes the token when the
+   page is brought onto the token set. */
+
 .pd-workspace-profile-hero h1{
     margin:6px 0 10px;
-    font-size:clamp(36px,5vw,58px);
-    line-height:1.12;
-    letter-spacing:-.04em;
+    font-size:clamp(30px,3.8vw,44px);
+    line-height:1.42;
+    letter-spacing:0;
 }
 
 .pd-workspace-profile-hero p{
