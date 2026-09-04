@@ -40,6 +40,12 @@ test('v2 component registry exposes explicit populated and deferred domain metad
 
         'governance' =>
             'pbr_v2_components.governance',
+
+        'operations' =>
+            'pbr_v2_components.operations',
+
+        'distribution' =>
+            'pbr_v2_components.distribution',
     ]);
 
     expect($registry->deferredDomains())

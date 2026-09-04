@@ -1,51 +1,163 @@
 <?php
 
 return [
-
-    'governance_decision_record' => [
-
-        'domain_key' => 'governance',
-
-        'component_type' => 'record',
-
-        'operating_purpose' =>
-            'Preserve completed governance decisions as append-only operating history.',
-
-        'canonical_capability' => 'none',
-
-        'approval_required' => false,
-
-        'can_create_proposal' => false,
-
-        'publish_authority' => 'none',
-
-        'write_mode' =>
-            'append_only_record',
-
-        'can_create_actions' => true,
-
-        'can_trigger_review' => true,
-
-        'source_policy' =>
-            'own_working_plus_approved_upstream',
-
-        'reads_from' => [],
-
-        'cross_domain_write' => false,
-
-        'stale_source_guard' => false,
-
-        'legacy_mappings' => [
-            [
-                'tool_key' =>
-                    'meeting_decision_log',
-
-                'treatment' => 'adapt',
-            ],
+    'governance_decision_workflow' => [
+            'domain_key' => 'governance',
+            'component_type' => 'workflow',
+            'operating_purpose' => 'Coordinate governance matters from working analysis through proposal, approval, record and action.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => true,
+            'publish_authority' => 'none',
+            'write_mode' => 'none',
+            'can_create_actions' => false,
+            'can_trigger_review' => true,
+            'source_policy' => 'own_working_plus_approved_upstream',
+            'reads_from' => [
+                        'ownership',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [],
+            'status' => 'active',
         ],
-
-        'status' => 'active',
-
-    ],
-
+    'decision_rights_register' => [
+            'domain_key' => 'governance',
+            'component_type' => 'register',
+            'operating_purpose' => 'Maintain the approved current allocation of decision rights and authority.',
+            'canonical_capability' => 'register',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'ownership',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'decision_rights_matrix',
+                                        'treatment' => 'adapt',
+                                    ],
+                        [
+                                        'tool_key' => 'authority_level_builder',
+                                        'treatment' => 'adapt',
+                                    ],
+                        [
+                                        'tool_key' => 'governance_structure_chart',
+                                        'treatment' => 'support',
+                                    ],
+                    ],
+            'status' => 'active',
+        ],
+    'reserved_matters_rule' => [
+            'domain_key' => 'governance',
+            'component_type' => 'rule',
+            'operating_purpose' => 'Define matters that require reserved or elevated governance approval.',
+            'canonical_capability' => 'rule',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'ownership',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
+    'voting_quorum_rule' => [
+            'domain_key' => 'governance',
+            'component_type' => 'rule',
+            'operating_purpose' => 'Define approved voting and quorum requirements without inferring them from ownership.',
+            'canonical_capability' => 'rule',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'ownership',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'voting_simulator',
+                                        'treatment' => 'support',
+                                    ],
+                    ],
+            'status' => 'active',
+        ],
+    'governance_decision_record' => [
+            'domain_key' => 'governance',
+            'component_type' => 'record',
+            'operating_purpose' => 'Preserve completed governance decisions as append-only operating history.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'append_only_record',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'meeting_decision_log',
+                                        'treatment' => 'adapt',
+                                    ],
+                    ],
+            'status' => 'active',
+        ],
+    'governance_action_plan' => [
+            'domain_key' => 'governance',
+            'component_type' => 'action',
+            'operating_purpose' => 'Track execution of approved governance decisions without creating decision authority.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'action_state',
+            'can_create_actions' => false,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
+    'governance_review_monitor' => [
+            'domain_key' => 'governance',
+            'component_type' => 'monitor',
+            'operating_purpose' => 'Monitor governance conditions and trigger review without changing current governance rules.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'none',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'ownership',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [],
+            'status' => 'support',
+        ],
 ];

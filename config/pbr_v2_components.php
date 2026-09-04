@@ -97,6 +97,12 @@ return [
 
         'governance' =>
             'pbr_v2_components.governance',
+
+        'operations' =>
+            'pbr_v2_components.operations',
+
+        'distribution' =>
+            'pbr_v2_components.distribution',
     ],
 
     /*

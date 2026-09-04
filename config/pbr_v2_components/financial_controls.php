@@ -1,53 +1,219 @@
 <?php
 
 return [
-
+    'financial_control_workflow' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'workflow',
+            'operating_purpose' => 'Coordinate finance control setup from analysis through approved controls, records and actions.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => true,
+            'publish_authority' => 'none',
+            'write_mode' => 'none',
+            'can_create_actions' => false,
+            'can_trigger_review' => true,
+            'source_policy' => 'own_working_plus_approved_upstream',
+            'reads_from' => [
+                        'capital',
+                        'governance',
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'financial_control_checklist',
+                                        'treatment' => 'support',
+                                    ],
+                    ],
+            'status' => 'active',
+        ],
+    'financial_position_analysis' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'analysis',
+            'operating_purpose' => 'Analyse financial position and budget performance without becoming an approved financial control.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => true,
+            'publish_authority' => 'none',
+            'write_mode' => 'none',
+            'can_create_actions' => false,
+            'can_trigger_review' => true,
+            'source_policy' => 'own_working_plus_approved_upstream',
+            'reads_from' => [
+                        'capital',
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'monthly_budget_planner',
+                                        'treatment' => 'support',
+                                    ],
+                        [
+                                        'tool_key' => 'budget_actual_chart',
+                                        'treatment' => 'support',
+                                    ],
+                    ],
+            'status' => 'support',
+        ],
     'cashflow_dashboard' => [
-
-        'domain_key' =>
-            'financial_controls',
-
-        'component_type' => 'monitor',
-
-        'operating_purpose' =>
-            'Monitor cash position, cash movement and runway without creating financial authority.',
-
-        'canonical_capability' => 'none',
-
-        'approval_required' => false,
-
-        'can_create_proposal' => false,
-
-        'publish_authority' => 'none',
-
-        'write_mode' => 'none',
-
-        'can_create_actions' => true,
-
-        'can_trigger_review' => true,
-
-        'source_policy' =>
-            'own_working_plus_approved_upstream',
-
-        'reads_from' => [
-            'capital',
+            'domain_key' => 'financial_controls',
+            'component_type' => 'monitor',
+            'operating_purpose' => 'Monitor cash flow conditions and support action or review without publishing financial authority.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'none',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'capital',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'cashflow_dashboard',
+                                        'treatment' => 'reuse',
+                                    ],
+                    ],
+            'status' => 'support',
         ],
-
-        'cross_domain_write' => false,
-
-        'stale_source_guard' => false,
-
-        'legacy_mappings' => [
-            [
-                'tool_key' =>
-                    'cashflow_dashboard',
-
-                'treatment' => 'reuse',
-            ],
+    'payment_approval_rule' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'rule',
+            'operating_purpose' => 'Define approved payment approval thresholds and authority boundaries.',
+            'canonical_capability' => 'rule',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'governance',
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'expense_approval_matrix',
+                                        'treatment' => 'adapt',
+                                    ],
+                        [
+                                        'tool_key' => 'large_payment_approval_rules',
+                                        'treatment' => 'adapt',
+                                    ],
+                    ],
+            'status' => 'active',
         ],
-
-        'status' => 'support',
-
-    ],
-
+    'bank_access_register' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'register',
+            'operating_purpose' => 'Maintain the approved current register of banking access and financial authority.',
+            'canonical_capability' => 'register',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'governance',
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [
+                        [
+                                        'tool_key' => 'bank_authority_matrix',
+                                        'treatment' => 'adapt',
+                                    ],
+                    ],
+            'status' => 'active',
+        ],
+    'reconciliation_close_plan' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'plan',
+            'operating_purpose' => 'Maintain the approved reconciliation and financial close operating plan.',
+            'canonical_capability' => 'plan',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
+    'tax_audit_compliance_plan' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'plan',
+            'operating_purpose' => 'Maintain the approved tax, audit and financial compliance operating plan.',
+            'canonical_capability' => 'plan',
+            'approval_required' => true,
+            'can_create_proposal' => true,
+            'publish_authority' => 'approval_engine_only',
+            'write_mode' => 'revisioned_current',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [
+                        'governance',
+                        'operations',
+                    ],
+            'cross_domain_write' => false,
+            'stale_source_guard' => true,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
+    'financial_exception_record' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'record',
+            'operating_purpose' => 'Preserve financial exceptions and completed control events as append-only history.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'append_only_record',
+            'can_create_actions' => true,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
+    'financial_control_action_plan' => [
+            'domain_key' => 'financial_controls',
+            'component_type' => 'action',
+            'operating_purpose' => 'Track execution of approved finance and control decisions without creating authority.',
+            'canonical_capability' => 'none',
+            'approval_required' => false,
+            'can_create_proposal' => false,
+            'publish_authority' => 'none',
+            'write_mode' => 'action_state',
+            'can_create_actions' => false,
+            'can_trigger_review' => true,
+            'source_policy' => 'approved_upstream_only',
+            'reads_from' => [],
+            'cross_domain_write' => false,
+            'stale_source_guard' => false,
+            'legacy_mappings' => [],
+            'status' => 'active',
+        ],
 ];
