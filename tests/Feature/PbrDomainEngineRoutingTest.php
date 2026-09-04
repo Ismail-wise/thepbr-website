@@ -211,3 +211,28 @@ test('state engine dispatch is keyed by stable domain identity', function () {
             'match ($chapter)'
         );
 });
+
+test('scenario workflow builds snapshots from stable domain identity', function () {
+    $source = file_get_contents(
+        base_path(
+            'app/Services/PbrTools/ToolScenarioService.php'
+        )
+    );
+
+    expect($source)
+        ->toContain(
+            'PbrDomainRegistryService $domainRegistry'
+        )
+        ->toContain(
+            '->domainForLegacyChapter('
+        )
+        ->toContain(
+            '->buildForDomain('
+        )
+        ->not->toContain(
+            '->domainForChapter('
+        )
+        ->not->toContain(
+            'chapterState->build('
+        );
+});

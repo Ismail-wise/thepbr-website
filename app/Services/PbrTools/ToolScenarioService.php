@@ -16,6 +16,7 @@ class ToolScenarioService
 {
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
+        private readonly PbrDomainRegistryService $domainRegistry,
         private readonly PbrChapterStateService $chapterState,
         private readonly PbrToolApprovalReadinessService $approvalReadiness,
         private readonly PbrToolActionService $toolActions
@@ -198,13 +199,18 @@ class ToolScenarioService
 
         $tool->loadMissing('chapter:id,chapter_number');
         $chapterNumber = (int) $tool->chapter?->chapter_number;
+        $domainKey = $this->domainRegistry
+            ->domainForLegacyChapter(
+                $chapterNumber
+            );
 
         return DB::transaction(function () use (
             $user,
             $workspace,
             $tool,
             $session,
-            $chapterNumber
+            $chapterNumber,
+            $domainKey
         ): WorkspaceToolOutput {
             $output = $this->createOutputRow(
                 $user,
@@ -214,16 +220,17 @@ class ToolScenarioService
                 'draft'
             );
 
-            $state = $this->chapterState->build(
-                $workspace,
-                $chapterNumber,
-                'draft'
-            );
+            $state = $this->chapterState
+                ->buildForDomain(
+                    $workspace,
+                    $domainKey,
+                    'draft'
+                );
 
             $this->operatingSystem->saveSnapshot(
                 $user,
                 $workspace,
-                $this->operatingSystem->domainForChapter($chapterNumber),
+                $domainKey,
                 $state['payload'],
                 $state['summary'],
                 'draft'
@@ -255,13 +262,18 @@ class ToolScenarioService
 
         $tool->loadMissing('chapter:id,chapter_number');
         $chapterNumber = (int) $tool->chapter?->chapter_number;
+        $domainKey = $this->domainRegistry
+            ->domainForLegacyChapter(
+                $chapterNumber
+            );
 
         return DB::transaction(function () use (
             $user,
             $workspace,
             $tool,
             $session,
-            $chapterNumber
+            $chapterNumber,
+            $domainKey
         ): WorkspaceToolOutput {
             $output = $this->createOutputRow(
                 $user,
@@ -305,16 +317,17 @@ class ToolScenarioService
                 );
             }
 
-            $state = $this->chapterState->build(
-                $workspace,
-                $chapterNumber,
-                'agreed'
-            );
+            $state = $this->chapterState
+                ->buildForDomain(
+                    $workspace,
+                    $domainKey,
+                    'agreed'
+                );
 
             $this->operatingSystem->saveSnapshot(
                 $user,
                 $workspace,
-                $this->operatingSystem->domainForChapter($chapterNumber),
+                $domainKey,
                 $state['payload'],
                 $state['summary'],
                 'agreed'
