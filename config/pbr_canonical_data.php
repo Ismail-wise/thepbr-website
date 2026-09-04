@@ -118,6 +118,163 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | PBR OS V2 Canonical Domain Contract
+    |--------------------------------------------------------------------------
+    |
+    | This parallel contract represents the approved 14-chapter V2 product.
+    | The V1 domains contract above remains active until explicit cut-over.
+    | Only approved upstream canonical state may flow through reads_from.
+    |
+    */
+
+    'domains_v2' => [
+        'capital' => [
+            'chapter' => 1,
+            'name' => 'Capital & Funding',
+            'reads_from' => [],
+        ],
+
+        'contribution' => [
+            'chapter' => 2,
+            'name' => 'Partner Contributions',
+            'reads_from' => [
+                'capital',
+            ],
+        ],
+
+        'ownership' => [
+            'chapter' => 3,
+            'name' => 'Ownership & Equity',
+            'reads_from' => [
+                'contribution',
+            ],
+        ],
+
+        'governance' => [
+            'chapter' => 4,
+            'name' => 'Governance & Decision Rights',
+            'reads_from' => [
+                'ownership',
+            ],
+        ],
+
+        'operations' => [
+            'chapter' => 5,
+            'name' => 'Operations & Role Owners',
+            'reads_from' => [
+                'governance',
+            ],
+        ],
+
+        'financial_controls' => [
+            'chapter' => 6,
+            'name' => 'Finance & Control',
+            'reads_from' => [
+                'capital',
+                'governance',
+                'operations',
+            ],
+        ],
+
+        'distribution' => [
+            'chapter' => 7,
+            'name' => 'Profit, Salary & Distribution',
+            'reads_from' => [
+                'ownership',
+                'governance',
+                'operations',
+                'financial_controls',
+            ],
+        ],
+
+        'risk' => [
+            'chapter' => 8,
+            'name' => 'Risk, Insurance & Protection',
+            'reads_from' => [
+                'governance',
+                'operations',
+                'financial_controls',
+            ],
+        ],
+
+        'exit' => [
+            'chapter' => 9,
+            'name' => 'Exit & Buyout',
+            'reads_from' => [
+                'ownership',
+                'governance',
+                'operations',
+                'financial_controls',
+            ],
+        ],
+
+        'continuity' => [
+            'chapter' => 10,
+            'name' => 'Continuity & Succession',
+            'reads_from' => [
+                'ownership',
+                'governance',
+                'operations',
+                'financial_controls',
+                'exit',
+            ],
+        ],
+
+        'share_transfer' => [
+            'chapter' => 11,
+            'name' => 'Share Transfer & New Partner',
+            'reads_from' => [
+                'ownership',
+                'governance',
+                'exit',
+            ],
+        ],
+
+        'dispute_resolution' => [
+            'chapter' => 12,
+            'name' => 'Conflict, Deadlock & Resolution',
+            'reads_from' => [
+                'governance',
+            ],
+        ],
+
+        'implementation_review' => [
+            'chapter' => 13,
+            'name' => 'Implementation & Review',
+            'reads_from' => [
+                'capital',
+                'contribution',
+                'ownership',
+                'governance',
+                'operations',
+                'financial_controls',
+                'distribution',
+                'risk',
+                'exit',
+                'continuity',
+                'share_transfer',
+                'dispute_resolution',
+            ],
+        ],
+
+        'dissolution' => [
+            'chapter' => 14,
+            'name' => 'Business Dissolution, Insolvency & Bankruptcy',
+            'reads_from' => [
+                'ownership',
+                'governance',
+                'operations',
+                'financial_controls',
+                'risk',
+                'exit',
+                'continuity',
+                'dispute_resolution',
+            ],
+        ],
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Tool Prefill Dependency Contracts
     |--------------------------------------------------------------------------
     |

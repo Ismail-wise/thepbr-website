@@ -105,6 +105,93 @@ class PbrDomainRegistryService
     }
 
     /**
+     * Stable domain-key view of the approved PBR OS V2 master registry.
+     *
+     * The legacy V1 numeric catalog remains separate and unchanged.
+     *
+     * @return array<string, array<string, mixed>>
+     */
+    public function masterAll(): array
+    {
+        $domains = config(
+            'pbr_business_operating_system.master_domains',
+            []
+        );
+
+        if (! is_array($domains)) {
+            throw new LogicException(
+                'PBR V2 master domain registry must be an array.'
+            );
+        }
+
+        $resolved = [];
+
+        foreach ($domains as $domainKey => $domain) {
+            $domainKey = trim((string) $domainKey);
+
+            if ($domainKey === '' || ! is_array($domain)) {
+                throw new LogicException(
+                    'Every PBR V2 master domain must have a stable key and array definition.'
+                );
+            }
+
+            if (array_key_exists($domainKey, $resolved)) {
+                throw new LogicException(
+                    'Duplicate PBR V2 master domain key: '.$domainKey
+                );
+            }
+
+            $resolved[$domainKey] = array_merge(
+                $domain,
+                [
+                    'domain_key' => $domainKey,
+                ]
+            );
+        }
+
+        return $resolved;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function masterKeys(): array
+    {
+        return array_keys($this->masterAll());
+    }
+
+    public function masterHas(string $domainKey): bool
+    {
+        return array_key_exists(
+            $domainKey,
+            $this->masterAll()
+        );
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    public function masterFind(string $domainKey): ?array
+    {
+        return $this->masterAll()[$domainKey] ?? null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function masterDomain(string $domainKey): array
+    {
+        $domain = $this->masterFind($domainKey);
+
+        abort_unless(
+            is_array($domain),
+            404
+        );
+
+        return $domain;
+    }
+
+    /**
      * @return array<string, mixed>|null
      */
     public function findByLegacyChapter(

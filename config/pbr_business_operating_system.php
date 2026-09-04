@@ -105,6 +105,103 @@ return [
         ],
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | PBR OS V2 Master Domains
+    |--------------------------------------------------------------------------
+    |
+    | The V1 numeric areas above remain untouched for legacy catalog/runtime
+    | compatibility. V2 business identity is the stable array key below.
+    | chapter_number is presentation/catalog metadata only.
+    |
+    */
+
+    'master_domains' => [
+        'capital' => [
+            'chapter_number' => 1,
+            'slug' => 'capital',
+            'name_en' => 'Capital & Funding',
+        ],
+
+        'contribution' => [
+            'chapter_number' => 2,
+            'slug' => 'partner-contributions',
+            'name_en' => 'Partner Contributions',
+        ],
+
+        'ownership' => [
+            'chapter_number' => 3,
+            'slug' => 'ownership-equity',
+            'name_en' => 'Ownership & Equity',
+        ],
+
+        'governance' => [
+            'chapter_number' => 4,
+            'slug' => 'governance-decision-rights',
+            'name_en' => 'Governance & Decision Rights',
+        ],
+
+        'operations' => [
+            'chapter_number' => 5,
+            'slug' => 'operations-role-owners',
+            'name_en' => 'Operations & Role Owners',
+        ],
+
+        'financial_controls' => [
+            'chapter_number' => 6,
+            'slug' => 'finance-control',
+            'name_en' => 'Finance & Control',
+        ],
+
+        'distribution' => [
+            'chapter_number' => 7,
+            'slug' => 'profit-salary-distribution',
+            'name_en' => 'Profit, Salary & Distribution',
+        ],
+
+        'risk' => [
+            'chapter_number' => 8,
+            'slug' => 'risk-insurance-protection',
+            'name_en' => 'Risk, Insurance & Protection',
+        ],
+
+        'exit' => [
+            'chapter_number' => 9,
+            'slug' => 'exit-buyout',
+            'name_en' => 'Exit & Buyout',
+        ],
+
+        'continuity' => [
+            'chapter_number' => 10,
+            'slug' => 'continuity-succession',
+            'name_en' => 'Continuity & Succession',
+        ],
+
+        'share_transfer' => [
+            'chapter_number' => 11,
+            'slug' => 'share-transfer-new-partner',
+            'name_en' => 'Share Transfer & New Partner',
+        ],
+
+        'dispute_resolution' => [
+            'chapter_number' => 12,
+            'slug' => 'conflict-deadlock-resolution',
+            'name_en' => 'Conflict, Deadlock & Resolution',
+        ],
+
+        'implementation_review' => [
+            'chapter_number' => 13,
+            'slug' => 'implementation-review',
+            'name_en' => 'Implementation & Review',
+        ],
+
+        'dissolution' => [
+            'chapter_number' => 14,
+            'slug' => 'dissolution-insolvency-bankruptcy',
+            'name_en' => 'Business Dissolution, Insolvency & Bankruptcy',
+        ],
+    ],
+
     'states' => [
         'active' => [
             'label_mm' => 'အသုံးပြုနေသော Rule ရှိသည်',
