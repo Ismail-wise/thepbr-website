@@ -27,6 +27,11 @@ class PbrOperatingSystemService
         10 => 'dispute_resolution',
     ];
 
+    public function __construct(
+        private readonly PbrDomainRegistryService $domainRegistry
+    ) {
+    }
+
     public function canManage(User $user, PartnershipWorkspace $workspace): bool
     {
         return $user->isAdmin()
@@ -38,9 +43,8 @@ class PbrOperatingSystemService
 
     public function domainForChapter(int $chapterNumber): string
     {
-        abort_unless(isset(self::DOMAINS[$chapterNumber]), 404);
-
-        return self::DOMAINS[$chapterNumber];
+        return $this->domainRegistry
+            ->domainForLegacyChapter($chapterNumber);
     }
 
     public function syncWorkspacePartners(PartnershipWorkspace $workspace): Collection
@@ -214,7 +218,7 @@ class PbrOperatingSystemService
         string $status = 'draft'
     ): WorkspaceOperatingSnapshot {
         abort_unless($this->canManage($actor, $workspace), 403);
-        abort_unless(in_array($domainKey, array_values(self::DOMAINS), true), 422);
+        abort_unless($this->domainRegistry->has($domainKey), 422);
         abort_unless(in_array($status, ['draft', 'agreed'], true), 422);
 
         return DB::transaction(function () use (
@@ -280,7 +284,7 @@ class PbrOperatingSystemService
     {
         $result = [];
 
-        foreach (self::DOMAINS as $domainKey) {
+        foreach ($this->domainRegistry->keys() as $domainKey) {
             $snapshot = $this->readableSnapshot($actor, $workspace, $domainKey);
 
             if (! $snapshot) {
@@ -307,7 +311,7 @@ class PbrOperatingSystemService
 
         $result = [];
 
-        foreach (self::DOMAINS as $domainKey) {
+        foreach ($this->domainRegistry->keys() as $domainKey) {
             $snapshot = $this->latestSnapshot($workspace, $domainKey, 'agreed');
 
             if (! $snapshot) {
