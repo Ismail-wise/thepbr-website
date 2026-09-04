@@ -6,6 +6,11 @@ use App\Models\ChapterTool;
 
 class PbrToolRuntimeContractService
 {
+    public function __construct(
+        private readonly PbrDomainRegistryService $domainRegistry
+    ) {
+    }
+
     public function forTool(ChapterTool $tool): array
     {
         $tool->loadMissing(
@@ -16,16 +21,10 @@ class PbrToolRuntimeContractService
             $tool->chapter?->chapter_number ?? 0
         );
 
-        $area = config(
-            'pbr_business_operating_system.areas.'.$chapterNumber,
-            []
-        );
+        $area = $this->domainRegistry
+            ->areaForLegacyChapter($chapterNumber);
 
-        $domain = (string) (
-            $area['domain']
-            ?? PbrOperatingSystemService::DOMAINS[$chapterNumber]
-            ?? ''
-        );
+        $domain = (string) $area['domain_key'];
 
         $definition = config(
             'pbr_operating_tools.definitions.'.$tool->tool_key,

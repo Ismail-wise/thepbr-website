@@ -14,6 +14,7 @@ class PbrBusinessOperatingService
 {
     public function __construct(
         private readonly PbrOperatingSystemService $operatingSystem,
+        private readonly PbrDomainRegistryService $domainRegistry,
         private readonly ChapterOneIntegrationService $capitalIntegration,
         private readonly PbrToolRuntimeContractService $runtimeContracts,
         private readonly PbrBusinessJourneyService $journey
@@ -22,22 +23,26 @@ class PbrBusinessOperatingService
 
     public function area(int $internalNumber): array
     {
-        $area = config('pbr_business_operating_system.areas.'.$internalNumber);
+        $area = $this->domainRegistry
+            ->areaForLegacyChapter($internalNumber);
 
-        abort_unless(is_array($area), 404);
-
-        return array_merge(['internal_number' => $internalNumber], $area);
+        return array_merge(
+            ['internal_number' => $internalNumber],
+            $area
+        );
     }
 
     public function areaForDomain(string $domain): array
     {
-        foreach (config('pbr_business_operating_system.areas', []) as $number => $area) {
-            if (($area['domain'] ?? null) === $domain) {
-                return array_merge(['internal_number' => (int) $number], $area);
-            }
-        }
+        $area = $this->domainRegistry->domain($domain);
 
-        abort(404);
+        return array_merge(
+            [
+                'internal_number' =>
+                    (int) $area['legacy_chapter_number'],
+            ],
+            $area
+        );
     }
 
     public function workspaceState(User $actor, PartnershipWorkspace $workspace): array

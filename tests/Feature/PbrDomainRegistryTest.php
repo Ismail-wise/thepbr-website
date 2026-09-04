@@ -69,3 +69,29 @@ test('business registry and canonical contract expose the same current domain id
     expect(array_keys($canonicalDomains))
         ->toBe($registry->keys());
 });
+
+test('legacy area compatibility resolves metadata through the stable registry', function () {
+    $registry = app(PbrDomainRegistryService::class);
+
+    foreach (
+        $registry->legacyChapterMap()
+        as $chapterNumber => $domainKey
+    ) {
+        $area = $registry->areaForLegacyChapter(
+            $chapterNumber
+        );
+
+        expect($area['domain_key'])
+            ->toBe($domainKey)
+            ->and(
+                $registry->findByLegacyChapter(
+                    $chapterNumber
+                )
+            )
+            ->toBe($area);
+    }
+
+    expect(
+        $registry->findByLegacyChapter(999)
+    )->toBeNull();
+});

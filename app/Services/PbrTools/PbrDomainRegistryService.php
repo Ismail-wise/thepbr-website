@@ -105,6 +105,45 @@ class PbrDomainRegistryService
     }
 
     /**
+     * @return array<string, mixed>|null
+     */
+    public function findByLegacyChapter(
+        int $chapterNumber
+    ): ?array {
+        foreach ($this->all() as $domain) {
+            if (
+                (int) (
+                    $domain[
+                        'legacy_chapter_number'
+                    ] ?? 0
+                ) === $chapterNumber
+            ) {
+                return $domain;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function areaForLegacyChapter(
+        int $chapterNumber
+    ): array {
+        $domain = $this->findByLegacyChapter(
+            $chapterNumber
+        );
+
+        abort_unless(
+            is_array($domain),
+            404
+        );
+
+        return $domain;
+    }
+
+    /**
      * Compatibility resolver for the existing V1 catalog.
      *
      * Chapter number is not business identity. It is only a legacy catalog
@@ -113,19 +152,11 @@ class PbrDomainRegistryService
     public function domainForLegacyChapter(
         int $chapterNumber
     ): string {
-        foreach ($this->all() as $domainKey => $domain) {
-            if (
-                (int) (
-                    $domain[
-                        'legacy_chapter_number'
-                    ] ?? 0
-                ) === $chapterNumber
-            ) {
-                return $domainKey;
-            }
-        }
+        $domain = $this->areaForLegacyChapter(
+            $chapterNumber
+        );
 
-        abort(404);
+        return (string) $domain['domain_key'];
     }
 
     public function legacyChapterForDomain(
