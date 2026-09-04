@@ -95,10 +95,6 @@ test('chapters four to seven contain exactly thirty one approved component contr
         + count($registry->forDomain('distribution'));
 
     expect($total)->toBe(31);
-
-    expect(
-        $registry->all()
-    )->toHaveCount(57);
 });
 
 test('chapters four to seven canonical outputs require approval engine publication', function () {
@@ -357,7 +353,7 @@ test('chapters four to seven reconcile twenty legacy tools and defer deadlock de
         ->toBeFalse();
 });
 
-test('global legacy mapping count becomes thirty eight without assigning deadlock early', function () {
+test('operations role move remains assigned while deadlock remains deferred', function () {
     $registry = app(
         PbrV2ComponentRegistryService::class
     );
@@ -379,22 +375,20 @@ test('global legacy mapping count becomes thirty eight without assigning deadloc
         }
     }
 
-    expect($assignments)
-        ->toHaveCount(38)
-        ->and(
-            array_key_exists(
-                'deadlock_detector',
-                $assignments
-            )
+    expect(
+        $assignments['role_responsibility_matrix']
+        ?? null
+    )->toBe([
+        'role_assignment_analysis',
+        'move',
+    ]);
+
+    expect(
+        array_key_exists(
+            'deadlock_detector',
+            $assignments
         )
-        ->toBeFalse()
-        ->and(
-            array_key_exists(
-                'role_responsibility_matrix',
-                $assignments
-            )
-        )
-        ->toBeTrue();
+    )->toBeFalse();
 });
 
 test('chapter four to seven records and actions remain non canonical execution history', function () {

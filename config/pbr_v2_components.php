@@ -103,6 +103,15 @@ return [
 
         'distribution' =>
             'pbr_v2_components.distribution',
+
+        'risk' =>
+            'pbr_v2_components.risk',
+
+        'exit' =>
+            'pbr_v2_components.exit',
+
+        'continuity' =>
+            'pbr_v2_components.continuity',
     ],
 
     /*
