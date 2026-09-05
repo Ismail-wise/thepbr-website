@@ -127,6 +127,54 @@ Route::middleware('auth')->group(function (): void {
         [\App\Http\Controllers\WorkspaceStartupCapitalDraftController::class, 'store']
     )->name('workspaces.tools.startup-capital.draft.store');
 
+    /*
+    |--------------------------------------------------------------------------
+    | PBR V2 Capital Plan Authority
+    |--------------------------------------------------------------------------
+    |
+    | Separate from the legacy Startup Capital scenario runtime.
+    | V2 canonical authority lives only under approved_capital_plan.
+    |
+    */
+
+    Route::get(
+        '/workspaces/{workspace}/v2/capital',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'show']
+    )->name('workspaces.tools.v2.capital.show');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/drafts',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'store']
+    )->name('workspaces.tools.v2.capital.store');
+
+    Route::put(
+        '/workspaces/{workspace}/v2/capital/drafts/{artifactId}',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'update']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.update');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/drafts/{artifactId}/submit',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'submit']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.submit');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/drafts/{artifactId}/approve',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'approve']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.approve');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/drafts/{artifactId}/reject',
+        [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'reject']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.reject');
+
     Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']
