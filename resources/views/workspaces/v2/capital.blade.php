@@ -56,6 +56,16 @@
     )
         ? $comparison['missing_scenarios']
         : [];
+
+    $decisionRecords = is_array(
+        $decisionRecords ?? null
+    )
+        ? $decisionRecords
+        : [];
+
+    $currentDecisionRecorded = (bool) (
+        $currentDecisionRecorded ?? false
+    );
 @endphp
 
 <section
@@ -396,6 +406,254 @@
                 @endif
 
                 @if($canManage)
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-decision-record"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    CAPITAL DECISION RECORD
+                                </span>
+
+                                <h2>
+                                    Approved Decision Record
+                                </h2>
+
+                                <p>
+                                    Approved Capital Plan ကို
+                                    immutable append-only operating
+                                    record အဖြစ် မှတ်တမ်းတင်ပြီး
+                                    ဆုံးဖြတ်ချက် evidence ကို
+                                    audit လုပ်နိုင်အောင်ထားပါတယ်။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                {{ count($decisionRecords) }}
+                                {{ count($decisionRecords) === 1 ? 'Record' : 'Records' }}
+                            </span>
+                        </div>
+
+                        @if(
+                            $current
+                            && ! $currentDecisionRecorded
+                        )
+                            <div class="pbr-os-approval-zone">
+                                <div>
+                                    <span>Record Boundary</span>
+
+                                    <h3>
+                                        Approved Revision
+                                        {{ $current['revision'] }}
+                                        ကို Decision Record အဖြစ်
+                                        မှတ်တမ်းတင်မလား?
+                                    </h3>
+
+                                    <p>
+                                        ဒီ action က approved plan
+                                        payload ထဲက Decision Owner,
+                                        Effective / Review Date,
+                                        Summary နဲ့ Evidence ကို
+                                        exact canonical revision နဲ့
+                                        pin လုပ်ပြီး immutable record
+                                        တစ်ခုဖန်တီးပါတယ်။
+                                    </p>
+                                </div>
+
+                                <div class="pbr-os-approval-actions">
+                                    <form
+                                        method="POST"
+                                        action="{{ route(
+                                            'workspaces.tools.v2.capital.decision-record.store',
+                                            $workspace
+                                        ) }}"
+                                    >
+                                        @csrf
+
+                                        <button
+                                            type="submit"
+                                            class="pbr-os-btn approve"
+                                        >
+                                            Record Decision
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        @elseif(
+                            $current
+                            && $currentDecisionRecorded
+                        )
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    ✓
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Current approved revision
+                                        recorded
+                                    </h3>
+
+                                    <p>
+                                        Revision
+                                        {{ $current['revision'] }}
+                                        အတွက် immutable Decision
+                                        Record ရှိပြီးသားဖြစ်ပါတယ်။
+                                        Same revision ကို duplicate
+                                        record ထပ်မဖန်တီးပါ။
+                                    </p>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Approved decision မရှိသေးပါ
+                                    </h3>
+
+                                    <p>
+                                        Capital Plan ကို approve &
+                                        publish လုပ်ပြီးမှ Decision
+                                        Record ဖန်တီးနိုင်ပါတယ်။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($decisionRecords !== [])
+                            <div class="pbr-os-result-table-wrap">
+                                <div class="pbr-os-table-head">
+                                    <h3>
+                                        Immutable Decision Records
+                                    </h3>
+
+                                    <span>
+                                        Newest record first
+                                    </span>
+                                </div>
+
+                                <div class="pbr-os-table-scroll">
+                                    <table class="pbr-os-result-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Record</th>
+                                                <th>Owner</th>
+                                                <th>Status</th>
+                                                <th>Effective Date</th>
+                                                <th>Review Date</th>
+                                                <th>Decision Summary</th>
+                                                <th>Evidence / Reference</th>
+                                                <th>Approved By</th>
+                                                <th>Approval Date</th>
+                                                <th>Last Updated</th>
+                                                <th>Source</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach($decisionRecords as $record)
+                                                <tr>
+                                                    <td>
+                                                        <strong>
+                                                            {{ $record['title'] }}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['payload']['owner_reference'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        <strong>
+                                                            {{ strtoupper($record['state']) }}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['payload']['effective_date'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['payload']['review_date'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['payload']['decision_summary'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ implode(
+                                                            ' · ',
+                                                            $record['payload']['evidence_references']
+                                                                ?? []
+                                                        ) }}
+                                                    </td>
+
+                                                    <td>
+                                                        User #{{ $record['payload']['approved_by_user_id'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['payload']['approved_at'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $record['recorded_at'] }}
+                                                    </td>
+
+                                                    <td>
+                                                        Revision
+                                                        {{ $record['source']['revision'] }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Decision Record history
+                                        မရှိသေးပါ
+                                    </h3>
+
+                                    <p>
+                                        Approved decision ကို
+                                        Record Decision လုပ်ပြီးတဲ့အခါ
+                                        immutable record ကို
+                                        ဒီနေရာမှာပြပါမယ်။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="pbr-os-legal-note">
+                            <strong>
+                                Decision Record Boundary
+                            </strong>
+
+                            <p>
+                                ဒီ section က append-only operating
+                                record ဖြစ်ပြီး Version History
+                                မဟုတ်ပါ။ Record ဖန်တီးခြင်းက
+                                approved canonical plan ကို
+                                ပြန်မပြင်သလို approval authority
+                                အသစ်လည်းမဖန်တီးပါ။
+                            </p>
+                        </div>
+                    </section>
+
                     <section
                         class="pbr-os-panel"
                         id="v2-capital-history"
@@ -1399,8 +1657,10 @@
                                         <p>
                                             ဒီ fields တွေက approved plan
                                             payload ရဲ့ decision evidence ဖြစ်ပါတယ်။
-                                            Separate append-only Decision Record
-                                            runtime ကို နောက် phase မှာချိတ်ပါမယ်။
+                                            Plan ကို approve & publish လုပ်ပြီးနောက်
+                                            အပေါ်က append-only Decision Record
+                                            section မှာ exact revision ကို
+                                            record လုပ်နိုင်ပါတယ်။
                                         </p>
                                     </div>
                                 </div>

@@ -175,6 +175,11 @@ Route::middleware('auth')->group(function (): void {
         ->whereNumber('artifactId')
         ->name('workspaces.tools.v2.capital.reject');
 
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/decision-record',
+        [\App\Http\Controllers\WorkspaceV2CapitalDecisionRecordController::class, 'store']
+    )->name('workspaces.tools.v2.capital.decision-record.store');
+
     Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']

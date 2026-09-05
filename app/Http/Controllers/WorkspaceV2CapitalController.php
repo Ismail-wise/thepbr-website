@@ -7,6 +7,7 @@ use App\Models\WorkspaceV2CanonicalWorkArtifact;
 use App\Services\PbrTools\PbrV2ApplicationService;
 use App\Services\PbrTools\PbrV2CapitalApprovalService;
 use App\Services\PbrTools\PbrV2CapitalComparisonService;
+use App\Services\PbrTools\PbrV2CapitalDecisionRecordService;
 use App\Services\PbrTools\PbrV2CapitalHistoryService;
 use App\Services\PbrTools\PbrV2CapitalPlanReadinessService;
 use App\Services\PbrTools\PbrV2CapitalReadService;
@@ -31,7 +32,8 @@ final class WorkspaceV2CapitalController extends Controller
 
     public function show(
         Request $request,
-        PartnershipWorkspace $workspace
+        PartnershipWorkspace $workspace,
+        PbrV2CapitalDecisionRecordService $decisionRecord
     ): View {
         $actor = $request->user();
 
@@ -73,6 +75,35 @@ final class WorkspaceV2CapitalController extends Controller
                 $workspace
             )
             : [];
+
+        $decisionRecords = $canManage
+            ? $decisionRecord->records(
+                $actor,
+                $workspace
+            )
+            : [];
+
+        $currentDecisionRecorded = false;
+
+        if (
+            $canManage
+            && $current !== null
+        ) {
+            foreach ($decisionRecords as $record) {
+                if (
+                    (int) (
+                        $record['source']
+                            ['canonical_revision_id']
+                        ?? 0
+                    )
+                    === (int) $current['id']
+                ) {
+                    $currentDecisionRecorded = true;
+
+                    break;
+                }
+            }
+        }
 
         $activeArtifact = null;
 
@@ -128,6 +159,10 @@ final class WorkspaceV2CapitalController extends Controller
                 'draftPage' => $draftPage,
                 'comparison' => $comparison,
                 'history' => $history,
+                'decisionRecords' =>
+                    $decisionRecords,
+                'currentDecisionRecorded' =>
+                    $currentDecisionRecorded,
                 'activeArtifact' =>
                     $activeArtifact,
                 'payload' => $payload,
