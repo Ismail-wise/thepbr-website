@@ -46,6 +46,16 @@
     $currentPayload = $current['payload'] ?? null;
     $currentCalc = $currentAssessment['calculations'] ?? null;
     $draftCalc = $assessment['calculations'] ?? null;
+
+    $comparisonPlans = is_array($comparison['plans'] ?? null)
+        ? $comparison['plans']
+        : [];
+
+    $comparisonMissing = is_array(
+        $comparison['missing_scenarios'] ?? null
+    )
+        ? $comparison['missing_scenarios']
+        : [];
 @endphp
 
 <section
@@ -386,6 +396,200 @@
                 @endif
 
                 @if($canManage)
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-comparison"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    PLAN COMPARISON
+                                </span>
+
+                                <h2>
+                                    Lean / Base / Growth နှိုင်းယှဉ်မှု
+                                </h2>
+
+                                <p>
+                                    Formal Proposal မတင်ခင်
+                                    latest Working Plan သုံးမျိုးကို
+                                    တူညီတဲ့ V2 Readiness calculation
+                                    နဲ့ side-by-side နှိုင်းယှဉ်ပါ။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                {{ count($comparisonPlans) }}/3 Scenarios
+                            </span>
+                        </div>
+
+                        @if($comparisonPlans !== [])
+                            <div class="pbr-os-result-table-wrap">
+                                <div class="pbr-os-table-head">
+                                    <h3>
+                                        Capital Plan Comparison
+                                    </h3>
+
+                                    <span>
+                                        Latest candidate per scenario
+                                    </span>
+                                </div>
+
+                                <div class="pbr-os-table-scroll">
+                                    <table class="pbr-os-result-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Scenario</th>
+                                                <th>Plan</th>
+                                                <th>State</th>
+                                                <th>Working Capital</th>
+                                                <th>Contingency</th>
+                                                <th>Total Required</th>
+                                                <th>Funding Gap</th>
+                                                <th>Readiness</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach($comparisonPlans as $plan)
+                                                <tr>
+                                                    <td>
+                                                        <strong>
+                                                            {{ strtoupper($plan['scenario_type']) }}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        <a
+                                                            href="{{ route(
+                                                                'workspaces.tools.v2.capital.show',
+                                                                [
+                                                                    'workspace' => $workspace,
+                                                                    'artifact' => $plan['artifact_id'],
+                                                                ]
+                                                            ) }}"
+                                                        >
+                                                            {{ $plan['plan_name'] !== ''
+                                                                ? $plan['plan_name']
+                                                                : 'Untitled Capital Plan' }}
+                                                        </a>
+                                                    </td>
+
+                                                    <td>
+                                                        {{ strtoupper($plan['state']) }}
+                                                    </td>
+
+                                                    <td>
+                                                        @if($plan['working_capital_months'] !== null)
+                                                            {{ $plan['working_capital_months'] }}
+                                                            months
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if($plan['contingency_percentage'] !== null)
+                                                            {{ $plan['contingency_percentage'] }}%
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if($plan['total_required'] !== null)
+                                                            {{ $plan['currency_code'] }}
+                                                            {{ $plan['total_required'] }}
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        @if($plan['funding_gap'] !== null)
+                                                            {{ $plan['currency_code'] }}
+                                                            {{ $plan['funding_gap'] }}
+                                                        @else
+                                                            —
+                                                        @endif
+                                                    </td>
+
+                                                    <td>
+                                                        <strong>
+                                                            {{ $plan['readiness_passed']
+                                                                ? 'READY'
+                                                                : 'NOT READY' }}
+                                                        </strong>
+
+                                                        @unless($plan['readiness_passed'])
+                                                            <small>
+                                                                {{ $plan['readiness_error_count'] }}
+                                                                error(s)
+                                                            </small>
+                                                        @endunless
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Comparison candidate မရှိသေးပါ
+                                    </h3>
+
+                                    <p>
+                                        Lean, Base သို့မဟုတ် Growth
+                                        Working Draft တစ်ခုစီကို
+                                        တည်ဆောက်ပြီး ဒီနေရာမှာ
+                                        နှိုင်းယှဉ်နိုင်ပါတယ်။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        @if($comparisonMissing !== [])
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Missing scenarios
+                                    </h3>
+
+                                    <p>
+                                        @foreach($comparisonMissing as $missing)
+                                            {{ ucfirst($missing) }}@if(! $loop->last), @endif
+                                        @endforeach
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="pbr-os-legal-note">
+                            <strong>
+                                Comparison Authority Boundary
+                            </strong>
+
+                            <p>
+                                ဒီ comparison က read-only scenario
+                                analysis ပဲဖြစ်ပြီး canonical authority
+                                မဟုတ်ပါ။ Plan ကိုဖွင့်ကြည့်ခြင်း သို့မဟုတ်
+                                နှိုင်းယှဉ်ခြင်းက approval / publication
+                                မဖြစ်စေပါ။
+                            </p>
+                        </div>
+                    </section>
+
                     @if($isProposed)
                         <section class="pbr-os-panel">
                             <div class="pbr-os-panel-head">

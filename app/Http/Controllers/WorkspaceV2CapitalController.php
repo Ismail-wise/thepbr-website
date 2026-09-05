@@ -6,6 +6,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\WorkspaceV2CanonicalWorkArtifact;
 use App\Services\PbrTools\PbrV2ApplicationService;
 use App\Services\PbrTools\PbrV2CapitalApprovalService;
+use App\Services\PbrTools\PbrV2CapitalComparisonService;
 use App\Services\PbrTools\PbrV2CapitalPlanReadinessService;
 use App\Services\PbrTools\PbrV2CapitalReadService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -21,7 +22,8 @@ final class WorkspaceV2CapitalController extends Controller
         private readonly PbrV2CapitalReadService $read,
         private readonly PbrV2ApplicationService $application,
         private readonly PbrV2CapitalApprovalService $approval,
-        private readonly PbrV2CapitalPlanReadinessService $readiness
+        private readonly PbrV2CapitalPlanReadinessService $readiness,
+        private readonly PbrV2CapitalComparisonService $comparison
     ) {
     }
 
@@ -52,6 +54,16 @@ final class WorkspaceV2CapitalController extends Controller
                 'next_before_id' => null,
             ];
         }
+
+        $comparison = $canManage
+            ? $this->comparison->compare(
+                $actor,
+                $workspace
+            )
+            : [
+                'plans' => [],
+                'missing_scenarios' => [],
+            ];
 
         $activeArtifact = null;
 
@@ -105,6 +117,7 @@ final class WorkspaceV2CapitalController extends Controller
                 'currentAssessment' =>
                     $currentAssessment,
                 'draftPage' => $draftPage,
+                'comparison' => $comparison,
                 'activeArtifact' =>
                     $activeArtifact,
                 'payload' => $payload,
