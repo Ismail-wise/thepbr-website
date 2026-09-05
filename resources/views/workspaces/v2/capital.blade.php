@@ -398,6 +398,146 @@
                 @if($canManage)
                     <section
                         class="pbr-os-panel"
+                        id="v2-capital-history"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    VERSION HISTORY
+                                </span>
+
+                                <h2>
+                                    Approved Capital Plan Versions
+                                </h2>
+
+                                <p>
+                                    Approved Current နဲ့ superseded
+                                    canonical Capital Plan revisions
+                                    တွေကို newest-first အစဉ်နဲ့
+                                    ပြထားပါတယ်။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                {{ count($history) }}
+                                {{ count($history) === 1 ? 'Revision' : 'Revisions' }}
+                            </span>
+                        </div>
+
+                        @if($history !== [])
+                            <div class="pbr-os-result-table-wrap">
+                                <div class="pbr-os-table-head">
+                                    <h3>
+                                        Canonical Revision History
+                                    </h3>
+
+                                    <span>
+                                        Approved versions only
+                                    </span>
+                                </div>
+
+                                <div class="pbr-os-table-scroll">
+                                    <table class="pbr-os-result-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Revision</th>
+                                                <th>Plan</th>
+                                                <th>Scenario</th>
+                                                <th>State</th>
+                                                <th>Currency</th>
+                                                <th>Published</th>
+                                                <th>Superseded</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            @foreach($history as $version)
+                                                <tr>
+                                                    <td>
+                                                        <strong>
+                                                            Revision {{ $version['revision'] }}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $version['payload']['plan_name']
+                                                            ?? 'Untitled Capital Plan' }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ ucfirst(
+                                                            (string) (
+                                                                $version['payload']['scenario_type']
+                                                                ?? '—'
+                                                            )
+                                                        ) }}
+                                                    </td>
+
+                                                    <td>
+                                                        <strong>
+                                                            {{ $version['state'] === 'approved_current'
+                                                                ? 'CURRENT'
+                                                                : 'SUPERSEDED' }}
+                                                        </strong>
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $version['payload']['currency_code']
+                                                            ?? '—' }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $version['published_at'] ?? '—' }}
+                                                    </td>
+
+                                                    <td>
+                                                        {{ $version['superseded_at'] ?? '—' }}
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Approved version history မရှိသေးပါ
+                                    </h3>
+
+                                    <p>
+                                        Capital Plan တစ်ခု approve &
+                                        publish ဖြစ်လာတဲ့အခါ canonical
+                                        revision history ကို ဒီနေရာမှာ
+                                        ပြပါမယ်။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="pbr-os-legal-note">
+                            <strong>
+                                Canonical Version History Boundary
+                            </strong>
+
+                            <p>
+                                ဒီနေရာက approved Capital Plan ရဲ့
+                                read-only revision evidence ပဲဖြစ်ပြီး
+                                Capital Decision Record မဟုတ်ပါ။
+                                Version တစ်ခုကိုကြည့်ခြင်းက approval,
+                                publication သို့မဟုတ် action authority
+                                အသစ်မဖန်တီးပါ။
+                            </p>
+                        </div>
+                    </section>
+
+                    <section
+                        class="pbr-os-panel"
                         id="v2-capital-comparison"
                     >
                         <div class="pbr-os-panel-head">
