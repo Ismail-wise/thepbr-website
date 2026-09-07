@@ -534,6 +534,594 @@
                             </div>
                         </div>
                     </section>
+
+                    @php
+                        $approvedStartupCosts = array_values(
+                            array_filter(
+                                $currentPayload['cost_items'] ?? [],
+                                fn ($item) =>
+                                    ($item['category'] ?? null)
+                                    === 'pre_opening'
+                            )
+                        );
+
+                        $approvedWorkingCapitalCosts = array_values(
+                            array_filter(
+                                $currentPayload['cost_items'] ?? [],
+                                fn ($item) =>
+                                    ($item['category'] ?? null)
+                                    === 'working_capital'
+                            )
+                        );
+
+                        $approvedFundingSources =
+                            $currentPayload['funding_sources'] ?? [];
+
+                        $approvedShortfall =
+                            $currentPayload['shortfall_response'] ?? null;
+                    @endphp
+
+                    @if($currentCalc)
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-startup-cost-schedule"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    APPROVED OUTPUT 1
+                                </span>
+
+                                <h2>Startup Cost Schedule</h2>
+
+                                <p>
+                                    Approved current plan ထဲက
+                                    pre-opening cost items ကိုသာ
+                                    read-only schedule အဖြစ်ပြထားပါတယ်။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                {{ count($approvedStartupCosts) }}
+                                Items
+                            </span>
+                        </div>
+
+                        <div class="pbr-os-metrics">
+                            <article>
+                                <span>Pre-opening Total</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['pre_opening_total'] }}
+                                </strong>
+                            </article>
+                        </div>
+
+                        <div class="pbr-os-result-table-wrap">
+                            <div class="pbr-os-table-scroll">
+                                <table class="pbr-os-result-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Amount</th>
+                                            <th>Evidence / Reference</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse(
+                                            $approvedStartupCosts
+                                            as $item
+                                        )
+                                            <tr>
+                                                <td>
+                                                    {{ $item['description'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $currentPayload['currency_code'] }}
+                                                    {{ $item['amount'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $item['evidence_reference'] }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3">
+                                                    Approved pre-opening
+                                                    cost item မရှိပါ။
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-working-capital-forecast"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    APPROVED OUTPUT 2
+                                </span>
+
+                                <h2>Working Capital Forecast</h2>
+
+                                <p>
+                                    Frozen readiness က approve
+                                    လုပ်ထားတဲ့ Working Capital Total
+                                    နဲ့ approved assumptions ကိုပဲ
+                                    ပြထားပါတယ်။ ဒီ view မှာ
+                                    formula အသစ်မတွက်ပါ။
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pbr-os-metrics">
+                            <article>
+                                <span>Opening Date</span>
+                                <strong>
+                                    {{
+                                        $currentPayload[
+                                            'assumptions'
+                                        ]['opening_date']
+                                        ?? '—'
+                                    }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Working Capital Months</span>
+                                <strong>
+                                    {{
+                                        $currentPayload[
+                                            'assumptions'
+                                        ]['working_capital_months']
+                                        ?? '—'
+                                    }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Monthly Burn</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{
+                                        $currentPayload[
+                                            'assumptions'
+                                        ]['monthly_burn']
+                                        ?? '—'
+                                    }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Approved Working Capital</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['working_capital_total'] }}
+                                </strong>
+                            </article>
+                        </div>
+
+                        <div class="pbr-os-result-table-wrap">
+                            <div class="pbr-os-table-head">
+                                <h3>Approved Working Capital Items</h3>
+
+                                <span>
+                                    {{ count($approvedWorkingCapitalCosts) }}
+                                    Items
+                                </span>
+                            </div>
+
+                            <div class="pbr-os-table-scroll">
+                                <table class="pbr-os-result-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Basis</th>
+                                            <th>Stored Amount</th>
+                                            <th>Evidence / Reference</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse(
+                                            $approvedWorkingCapitalCosts
+                                            as $item
+                                        )
+                                            <tr>
+                                                <td>
+                                                    {{ $item['description'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $item['basis'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $currentPayload['currency_code'] }}
+                                                    {{ $item['amount'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $item['evidence_reference'] }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="4">
+                                                    Approved working-capital
+                                                    cost item မရှိပါ။
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div class="pbr-os-legal-note">
+                            <strong>Forecast Boundary</strong>
+
+                            <p>
+                                Monthly Burn × Working Capital Months
+                                ကို ဒီ output မှာ အသစ်တွက်မထားပါ။
+                                Runway ကိုလည်း V2 authoritative
+                                definition မရှိသေးလို့ မတီထွင်ပါ။
+                            </p>
+                        </div>
+                    </section>
+
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-funding-gap-analysis"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    APPROVED OUTPUT 3
+                                </span>
+
+                                <h2>Funding Gap Analysis</h2>
+
+                                <p>
+                                    Approved current funding evidence
+                                    နဲ့ frozen readiness calculations
+                                    ကိုသာ analysis surface အဖြစ်
+                                    ပြထားပါတယ်။
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pbr-os-metrics">
+                            <article>
+                                <span>Total Required</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['total_required'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Confirmed Funding</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['confirmed_funding'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Funding Gap</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['funding_gap'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Funding Surplus</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['funding_surplus'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>% Funded</span>
+                                <strong>
+                                    {{ $currentCalc['funded_percentage'] }}%
+                                </strong>
+                            </article>
+                        </div>
+
+                        <div class="pbr-os-result-table-wrap">
+                            <div class="pbr-os-table-head">
+                                <h3>Confirmed Funding Sources</h3>
+
+                                <span>
+                                    {{ count($approvedFundingSources) }}
+                                    Sources
+                                </span>
+                            </div>
+
+                            <div class="pbr-os-table-scroll">
+                                <table class="pbr-os-result-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Description</th>
+                                            <th>Type</th>
+                                            <th>Confirmed Amount</th>
+                                            <th>Confirmation Date</th>
+                                            <th>Evidence / Reference</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        @forelse(
+                                            $approvedFundingSources
+                                            as $source
+                                        )
+                                            <tr>
+                                                <td>
+                                                    {{ $source['description'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $source['source_type'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $currentPayload['currency_code'] }}
+                                                    {{ $source['confirmed_amount'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $source['confirmation_date'] }}
+                                                </td>
+                                                <td>
+                                                    {{ $source['evidence_reference'] }}
+                                                </td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="5">
+                                                    Confirmed funding
+                                                    source မရှိပါ။
+                                                </td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        @if($approvedShortfall)
+                            <div class="pbr-os-result-table-wrap">
+                                <div class="pbr-os-table-head">
+                                    <h3>Approved Shortfall Response</h3>
+                                </div>
+
+                                <div class="pbr-os-table-scroll">
+                                    <table class="pbr-os-result-table">
+                                        <tbody>
+                                            <tr>
+                                                <th>Strategy</th>
+                                                <td>
+                                                    {{
+                                                        $approvedShortfall[
+                                                            'strategy'
+                                                        ]
+                                                    }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Owner / Reference</th>
+                                                <td>
+                                                    {{
+                                                        $approvedShortfall[
+                                                            'owner_reference'
+                                                        ]
+                                                    }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Target Date</th>
+                                                <td>
+                                                    {{
+                                                        $approvedShortfall[
+                                                            'target_date'
+                                                        ]
+                                                    }}
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <th>Summary</th>
+                                                <td>
+                                                    {{
+                                                        $approvedShortfall[
+                                                            'summary'
+                                                        ]
+                                                    }}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    ✓
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        No approved shortfall response
+                                        required
+                                    </h3>
+
+                                    <p>
+                                        Approved current plan မှာ
+                                        Funding Gap မရှိလို့
+                                        shortfall response မလိုပါ။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+                    </section>
+
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-allocation-summary"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    APPROVED OUTPUT 4
+                                </span>
+
+                                <h2>Capital Allocation Summary</h2>
+
+                                <p>
+                                    Approved Capital Requirement
+                                    Composition ကိုပဲ read-only
+                                    breakdown အဖြစ်ပြထားပါတယ်။
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="pbr-os-metrics">
+                            <article>
+                                <span>Pre-opening</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['pre_opening_total'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Initial Assets / Inventory</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['initial_assets_inventory_total'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Working Capital</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['working_capital_total'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Contingency Reserve</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['contingency_reserve'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Total Required</span>
+                                <strong>
+                                    {{ $currentPayload['currency_code'] }}
+                                    {{ $currentCalc['total_required'] }}
+                                </strong>
+                            </article>
+                        </div>
+
+                        <div class="pbr-os-legal-note">
+                            <strong>
+                                Approved Capital Requirement Composition
+                            </strong>
+
+                            <p>
+                                ဒီ summary က ownership/share allocation,
+                                funding-source allocation သို့မဟုတ်
+                                spending authority မဟုတ်ပါ။
+                                Capital-Call Rule ကိုလည်း
+                                create, approve သို့မဟုတ် replace
+                                မလုပ်ပါ။
+                            </p>
+                        </div>
+                    </section>
+
+                    @endif
+
+                    <section
+                        class="pbr-os-panel"
+                        id="v2-capital-approved-decision"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    APPROVED OUTPUT 5
+                                </span>
+
+                                <h2>Approved Capital Decision</h2>
+
+                                <p>
+                                    Current canonical capital plan ရဲ့
+                                    read-only decision summary ဖြစ်ပါတယ်။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                Revision {{ $current['revision'] }}
+                            </span>
+                        </div>
+
+                        <div class="pbr-os-metrics">
+                            <article>
+                                <span>Plan Name</span>
+                                <strong>
+                                    {{ $currentPayload['plan_name'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Scenario</span>
+                                <strong>
+                                    {{
+                                        ucfirst(
+                                            $currentPayload[
+                                                'scenario_type'
+                                            ]
+                                        )
+                                    }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Revision</span>
+                                <strong>
+                                    {{ $current['revision'] }}
+                                </strong>
+                            </article>
+
+                            <article>
+                                <span>Published At</span>
+                                <strong>
+                                    {{ $current['published_at'] }}
+                                </strong>
+                            </article>
+                        </div>
+
+                        <div class="pbr-os-legal-note">
+                            <strong>Decision Boundary</strong>
+
+                            <p>
+                                ဒီ summary က approval အသစ်မဖန်တီးပါ။
+                                Decision Record အသစ်လည်းမဖန်တီးဘဲ
+                                immutable Capital Decision Record ကို
+                                replace မလုပ်ပါ။
+                            </p>
+                        </div>
+                    </section>
                 @elseif(! $canManage)
                     <section class="pbr-os-panel pbr-os-empty-state">
                         <div class="pbr-os-empty-icon">✓</div>
