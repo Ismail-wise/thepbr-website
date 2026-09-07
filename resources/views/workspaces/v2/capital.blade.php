@@ -410,7 +410,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    CURRENT CAPITAL POSITION
+                                    LIVE CAPITAL POSITION
                                 </span>
                                 <h2>Approved Result</h2>
                                 <p>
