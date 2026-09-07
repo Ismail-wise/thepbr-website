@@ -212,6 +212,53 @@ Route::middleware('auth')->group(function (): void {
             'workspaces.tools.v2.capital.action-plan.transition'
         );
 
+    /*
+    |--------------------------------------------------------------------------
+    | PBR V2 Capital-Call Rule Authority
+    |--------------------------------------------------------------------------
+    |
+    | Separate canonical rule authority under capital / capital_call_rule.
+    | Root working evidence is produced by startup_capital_planner.
+    |
+    */
+    Route::get(
+        '/workspaces/{workspace}/v2/capital/call-rule',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'show']
+    )->name('workspaces.tools.v2.capital.call-rule.show');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/call-rule/drafts',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'store']
+    )->name('workspaces.tools.v2.capital.call-rule.store');
+
+    Route::put(
+        '/workspaces/{workspace}/v2/capital/call-rule/drafts/{artifactId}',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'update']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.call-rule.update');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/call-rule/drafts/{artifactId}/submit',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'submit']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.call-rule.submit');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/call-rule/drafts/{artifactId}/approve',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'approve']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.call-rule.approve');
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/call-rule/drafts/{artifactId}/reject',
+        [\App\Http\Controllers\WorkspaceV2CapitalCallRuleController::class, 'reject']
+    )
+        ->whereNumber('artifactId')
+        ->name('workspaces.tools.v2.capital.call-rule.reject');
+
     Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']

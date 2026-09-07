@@ -274,6 +274,13 @@
                     separate canonical Capital-Call Rule ကို
                     create သို့မဟုတ် approve မလုပ်ပါ။
                 </p>
+
+                <a
+                    href="{{ route('workspaces.tools.v2.capital.call-rule.show', $workspace) }}"
+                    class="pbr-os-btn secondary"
+                >
+                    Capital-Call Rule
+                </a>
             </div>
         </section>
 
