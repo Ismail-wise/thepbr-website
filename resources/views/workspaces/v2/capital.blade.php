@@ -87,6 +87,8 @@
                 'premiumToolHasActiveRule' => (bool) $current,
                 'premiumToolWorkspaceTarget' => 'v2-capital-workspace',
                 'premiumToolResultTarget' => 'v2-capital-current',
+                'premiumToolResultLabel' => 'Approved Result',
+                'premiumToolIndexLabel' => 'Tool Library',
             ]
         )
 
@@ -172,6 +174,108 @@
                 <span>Permission Safe</span>
             </div>
         @endunless
+
+        <section
+            class="pbr-os-panel"
+            id="v2-capital-source-workflow"
+        >
+            <div class="pbr-os-panel-head">
+                <div>
+                    <span class="portal-kicker">
+                        CHAPTER 1 WORKFLOW
+                    </span>
+
+                    <h2>
+                        Capital Planning — Six-Step Decision Path
+                    </h2>
+
+                    <p>
+                        Capital requirement ကို အရင်တွက်ပြီး
+                        scenario တွေကို compare လုပ်ကာ
+                        approved decision ကို Record နဲ့ Act
+                        အထိ ဆက်သွားမယ့် Chapter 1 flow ဖြစ်ပါတယ်။
+                    </p>
+                </div>
+
+                <span class="pbr-os-session-badge">
+                    6 Steps
+                </span>
+            </div>
+
+            <div class="pbr-os-metrics">
+                <article>
+                    <span>01</span>
+                    <strong>Startup Cost Plan</strong>
+                    <small>
+                        Pre-opening expenses ကို စုစည်းပါ။
+                    </small>
+                </article>
+
+                <article>
+                    <span>02</span>
+                    <strong>
+                        Initial Assets &amp; Opening Inventory
+                    </strong>
+                    <small>
+                        Equipment, furniture, stock နဲ့
+                        technology requirement ကို ခွဲပါ။
+                    </small>
+                </article>
+
+                <article>
+                    <span>03</span>
+                    <strong>Working Capital Forecast</strong>
+                    <small>
+                        Revenue မတည်ငြိမ်ခင် operating cash
+                        requirement ကို သတ်မှတ်ပါ။
+                    </small>
+                </article>
+
+                <article>
+                    <span>04</span>
+                    <strong>Contingency Reserve</strong>
+                    <small>
+                        Unexpected cost နဲ့ delay အတွက်
+                        reserve percentage ထားပါ။
+                    </small>
+                </article>
+
+                <article>
+                    <span>05</span>
+                    <strong>Funding Position &amp; Gap</strong>
+                    <small>
+                        Confirmed funding ကို required capital
+                        နဲ့ compare လုပ်ပါ။
+                    </small>
+                </article>
+
+                <article>
+                    <span>06</span>
+                    <strong>Capital Rule &amp; Allocation</strong>
+                    <small>
+                        Final decision, allocation နဲ့ governed
+                        capital rule ကို သီးခြား authority
+                        အတိုင်း complete လုပ်ပါ။
+                    </small>
+                </article>
+            </div>
+
+            <div class="pbr-os-legal-note">
+                <strong>
+                    Chapter 1 Decision Flow
+                </strong>
+
+                <p>
+                    Calculate → Compare → Approve → Record → Act
+                </p>
+
+                <p>
+                    ဒီ guide က workflow ကို ရှင်းပြတာသာဖြစ်ပြီး
+                    separate canonical Capital-Call Rule ကို
+                    create သို့မဟုတ် approve မလုပ်ပါ။
+                </p>
+            </div>
+        </section>
 
         <div
             class="pbr-os-layout {{ $canManage ? '' : 'readonly' }}"
@@ -900,7 +1004,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    PLAN COMPARISON
+                                    CAPITAL PLAN COMPARISON
                                 </span>
 
                                 <h2>
@@ -1419,7 +1523,7 @@
                                             COST REQUIREMENT
                                         </span>
                                         <h2>
-                                            Capital Cost Items
+                                            Startup Cost Plan
                                         </h2>
                                         <p>
                                             Pre-opening, initial assets /

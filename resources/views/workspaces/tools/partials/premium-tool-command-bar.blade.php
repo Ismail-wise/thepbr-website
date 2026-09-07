@@ -25,6 +25,14 @@
         $premiumToolResultTarget
         ?? 'result';
 
+    $premiumToolResultLabel =
+        $premiumToolResultLabel
+        ?? 'Result';
+
+    $premiumToolIndexLabel =
+        $premiumToolIndexLabel
+        ?? 'All Tools';
+
     $premiumToolCanManage =
         $premiumToolCanManage
         ?? $canManage
@@ -132,11 +140,11 @@
             href="#{{ $premiumToolResultTarget }}"
             data-pbr-section-link="{{ $premiumToolResultTarget }}"
         >
-            Result
+            {{ $premiumToolResultLabel }}
         </a>
 
         <a href="{{ $premiumToolIndexUrl }}">
-            All Tools
+            {{ $premiumToolIndexLabel }}
         </a>
     </nav>
 </div>
