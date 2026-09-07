@@ -421,10 +421,42 @@
                         @if($currentCalc)
                             <div class="pbr-os-metrics">
                                 <article>
-                                    <span>Total Required</span>
+                                    <span>Total Capital Required</span>
                                     <strong>
                                         {{ $currentPayload['currency_code'] }}
                                         {{ $currentCalc['total_required'] }}
+                                    </strong>
+                                </article>
+
+                                <article>
+                                    <span>Pre-opening Cost</span>
+                                    <strong>
+                                        {{ $currentPayload['currency_code'] }}
+                                        {{ $currentCalc['pre_opening_total'] }}
+                                    </strong>
+                                </article>
+
+                                <article>
+                                    <span>Assets/Inventory</span>
+                                    <strong>
+                                        {{ $currentPayload['currency_code'] }}
+                                        {{ $currentCalc['initial_assets_inventory_total'] }}
+                                    </strong>
+                                </article>
+
+                                <article>
+                                    <span>Working Capital</span>
+                                    <strong>
+                                        {{ $currentPayload['currency_code'] }}
+                                        {{ $currentCalc['working_capital_total'] }}
+                                    </strong>
+                                </article>
+
+                                <article>
+                                    <span>Contingency Reserve</span>
+                                    <strong>
+                                        {{ $currentPayload['currency_code'] }}
+                                        {{ $currentCalc['contingency_reserve'] }}
                                     </strong>
                                 </article>
 
@@ -445,10 +477,17 @@
                                 </article>
 
                                 <article>
-                                    <span>Contingency</span>
+                                    <span>% Funded</span>
+                                    <strong>
+                                        {{ $currentCalc['funded_percentage'] }}%
+                                    </strong>
+                                </article>
+
+                                <article>
+                                    <span>Monthly Burn</span>
                                     <strong>
                                         {{ $currentPayload['currency_code'] }}
-                                        {{ $currentCalc['contingency_reserve'] }}
+                                        {{ $currentPayload['assumptions']['monthly_burn'] ?? '—' }}
                                     </strong>
                                 </article>
                             </div>
@@ -1542,6 +1581,159 @@
                                 </div>
 
                                 <div
+                                    class="pbr-os-legal-note"
+                                    id="v2-capital-quick-start"
+                                >
+                                    <strong>Quick Start</strong>
+
+                                    <p>
+                                        အသုံးများတဲ့ capital cost ကို
+                                        existing V2 category ထဲ တစ်ချက်နဲ့
+                                        စတင်ထည့်နိုင်ပါတယ်။ Amount နဲ့
+                                        Evidence ကိုတော့ ကိုယ်တိုင်
+                                        ဖြည့်ရပါမယ်။
+                                    </p>
+
+                                    <div class="pbr-os-actions">
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="pre_opening"
+                                            data-v2-description="Registration / Legal"
+                                        >+ Registration / Legal</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="pre_opening"
+                                            data-v2-description="Deposit"
+                                        >+ Deposit</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="pre_opening"
+                                            data-v2-description="Renovation"
+                                        >+ Renovation</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="pre_opening"
+                                            data-v2-description="Launch Marketing"
+                                        >+ Launch Marketing</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="pre_opening"
+                                            data-v2-description="Training"
+                                        >+ Training</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="initial_assets_inventory"
+                                            data-v2-description="Equipment"
+                                        >+ Equipment</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="initial_assets_inventory"
+                                            data-v2-description="Furniture"
+                                        >+ Furniture</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="initial_assets_inventory"
+                                            data-v2-description="Technology"
+                                        >+ Technology</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="initial_assets_inventory"
+                                            data-v2-description="Opening Stock"
+                                        >+ Opening Stock</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Salary"
+                                        >+ Salary</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Rent"
+                                        >+ Rent</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Utilities"
+                                        >+ Utilities</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Software"
+                                        >+ Software</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Monthly Marketing"
+                                        >+ Monthly Marketing</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-cost-preset
+                                            data-v2-category="working_capital"
+                                            data-v2-description="Admin"
+                                        >+ Admin</button>
+
+                                        <button
+                                            type="button"
+                                            class="pbr-os-btn secondary"
+                                            data-v2-contingency-guide
+                                        >
+                                            Contingency Buffer →
+                                            Contingency %
+                                        </button>
+                                    </div>
+
+                                    <p>
+                                        Contingency Buffer ကို cost item
+                                        အဖြစ် မထည့်ပါ။ Frozen V2 formula
+                                        က Contingency Percentage ကနေ
+                                        Reserve ကို သီးခြားတွက်ပါတယ်။
+                                    </p>
+                                </div>
+
+                                <div
                                     class="pbr-os-repeater-rows"
                                     data-v2-cost-list
                                 >
@@ -1970,7 +2162,7 @@
                                 @if($draftCalc)
                                     <div class="pbr-os-metrics">
                                         <article>
-                                            <span>Total Required</span>
+                                            <span>Total Capital Required</span>
                                             <strong>
                                                 {{ $payload['currency_code'] }}
                                                 {{ $draftCalc['total_required'] }}
@@ -1978,7 +2170,39 @@
                                         </article>
 
                                         <article>
-                                            <span>Confirmed</span>
+                                            <span>Pre-opening Cost</span>
+                                            <strong>
+                                                {{ $payload['currency_code'] }}
+                                                {{ $draftCalc['pre_opening_total'] }}
+                                            </strong>
+                                        </article>
+
+                                        <article>
+                                            <span>Assets/Inventory</span>
+                                            <strong>
+                                                {{ $payload['currency_code'] }}
+                                                {{ $draftCalc['initial_assets_inventory_total'] }}
+                                            </strong>
+                                        </article>
+
+                                        <article>
+                                            <span>Working Capital</span>
+                                            <strong>
+                                                {{ $payload['currency_code'] }}
+                                                {{ $draftCalc['working_capital_total'] }}
+                                            </strong>
+                                        </article>
+
+                                        <article>
+                                            <span>Contingency Reserve</span>
+                                            <strong>
+                                                {{ $payload['currency_code'] }}
+                                                {{ $draftCalc['contingency_reserve'] }}
+                                            </strong>
+                                        </article>
+
+                                        <article>
+                                            <span>Confirmed Funding</span>
                                             <strong>
                                                 {{ $payload['currency_code'] }}
                                                 {{ $draftCalc['confirmed_funding'] }}
@@ -1994,10 +2218,17 @@
                                         </article>
 
                                         <article>
-                                            <span>Contingency</span>
+                                            <span>% Funded</span>
+                                            <strong>
+                                                {{ $draftCalc['funded_percentage'] }}%
+                                            </strong>
+                                        </article>
+
+                                        <article>
+                                            <span>Monthly Burn</span>
                                             <strong>
                                                 {{ $payload['currency_code'] }}
-                                                {{ $draftCalc['contingency_reserve'] }}
+                                                {{ $payload['assumptions']['monthly_burn'] ?? '—' }}
                                             </strong>
                                         </article>
                                     </div>
@@ -2244,9 +2475,69 @@
                 );
 
                 list.insertAdjacentHTML('beforeend', html);
+
+                return list.lastElementChild;
             };
 
             document.addEventListener('click', (event) => {
+                const preset = event.target.closest(
+                    '[data-v2-cost-preset]'
+                );
+
+                if (preset) {
+                    const row = appendTemplate(
+                        costList,
+                        costTemplate
+                    );
+
+                    if (row) {
+                        const category = row.querySelector(
+                            'select[name$="[category]"]'
+                        );
+
+                        const description = row.querySelector(
+                            'input[name$="[description]"]'
+                        );
+
+                        if (category) {
+                            category.value =
+                                preset.getAttribute(
+                                    'data-v2-category'
+                                ) ?? '';
+                        }
+
+                        if (description) {
+                            description.value =
+                                preset.getAttribute(
+                                    'data-v2-description'
+                                ) ?? '';
+                        }
+                    }
+
+                    return;
+                }
+
+                const contingencyGuide =
+                    event.target.closest(
+                        '[data-v2-contingency-guide]'
+                    );
+
+                if (contingencyGuide) {
+                    const contingencyInput =
+                        document.querySelector(
+                            '[name="contingency_percentage"]'
+                        );
+
+                    contingencyInput?.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center',
+                    });
+
+                    contingencyInput?.focus();
+
+                    return;
+                }
+
                 const remove = event.target.closest('[data-v2-remove-row]');
 
                 if (remove) {
