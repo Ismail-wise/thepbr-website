@@ -656,6 +656,105 @@
 
                     <section
                         class="pbr-os-panel"
+                        id="v2-capital-action-plan"
+                    >
+                        <div class="pbr-os-panel-head">
+                            <div>
+                                <span class="portal-kicker">
+                                    ACT
+                                </span>
+
+                                <h2>
+                                    Capital Action Plan
+                                </h2>
+
+                                <p>
+                                    Immutable Capital Decision Record
+                                    ကို execution items အဖြစ်
+                                    ပြောင်းပြီး Owner, Priority,
+                                    Due Date နဲ့ lifecycle status
+                                    ကို track လုပ်နိုင်ပါတယ်။
+                                </p>
+                            </div>
+
+                            <span class="pbr-os-session-badge">
+                                Record → Act
+                            </span>
+                        </div>
+
+                        @if($decisionRecords !== [])
+                            <div class="pbr-os-approval-zone">
+                                <div>
+                                    <span>
+                                        Execution Boundary
+                                    </span>
+
+                                    <h3>
+                                        Recorded decision ကို
+                                        Action Plan အဖြစ် execute
+                                        လုပ်နိုင်ပါပြီ
+                                    </h3>
+
+                                    <p>
+                                        Action item တစ်ခုစီက exact
+                                        Capital Decision Record နဲ့
+                                        approved Capital Plan revision
+                                        source evidence ကို pin ထားပါတယ်။
+                                    </p>
+                                </div>
+
+                                <div class="pbr-os-approval-actions">
+                                    <a
+                                        class="pbr-os-btn approve"
+                                        href="{{ route(
+                                            'workspaces.tools.v2.capital.action-plan.show',
+                                            $workspace
+                                        ) }}"
+                                    >
+                                        Open Action Plan
+                                    </a>
+                                </div>
+                            </div>
+                        @else
+                            <div class="pbr-os-insight note">
+                                <div class="pbr-os-insight-icon">
+                                    i
+                                </div>
+
+                                <div>
+                                    <h3>
+                                        Record phase ကို
+                                        အရင် complete လုပ်ပါ
+                                    </h3>
+
+                                    <p>
+                                        Approved Capital Plan ကို
+                                        Decision Record အဖြစ်
+                                        မှတ်တမ်းတင်ပြီးမှ ACT phase မှာ
+                                        Action items ဖန်တီးနိုင်ပါတယ်။
+                                    </p>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div class="pbr-os-legal-note">
+                            <strong>
+                                Action Plan Boundary
+                            </strong>
+
+                            <p>
+                                ACT က approved canonical Capital Plan
+                                သို့မဟုတ် immutable Decision Record
+                                ကို ပြန်မပြင်ပါ။
+                                Execution mutation ကို frozen
+                                F12 → F9 → F5 lifecycle authority
+                                ကသာ ထိန်းချုပ်ပါတယ်။
+                            </p>
+                        </div>
+                    </section>
+
+                    <section
+                        class="pbr-os-panel"
                         id="v2-capital-history"
                     >
                         <div class="pbr-os-panel-head">

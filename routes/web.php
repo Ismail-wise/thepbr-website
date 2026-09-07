@@ -181,6 +181,38 @@ Route::middleware('auth')->group(function (): void {
     )->name('workspaces.tools.v2.capital.decision-record.store');
 
     Route::get(
+        '/workspaces/{workspace}/v2/capital/action-plan',
+        [
+            \App\Http\Controllers\WorkspaceV2CapitalActionPlanController::class,
+            'show',
+        ]
+    )->name(
+        'workspaces.tools.v2.capital.action-plan.show'
+    );
+
+    Route::post(
+        '/workspaces/{workspace}/v2/capital/action-plan',
+        [
+            \App\Http\Controllers\WorkspaceV2CapitalActionPlanController::class,
+            'store',
+        ]
+    )->name(
+        'workspaces.tools.v2.capital.action-plan.store'
+    );
+
+    Route::patch(
+        '/workspaces/{workspace}/v2/capital/action-plan/{actionId}/transition',
+        [
+            \App\Http\Controllers\WorkspaceV2CapitalActionPlanController::class,
+            'transition',
+        ]
+    )
+        ->whereNumber('actionId')
+        ->name(
+            'workspaces.tools.v2.capital.action-plan.transition'
+        );
+
+    Route::get(
         '/workspaces/{workspace}/tools',
         [\App\Http\Controllers\WorkspaceToolsController::class, 'index']
     )->name('workspaces.tools.index');
