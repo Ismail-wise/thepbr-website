@@ -137,6 +137,56 @@ Route::middleware('auth')->group(function (): void {
     |
     */
 
+    /*
+     * Chapter 2 Contribution browser runtime — F10-I1.
+     * Existing Capital routes and frozen service contracts are preserved.
+     */
+    // C2-F10-I2: lifecycle and specifically authorized item approvals.
+    Route::get('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/approval',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'showApproval']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.approval.show');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/review',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'review']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.review');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/delivery',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'deliver']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.deliver');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/close',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'close']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.close');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/agreement',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'agree']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.agree');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}/acceptance',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'accept']
+    )->whereNumber('artifactId')->whereUuid('itemId')->name('workspaces.tools.v2.contribution.accept');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/submit',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'submit']
+    )->whereNumber('artifactId')->name('workspaces.tools.v2.contribution.submit');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/publish',
+        [\App\Http\Controllers\WorkspaceV2ContributionLifecycleController::class, 'publish']
+    )->whereNumber('artifactId')->name('workspaces.tools.v2.contribution.publish');
+
+    Route::get('/workspaces/{workspace}/v2/contribution',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'show']
+    )->name('workspaces.tools.v2.contribution.show');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'store']
+    )->name('workspaces.tools.v2.contribution.store');
+    Route::put('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/setup',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'saveSetup']
+    )->whereNumber('artifactId')->name('workspaces.tools.v2.contribution.setup');
+    Route::put('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/partners',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'savePartners']
+    )->whereNumber('artifactId')->name('workspaces.tools.v2.contribution.partners');
+    Route::post('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'saveItem']
+    )->whereNumber('artifactId')->name('workspaces.tools.v2.contribution.items.store');
+    Route::put('/workspaces/{workspace}/v2/contribution/drafts/{artifactId}/items/{itemId}',
+        [\App\Http\Controllers\WorkspaceV2ContributionController::class, 'saveItem']
+    )->whereNumber('artifactId')->whereUuid('itemId')
+        ->name('workspaces.tools.v2.contribution.items.update');
+
     Route::get(
         '/workspaces/{workspace}/v2/capital',
         [\App\Http\Controllers\WorkspaceV2CapitalController::class, 'show']
