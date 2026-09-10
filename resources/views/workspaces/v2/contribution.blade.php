@@ -1,22 +1,140 @@
 @extends('layouts.student-portal')
 @section('title', 'Partner Contributions')
 @section('content')
-<style>
-.c2-page{max-width:1200px;margin:32px auto;padding:0 20px;color:#172033}
-.c2-card{background:#fff;border:1px solid #dce2eb;border-radius:14px;padding:22px;margin:20px 0}
-.c2-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
-.c2-page label{display:block;margin:12px 0}
-.c2-page input:not([type=checkbox]),.c2-page select,.c2-page textarea{display:block;width:100%;box-sizing:border-box;padding:10px;border:1px solid #aab5c6;border-radius:7px;color:#172033;background:#fff}
-.c2-page button{padding:10px 18px;border:0;border-radius:8px;background:#263c70;color:#fff;cursor:pointer;margin-top:12px}
-.c2-page table{border-collapse:collapse;width:100%;font-size:14px}
-.c2-page th,.c2-page td{padding:12px;border-bottom:1px solid #dce2eb;text-align:left;vertical-align:top}
-.c2-scroll{overflow-x:auto}.c2-note{color:#526078}.c2-error{color:#9c2431}
-.c2-page summary{cursor:pointer;font-weight:700;padding:8px 0}.c2-total{font-size:26px;font-weight:800}
-</style>
 <main class="c2-page">
     <a href="{{ route('workspaces.tools.index', $workspace) }}">Business Tools သို့</a>
-    <h1>Partner Contributions</h1>
-    <p>{{ $workspace->name }} · ပါဝင်မှုများကို မှတ်တမ်းတင်ခြင်းနှင့် လက်ခံတန်ဖိုး စစ်ဆေးခြင်း</p>
+    <section class="c2-page-hero" aria-labelledby="c2-title">
+        <div class="c2-hero-grid">
+            <div class="c2-hero-copy">
+                <span class="c2-eyebrow">CONTRIBUTION &amp; VALUE</span>
+
+                <h1 id="c2-title">Partner Contributions</h1>
+
+                <p class="c2-hero-lead">
+                    Partner တစ်ဦးချင်းစီရဲ့ Cash, Time &amp; Skill,
+                    Property &amp; Asset နဲ့ IP &amp; Intangible
+                    Contribution တွေကို evidence နဲ့တကွ
+                    တန်ဖိုးသတ်မှတ်၊ review လုပ်၊ approve လုပ်ပြီး
+                    Accepted Contribution Value အဖြစ် စနစ်တကျ
+                    မှတ်တမ်းတင်နိုင်ပါတယ်။
+                </p>
+
+                <div class="c2-workspace-context">
+                    <span>Business Workspace</span>
+                    <strong>{{ $workspace->name }}</strong>
+                </div>
+            </div>
+
+            <div class="c2-hero-actions">
+                @if($canManage)
+                    <a class="c2-button c2-button-primary"
+                       href="#c2-management">
+                        Contribution Workspace
+                    </a>
+                @endif
+
+                <a class="c2-button c2-button-secondary"
+                   href="#c2-current">
+                    Approved Contributions
+                </a>
+            </div>
+        </div>
+
+        <div class="c2-type-strip" aria-label="Contribution types">
+            <span>Cash</span>
+            <span>Time &amp; Skill</span>
+            <span>Property &amp; Asset</span>
+            <span>IP &amp; Intangible</span>
+        </div>
+
+        <div class="c2-boundary">
+            <strong>Accepted Value First</strong>
+            <p>
+                ဒီအဆင့်မှာ Contribution Value ကိုပဲ finalize လုပ်ပါတယ်။
+                Shares, Ownership % နဲ့ Share Value ကို ဒီနေရာမှာ
+                မတွက်ပါ။ Approved Accepted Contribution Value ကို
+                Ownership &amp; Equity process ဆီ လွှဲပေးပါတယ်။
+            </p>
+        </div>
+    </section>
+
+    <section class="c2-flow" aria-labelledby="c2-flow-title">
+        <div class="c2-flow-heading">
+            <span class="c2-eyebrow">BUSINESS WORKFLOW</span>
+            <h2 id="c2-flow-title">Contribution Planning Flow</h2>
+
+            <p>
+                Contribution တစ်ခုဟာ စာရင်းထည့်ထားရုံနဲ့
+                final value မဖြစ်ပါဘူး။ Valuation, Evidence,
+                Delivery နဲ့ Approval ပြည့်စုံမှ Accepted
+                Contribution Value ဖြစ်လာပါတယ်။
+            </p>
+        </div>
+
+        <div class="c2-flow-grid">
+            <article class="c2-flow-step">
+                <span>01</span>
+                <strong>Setup</strong>
+                <small>
+                    Valuation date, currency, contribution period
+                    နဲ့ approvers သတ်မှတ်ပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step">
+                <span>02</span>
+                <strong>Partners</strong>
+                <small>
+                    Contribution ပေးမယ့် Partner တွေကိုရွေးပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step">
+                <span>03</span>
+                <strong>Contributions</strong>
+                <small>
+                    Cash, Time &amp; Skill, Asset သို့မဟုတ်
+                    IP contribution ကို record လုပ်ပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step">
+                <span>04</span>
+                <strong>Valuation</strong>
+                <small>
+                    Proposed Value နဲ့ valuation basis ကို
+                    စစ်ဆေးပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step">
+                <span>05</span>
+                <strong>Evidence &amp; Conditions</strong>
+                <small>
+                    Evidence, delivery dates နဲ့ conditions
+                    ကို confirm လုပ်ပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step">
+                <span>06</span>
+                <strong>Approval</strong>
+                <small>
+                    Designated approvers တွေရဲ့ decision ကို
+                    record လုပ်ပါ။
+                </small>
+            </article>
+
+            <article class="c2-flow-step c2-flow-final">
+                <span>07</span>
+                <strong>Contribution Matrix</strong>
+                <small>
+                    Accepted Contribution Value ကို final
+                    business result အဖြစ်ကြည့်ပါ။
+                </small>
+            </article>
+        </div>
+    </section>
     @if(session('status'))<p role="status">{{ session('status') }}</p>@endif
     @if($errors->any())
         <div class="c2-card c2-error" role="alert">
@@ -26,12 +144,23 @@
     @endif
 
     <section class="c2-card" id="c2-current">
-        <h2>Approved Current Contribution Register</h2>
+        <h2>Approved Contributions</h2>
         @unless($canManage)
-            <p>Approved Current Contribution Register ကိုသာ ကြည့်ရှုနိုင်ပါသည်။</p>
+            <p class="c2-note">
+                Approved contribution records ကိုသာ
+                ကြည့်ရှုနိုင်ပါသည်။
+            </p>
         @endunless
         @if($current === null)
-            <p>Approved current register မရှိသေးပါ။</p>
+            <div class="c2-empty-state">
+                <strong>Approved contributions မရှိသေးပါ။</strong>
+                <p>
+                    Contribution Plan တစ်ခုဖန်တီးပြီး
+                    valuation, evidence, delivery နဲ့ approvals
+                    ပြည့်စုံသွားတဲ့အခါ final accepted result ကို
+                    ဒီနေရာမှာတွေ့ရပါမယ်။
+                </p>
+            </div>
         @else
             <p>Revision {{ $current['canonical_revision']['revision'] }} · {{ $current['currency_code'] }}</p>
             <div class="c2-total">
@@ -94,11 +223,11 @@
 
     @if($canManage)
         <section class="c2-card" id="c2-management">
-            <h2>Contribution Drafts</h2>
+            <h2>Contribution Workspace</h2>
             @if($current === null)
                 <form method="POST" action="{{ route('workspaces.tools.v2.contribution.store', $workspace) }}">
                     @csrf
-                    <button type="submit">Create Contribution Draft</button>
+                    <button type="submit">New Contribution Plan</button>
                 </form>
             @else
                 <p>Approved register ပြင်ဆင်မှုအတွက် review/amendment လမ်းကြောင်းကို အသုံးပြုရပါမည်။</p>
@@ -111,7 +240,7 @@
                 @endforeach
             </ul>
             @if($queue['next_before_id'] !== null)
-                <a href="{{ route('workspaces.tools.v2.contribution.show', ['workspace'=>$workspace,'before_id'=>$queue['next_before_id']]) }}">နောက်ထပ် drafts</a>
+                <a href="{{ route('workspaces.tools.v2.contribution.show', ['workspace'=>$workspace,'before_id'=>$queue['next_before_id']]) }}">More Contribution Plans</a>
             @endif
         </section>
 

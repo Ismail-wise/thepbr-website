@@ -34,9 +34,12 @@
                 @endif
                 @if(in_array($itemStatus, ['reviewed','delivered'], true))
                     <p>Designated approver တစ်ဦးစီသည် ကိုယ်ပိုင် account ဖြင့် approval page ကို ဖွင့်ပြီး အတည်ပြုရပါမည်။</p>
-                    <a href="{{ route('workspaces.tools.v2.contribution.approval.show', $itemParams) }}">Open Item Approval Page</a>
+                    <a href="{{ route('workspaces.tools.v2.contribution.approval.show', $itemParams) }}">Review Contribution Approval</a>
                     <label>Approval page link
-                        <input type="text" readonly value="{{ route('workspaces.tools.v2.contribution.approval.show', $itemParams) }}">
+                        <p class="c2-approval-note">
+    Approval decision ကို dedicated review page မှာ
+    evidence နဲ့တကွ စနစ်တကျ မှတ်တမ်းတင်ပါ။
+</p>
                     </label>
                 @endif
                 @if($itemStatus === 'approved')

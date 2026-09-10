@@ -86,7 +86,7 @@ test('contribution browser entry requires authentication and denies unrelated us
         'role' => 'public', 'is_admin' => false, 'account_status' => 'active',
     ]);
     $this->actingAs($outsider)->get($url)->assertForbidden();
-    $this->actingAs($owner)->get($url)->assertOk()->assertSee('Create Contribution Draft');
+    $this->actingAs($owner)->get($url)->assertOk()->assertSee('New Contribution Plan');
 });
 
 test('manager edits contribution draft through HTTP with server identities and stale version protection', function () {

@@ -80,6 +80,9 @@
     @if(request()->routeIs('workspaces.tools.startup-capital.*'))
         <script src="{{ asset('js/pbr-startup-capital-expense-ux.js') }}?v={{ filemtime(public_path('js/pbr-startup-capital-expense-ux.js')) }}" defer></script>
     @endif
+    @if(request()->routeIs('workspaces.tools.v2.contribution.*'))
+        <link rel="stylesheet" href="{{ asset('css/pbr-v2-contribution-experience.css') }}">
+    @endif
 </head>
 <body class="pbr-app-shell {{ request()->routeIs('student.dashboard') ? 'pbr-dashboard-route' : '' }} {{ request()->routeIs('workspaces.tools.*') ? 'pbr-tool-route' : '' }} {{ request()->routeIs('partner-dynamics.*') ? 'pbr-partner-dynamics-route' : '' }}">
     <header class="portal-header">
