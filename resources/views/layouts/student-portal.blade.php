@@ -55,6 +55,14 @@
     {{-- Loads last on purpose: this layer overrides typography, touch targets
          and status treatment across every tool stylesheet above it. --}}
     <link rel="stylesheet" href="{{ asset('css/pbr-tool-refinement.css') }}?v={{ filemtime(public_path('css/pbr-tool-refinement.css')) }}">
+
+    {{-- V2 Capital has multiple lifecycle result surfaces and must not inherit
+         the generic calculator-style sticky result rail. Load this AFTER the
+         shared refinement layer so the override remains route-scoped. --}}
+    @if(request()->routeIs('workspaces.tools.v2.capital.*'))
+        <link rel="stylesheet" href="{{ asset('css/pbr-v2-capital-experience.css') }}?v={{ filemtime(public_path('css/pbr-v2-capital-experience.css')) }}">
+    @endif
+
     <script src="{{ asset('js/pbr-operating-system.js') }}?v={{ filemtime(public_path('js/pbr-operating-system.js')) }}" defer></script>
     <script src="{{ asset('js/pbr-unsaved-changes-guard.js') }}?v={{ filemtime(public_path('js/pbr-unsaved-changes-guard.js')) }}" defer></script>
     @if(request()->routeIs('workspaces.tools.*'))

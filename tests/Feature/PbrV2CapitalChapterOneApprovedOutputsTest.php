@@ -398,7 +398,7 @@ test(
             ->assertDontSee(
                 'PRIVATE C2C NEXT PLAN'
             )
-            ->assertDontSee('Working Plans')
+            ->assertDontSee('Your Plans')
             ->assertDontSee('Create V2 Draft')
             ->assertDontSee(
                 'CAPITAL DECISION RECORD'

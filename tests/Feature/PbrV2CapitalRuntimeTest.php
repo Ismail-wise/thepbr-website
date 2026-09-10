@@ -250,11 +250,11 @@ test(
                 )
             )
             ->assertOk()
-            ->assertSee('Capital Plan Authority')
-            ->assertSee('V2 CANONICAL PLAN')
-            ->assertSee('Create V2 Draft')
+            ->assertSee('Capital Planning')
+            ->assertSee('BUSINESS CAPITAL PLAN')
+            ->assertSee('Create Draft Plan')
             ->assertSee(
-                'capital / approved_capital_plan'
+                'Plan Protection'
             );
     }
 );
@@ -452,7 +452,7 @@ test(
                 )
             )
             ->assertOk()
-            ->assertSee('APPROVED CURRENT')
+            ->assertSee('CURRENT APPROVED PLAN')
             ->assertSee(
                 'Growth-ready Base Plan'
             )
@@ -600,8 +600,8 @@ test(
             ->assertDontSee(
                 'PRIVATE NEXT CAPITAL PLAN'
             )
-            ->assertDontSee('Working Plans')
-            ->assertDontSee('Create V2 Draft');
+            ->assertDontSee('Your Plans')
+            ->assertDontSee('Create Draft Plan');
     }
 );
 

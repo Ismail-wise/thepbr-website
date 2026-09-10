@@ -241,7 +241,7 @@ test(
                 'Approved Capital Plan Versions'
             )
             ->assertSee(
-                'Canonical Revision History'
+                'Approved Plan History'
             )
             ->assertSeeInOrder([
                 'VERSION HISTORY',
@@ -255,7 +255,7 @@ test(
             ->assertSee('USD')
             ->assertSee('THB')
             ->assertSee(
-                'Canonical Version History Boundary'
+                'Plan History Boundary'
             )
             ->assertSee(
                 'Capital Decision Record မဟုတ်ပါ'
@@ -362,7 +362,7 @@ test(
                 'Approved Capital Plan Versions'
             )
             ->assertDontSee(
-                'Canonical Version History Boundary'
+                'Plan History Boundary'
             )
             ->assertDontSee(
                 'PRIVATE SUPERSEDED PLAN'

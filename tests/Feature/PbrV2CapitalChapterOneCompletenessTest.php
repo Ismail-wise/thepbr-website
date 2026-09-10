@@ -41,10 +41,10 @@ test(
 
         $response
             ->assertOk()
-            ->assertSee('Approved Result')
-            ->assertSee('Tool Library')
+            ->assertSee('Approved Plan')
+            ->assertSee('Business Tools')
             ->assertSee(
-                'CHAPTER 1 WORKFLOW'
+                'PLANNING FLOW'
             )
             ->assertSeeInOrder([
                 'Startup Cost Plan',
@@ -72,7 +72,7 @@ test(
 
         expect($capitalSource)
             ->toContain(
-                '<h2>Approved Result</h2>'
+                '<h2>Approved Plan</h2>'
             );
     }
 );
@@ -120,10 +120,10 @@ test(
             ->toContain('Result')
             ->toContain('All Tools')
             ->not->toContain(
-                'Approved Result'
+                'Approved Plan'
             )
             ->not->toContain(
-                'Tool Library'
+                'Business Tools'
             );
 
         $source = file_get_contents(
@@ -199,22 +199,22 @@ test(
         $response
             ->assertOk()
             ->assertSee(
-                'CHAPTER 1 WORKFLOW'
+                'PLANNING FLOW'
             )
             ->assertSee(
                 'Calculate → Compare → Approve → Record → Act'
             )
             ->assertSee(
-                'Approved Result'
+                'Approved Plan'
             )
             ->assertSee(
-                'Tool Library'
+                'Business Tools'
             )
             ->assertDontSee(
-                'Working Plans'
+                'Your Plans'
             )
             ->assertDontSee(
-                'Create V2 Draft'
+                'Create Draft Plan'
             );
     }
 );

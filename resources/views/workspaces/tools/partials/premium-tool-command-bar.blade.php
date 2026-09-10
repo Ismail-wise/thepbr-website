@@ -50,6 +50,10 @@
         $premiumToolIsRecord
         ?? false;
 
+    $premiumToolActiveLabel =
+        $premiumToolActiveLabel
+        ?? null;
+
     $premiumToolState = match (true) {
         ! $premiumToolCanManage => [
             'key' => 'readonly',
@@ -63,7 +67,7 @@
             'key' => 'active',
             'label' => $premiumToolIsRecord
                 ? 'Approved Records'
-                : 'Active Rule',
+                : ($premiumToolActiveLabel ?? 'Active Rule'),
         ],
         default => [
             'key' => 'setup',

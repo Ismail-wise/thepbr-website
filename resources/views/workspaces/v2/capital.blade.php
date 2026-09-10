@@ -1,6 +1,6 @@
 @extends('layouts.student-portal')
 
-@section('title', 'Capital Plan Authority')
+@section('title', 'Capital Planning')
 
 @section('content')
 
@@ -69,8 +69,9 @@
 @endphp
 
 <section
-    class="pbr-os-page pbr-premium-tool-page pbr-premium-capital-tool-page"
+    class="pbr-os-page pbr-premium-tool-page pbr-premium-capital-tool-page pbr-v2-capital-experience"
     data-pbr-premium-tool
+    data-pbr-capital-experience
     data-pbr-tool-chapter="1"
 >
     <div class="pbr-os-wrap portal-wrap">
@@ -79,46 +80,77 @@
             'workspaces.tools.partials.premium-tool-command-bar',
             [
                 'premiumToolTitleMm' => 'မတည်ငွေ အတည်ပြုအစီအစဉ်',
-                'premiumToolTitleEn' => 'Capital Plan Authority',
+                'premiumToolTitleEn' => 'Capital Planning',
                 'premiumToolAreaMm' => 'မတည်ငွေနှင့် ရင်းနှီးငွေ',
                 'premiumToolAreaEn' => 'Capital & Funding',
                 'premiumToolCanManage' => $canManage,
                 'premiumToolHasDraft' => $isActive,
                 'premiumToolHasActiveRule' => (bool) $current,
-                'premiumToolWorkspaceTarget' => 'v2-capital-workspace',
+                'premiumToolActiveLabel' => 'Approved Plan',
+                'premiumToolWorkspaceTarget' => 'v2-capital-plan-editor',
                 'premiumToolResultTarget' => 'v2-capital-current',
-                'premiumToolResultLabel' => 'Approved Result',
-                'premiumToolIndexLabel' => 'Tool Library',
+                'premiumToolResultLabel' => 'Approved Plan',
+                'premiumToolIndexLabel' => 'Business Tools',
             ]
         )
+
+        @if($canManage)
+            <div class="pbr-v2-capital-actions" aria-label="Capital planning actions">
+                <div>
+                    <strong>Capital Planning Workspace</strong>
+                    <span>
+                        Plan တစ်ခုကို ပြင်ဆင်ပါ၊ scenario တွေ compare လုပ်ပါ၊
+                        ready ဖြစ်မှ approval ဆက်လုပ်ပါ။
+                    </span>
+                </div>
+
+                <div class="pbr-v2-capital-actions-buttons">
+                    @if($isActive)
+                        <a
+                            href="#v2-capital-plan-editor"
+                            class="pbr-v2-capital-action-secondary"
+                        >
+                            Open Current Plan
+                        </a>
+                    @endif
+
+                    <a
+                        href="{{ route('workspaces.tools.v2.capital.show', $workspace) }}#v2-capital-plan-editor"
+                        class="pbr-v2-capital-action-primary"
+                    >
+                        New Plan
+                    </a>
+                </div>
+            </div>
+        @endif
 
         <header class="pbr-os-hero">
             <div>
                 <div class="pbr-os-kickers">
                     <span class="pbr-os-chapter-pill">
-                        CHAPTER 1
+                        CAPITAL &amp; FUNDING
                     </span>
                     <span class="pbr-os-type-pill">
-                        V2 CANONICAL PLAN
+                        BUSINESS CAPITAL PLAN
                     </span>
 
                     @if($current)
                         <span class="pbr-os-agreed-pill">
-                            APPROVED CURRENT
+                            CURRENT APPROVED PLAN
                         </span>
                     @endif
                 </div>
 
                 <h1>မတည်ငွေ အတည်ပြုအစီအစဉ်</h1>
                 <p class="pbr-os-en-title">
-                    Capital Plan Authority
+                    Capital Planning
                 </p>
 
                 <p class="pbr-os-purpose">
-                    Working Draft မှစပြီး Readiness စစ်ဆေးခြင်း၊
-                    Formal Proposal တင်ခြင်းနဲ့ Approved Current
-                    Capital Plan အဖြစ် publish လုပ်ခြင်းကို
-                    V2 canonical workflow တစ်ခုတည်းနဲ့ ထိန်းချုပ်ပါတယ်။
+                    Capital Plan ကို draft အဖြစ် စတင်ပြင်ဆင်ပြီး
+                    readiness စစ်ဆေး၊ approval တင်ပြီး အတည်ပြုထားသော
+                    plan အဖြစ် အသုံးပြုနိုင်အောင် formal approval workflow
+                    တစ်ခုတည်းနဲ့ စီမံထားပါတယ်။
                 </p>
             </div>
 
@@ -182,18 +214,18 @@
             <div class="pbr-os-panel-head">
                 <div>
                     <span class="portal-kicker">
-                        CHAPTER 1 WORKFLOW
+                        PLANNING FLOW
                     </span>
 
                     <h2>
-                        Capital Planning — Six-Step Decision Path
+                        Capital Planning Flow
                     </h2>
 
                     <p>
                         Capital requirement ကို အရင်တွက်ပြီး
                         scenario တွေကို compare လုပ်ကာ
                         approved decision ကို Record နဲ့ Act
-                        အထိ ဆက်သွားမယ့် Chapter 1 flow ဖြစ်ပါတယ်။
+                        အထိ ဆက်သွားမယ့် capital planning flow ဖြစ်ပါတယ်။
                     </p>
                 </div>
 
@@ -262,7 +294,7 @@
 
             <div class="pbr-os-legal-note">
                 <strong>
-                    Chapter 1 Decision Flow
+                    Capital Decision Flow
                 </strong>
 
                 <p>
@@ -271,7 +303,7 @@
 
                 <p>
                     ဒီ guide က workflow ကို ရှင်းပြတာသာဖြစ်ပြီး
-                    separate canonical Capital-Call Rule ကို
+                    separate approved Capital-Call Rule ကို
                     create သို့မဟုတ် approve မလုပ်ပါ။
                 </p>
 
@@ -292,16 +324,16 @@
                 <aside class="pbr-os-sidebar">
                     <section class="pbr-os-side-card">
                         <span class="pbr-os-side-label">
-                            V2 Lifecycle
+                            Plan Status
                         </span>
 
                         <ol class="pbr-os-steps">
                             <li class="{{ ! $isActive ? 'active' : '' }}">
                                 <span>1</span>
                                 <div>
-                                    <b>Working Draft</b>
+                                    <b>Draft Plan</b>
                                     <small>
-                                        Full capital-plan-v1 data ကို
+                                        Capital Plan data ကို
                                         ပြင်ဆင်ပါ။
                                     </small>
                                 </div>
@@ -332,10 +364,10 @@
                             <li class="{{ $current ? 'active' : '' }}">
                                 <span>4</span>
                                 <div>
-                                    <b>Approved Current</b>
+                                    <b>Approved Plan</b>
                                     <small>
-                                        Approval Engine က publish
-                                        လုပ်ထားတဲ့ canonical plan။
+                                        Approval ပြီးဆုံးပြီး publish
+                                        လုပ်ထားတဲ့ current plan။
                                     </small>
                                 </div>
                             </li>
@@ -344,12 +376,12 @@
 
                     <section class="pbr-os-side-card">
                         <div class="pbr-os-side-head">
-                            <strong>Working Plans</strong>
+                            <strong>Your Plans</strong>
 
                             <a
                                 href="{{ route('workspaces.tools.v2.capital.show', $workspace) }}"
                             >
-                                + New
+                                New Plan
                             </a>
                         </div>
 
@@ -362,13 +394,12 @@
                                     {{ $draft['payload']['plan_name'] ?: 'Untitled Capital Plan' }}
                                 </span>
                                 <small>
-                                    {{ strtoupper($draft['state']) }}
-                                    · ID {{ $draft['id'] }}
+                                    {{ str(strtoupper($draft['state']))->replace('_', ' ')->title() }}
                                 </small>
                             </a>
                         @empty
                             <p class="pbr-os-empty-small">
-                                V2 Capital Draft မရှိသေးပါ။
+                                Capital Draft မရှိသေးပါ။
                             </p>
                         @endforelse
                     </section>
@@ -384,7 +415,7 @@
                     >
                         <div>
                             <span class="portal-kicker">
-                                APPROVED CURRENT
+                                CURRENT APPROVED PLAN
                             </span>
 
                             <h2>
@@ -412,7 +443,7 @@
                                 <span class="portal-kicker">
                                     LIVE CAPITAL POSITION
                                 </span>
-                                <h2>Approved Result</h2>
+                                <h2>Approved Plan</h2>
                                 <p>
                                     Workspace ရဲ့ current currency နဲ့
                                     relabel မလုပ်ဘဲ published payload
@@ -576,7 +607,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    APPROVED OUTPUT 1
+                                    STARTUP COSTS
                                 </span>
 
                                 <h2>Startup Cost Schedule</h2>
@@ -653,7 +684,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    APPROVED OUTPUT 2
+                                    WORKING CAPITAL
                                 </span>
 
                                 <h2>Working Capital Forecast</h2>
@@ -788,7 +819,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    APPROVED OUTPUT 3
+                                    FUNDING POSITION
                                 </span>
 
                                 <h2>Funding Gap Analysis</h2>
@@ -986,7 +1017,7 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    APPROVED OUTPUT 4
+                                    CAPITAL ALLOCATION
                                 </span>
 
                                 <h2>Capital Allocation Summary</h2>
@@ -1066,13 +1097,13 @@
                         <div class="pbr-os-panel-head">
                             <div>
                                 <span class="portal-kicker">
-                                    APPROVED OUTPUT 5
+                                    FINAL CAPITAL DECISION
                                 </span>
 
                                 <h2>Approved Capital Decision</h2>
 
                                 <p>
-                                    Current canonical capital plan ရဲ့
+                                    Current Approved Plan ရဲ့
                                     read-only decision summary ဖြစ်ပါတယ်။
                                 </p>
                             </div>
@@ -1193,7 +1224,7 @@
                                         payload ထဲက Decision Owner,
                                         Effective / Review Date,
                                         Summary နဲ့ Evidence ကို
-                                        exact canonical revision နဲ့
+                                        exact approved revision နဲ့
                                         pin လုပ်ပြီး immutable record
                                         တစ်ခုဖန်တီးပါတယ်။
                                     </p>
@@ -1481,11 +1512,10 @@
                             </strong>
 
                             <p>
-                                ACT က approved canonical Capital Plan
+                                ACT က approved Capital Plan
                                 သို့မဟုတ် immutable Decision Record
                                 ကို ပြန်မပြင်ပါ။
-                                Execution mutation ကို frozen
-                                F12 → F9 → F5 lifecycle authority
+                                Action item အပြောင်းအလဲတွေကို approved action workflow
                                 ကသာ ထိန်းချုပ်ပါတယ်။
                             </p>
                         </div>
@@ -1506,8 +1536,8 @@
                                 </h2>
 
                                 <p>
-                                    Approved Current နဲ့ superseded
-                                    canonical Capital Plan revisions
+                                    Current Approved Plan နဲ့ previous
+                                    approved Capital Plan revisions
                                     တွေကို newest-first အစဉ်နဲ့
                                     ပြထားပါတယ်။
                                 </p>
@@ -1523,7 +1553,7 @@
                             <div class="pbr-os-result-table-wrap">
                                 <div class="pbr-os-table-head">
                                     <h3>
-                                        Canonical Revision History
+                                        Approved Plan History
                                     </h3>
 
                                     <span>
@@ -1617,7 +1647,7 @@
 
                         <div class="pbr-os-legal-note">
                             <strong>
-                                Canonical Version History Boundary
+                                Plan History Boundary
                             </strong>
 
                             <p>
@@ -1648,7 +1678,7 @@
                                 <p>
                                     Formal Proposal မတင်ခင်
                                     latest Working Plan သုံးမျိုးကို
-                                    တူညီတဲ့ V2 Readiness calculation
+                                    တူညီတဲ့ readiness calculation
                                     နဲ့ side-by-side နှိုင်းယှဉ်ပါ။
                                 </p>
                             </div>
@@ -1817,7 +1847,7 @@
 
                             <p>
                                 ဒီ comparison က read-only scenario
-                                analysis ပဲဖြစ်ပြီး canonical authority
+                                analysis ပဲဖြစ်ပြီး approval authority
                                 မဟုတ်ပါ။ Plan ကိုဖွင့်ကြည့်ခြင်း သို့မဟုတ်
                                 နှိုင်းယှဉ်ခြင်းက approval / publication
                                 မဖြစ်စေပါ။
@@ -1986,23 +2016,26 @@
                                 @method('PUT')
                             @endif
 
-                            <section class="pbr-os-panel pbr-os-input-panel">
+                            <section
+                                class="pbr-os-panel pbr-os-input-panel"
+                                id="v2-capital-plan-editor"
+                            >
                                 <div class="pbr-os-panel-head">
                                     <div>
                                         <span class="portal-kicker">
-                                            CAPITAL PLAN V1
+                                            CAPITAL PLAN
                                         </span>
 
                                         <h2>
                                             {{ $isWorking
                                                 ? 'Working Draft ကို ပြင်ဆင်ရန်'
-                                                : 'V2 Capital Plan အသစ်' }}
+                                                : 'New Capital Plan' }}
                                         </h2>
 
                                         <p>
-                                            Legacy Startup Capital data ကို
+                                            Existing Startup Capital data ကို
                                             auto-convert မလုပ်ပါ။
-                                            Canonical approval အတွက်လိုတဲ့
+                                            Approval အတွက်လိုတဲ့
                                             evidence နဲ့ decision fields ကို
                                             ဒီမှာ explicit ဖြည့်ပါ။
                                         </p>
@@ -2138,7 +2171,7 @@
 
                                     <div class="pbr-os-field">
                                         <label>
-                                            Canonical Currency
+                                            Plan Currency
                                         </label>
 
                                         <input
@@ -2183,7 +2216,7 @@
 
                                     <p>
                                         အသုံးများတဲ့ capital cost ကို
-                                        existing V2 category ထဲ တစ်ချက်နဲ့
+                                        existing category ထဲ တစ်ချက်နဲ့
                                         စတင်ထည့်နိုင်ပါတယ်။ Amount နဲ့
                                         Evidence ကိုတော့ ကိုယ်တိုင်
                                         ဖြည့်ရပါမယ်။
@@ -2322,7 +2355,7 @@
 
                                     <p>
                                         Contingency Buffer ကို cost item
-                                        အဖြစ် မထည့်ပါ။ Frozen V2 formula
+                                        အဖြစ် မထည့်ပါ။ Capital formula
                                         က Contingency Percentage ကနေ
                                         Reserve ကို သီးခြားတွက်ပါတယ်။
                                     </p>
@@ -2723,7 +2756,7 @@
                                     >
                                         {{ $isWorking
                                             ? 'Save Draft Changes'
-                                            : 'Create V2 Draft' }}
+                                            : 'Create Draft Plan' }}
                                     </button>
                                 </div>
                             </section>
@@ -2895,12 +2928,14 @@
                 @endif
 
                 <div class="pbr-os-legal-note">
-                    <strong>Authority Boundary</strong>
+                    <strong>Plan Protection</strong>
                     <p>
-                        V1 Startup Capital scenarios ကို ဒီ V2 page
-                        က read, convert, approve သို့မဟုတ် overwrite
-                        မလုပ်ပါ။ Canonical authority က
-                        capital / approved_capital_plan တစ်ခုတည်းဖြစ်ပါတယ်။
+                        Existing Startup Capital scenarios ကို
+                        ဒီ Capital Planning page က အလိုအလျောက်
+                        ပြောင်းလဲခြင်း သို့မဟုတ် approved Capital Plan ကို
+                        overwrite လုပ်ခြင်း မပြုပါ။
+                        အတည်ပြုထားသော Capital Plan ကိုသာ
+                        final business record အဖြစ် အသုံးပြုပါတယ်။
                     </p>
                 </div>
             </main>
@@ -3051,6 +3086,58 @@
 
     <script>
         (() => {
+            const formatCapitalTimestamps = () => {
+                const root = document.querySelector(
+                    '.pbr-v2-capital-experience'
+                );
+
+                if (!root) {
+                    return;
+                }
+
+                const isoPattern =
+                    /\b\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z\b/g;
+
+                const walker = document.createTreeWalker(
+                    root,
+                    NodeFilter.SHOW_TEXT
+                );
+
+                const nodes = [];
+
+                while (walker.nextNode()) {
+                    nodes.push(walker.currentNode);
+                }
+
+                nodes.forEach((node) => {
+                    node.nodeValue = node.nodeValue.replace(
+                        isoPattern,
+                        (value) => {
+                            const date = new Date(value);
+
+                            if (Number.isNaN(date.getTime())) {
+                                return value;
+                            }
+
+                            return new Intl.DateTimeFormat(
+                                'en-GB',
+                                {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    year: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: false,
+                                    timeZone: 'UTC',
+                                }
+                            ).format(date) + ' UTC';
+                        }
+                    );
+                });
+            };
+
+            formatCapitalTimestamps();
+
             const costList = document.querySelector('[data-v2-cost-list]');
             const fundingList = document.querySelector('[data-v2-funding-list]');
             const costTemplate = document.getElementById('v2-capital-cost-template');
