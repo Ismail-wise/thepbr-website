@@ -63,7 +63,7 @@ APP_ROOT="$(realpath -e -- "$APP_ROOT")"
 [[ -f "$APP_ROOT/artisan" && -f "$APP_ROOT/vendor/autoload.php" && -f "$APP_ROOT/.env" ]] || stop "LARAVEL_FILES_MISSING"
 [[ ! -L "$APP_ROOT/.env" ]] || stop "LINKED_ENVIRONMENT_FILE_NEEDS_REVIEW"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" ]] || stop "LIVE_SOURCE_CHANGED_RECHECK_REQUIRED"
-[[ -z "$(git -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_NOT_CLEAN"
+[[ -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_NOT_CLEAN"
 
 [[ ! -L "$BACKUP_PARENT" ]] || stop "BACKUP_PARENT_IS_SYMLINK"
 mkdir -p -- "$BACKUP_PARENT"
@@ -82,7 +82,11 @@ try {
     $root = $argv[1];
     require $root.'/vendor/autoload.php';
     $app = require $root.'/bootstrap/app.php';
+    // Any missing Laravel runtime manifest must remain readable by the web
+    // process. Backup files themselves retain the surrounding private umask.
+    $privateMask = umask(0022);
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+    umask($privateMask);
     $db = Illuminate\Support\Facades\DB::connection();
     if (! $app->environment('production') || parse_url((string) config('app.url'), PHP_URL_HOST) !== 'thepbr.io'
         || config('partner_portal.enabled') || $db->getDriverName() !== 'mysql') {
@@ -215,6 +219,6 @@ echo "APPLICATION_RESTORE_CHECK=OK"
 echo "BACKUP_CHECKSUMS=OK"
 
 STAGE="final_source_check"
-[[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" && -z "$(git -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_CHANGED_DURING_BACKUP"
+[[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$EXPECTED_HEAD" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_CHANGED_DURING_BACKUP"
 echo "LIVE_SOURCE_UNCHANGED=YES"
 VERIFIED=1
