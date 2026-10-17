@@ -6,7 +6,9 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-TARGET="$(git rev-parse HEAD)"
+# Regression-test the exact one-time cleanup release. Future application
+# changes must not widen this destructive release's permitted source scope.
+TARGET=93da710fa086bf5ae9320250da0011683afd2520
 BASE=ca1595f8f758d4e1d3376b19a3639b3c0629197f
 FIXTURE="$(mktemp -d /tmp/pbr-reset-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-reset-test-XXXXXXXX)"
