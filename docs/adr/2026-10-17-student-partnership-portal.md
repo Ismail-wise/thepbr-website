@@ -1,0 +1,13 @@
+# Student partnership portal — authorized product change
+
+The user requested a simpler replacement for the live Student Portal, preserving the current public website and the current PartnerDynamics implementation. The post-login home follows the latest HR app launcher decision: no sidebar, compact icons and always-visible labels. User accounts are self-created; Admin controls Student Portal access and duration. New accounts wait for activation. Active extensions preserve remaining days; expired/suspended terms begin at reactivation. Expiry retains private records.
+
+The user explicitly requires PBR AI from `Ismail-wise/partner-ai`, not the prior local demo's sample responder or direct Gemini adapter. This implementation calls that repository's existing `feature/pbr-integration-v1` private service, expected source commit `cd16ba3b543fdbc66863f1f71128f4e7f02bb18c`, using its original PDF knowledge, retrieval and SSE response pipeline. Knowledge readiness is required before accepting chat. No generic replacement or sample fallback is provided.
+
+The separate Laravel portal tables store user-owned conversations, messages and saved scenarios. They do not manufacture a Business Workspace and do not change existing workspace AI history. All new app routes check current Student entitlement on the server. Conversation/item IDs are always scoped to their owner. Client-supplied history, actor or workspace context never grant access. Cache locks serialize a user's AI turns. Missing, failed and incomplete AI responses remain explicit.
+
+The existing enrollment model remains authoritative. Existing Student/lifetime access is preserved. Admin portal grants are serialized on the user record and recorded in a separate access event log; suspension revokes every enrollment, including an authoritative row to prevent legacy fallback. Admin actions confer application access only, never ownership, governance or document authority.
+
+The new portal is behind `PBR_PARTNER_PORTAL_ENABLED=false` until migrations, source alignment, partner-ai readiness, isolated tests and release backup/restore checks are complete. Existing public pages, PartnerDynamics controller/configuration/scoring/content/artwork, workspace modules and their rights are preserved. Existing code-based self-upgrade routes transition to Admin activation only when the new portal is enabled.
+
+This is a user-authorized simplified portal scope. It does not claim implementation or certification of the frozen full V3 Business OS specification. Meeting Notes and a new content Resource Library remain proposals; the implemented library is a private saved-results view, with links to the user's existing PartnerDynamics results.

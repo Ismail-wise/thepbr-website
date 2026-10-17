@@ -61,7 +61,7 @@ test('case variant duplicate signup cannot replace or duplicate an existing iden
 });
 
 test('admin activation starts the term now rather than at signup', function (): void {
-    $this->freezeTime();
+    $this->travelTo(now()->startOfSecond());
     $admin = partnerPortalUser('admin');
     $user = partnerPortalUser('public');
     $user->update(['created_at' => now()->subMonths(2)]);
@@ -74,7 +74,7 @@ test('admin activation starts the term now rather than at signup', function (): 
 });
 
 test('active term extensions retain unused time and existing legacy access', function (): void {
-    $this->freezeTime();$admin = partnerPortalUser('admin');$student = partnerPortalUser();
+    $this->travelTo(now()->startOfSecond());$admin = partnerPortalUser('admin');$student = partnerPortalUser();
     app(StudentPortalAccess::class)->grantDays($admin, $student, 14);
     expect($student->studentEnrollments()->first()->access_expires_at->equalTo(now()->addDays(44)))->toBeTrue();
 });
@@ -104,7 +104,7 @@ test('suspension revokes all class entitlements and the legacy fallback', functi
 });
 
 test('expiry blocks app urls and ai requests while renewal restores the same saved result', function (): void {
-    $this->freezeTime();$admin = partnerPortalUser('admin');$student = partnerPortalUser();
+    $this->travelTo(now()->startOfSecond());$admin = partnerPortalUser('admin');$student = partnerPortalUser();
     $saved = PortalSavedItem::create(['user_id' => $student->id, 'kind' => 'capital', 'title' => 'Retained private result', 'input' => [], 'output' => []]);
     $this->travel(30)->days();
     $this->actingAs($student)->get(route('portal.home'))->assertRedirect(route('portal.access'));

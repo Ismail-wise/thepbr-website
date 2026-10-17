@@ -27,7 +27,7 @@ class PortalAiController extends Controller
         $prefill = '';
         if ($request->integer('saved') > 0) {
             $item = PortalSavedItem::query()->where('user_id', $request->user()->id)->findOrFail($request->integer('saved'));
-            $prefill = 'ဒီစမ်းတွက်ချက်မှုကို ဆွေးနွေးချင်ပါတယ်။'."\n".json_encode($item->output, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
+            $prefill = 'ဒီစမ်းတွက်ချက်မှုကို ဆွေးနွေးချင်ပါတယ်။'."\n".Str::limit(json_encode($item->output, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT), 4400, '… (ရလဒ်အကျဉ်းချုပ်)');
         }
 
         return view('portal.ai', compact('conversations', 'selected', 'messages', 'prefill'));
