@@ -124,7 +124,8 @@ class UserAccessTable
                             'tableFilters' => ['user' => ['value' => $record->id]],
                         ], panel: 'admin')),
                     Action::make('grantYear')
-                        ->label('Grant Student 1 Year')
+                        ->label(fn (User $record): string => config('partner_portal.enabled') && $record->isStudent()
+                            ? 'Extend Student 1 Year' : 'Grant Student 1 Year')
                         ->color('success')
                         ->requiresConfirmation()
                         ->visible(fn (User $record): bool =>

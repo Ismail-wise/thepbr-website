@@ -18,6 +18,7 @@ use App\Models\PortalConversation;
 use App\Models\StudentEnrollment;
 use App\Models\User;
 use App\Models\Video;
+use App\Services\AccessAdministrationService;
 use App\Services\Portal\StudentPortalAccess;
 use Filament\Actions\Testing\TestAction;
 use Filament\Facades\Filament;
@@ -92,6 +93,29 @@ test('Filament validates duration and protects existing lifetime users', functio
     Livewire::test(ListUserAccess::class)
         ->assertActionHidden(TestAction::make('grantDays')->table($lifetime))
         ->assertActionHidden(TestAction::make('grantYear')->table($lifetime));
+    expect(fn () => app(AccessAdministrationService::class)->grantOneYearStudentAccess(auth()->user(), $lifetime))
+        ->toThrow(\Illuminate\Validation\ValidationException::class);
+    expect($lifetime->studentEnrollments()->count())->toBe(0);
+});
+
+test('original one year action preserves unused legacy time when creating an authoritative enrollment', function (): void {
+    $expiry = now()->addDays(500);
+    $account = filamentPortalAccount(['role' => 'student', 'portal_access_expires_at' => $expiry]);
+    Livewire::test(ListUserAccess::class)->callAction(TestAction::make('grantYear')->table($account))->assertHasNoFormErrors();
+    expect($account->studentEnrollments()->first()->access_expires_at->equalTo($expiry->copy()->addYear()))->toBeTrue();
+    $this->assertDatabaseHas('portal_access_events', ['user_id' => $account->id, 'action' => 'granted_year']);
+});
+
+test('original year renewal restarts a suspended portal term now instead of reviving its old future expiry', function (): void {
+    $account = filamentPortalAccount();
+    $enrollment = StudentEnrollment::create([
+        'user_id' => $account->id, 'status' => 'active', 'started_at' => now()->subMonth(),
+        'access_expires_at' => now()->addDays(100),
+    ]);
+    app(StudentPortalAccess::class)->suspend(auth()->user(), $account);
+    Livewire::test(ListStudentEnrollments::class)->callAction(TestAction::make('renewYear')->table($enrollment))->assertHasNoFormErrors();
+    expect($enrollment->fresh()->started_at->equalTo(now()))->toBeTrue()
+        ->and($enrollment->fresh()->access_expires_at->equalTo(now()->addYear()))->toBeTrue();
 });
 
 test('Filament suspension closes every entitlement and reactivation retains private conversations', function (): void {

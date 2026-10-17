@@ -63,13 +63,14 @@ class AccessAdministrationService
 
         return $this->audited($actor, $enrollment->user, 'renewed_year', function () use ($enrollment): StudentEnrollment {
             $enrollment->refresh();
-            $base = $enrollment->access_expires_at?->isFuture()
+            $reactivating = config('partner_portal.enabled') && ! $enrollment->isActive();
+            $base = ! $reactivating && $enrollment->access_expires_at?->isFuture()
                 ? $enrollment->access_expires_at->copy()
                 : now();
 
             $enrollment->update([
                 'status' => 'active',
-                'started_at' => $enrollment->started_at ?? now(),
+                'started_at' => $reactivating ? now() : ($enrollment->started_at ?? now()),
                 'access_expires_at' => $base->addYear(),
             ]);
 
@@ -163,6 +164,18 @@ class AccessAdministrationService
                 throw ValidationException::withMessages([
                     'account' => 'This account already has an authoritative Student entitlement. Manage it from Student Entitlements.',
                 ]);
+            }
+
+            // Moving legacy access into an authoritative enrollment must keep
+            // its remaining term, just like the portal's custom-day extension.
+            if (config('partner_portal.enabled') && $accessExpiresAt !== null && $account->isStudent()) {
+                if ($account->portal_access_expires_at === null) {
+                    throw ValidationException::withMessages([
+                        'account' => 'This account already has lifetime Student access.',
+                    ]);
+                }
+
+                $accessExpiresAt = $account->portal_access_expires_at->copy()->addYear();
             }
 
             return $account->studentEnrollments()->create([
