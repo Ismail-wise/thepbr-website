@@ -51,13 +51,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           # sqlite3 + pdo_sqlite are what the in-memory test database needs.
-          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, bcmath, intl, zip
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, pdo_mysql, bcmath, intl, zip
           coverage: none
           tools: composer:v2
 
@@ -102,6 +104,15 @@ jobs:
 
       - name: Run Pest
         run: ./vendor/bin/pest --ci
+
+      - name: Validate backup and isolated MySQL restore on a disposable fixture
+        # The full app tests above still use SQLite only. This separate check
+        # creates a synthetic local database on the disposable Actions runner.
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-portal-backup.sh
+          bash -n scripts/tests/pbr-portal-backup-smoke.sh
+          bash scripts/tests/pbr-portal-backup-smoke.sh
 
   assets:
     name: Frontend build
