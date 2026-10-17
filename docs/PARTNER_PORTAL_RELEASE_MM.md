@@ -34,6 +34,27 @@ User ပြန်ပို့ထားသော preflight output အရ Live sou
 
 ဤ rehearsal အောင်မြင်ပြီးလည်း release မတိုင်မီ backup အသစ်ယူပြီး source/schema/config ကို ပြန်စစ်ရန်လိုပါသည်။
 
+2026-10-17 06:22 UTC တွင် user ပြန်ပို့သော Server output အရ Database restore/roundtrip၊ Application restore၊ checksum၊ source မပြောင်းခြင်းနှင့် ယာယီ database/account cleanup အားလုံး အောင်မြင်ပါသည်။ `PBR_PORTAL_BACKUP=COMPLETE` ဖြစ်ပြီး Portal သည် ပိတ်ထားဆဲ ဖြစ်ပါသည်။
+
+### စစ်ဆေးပြီးသော commit ကို Live မှာ ဖွင့်ခြင်း
+
+`sudo bash scripts/pbr-portal-install.sh TARGET_SHA VERIFIED_BACKUP_PATH /var/www/thepbr-laravel` ကိုသာ အသုံးပြုပါ။ `TARGET_SHA` သည် CI အောင်မြင်ပြီး စစ်ဆေးပြီးသော 40-character commit ဖြစ်ရပါမည်။ Moving branch name ကို release target အဖြစ် မသုံးပါ။
+
+Installer သည် အောက်ပါအဆင့်များကို ဆောင်ရွက်ပါသည်။
+
+1. Backup checksum၊ လက်ရှိ source၊ Public Website/PartnerDynamics မပြောင်းခြင်း၊ dependency မပြောင်းခြင်း၊ migration တစ်ခုတည်းသာ ထည့်ခြင်းကို စစ်ပါသည်။ လက်ရှိ cached configuration နှင့် `.env` မှ ပြန်တည်ဆောက်သော အဓိက configuration ကို သီးခြားတိုက်စစ်ပါသည်။ App key နှင့် AI secret ကို မလဲပါ။
+2. သီးခြား source/vendor မိတ္တူပေါ်မှာ Server PHP ဖြင့် SQLite regression suite၊ Blade နှင့် JS စစ်ပါသည်။ Production `.env` ကို test မိတ္တူထဲ မကူးပါ။
+3. မူလ `partner-ai` source version ကို စစ်ပြီး gateway မှ မေးခွန်းတစ်ခု တကယ်မေးပါသည်။ ပြည့်စုံသော answer နှင့် `mode=rag` ရရှိမှ ဆက်လုပ်ပါသည်။ အဖြေကို private release receipt ထဲသာ သိမ်းပြီး User account/chat record မဖန်တီးပါ။
+4. Website ကို ခဏ Maintenance ထားပြီး fresh backup + isolated restore drill အသစ် လုပ်ပါသည်။ ထို database မိတ္တူပေါ်မှာ migration တစ်ခုတည်းကို သီးခြား account ဖြင့် စမ်းပြီး မူလ business/account/access records မပြောင်းကြောင်း တိုက်စစ်ပါသည်။
+5. စစ်ဆေးပြီးသော commit ကိုသာ တင်၊ additive migration တစ်ခုတည်းကို apply လုပ်၊ Portal flag ဖွင့်ပြီး web process user ဖြင့် Portal/AI/Tools/Library/Admin templates ကို render စမ်းပါသည်။ မူလ records ကို ထပ်တိုက်စစ်ပါသည်။
+6. Website ကို ပြန်ဖွင့်ပြီး public HTTPS pages၊ anonymous Portal login guard နှင့် public Portal CSS ကို စစ်ပါသည်။ အောင်မြင်ပါက `PBR_PORTAL_INSTALL=COMPLETE` ပြပါသည်။ ထို့နောက် အမှန်တကယ် signed-in workflow ကို User/Admin ဖြင့် စမ်းရန် ကျန်ပါသည်။
+
+အမှားဖြစ်ပါက Maintenance ပြီးနောက် စတင်ပြောင်းထားသော code/config ကို မူလ baseline သို့ ပြန်ထားရန် ကြိုးစားပါသည်။ Database rollback/drop မလုပ်ပါ။ Portal tables/records အသစ်များကို ဆက်သိမ်းထားပါသည်။ `PORTAL_ROLLBACK=NEEDS_REVIEW` ပြပါက Website ကို Maintenance ထားပြီး output ကို ပြန်စစ်ပါ။ Backup/receipt/private logs များထဲတွင် account data/config ပါနိုင်သဖြင့် Chat ထဲ မပို့ပါနှင့်။ Terminal ၏ sanitized output ကိုသာ ပို့ပါ။
+
+CI installer စမ်းသပ်မှုသည် disposable MySQL ပေါ်မှာ install၊ migration၊ real template rendering၊ account data preservation နှင့် rollback ကို စမ်းပါသည်။ Private AI HTTP/SSE protocol နှင့် public DNS/HTTPS probes ကိုသာ synthetic fixture ဖြင့် စမ်းပါသည်။ Live model generation၊ public HTTPS နှင့် browser visual QA အောင်မြင်ပြီးဟု CI ရလဒ်ကို မယူဆပါ။
+
+Installer သည် exact commit ဖြင့် detached HEAD သို့ တင်ပါသည်။ GitHub main/PR ကို အလိုအလျောက် merge မလုပ်ပါ။ Server receipt နှင့် User workflow စစ်ဆေးပြီးမှ repository release ကို ဆက်လက်ပိတ်သိမ်းပါမည်။
+
 ## နောက်ဆုံး Release အဆင့်
 
 1. လက်ရှိ Live source နှင့် GitHub branch ကို တိုက်စစ်ပြီး Public Website / PartnerDynamics မပြောင်းကြောင်း စစ်ပါ။

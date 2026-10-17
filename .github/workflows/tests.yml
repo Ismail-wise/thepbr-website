@@ -95,7 +95,7 @@ jobs:
       - name: Lint PHP syntax
         # Cheap guard: catches a parse error before the suite spends 20s booting.
         run: |
-          find app config database routes tests -name '*.php' -print0 \
+          find app config database routes tests scripts -name '*.php' -print0 \
             | xargs -0 -n1 -P4 php -l > /dev/null
 
       - name: Compile Blade templates
@@ -113,6 +113,12 @@ jobs:
           bash -n scripts/pbr-portal-backup.sh
           bash -n scripts/tests/pbr-portal-backup-smoke.sh
           bash scripts/tests/pbr-portal-backup-smoke.sh
+
+      - name: Validate portal install and rollback on a disposable fixture
+        run: |
+          bash -n scripts/pbr-portal-install.sh
+          bash -n scripts/tests/pbr-portal-install-smoke.sh
+          bash scripts/tests/pbr-portal-install-smoke.sh
 
   assets:
     name: Frontend build
