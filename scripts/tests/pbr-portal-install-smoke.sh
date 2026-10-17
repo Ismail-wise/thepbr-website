@@ -103,6 +103,7 @@ sudo chown www-data:www-data "$FIXTURE/.env"
 sudo chmod 640 "$FIXTURE/.env"
 sudo chown -R www-data:www-data "$FIXTURE/storage" "$FIXTURE/bootstrap/cache"
 (cd "$FIXTURE" && sudo -u www-data php artisan migrate --force >"$ARTIFACTS/setup.log" 2>&1)
+(cd "$FIXTURE" && sudo -u www-data php artisan filament:cache-components >>"$ARTIFACTS/setup.log" 2>&1)
 sudo mysql --database="$FIXTURE_DB" --default-character-set=utf8mb4 <<'SQL'
 INSERT INTO users(name,email,password,role,is_admin,account_status,created_at,updated_at) VALUES
 ('Synthetic Admin','fixture-admin@example.invalid','never-used-to-login','admin',1,'active',NOW(),NOW()),
@@ -183,9 +184,11 @@ INSERT INTO portal_saved_items(user_id,kind,title,input,output,created_at,update
 VALUES (2,'capital','Existing saved calculation',JSON_OBJECT('currency','THB'),JSON_OBJECT('total',15000),NOW(),NOW());
 SQL
 reset_installed_portal() {
+    (cd "$FIXTURE" && sudo -u www-data php artisan filament:clear-cached-components >/dev/null)
     sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" checkout --quiet --detach 450e7e3f0d765117692f14384ddd662982fd2911
     (cd "$FIXTURE" && sudo env COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction >"$ARTIFACTS/reset.log" 2>&1)
     (cd "$FIXTURE" && sudo -u www-data php artisan config:clear >/dev/null && sudo -u www-data php artisan route:clear >/dev/null && sudo -u www-data php artisan view:clear >/dev/null)
+    (cd "$FIXTURE" && sudo -u www-data php artisan filament:cache-components >/dev/null)
 }
 run_filament_case() {
     local fault="$1" result=0
@@ -214,6 +217,9 @@ sudo cmp -s "$FIXTURE/.env" "$ARTIFACTS/installed.env"
 [[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM videos;')" == 1 ]]
 [[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM portal_messages;')" == 1 ]]
 echo "Code-only Filament update, publishing forms and existing content/private data: PASS"
+run_filament_case no
+[[ "$CASE_RESULT" == 0 && "$OUTPUT" == *ALREADY_AT_REVIEWED_VERSION=YES* && "$OUTPUT" != *FRESH_VERIFIED_BACKUP=* ]]
+echo "Repeated update verifies current runtime without another cutover: PASS"
 reset_installed_portal
 run_filament_case yes
 [[ "$CASE_RESULT" != 0 && "$OUTPUT" == *FILAMENT_CODE_ROLLBACK=OK* && "$OUTPUT" == *PBR_FILAMENT_UPDATE=INCOMPLETE* ]]

@@ -57,6 +57,7 @@ rollback() {
     echo "PORTAL_ROLLBACK=START"
     # Close requests before restoring code if the final public probe failed.
     artisan down --retry=30 --render=errors::503 || ok=0
+    artisan filament:clear-cached-components || ok=0
     if [[ "$CODE_ATTEMPTED" == 1 ]]; then
         git -C "$APP_ROOT" checkout --detach "$BASE" >>"$STATE/private.log" 2>&1 || ok=0
     fi
@@ -66,6 +67,7 @@ rollback() {
     artisan route:clear || ok=0
     artisan view:clear || ok=0
     artisan config:cache || ok=0
+    artisan filament:cache-components || ok=0
     artisan view:cache || ok=0
     if [[ "$ok" == 1 ]] && artisan up; then
         MAINTENANCE=0
@@ -259,6 +261,7 @@ echo "STEP=$STAGE"
 git -C "$APP_ROOT" fetch --quiet --no-tags "$SOURCE" "$TARGET" >>"$STATE/private.log" 2>&1
 git -C "$APP_ROOT" branch "backup/pre-partner-portal-$(basename "$STATE")" "$BASE"
 CODE_ATTEMPTED=1
+artisan filament:clear-cached-components
 git -C "$APP_ROOT" checkout --quiet --detach "$TARGET" >>"$STATE/private.log" 2>&1
 (cd "$APP_ROOT" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1
 artisan config:clear
@@ -266,6 +269,7 @@ artisan route:clear
 artisan migrate --path="$MIGRATION" --force
 release_check enable "$APP_ROOT"
 artisan config:cache
+artisan filament:cache-components
 artisan view:cache
 runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" render "$APP_ROOT"
 mysqldump --protocol=socket --socket="$DB_SOCKET" --user=root "${DUMP_FLAGS[@]}" "$DB_NAME" "${ORIGINAL_TABLES[@]}" >"$STATE/original-records-after.sql"

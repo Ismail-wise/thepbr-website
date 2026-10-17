@@ -30,6 +30,7 @@ rollback() {
     local ok=1
     echo "FILAMENT_CODE_ROLLBACK=START"
     artisan down --retry=30 --render=errors::503 || ok=0
+    artisan filament:clear-cached-components || ok=0
     if [[ "$CODE_ATTEMPTED" == 1 ]]; then
         git -C "$APP_ROOT" checkout --quiet --detach "$BASE" >>"$STATE/private.log" 2>&1 || ok=0
     fi
@@ -38,6 +39,7 @@ rollback() {
     artisan route:clear || ok=0
     artisan view:clear || ok=0
     artisan config:cache || ok=0
+    artisan filament:cache-components || ok=0
     artisan view:cache || ok=0
     if [[ "$ok" == 1 ]] && artisan up; then
         MAINTENANCE=0
@@ -83,12 +85,7 @@ APP_ROOT="$(realpath -e -- "$APP_ROOT")"
 [[ -f "$APP_ROOT/.env" && ! -L "$APP_ROOT/.env" && -f "$APP_ROOT/vendor/autoload.php" ]] || stop "REGULAR_APP_AND_ENV_REQUIRED"
 [[ -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_NOT_CLEAN"
 CURRENT="$(git -C "$APP_ROOT" rev-parse HEAD)"
-if [[ "$CURRENT" == "$TARGET" ]]; then
-    echo "ALREADY_AT_REVIEWED_VERSION=YES"
-    COMPLETE=1
-    exit 0
-fi
-[[ "$CURRENT" == "$BASE" ]] || stop "LIVE_SOURCE_CHANGED_RECHECK_REQUIRED"
+[[ "$CURRENT" == "$BASE" || "$CURRENT" == "$TARGET" ]] || stop "LIVE_SOURCE_CHANGED_RECHECK_REQUIRED"
 runuser -u "$WEB_USER" -- test -w "$APP_ROOT/storage" || stop "STORAGE_NOT_WRITABLE_BY_WEB_USER"
 runuser -u "$WEB_USER" -- test -w "$APP_ROOT/bootstrap/cache" || stop "BOOTSTRAP_CACHE_NOT_WRITABLE_BY_WEB_USER"
 [[ ! -L "$BACKUP_PARENT" ]] || stop "BACKUP_PARENT_IS_SYMLINK"
@@ -100,6 +97,15 @@ STATE="$BACKUP_PARENT/filament-release-$(date -u +%Y%m%dT%H%M%SZ)-$(openssl rand
 mkdir -m 700 -- "$STATE"
 exec 2>>"$STATE/private.log"
 cp -p -- "$APP_ROOT/.env" "$STATE/original.env"
+if [[ "$CURRENT" == "$TARGET" ]]; then
+    STAGE=verify_already_installed_version
+    env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" \
+        filament-inspect "$APP_ROOT" "$STATE/database-meta.json" "$STATE/config.sha"
+    runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" render "$APP_ROOT"
+    echo "ALREADY_AT_REVIEWED_VERSION=YES"
+    COMPLETE=1
+    exit 0
+fi
 VENDOR_BYTES="$(du -sb "$APP_ROOT/vendor" | awk '{print $1}')"
 STAGING_FREE="$(df -Pk "$STATE" | awk 'NR==2 {print $4*1024}')"
 awk -v free="$STAGING_FREE" -v vendor="$VENDOR_BYTES" 'BEGIN {exit !(free > vendor*2+1073741824)}' || stop "ISOLATED_STAGING_DISK_SPACE_INSUFFICIENT"
@@ -119,7 +125,7 @@ while IFS= read -r path; do
         app/Http/Controllers/AccountAuthController.php|app/Http/Controllers/AccountController.php|app/Http/Controllers/PartnerPortalController.php|\
         app/Providers/Filament/AdminPanelProvider.php|app/Services/AccessAdministrationService.php|app/Services/Portal/StudentPortalAccess.php|\
         app/Services/Portal/PortalAccessAudit.php|app/Models/PortalAccessEvent.php|resources/views/portal/home.blade.php|\
-        scripts/pbr-portal-release-check.php|scripts/pbr-filament-backup.sh|scripts/pbr-filament-update.sh|scripts/tests/pbr-portal-install-smoke.sh|\
+        scripts/pbr-portal-release-check.php|scripts/pbr-portal-install.sh|scripts/pbr-filament-backup.sh|scripts/pbr-filament-update.sh|scripts/tests/pbr-portal-install-smoke.sh|\
         tests/*|docs/*) ;;
         *) stop "CHANGE_OUTSIDE_REVIEWED_ADMIN_SCOPE";;
     esac
@@ -176,11 +182,13 @@ echo "STEP=$STAGE"
 git -C "$APP_ROOT" fetch --quiet --no-tags "$SOURCE" "$TARGET" >>"$STATE/private.log" 2>&1
 git -C "$APP_ROOT" branch "backup/pre-filament-$(basename "$STATE")" "$BASE"
 CODE_ATTEMPTED=1
+artisan filament:clear-cached-components
 git -C "$APP_ROOT" checkout --quiet --detach "$TARGET" >>"$STATE/private.log" 2>&1
 (cd "$APP_ROOT" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1
 artisan config:clear
 artisan route:clear
 artisan config:cache
+artisan filament:cache-components
 artisan view:cache
 runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" render "$APP_ROOT"
 mysqldump --protocol=socket --socket="$DB_SOCKET" --user=root "${DUMP_FLAGS[@]}" "$DB_NAME" "${DATA_TABLES[@]}" >"$STATE/records-after.sql"
