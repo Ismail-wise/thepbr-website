@@ -120,6 +120,12 @@ jobs:
           bash -n scripts/tests/pbr-portal-install-smoke.sh
           bash scripts/tests/pbr-portal-install-smoke.sh
 
+      - name: Validate one-time test reset and rollback on a disposable MySQL fixture
+        run: |
+          bash -n scripts/pbr-portal-reset.sh
+          bash -n scripts/tests/pbr-portal-reset-smoke.sh
+          bash scripts/tests/pbr-portal-reset-smoke.sh
+
   assets:
     name: Frontend build
     runs-on: ubuntu-latest

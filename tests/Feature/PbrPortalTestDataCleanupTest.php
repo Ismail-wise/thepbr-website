@@ -42,11 +42,11 @@ function portalResetFixture(): array
 
 test('authorized reset removes all test workspaces and non admins while preserving admin credentials content and personal history', function (): void {
     [$admin, $student, $cleanup] = portalResetFixture();
-    $credentials = $admin->getRawOriginal();
+    $credentials = (array) DB::table('users')->where('id', $admin->id)->first();
     $plan = $cleanup->plan();
     $result = $cleanup->apply($plan);
     expect($result['workspaces_removed'])->toBe(2)->and($result['accounts_removed'])->toBe(1)
-        ->and(User::count())->toBe(1)->and($admin->fresh()->getRawOriginal())->toBe($credentials);
+        ->and(User::count())->toBe(1)->and((array) DB::table('users')->where('id', $admin->id)->first())->toBe($credentials);
     foreach (['partnership_workspaces', 'workspace_members', 'tool_sessions', 'ai_conversations', 'ai_messages'] as $table) {
         expect(DB::table($table)->count())->toBe(0);
     }

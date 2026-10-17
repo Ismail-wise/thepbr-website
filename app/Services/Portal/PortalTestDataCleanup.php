@@ -134,9 +134,11 @@ class PortalTestDataCleanup
         $this->require(($plan['scope'] ?? '') === 'all_test_workspaces_and_non_admin_accounts', 'WRONG_RESET_SCOPE');
 
         return $this->db->transaction(function () use ($plan): array {
-            $this->db->table('users')->lockForUpdate()->get();
-            $this->db->table('partnership_workspaces')->lockForUpdate()->get();
-            $this->db->table('jobs')->lockForUpdate()->get();
+            foreach ($this->tables() as $table) {
+                if (! in_array($table, self::VOLATILE_TABLES, true) || $table === 'jobs') {
+                    $this->db->table($table)->lockForUpdate()->get();
+                }
+            }
             $current = $this->plan();
             $this->require($current['before_fingerprint'] === $plan['before_fingerprint']
                 && $current['admin_ids'] === $plan['admin_ids']
