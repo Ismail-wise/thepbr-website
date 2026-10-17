@@ -10,7 +10,7 @@
         ['Partnership Checklist', 'Partner နှင့် ဆွေးနွေးရန်', 'checklist', route('portal.tool', 'checklist'), 'tone-plum'],
         ['My Library', 'သိမ်းထားသည်များ ပြန်ကြည့်ရန်', 'folder', route('portal.library'), ''],
     ];
-    if (auth()->user()->isAdmin()) $apps[] = ['Accounts & Access', 'ဝင်ခွင့်နှင့် သက်တမ်း စီမံရန်', 'shield', route('portal.accounts'), 'tone-gold'];
+    if (auth()->user()->isAdmin()) $apps[] = ['Admin Portal', 'မူလ Filament မှ ဝင်ခွင့်နှင့် Content စီမံရန်', 'shield', route('filament.admin.pages.dashboard'), 'tone-gold'];
 @endphp
 <section class="launcher">
     <span class="eyebrow">YOUR PARTNERSHIP SPACE</span>

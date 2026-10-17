@@ -101,7 +101,9 @@ class AccountAuthController extends Controller
     private function destinationFor(User $user): string
     {
         if (config('partner_portal.enabled')) {
-            return route('portal.home');
+            return $user->isAdmin()
+                ? route('filament.admin.pages.dashboard')
+                : route('portal.home');
         }
         if ($user->isAdmin()) {
             return route('account.dashboard');

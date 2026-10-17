@@ -11,7 +11,9 @@ class AccountController extends Controller
     public function dashboard(Request $request): View|RedirectResponse
     {
         if (config('partner_portal.enabled')) {
-            return redirect()->route('portal.home');
+            return redirect()->route($request->user()->isAdmin()
+                ? 'filament.admin.pages.dashboard'
+                : 'portal.home');
         }
         $user = $request->user()->load([
             'studentEnrollments.classSession',

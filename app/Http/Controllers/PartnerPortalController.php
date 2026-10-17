@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Filament\Resources\UserAccess\UserAccessResource;
 use App\Models\PartnerDynamicsAssessment;
 use App\Models\PortalSavedItem;
 use App\Models\User;
@@ -27,18 +28,13 @@ class PartnerPortalController extends Controller
         return view('portal.access', ['access' => $access->summary($request->user())]);
     }
 
-    public function accounts(Request $request, StudentPortalAccess $access): View
+    public function accounts(Request $request): RedirectResponse
     {
         abort_unless($request->user()->isAdmin(), 403);
-        $search = trim((string) $request->query('search', ''));
-        $accounts = User::query()->when($search !== '', function ($query) use ($search): void {
-            $query->where(function ($query) use ($search): void {
-                $query->where('name', 'like', '%'.mb_substr($search, 0, 100).'%')
-                    ->orWhere('email', 'like', '%'.mb_substr($search, 0, 100).'%');
-            });
-        })->latest('id')->paginate(25)->withQueryString();
 
-        return view('portal.accounts', compact('accounts', 'access', 'search'));
+        return redirect()->to(UserAccessResource::getUrl('index', [
+            'tableSearch' => mb_substr(trim((string) $request->query('search', '')), 0, 100),
+        ], panel: 'admin'));
     }
 
     public function grant(Request $request, User $account, StudentPortalAccess $access): RedirectResponse
@@ -47,14 +43,16 @@ class PartnerPortalController extends Controller
         $validated = $request->validate(['days' => ['required', 'integer', 'between:1,3650']]);
         $access->grantDays($request->user(), $account, (int) $validated['days']);
 
-        return back()->with('success', 'Portal ဝင်ခွင့်နှင့် သက်တမ်းကို သိမ်းပြီးပါပြီ။');
+        return redirect()->to(UserAccessResource::getUrl('index', panel: 'admin'))
+            ->with('success', 'Portal ဝင်ခွင့်နှင့် သက်တမ်းကို သိမ်းပြီးပါပြီ။');
     }
 
     public function suspend(Request $request, User $account, StudentPortalAccess $access): RedirectResponse
     {
         $access->suspend($request->user(), $account);
 
-        return back()->with('success', 'Portal ဝင်ခွင့်ကို ယာယီရပ်ထားပါပြီ။');
+        return redirect()->to(UserAccessResource::getUrl('index', panel: 'admin'))
+            ->with('success', 'Portal ဝင်ခွင့်ကို ယာယီရပ်ထားပါပြီ။');
     }
 
     public function library(Request $request): View

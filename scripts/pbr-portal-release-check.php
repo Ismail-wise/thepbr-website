@@ -140,12 +140,28 @@ try {
         Illuminate\Support\Facades\Auth::guard()->setUser($admin);
         $portal = $app->make(App\Http\Controllers\PartnerPortalController::class);
         $home = $portal->home($request, $app->make(App\Services\Portal\StudentPortalAccess::class))->render();
-        pbrReleaseRequire(str_contains($home, 'PBR AI') && str_contains($home, 'PartnerDynamics') && str_contains($home, 'Accounts &amp; Access'), 'PORTAL_HOME_RENDER_FAILED');
+        pbrReleaseRequire(str_contains($home, 'PBR AI') && str_contains($home, 'PartnerDynamics') && str_contains($home, 'Admin Portal'), 'PORTAL_HOME_RENDER_FAILED');
         pbrReleaseRequire(strlen($app->make(App\Http\Controllers\PortalAiController::class)->index($request)->render()) > 100, 'AI_PAGE_RENDER_FAILED');
         foreach (['capital', 'shares', 'checklist'] as $tool) {
             pbrReleaseRequire(strlen($app->make(App\Http\Controllers\PortalToolsController::class)->show($request, $tool)->render()) > 100, 'TOOL_RENDER_FAILED');
         }
-        pbrReleaseRequire(strlen($portal->library($request)->render()) > 100 && strlen($portal->accounts($request, $app->make(App\Services\Portal\StudentPortalAccess::class))->render()) > 100, 'PORTAL_LIBRARY_OR_ADMIN_RENDER_FAILED');
+        pbrReleaseRequire(strlen($portal->library($request)->render()) > 100
+            && $portal->accounts($request)->getStatusCode() === 302, 'PORTAL_LIBRARY_OR_ADMIN_RENDER_FAILED');
+        foreach ([
+            route('filament.admin.pages.dashboard'),
+            App\Filament\Resources\UserAccess\UserAccessResource::getUrl('index', panel: 'admin'),
+            App\Filament\Resources\Articles\ArticleResource::getUrl('create', panel: 'admin'),
+            App\Filament\Resources\Videos\VideoResource::getUrl('create', panel: 'admin'),
+            App\Filament\Resources\PortalAccessEvents\PortalAccessEventResource::getUrl('index', panel: 'admin'),
+        ] as $adminUrl) {
+            $adminRequest = Illuminate\Http\Request::create($adminUrl);
+            $adminRequest->setLaravelSession($session);
+            $app->instance('request', $adminRequest);
+            $app['url']->setRequest($adminRequest);
+            $response = $app['router']->dispatch($adminRequest);
+            pbrReleaseRequire($response->getStatusCode() === 200 && strlen($response->getContent()) > 100, 'FILAMENT_RUNTIME_RENDER_FAILED');
+        }
+        echo "FILAMENT_ADMIN_AND_PUBLISHING_FORMS=OK\n";
         echo "PORTAL_TABLES_AND_ROUTES=OK\nPORTAL_RUNTIME_RENDER=OK\n";
     } else {
         throw new RuntimeException('UNKNOWN_RELEASE_CHECK');
