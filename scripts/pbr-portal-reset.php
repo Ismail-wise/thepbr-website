@@ -89,12 +89,14 @@ try {
                     echo "ADMIN_CREDENTIALS_AND_PUBLIC_CONTENT=PRESERVED\nDATABASE_RESET_COMMITTED=YES\n";
                 } catch (Throwable $error) {
                     $digest = $cleanup->fingerprint();
-                    if ($digest === $plan['before_fingerprint']) {
-                        pbrResetWrite($journal, array_merge($entry, ['status' => 'rolled_back']));
-                        echo "DATABASE_RESET_ROLLED_BACK=YES\n";
-                    } elseif ($digest === $plan['after_fingerprint']) {
+                    // A zero-change reset has equal before/after digests;
+                    // prefer committed so a retry cannot target future users.
+                    if ($digest === $plan['after_fingerprint']) {
                         pbrResetWrite($journal, array_merge($entry, ['status' => 'committed']));
                         echo "DATABASE_RESET_COMMITTED=YES\n";
+                    } elseif ($digest === $plan['before_fingerprint']) {
+                        pbrResetWrite($journal, array_merge($entry, ['status' => 'rolled_back']));
+                        echo "DATABASE_RESET_ROLLED_BACK=YES\n";
                     }
                     throw $error;
                 }
@@ -102,12 +104,12 @@ try {
                 $entry = pbrResetRead($journal);
                 pbrResetRequire(($entry['state'] ?? '') === $state, 'RESET_JOURNAL_STATE_MISMATCH');
                 $digest = $cleanup->fingerprint();
-                if ($digest === $plan['before_fingerprint']) {
-                    pbrResetWrite($journal, array_merge($entry, ['status' => 'rolled_back']));
-                    echo "DATABASE_RESET_ROLLED_BACK=YES\n";
-                } elseif ($digest === $plan['after_fingerprint']) {
+                if ($digest === $plan['after_fingerprint']) {
                     pbrResetWrite($journal, array_merge($entry, ['status' => 'committed']));
                     echo "DATABASE_RESET_COMMITTED=YES\n";
+                } elseif ($digest === $plan['before_fingerprint']) {
+                    pbrResetWrite($journal, array_merge($entry, ['status' => 'rolled_back']));
+                    echo "DATABASE_RESET_ROLLED_BACK=YES\n";
                 } else {
                     echo "DATABASE_RESET_OUTCOME=NEEDS_REVIEW\n";
                     exit(2);

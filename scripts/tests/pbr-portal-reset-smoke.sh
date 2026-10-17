@@ -94,7 +94,7 @@ INSERT INTO ai_conversations(id,workspace_id,user_id,title) VALUES (1,1,1,'Admin
 INSERT INTO ai_messages(conversation_id,role,content) VALUES (1,'user','Workspace test history'),(2,'assistant','Workspace test reply');
 INSERT INTO portal_conversations(id,user_id,title) VALUES (1,1,'Admin personal chat'),(2,3,'Student chat');
 INSERT INTO portal_messages(conversation_id,role,content) VALUES (1,'user','Keep Admin personal history'),(2,'user','Remove student history');
-INSERT INTO portal_saved_items(user_id,kind,title,input,output) VALUES (1,'capital','Admin personal save','{}','{}'),(3,'capital','Student save','{}','{}');
+INSERT INTO portal_saved_items(user_id,kind,title,input,output,created_at,updated_at) VALUES (1,'capital','Admin personal save','{}','{}',NOW(),NOW()),(3,'capital','Student save','{}','{}',NOW(),NOW());
 INSERT INTO portal_access_events(user_id,actor_id,action,before_state,after_state,created_at) VALUES (1,3,'synthetic_old_event','{}','{}',NOW());
 INSERT INTO student_access_codes(code_hash,code_encrypted,code_last4,created_by_user_id,used_by_user_id) VALUES (REPEAT('a',64),'synthetic','TEST',1,3);
 INSERT INTO student_enrollments(user_id,status,student_access_code_id) VALUES (3,'active',1);
@@ -149,7 +149,7 @@ run_case() {
     RECEIPT="$(printf '%s\n' "$OUTPUT" | sed -n 's/^PORTAL_RESET_RECEIPT_PATH=//p')"
     RECEIPTS+=("$RECEIPT")
     BACKUPS+=("$(printf '%s\n' "$OUTPUT" | sed -n 's/^FRESH_VERIFIED_BACKUP=//p')")
-    if [[ -n "$RECEIPT" && "$result" != 0 ]]; then sudo tail -n 10 "$RECEIPT/private.log"; fi
+    if [[ -n "$RECEIPT" && "$result" != 0 ]]; then sudo tail -n 65 "$RECEIPT/private.log"; fi
     CASE_RESULT=$result
 }
 touch "$ARTIFACTS/corrupt-plan"
