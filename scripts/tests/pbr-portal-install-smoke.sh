@@ -133,7 +133,7 @@ while [[ $# -gt 0 ]]; do
 done
 [[ -n "$url" ]] || exit 2
 code=200
-if [[ "$url" == https://thepbr.io/portal\?* ]]; then code=302; fi
+if [[ "$url" == https://thepbr.io/portal\?* || "$url" == https://thepbr.io/admin\?* ]]; then code=302; fi
 if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" == yes && "$url" == https://thepbr.io/articles\?* ]]; then code=500; fi
 if [[ "$url" == https://thepbr.io/css/partner-portal.css\?* ]]; then cp "$PBR_FIXTURE_APP/public/css/partner-portal.css" "$output"; fi
 if [[ -n "$format" ]]; then printf '%s' "$code"; fi
@@ -169,6 +169,61 @@ run_case no
 sudo test -s "$RECEIPT/install-complete.txt"
 [[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM users;')" == 2 ]]
 echo "Real install, MySQL migration, runtime rendering and data preservation: PASS"
+
+# Exercise the follow-up code-only update from the exact installed portal.
+# Keep synthetic content and private portal records through update and rollback.
+sudo mysql --database="$FIXTURE_DB" --default-character-set=utf8mb4 <<'SQL'
+INSERT INTO articles(title,slug,category,excerpt,body,published_at,created_at,updated_at)
+VALUES ('Existing public article','existing-public-article','Agreement','Keep this excerpt','Keep this body',NOW(),NOW(),NOW());
+INSERT INTO videos(title,slug,youtube_id,published_at,created_at,updated_at)
+VALUES ('Existing public video','existing-public-video','dQw4w9WgXcQ',NOW(),NOW(),NOW());
+INSERT INTO portal_conversations(user_id,title,created_at,updated_at) VALUES (2,'Existing private chat',NOW(),NOW());
+INSERT INTO portal_messages(conversation_id,role,content,created_at,updated_at) VALUES (1,'user','Existing private history မြန်မာ 🤝',NOW(),NOW());
+INSERT INTO portal_saved_items(user_id,kind,title,input,output,created_at,updated_at)
+VALUES (2,'capital','Existing saved calculation',JSON_OBJECT('currency','THB'),JSON_OBJECT('total',15000),NOW(),NOW());
+SQL
+reset_installed_portal() {
+    sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" checkout --quiet --detach 450e7e3f0d765117692f14384ddd662982fd2911
+    (cd "$FIXTURE" && sudo env COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction >"$ARTIFACTS/reset.log" 2>&1)
+    (cd "$FIXTURE" && sudo -u www-data php artisan config:clear >/dev/null && sudo -u www-data php artisan route:clear >/dev/null && sudo -u www-data php artisan view:clear >/dev/null)
+}
+run_filament_case() {
+    local fault="$1" result=0
+    set +e
+    OUTPUT="$(sudo env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$FIXTURE" \
+        PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_APP="$FIXTURE" PBR_FIXTURE_PROBE_FAIL="$fault" \
+        bash "$ROOT/scripts/pbr-filament-update.sh" "$TARGET" "$FIXTURE")"
+    result=$?
+    set -e
+    printf '%s\n' "$OUTPUT"
+    local receipt="$(printf '%s\n' "$OUTPUT" | sed -n 's/^FILAMENT_RECEIPT_PATH=//p')"
+    RECEIPTS+=("$receipt")
+    BACKUPS+=("$(printf '%s\n' "$OUTPUT" | sed -n 's/^FRESH_VERIFIED_BACKUP=//p')")
+    if [[ "$result" != 0 && "$fault" == no && -n "$receipt" ]]; then sudo tail -n 50 "$receipt/private.log"; fi
+    CASE_RESULT=$result
+}
+reset_installed_portal
+sudo cp -p "$FIXTURE/.env" "$ARTIFACTS/installed.env"
+run_filament_case no
+[[ "$CASE_RESULT" == 0 && "$OUTPUT" == *PBR_FILAMENT_UPDATE=COMPLETE* && "$OUTPUT" == *FILAMENT_ADMIN_AND_PUBLISHING_FORMS=OK* ]]
+[[ "$OUTPUT" == *EXISTING_CONTENT_ACCOUNTS_CHATS_AND_ACCESS=PRESERVED* && "$OUTPUT" == *SCHEMA_AND_ENVIRONMENT=UNCHANGED* ]]
+[[ "$OUTPUT" != *fixture-admin* && "$OUTPUT" != *DB_PASSWORD* && "$OUTPUT" != *APP_KEY* ]]
+[[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == "$TARGET" ]]
+sudo cmp -s "$FIXTURE/.env" "$ARTIFACTS/installed.env"
+[[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM articles;')" == 1 ]]
+[[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM videos;')" == 1 ]]
+[[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM portal_messages;')" == 1 ]]
+echo "Code-only Filament update, publishing forms and existing content/private data: PASS"
+reset_installed_portal
+run_filament_case yes
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *FILAMENT_CODE_ROLLBACK=OK* && "$OUTPUT" == *PBR_FILAMENT_UPDATE=INCOMPLETE* ]]
+[[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == 450e7e3f0d765117692f14384ddd662982fd2911 ]]
+sudo cmp -s "$FIXTURE/.env" "$ARTIFACTS/installed.env"
+sudo test ! -e "$FIXTURE/storage/framework/down"
+[[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM portal_saved_items;')" == 1 ]]
+[[ "$(sudo mysql -N --database="$FIXTURE_DB" --execute='SELECT COUNT(*) FROM portal_messages;')" == 1 ]]
+[[ "$(sudo mysql -N --execute="SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name LIKE 'pbr_portal_drill_%';")" == 0 ]]
+echo "Failed Filament public probe restores installed portal and retains all private data: PASS"
 
 # Return only code/config to the baseline. The new tables/data stay in place,
 # exercising safe retries without deleting any portal records.

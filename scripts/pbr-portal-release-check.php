@@ -41,7 +41,32 @@ try {
     $app = require $root.'/bootstrap/app.php';
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 
-    if ($mode === 'inspect') {
+    if ($mode === 'filament-inspect') {
+        pbrReleaseRequire($app->environment('production') && parse_url((string) config('app.url'), PHP_URL_HOST) === 'thepbr.io'
+            && config('partner_portal.enabled'), 'INSTALLED_PORTAL_CONFIGURATION_REQUIRED');
+        pbrReleaseRequire(config('app.maintenance.driver') === 'file' && ! $app->maintenanceMode()->active(), 'EXISTING_MAINTENANCE_REQUIRES_REVIEW');
+        $connection = Illuminate\Support\Facades\DB::connection();
+        pbrReleaseRequire($connection->getDriverName() === 'mysql', 'MYSQL_REQUIRED');
+        foreach (['portal_conversations', 'portal_messages', 'portal_saved_items', 'portal_access_events'] as $table) {
+            pbrReleaseRequire(Illuminate\Support\Facades\Schema::hasTable($table), 'INSTALLED_PORTAL_TABLE_MISSING');
+        }
+        $metadata = [
+            'database' => $connection->getDatabaseName(),
+            'socket' => $connection->getPdo()->query('SELECT @@socket')->fetchColumn(),
+            'server' => $connection->getPdo()->query('SELECT @@hostname')->fetchColumn(),
+        ];
+        pbrReleaseRequire(preg_match('/^[A-Za-z0-9_]{1,64}$/D', $metadata['database']) === 1
+            && preg_match('~^/[A-Za-z0-9_./-]+$~D', $metadata['socket']) === 1, 'LOCAL_DATABASE_IDENTIFIER_REQUIRED');
+        $fingerprint = hash('sha256', serialize([
+            config('app.key'), config('app.url'), config('app.display_timezone'), config('partner_portal'),
+            config('session.driver'), config('pbr_ai'), $connection->getConfig(),
+        ]));
+        pbrReleaseRequire(file_put_contents($argv[3], json_encode($metadata, JSON_THROW_ON_ERROR)) !== false
+            && file_put_contents($argv[4], $fingerprint) === strlen($fingerprint), 'CONFIG_FINGERPRINT_WRITE_FAILED');
+        chmod($argv[3], 0600);
+        chmod($argv[4], 0600);
+        echo "LIVE_FILAMENT_CONFIGURATION=OK\n";
+    } elseif ($mode === 'inspect') {
         pbrReleaseRequire($app->environment('production') && parse_url((string) config('app.url'), PHP_URL_HOST) === 'thepbr.io', 'PRODUCTION_APP_MISMATCH');
         pbrReleaseRequire(! config('partner_portal.enabled'), 'PORTAL_ALREADY_ENABLED');
         pbrReleaseRequire(config('app.maintenance.driver') === 'file' && ! $app->maintenanceMode()->active(), 'EXISTING_MAINTENANCE_REQUIRES_REVIEW');

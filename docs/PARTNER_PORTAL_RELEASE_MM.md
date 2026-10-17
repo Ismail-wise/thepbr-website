@@ -1,5 +1,20 @@
 # Partner Portal — Live ချိတ်ဆက်မှု စစ်ဆေးရန်
 
+## မူလ Filament Admin ကို ဆက်သုံးသည့် Update
+
+Admin Login ပြီးလျှင် မူလ `/admin` ကို ပြန်ရောက်ပါမည်။ Filament ရဲ့ Sidebar၊ Dashboard၊ Business / Access / Content အုပ်စုများနှင့် မူလ resources အားလုံး ဆက်ရှိပါမည်။ ပုံမှန် User သည် Portal အသစ်ကို ဆက်သုံးပါမည်။ Admin user menu မှ `Open User Portal` ကို ရွေးနိုင်ပါသည်။
+
+- `Access → Accounts & Access` မှ Pending / Active / Expired / Suspended / Expiring in 7 days ကို စစ်နိုင်ပါသည်။ `Manage → Activate Portal Access` သို့မဟုတ် `Extend Portal Access` တွင် စိတ်ကြိုက်ရက်အရေအတွက် ပေးနိုင်ပါသည်။ `Suspend Portal Access` သည် Portal ဝင်ခွင့်ကို ယာယီရပ်ပြီး AI history / saved results မဖျက်ပါ။ မူလ Account Activate/Deactivate နှင့် Student 1 Year/Lifetime controls များ ဆက်ရှိပါသည်။
+- `Access → Access History` တွင် ဘယ် Admin က ဘယ် account ကို ဘယ်အချိန် ဘယ်လိုပြောင်းခဲ့သလဲ ကြည့်နိုင်ပါသည်။ User တစ်ဦးချင်းစီ၏ `Manage → Access History` မှ တိုက်ရိုက်ကြည့်နိုင်ပါသည်။ ယခင်ထည့်ထားသော `/portal/admin/accounts` link သည် Filament ထဲကို လွှဲပေးပါသည်။
+- `Content → Articles → Create` တွင် ခေါင်းစဉ်၊ အမျိုးအစား၊ အကျဉ်းချုပ်၊ စာကိုယ်နှင့် လိုအပ်လျှင် ပုံထည့်နိုင်ပါသည်။ `published_at` ကို ဗလာထားလျှင် Draft ဖြစ်ပါသည်။ ထိုင်းအချိန်ဖြင့် ဖော်ပြမည့်အချိန် ရောက်လျှင် Public Website ၏ Articles တွင် ပေါ်ပါမည်။
+- `Content → Videos → Create` တွင် မူလအတိုင်း YouTube link သို့မဟုတ် ID ထည့်ပြီး Publish လုပ်နိုင်ပါသည်။ နောင်အချိန်ထားလျှင် ထိုအချိန်ရောက်မှ Public Videos တွင် ပေါ်ပါမည်။ မူလ Article/Video edit နှင့် publishing forms မပြောင်းပါ။
+
+လက်ရှိ Live `450e7e3f0d765117692f14384ddd662982fd2911` မှ ပြင်ဆင်ထားသော commit သို့ update လုပ်ရန် `bash scripts/pbr-filament-update.sh REVIEWED_COMMIT_SHA` ကို server တွင် သုံးပါသည်။ Script ကို reviewed commit မှ download လုပ်ပြီး checksum စစ်ထားရပါမည်။ အောက်ပါ မူလ Portal installer ကို ထပ်မသုံးပါနှင့်။
+
+Filament update သည် database migration၊ seeder၊ environment update မလုပ်ပါ။ သီးခြား SQLite တွင် full tests စမ်းပြီးမှ Maintenance ထားကာ လက်ရှိ Portal ၏ database/config/uploads ကို fresh backup နှင့် isolated restore drill လုပ်ပါသည်။ Actual Filament/Article/Video forms ကို web user ဖြင့် render စစ်ပြီး မူလ content၊ accounts၊ chats၊ access records မပြောင်းကြောင်း တိုက်စစ်ပါသည်။ Public HTTPS probe ကျလျှင် code ကို မူလ installed Portal သို့ ပြန်ထားပါသည်။ Output ၏ `PBR_FILAMENT_UPDATE=COMPLETE` ကို စစ်ပြီးမှ signed-in Admin publishing workflow ကို ဆက်စမ်းပါ။
+
+GitHub CI သည် disposable MySQL fixture ပေါ်တွင် success/rollback နှစ်ခုလုံး စမ်းပါသည်။ Public DNS/HTTPS probes ကို synthetic test double ဖြင့် စမ်းသဖြင့် Live HTTPS အောင်မြင်ကြောင်း CI တစ်ခုတည်းဖြင့် မဆိုလိုပါ။ Browser visual QA နှင့် အမှန်တကယ် signed-in Live UAT သည် သီးခြားစစ်ဆေးရမည်။
+
 ## ပြင်ဆင်ထားသော Code
 
 Repository — `Ismail-wise/thepbr-website`
