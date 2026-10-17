@@ -31,7 +31,7 @@ finish() {
         if [[ $? == 0 ]]; then echo "TEMP_DATABASE_REMOVED=YES"; else cleanup_ok=0; echo "TEMP_DATABASE_REMOVED=NO"; fi
     fi
     if [[ -n "$BACKUP" ]]; then
-        rm -f -- "$BACKUP/drill.cnf" "$BACKUP/restore-check.sql" "$BACKUP/source.sorted" "$BACKUP/restore.sorted"
+        rm -f -- "$BACKUP/drill.cnf" "$BACKUP/restore-check.sql" "$BACKUP/source.schema" "$BACKUP/restore.schema" "$BACKUP/source.rows" "$BACKUP/restore.rows"
         rm -rf -- "$BACKUP/restore-app"
         echo "BACKUP_PATH=$BACKUP"
     fi
@@ -56,7 +56,7 @@ trap 'exit 143' TERM
 
 [[ "$EUID" == 0 ]] || stop "RUN_WITH_SUDO_ON_PBR_SERVER"
 [[ $# -le 1 ]] || stop "EXPECTED_ONE_APP_PATH"
-for executable in php git mysql mysqldump tar gzip openssl sha256sum cmp diff sort flock realpath find du df awk; do
+for executable in php git mysql mysqldump tar gzip openssl sha256sum cmp diff sort sed flock realpath find du df awk; do
     command -v "$executable" >/dev/null || stop "MISSING_${executable^^}"
 done
 APP_ROOT="$(realpath -e -- "$APP_ROOT")"
@@ -144,7 +144,7 @@ echo "STORAGE_SPACE=OK"
 
 STAGE="database_backup"
 echo "STEP=$STAGE"
-DUMP_FLAGS=(--single-transaction --quick --skip-lock-tables --skip-add-locks --skip-comments --skip-triggers --hex-blob --no-tablespaces --default-character-set=utf8mb4 --order-by-primary --skip-extended-insert)
+DUMP_FLAGS=(--single-transaction --quick --skip-lock-tables --skip-add-locks --skip-comments --skip-triggers --hex-blob --no-tablespaces --default-character-set=utf8mb4 --order-by-primary --skip-extended-insert --complete-insert)
 DUMP_HELP="$(mysqldump --help)"
 if [[ "$DUMP_HELP" == *set-gtid-purged* ]]; then DUMP_FLAGS+=(--set-gtid-purged=OFF); fi
 if [[ "$DUMP_HELP" == *column-statistics* ]]; then DUMP_FLAGS+=(--column-statistics=0); fi
@@ -176,12 +176,20 @@ echo "DATABASE_RESTORE=OK"
 RESTORED_COUNT="$("${ADMIN[@]}" --database="$DRILL_DB" --execute='SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE();')"
 [[ "$RESTORED_COUNT" == "$TABLE_COUNT" ]] || stop "RESTORED_TABLE_COUNT_MISMATCH"
 mysqldump --defaults-file="$BACKUP/drill.cnf" "${DUMP_FLAGS[@]}" "$DRILL_DB" >"$BACKUP/restore-check.sql"
-# Sorting tolerates physical row order for tables without a primary key. SQL
-# strings escape newlines; schema and every row must still match exactly.
-LC_ALL=C sort -T "$BACKUP" "$BACKUP/database.sql" >"$BACKUP/source.sorted"
-LC_ALL=C sort -T "$BACKUP" "$BACKUP/restore-check.sql" >"$BACKUP/restore.sorted"
-if ! cmp -s -- "$BACKUP/source.sorted" "$BACKUP/restore.sorted"; then
-    diff -u -- "$BACKUP/source.sorted" "$BACKUP/restore.sorted" >"$BACKUP/database-restore-diff.private" || true
+# MySQL can re-emit an explicit column CHARACTER SET after restore. COLLATE
+# already specifies that charset; normalize only this redundant DDL spelling.
+# Keep schema order intact and compare data separately, with exact row bytes.
+normalize_dump() {
+    local input="$1" label="$2"
+    awk '!/^INSERT INTO / {print}' "$input" \
+        | sed -E '/^  `/s/ CHARACTER SET [A-Za-z0-9_]+ COLLATE / COLLATE /g' >"$BACKUP/$label.schema"
+    awk '/^INSERT INTO / {print}' "$input" | LC_ALL=C sort -T "$BACKUP" >"$BACKUP/$label.rows"
+}
+normalize_dump "$BACKUP/database.sql" source
+normalize_dump "$BACKUP/restore-check.sql" restore
+if ! cmp -s -- "$BACKUP/source.schema" "$BACKUP/restore.schema" || ! cmp -s -- "$BACKUP/source.rows" "$BACKUP/restore.rows"; then
+    diff -u -- "$BACKUP/source.schema" "$BACKUP/restore.schema" >"$BACKUP/database-restore-diff.private" || true
+    diff -u -- "$BACKUP/source.rows" "$BACKUP/restore.rows" >>"$BACKUP/database-restore-diff.private" || true
     stop "DATABASE_ROUNDTRIP_MISMATCH"
 fi
 echo "DATABASE_ROUNDTRIP=OK"
