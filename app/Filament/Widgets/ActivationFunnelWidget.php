@@ -26,6 +26,11 @@ use Illuminate\Support\Facades\DB;
  */
 class ActivationFunnelWidget extends StatsOverviewWidget
 {
+    public static function canView(): bool
+    {
+        return ! config('partner_portal.enabled') && auth()->user()?->isAdmin();
+    }
+
     protected ?string $heading = 'Activation funnel';
 
     protected ?string $description = 'How far people get, from account to agreed business rule.';

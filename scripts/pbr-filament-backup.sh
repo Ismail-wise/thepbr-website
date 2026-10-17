@@ -4,7 +4,7 @@ set -Eeuo pipefail
 umask 077
 
 APP_ROOT="${1:-/var/www/thepbr-laravel}"
-EXPECTED_HEAD="450e7e3f0d765117692f14384ddd662982fd2911"
+EXPECTED_HEAD="${2:-450e7e3f0d765117692f14384ddd662982fd2911}"
 BACKUP_PARENT="/root/thepbr-deploy-backups"
 BACKUP=""
 STAGE="prerequisites"
@@ -55,7 +55,7 @@ trap 'exit 130' INT
 trap 'exit 143' TERM
 
 [[ "$EUID" == 0 ]] || stop "RUN_WITH_SUDO_ON_PBR_SERVER"
-[[ $# -le 1 ]] || stop "EXPECTED_ONE_APP_PATH"
+[[ $# -le 2 && "$EXPECTED_HEAD" =~ ^[a-f0-9]{40}$ ]] || stop "EXPECTED_APP_PATH_AND_OPTIONAL_SOURCE_SHA"
 for executable in php git mysql mysqldump tar gzip openssl sha256sum cmp diff sort sed flock realpath find du df awk; do
     command -v "$executable" >/dev/null || stop "MISSING_${executable^^}"
 done

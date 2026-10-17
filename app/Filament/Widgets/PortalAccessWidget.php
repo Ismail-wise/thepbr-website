@@ -12,7 +12,7 @@ class PortalAccessWidget extends StatsOverviewWidget
 {
     protected static ?int $sort = -1;
 
-    protected ?string $heading = 'Student Portal Access';
+    protected ?string $heading = 'Portal Access';
 
     public static function canView(): bool
     {
@@ -21,7 +21,9 @@ class PortalAccessWidget extends StatsOverviewWidget
 
     protected function getStats(): array
     {
-        $stats = [];
+        $stats = [Stat::make('Total Portal Users', number_format(User::query()
+            ->where('is_admin', false)->where('role', '!=', 'admin')->count()))
+            ->url(UserAccessResource::getUrl('index', panel: 'admin'))];
         foreach (['pending' => 'Pending Approval', 'active' => 'Active Users', 'expiring' => 'Expiring in 7 Days'] as $status => $label) {
             $query = User::query()->where('is_admin', false)->where('role', '!=', 'admin');
             $count = app(StudentPortalAccess::class)->queryForStatus($query, $status)->count();

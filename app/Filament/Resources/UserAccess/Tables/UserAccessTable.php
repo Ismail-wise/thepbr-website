@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\UserAccess\Tables;
 
 use App\Filament\Resources\PortalAccessEvents\PortalAccessEventResource;
+use App\Filament\Resources\StudentEnrollments\StudentEnrollmentResource;
 use App\Models\User;
 use App\Services\AccessAdministrationService;
 use App\Services\Portal\StudentPortalAccess;
@@ -88,6 +89,13 @@ class UserAccessTable
             ])
             ->recordActions([
                 ActionGroup::make([
+                    Action::make('manageEntitlements')
+                        ->label('Manage Year / Lifetime')
+                        ->visible(fn (User $record): bool => config('partner_portal.enabled')
+                            && ! $record->isAdmin() && $record->studentEnrollments->isNotEmpty())
+                        ->url(fn (User $record): string => StudentEnrollmentResource::getUrl('index', [
+                            'tableSearch' => $record->email,
+                        ], panel: 'admin')),
                     Action::make('grantDays')
                         ->label(fn (User $record): string => app(StudentPortalAccess::class)->summary($record)['status'] === 'active'
                             ? 'Extend Portal Access' : 'Activate Portal Access')

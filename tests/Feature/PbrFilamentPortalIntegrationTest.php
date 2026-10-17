@@ -157,7 +157,7 @@ test('Filament status filters use current expiry and authoritative enrollments r
     }
     Livewire::test(ListUserAccess::class)->filterTable('portal_status', 'untrusted')->assertCountTableRecords(0);
     $stats = (new ReflectionMethod(PortalAccessWidget::class, 'getStats'))->invoke(new PortalAccessWidget);
-    expect(array_map(fn ($stat) => $stat->getValue(), $stats))->toBe(['1', '3', '1']);
+    expect(array_map(fn ($stat) => $stat->getValue(), $stats))->toBe(['7', '1', '3', '1']);
 });
 
 test('expiring filter excludes an active lifetime or a longer second entitlement', function (): void {

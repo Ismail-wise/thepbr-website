@@ -5,7 +5,9 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-TARGET="$(git rev-parse HEAD)"
+# Freeze this historical installer regression at the released Filament build.
+# Later releases have their own narrowly scoped update/reset rehearsals.
+TARGET="ca1595f8f758d4e1d3376b19a3639b3c0629197f"
 FIXTURE="$(mktemp -d /tmp/pbr-install-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-install-test-XXXXXXXX)"
 FIXTURE_DB="pbr_install_fixture_$(openssl rand -hex 8)"
