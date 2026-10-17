@@ -117,6 +117,7 @@ if [[ -z "$NODE_BIN" && -x /usr/local/bin/pbr-node ]]; then NODE_BIN=/usr/local/
 "$PHP_BIN" -r 'exit(PHP_VERSION_ID >= 80400 && extension_loaded("pdo_sqlite") && extension_loaded("pdo_mysql") ? 0 : 2);' || stop "PHP_84_SQLITE_MYSQL_REQUIRED"
 id "$WEB_USER" >/dev/null || stop "WEB_PROCESS_USER_MISSING"
 APP_ROOT="$(realpath -e -- "$APP_ROOT")"
+[[ -f "$APP_ROOT/.env" && ! -L "$APP_ROOT/.env" ]] || stop "REGULAR_PRODUCTION_ENV_FILE_REQUIRED"
 VERIFIED_BACKUP="$(realpath -e -- "$VERIFIED_BACKUP")"
 [[ "$VERIFIED_BACKUP" == "$BACKUP_PARENT"/pre-partner-portal-* && -f "$VERIFIED_BACKUP/restore-verified.txt" ]] || stop "VERIFIED_BACKUP_REQUIRED"
 grep -qx "SOURCE_HEAD=$BASE" "$VERIFIED_BACKUP/restore-verified.txt" || stop "BACKUP_SOURCE_MISMATCH"
@@ -183,6 +184,7 @@ echo "STEP=$STAGE"
 release_check inspect "$APP_ROOT" "$VERIFIED_BACKUP/database-meta.json"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$BASE" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_CHANGED_DURING_TESTS"
 cmp -s -- "$APP_ROOT/.env" "$STATE/original.env" || stop "LIVE_ENV_CHANGED_DURING_TESTS"
+[[ ! -L "$APP_ROOT/.env" ]] || stop "LIVE_ENV_LINK_CHANGED_DURING_TESTS"
 MAINTENANCE=1
 artisan down --retry=30 --render=errors::503
 bash "$SOURCE/scripts/pbr-portal-backup.sh" "$APP_ROOT" | tee "$STATE/fresh-backup-output.txt"
@@ -198,7 +200,8 @@ DUMP_FLAGS=(--single-transaction --quick --skip-lock-tables --skip-add-locks --s
 DUMP_HELP="$(mysqldump --help)"
 if [[ "$DUMP_HELP" == *set-gtid-purged* ]]; then DUMP_FLAGS+=(--set-gtid-purged=OFF); fi
 if [[ "$DUMP_HELP" == *column-statistics* ]]; then DUMP_FLAGS+=(--column-statistics=0); fi
-mapfile -t ORIGINAL_TABLES < <("${ADMIN[@]}" --database="$DB_NAME" --execute="SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name NOT IN ('migrations','sessions','cache','cache_locks','jobs','job_batches','failed_jobs') ORDER BY table_name;")
+"${ADMIN[@]}" --database="$DB_NAME" --execute="SELECT table_name FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name NOT IN ('migrations','sessions','cache','cache_locks','jobs','job_batches','failed_jobs') ORDER BY table_name;" >"$STATE/original-tables.txt"
+mapfile -t ORIGINAL_TABLES <"$STATE/original-tables.txt"
 [[ ${#ORIGINAL_TABLES[@]} -gt 0 ]] || stop "ORIGINAL_TABLE_LIST_EMPTY"
 mysqldump --protocol=socket --socket="$DB_SOCKET" --user=root "${DUMP_FLAGS[@]}" "$DB_NAME" "${ORIGINAL_TABLES[@]}" >"$STATE/original-records-before.sql"
 

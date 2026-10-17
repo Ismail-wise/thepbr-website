@@ -109,7 +109,7 @@ try {
         } finally {
             $body->close();
         }
-        pbrReleaseRequire($done && ! $failed && trim($answer) !== '', 'AI_GENERATION_NOT_COMPLETE');
+        pbrReleaseRequire($done && ! $failed && trim($answer) !== '' && trim($buffer) === '', 'AI_GENERATION_NOT_COMPLETE');
         echo "LIVE_AI_GENERATION=OK\n";
         echo 'LIVE_AI_RETRIEVAL='.($rag ? 'rag' : 'unconfirmed')."\n";
         pbrReleaseRequire($rag, 'PBR_KNOWLEDGE_RETRIEVAL_NOT_CONFIRMED');
@@ -131,9 +131,12 @@ try {
         config(['session.driver' => 'array', 'cache.default' => 'array']);
         $request = Illuminate\Http\Request::create('https://thepbr.io/portal');
         $request->setUserResolver(fn () => $admin);
-        $request->setLaravelSession($app['session']->driver('array'));
+        $session = $app['session']->driver('array');
+        $session->start();
+        $request->setLaravelSession($session);
         $app->instance('request', $request);
         $app['url']->setRequest($request);
+        $app['view']->share('errors', new Illuminate\Support\ViewErrorBag);
         Illuminate\Support\Facades\Auth::guard()->setUser($admin);
         $portal = $app->make(App\Http\Controllers\PartnerPortalController::class);
         $home = $portal->home($request, $app->make(App\Services\Portal\StudentPortalAccess::class))->render();
@@ -148,6 +151,8 @@ try {
         throw new RuntimeException('UNKNOWN_RELEASE_CHECK');
     }
 } catch (Throwable $error) {
+    // Installer stderr is a root-private log, never the terminal output.
+    error_log(get_class($error).': '.$error->getMessage());
     // Only our enumerated guard reasons are printable. Provider, database and
     // framework exception messages can contain sensitive configuration.
     $reason = $error instanceof RuntimeException && preg_match('/^[A-Z_]{3,80}$/D', $error->getMessage())
