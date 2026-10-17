@@ -56,7 +56,7 @@ trap 'exit 143' TERM
 
 [[ "$EUID" == 0 ]] || stop "RUN_WITH_SUDO_ON_PBR_SERVER"
 [[ $# -le 1 ]] || stop "EXPECTED_ONE_APP_PATH"
-for executable in php git mysql mysqldump tar gzip openssl sha256sum cmp sort flock realpath find du df awk; do
+for executable in php git mysql mysqldump tar gzip openssl sha256sum cmp diff sort flock realpath find du df awk; do
     command -v "$executable" >/dev/null || stop "MISSING_${executable^^}"
 done
 APP_ROOT="$(realpath -e -- "$APP_ROOT")"
@@ -180,7 +180,10 @@ mysqldump --defaults-file="$BACKUP/drill.cnf" "${DUMP_FLAGS[@]}" "$DRILL_DB" >"$
 # strings escape newlines; schema and every row must still match exactly.
 LC_ALL=C sort -T "$BACKUP" "$BACKUP/database.sql" >"$BACKUP/source.sorted"
 LC_ALL=C sort -T "$BACKUP" "$BACKUP/restore-check.sql" >"$BACKUP/restore.sorted"
-cmp -s -- "$BACKUP/source.sorted" "$BACKUP/restore.sorted" || stop "DATABASE_ROUNDTRIP_MISMATCH"
+if ! cmp -s -- "$BACKUP/source.sorted" "$BACKUP/restore.sorted"; then
+    diff -u -- "$BACKUP/source.sorted" "$BACKUP/restore.sorted" >"$BACKUP/database-restore-diff.private" || true
+    stop "DATABASE_ROUNDTRIP_MISMATCH"
+fi
 echo "DATABASE_ROUNDTRIP=OK"
 
 STAGE="application_backup_and_restore"

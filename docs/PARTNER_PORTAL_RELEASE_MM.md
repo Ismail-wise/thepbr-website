@@ -14,7 +14,7 @@ AI Engine — `Ismail-wise/partner-ai` ရဲ့ `feature/pbr-integration-v1` br
 
 `scripts/pbr-portal-preflight.php` ကို လက်ရှိ Server ပေါ်မှာ run ပါ။ ဒီ script က Read-only စစ်ဆေးပြီး API key၊ Password၊ User အမည်စာရင်းနှင့် Database credentials ကို မထုတ်ပြပါ။
 
-ရလဒ်မှာ လက်ရှိ Laravel/Database အခြေခံရှိမရှိ၊ Admin Account ရှိမရှိ၊ AI service နဲ့ Knowledge Base အဆင်သင့်ဖြစ်မဖြစ်ကို မြင်ရပါမယ်။ Git source HEAD နှင့် working-tree clean/dirty အခြေအနေကိုလည်း သီးခြားစစ်ဖို့လိုပါတယ်။ Server source ကို မစစ်ရသေးသဖြင့် ဒီ branch ကို Live ပေါ် အလိုအလျောက် မတင်ရသေးပါ။
+ရလဒ်မှာ လက်ရှိ Laravel/Database အခြေခံရှိမရှိ၊ Admin Account ရှိမရှိ၊ AI service နဲ့ Knowledge Base အဆင်သင့်ဖြစ်မဖြစ်ကို မြင်ရပါမယ်။ Git source HEAD နှင့် working-tree clean/dirty အခြေအနေကိုလည်း စစ်ပါသည်။ ဒီ branch ကို Live ပေါ် အလိုအလျောက် မတင်ပါ။
 
 ### 2026-10-17 စစ်ဆေးပြီး အခြေအနေ
 

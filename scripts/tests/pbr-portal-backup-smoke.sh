@@ -85,7 +85,10 @@ BACKUP="$(printf '%s\n' "$OUTPUT" | sed -n 's/^BACKUP_PATH=//p')"
 BACKUP_PATHS+=("$BACKUP")
 if [[ "$RESULT" != 0 ]]; then
     # This runner contains only synthetic fixture data and disposable secrets.
-    if [[ -n "$BACKUP" ]]; then sudo tail -n 35 "$BACKUP/private.log"; fi
+    if [[ -n "$BACKUP" ]]; then
+        sudo tail -n 35 "$BACKUP/private.log"
+        if sudo test -f "$BACKUP/database-restore-diff.private"; then sudo head -n 60 "$BACKUP/database-restore-diff.private"; fi
+    fi
     exit "$RESULT"
 fi
 [[ "$OUTPUT" == *PBR_PORTAL_BACKUP=COMPLETE* && "$OUTPUT" == *DATABASE_ROUNDTRIP=OK* && "$OUTPUT" == *APPLICATION_RESTORE_CHECK=OK* ]]
