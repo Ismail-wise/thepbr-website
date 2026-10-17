@@ -18,7 +18,7 @@ class PortalAiController extends Controller
 {
     public function index(Request $request): View
     {
-        $conversations = PortalConversation::query()->where('user_id', $request->user()->id)->latest('updated_at')->paginate(20);
+        $conversations = PortalConversation::query()->where('user_id', $request->user()->id)->latest('updated_at')->paginate(20)->withQueryString();
         $selected = $request->integer('conversation') > 0
             ? PortalConversation::query()->where('user_id', $request->user()->id)->findOrFail($request->integer('conversation'))
             : null;

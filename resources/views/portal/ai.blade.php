@@ -3,8 +3,8 @@
 @section('content')
 <section class="chat-page" id="portal-ai" data-endpoint="{{ route('portal.ai.chat') }}" data-conversation="{{ $selected?->id }}">
     <div class="chat-toolbar"><div><h1>PBR AI</h1><p>Partnership အတွက် စဉ်းစားဖော်၊ ဆွေးနွေးဖော်</p></div><span class="spacer"></span><details class="portal-history"><summary class="btn secondary sm">စကားဝိုင်းများ</summary><div class="history-list">
-        @forelse($conversations as $conversation)<a data-conversation="{{ $conversation->id }}" href="{{ route('portal.ai', ['conversation'=>$conversation->id]) }}">{{ $conversation->title }}</a>@empty<p class="small muted">စကားဝိုင်း မရှိသေးပါ။</p>@endforelse
-        {{ $conversations->links() }}
+        @forelse($conversations as $conversation)<a data-conversation="{{ $conversation->id }}" href="{{ route('portal.ai', ['conversation'=>$conversation->id]) }}">{{ $conversation->title }}</a>@empty<p class="small muted" data-empty-history>စကားဝိုင်း မရှိသေးပါ။</p>@endforelse
+        @include('portal.pagination', ['paginator'=>$conversations])
     </div></details><a class="btn secondary sm" href="{{ route('portal.ai') }}">စကားဝိုင်းအသစ်</a></div>
     <div class="chat-scroll" id="chat-scroll"><div class="message-list" id="portal-messages">
         @forelse($messages as $message)<article class="message {{ $message->role }}"><span class="message-avatar">@include('portal.icon', ['icon'=>$message->role==='assistant'?'spark':'users'])</span><div class="message-body"><div class="portal-reply">{{ $message->content }}</div>@if($message->metadata['incomplete'] ?? false)<small class="error">အဖြေ မပြီးဆုံးသေးပါ။</small>@endif</div></article>

@@ -23,7 +23,7 @@
     </div>
     <span class="access-pill">@include('portal.icon', ['icon'=>'shield'])
         @if(auth()->user()->isAdmin()) Administrator
-        @elseif($access['expires_at']) အသုံးပြုခွင့် {{ $access['expires_at']->format('d M Y, H:i') }} အထိ
+        @elseif($access['expires_at']) အသုံးပြုခွင့် {{ $access['expires_at']->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') }} အထိ
         @else သက်တမ်းမကန့်သတ်ထားသော ဝင်ခွင့် @endif
     </span>
     <div class="launcher-footer"><span>{{ auth()->user()->email }}</span><span>·</span><a href="{{ route('home') }}">Public Website</a>@if(auth()->user()->isAdmin())<span>·</span><a href="/admin">Admin Portal</a>@endif</div>

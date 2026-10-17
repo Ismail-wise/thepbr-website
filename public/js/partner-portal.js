@@ -88,6 +88,7 @@
                             const url = new URL(window.location.href);url.search = '';url.searchParams.set('conversation', String(data.conversationId));window.history.replaceState(null, '', url);
                             const history = document.querySelector('.history-list');
                             if (history && !history.querySelector(`[data-conversation="${data.conversationId}"]`)) {
+                                history.querySelector('[data-empty-history]')?.remove();
                                 const link = document.createElement('a');link.href = url.href;link.dataset.conversation = String(data.conversationId);link.textContent = message.slice(0, 72);history.prepend(link);
                             }
                         } else if (data.type === 'delta' && typeof data.text === 'string') {

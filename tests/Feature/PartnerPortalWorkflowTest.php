@@ -222,3 +222,10 @@ test('feature gate preserves existing public pages and hides the new portal unti
     $this->get(route('portal.access'))->assertNotFound();
     $this->get(route('home'))->assertOk();
 });
+
+test('expiry labels respect the existing Bangkok display timezone while storage remains UTC', function (): void {
+    $this->travelTo(\Carbon\Carbon::parse('2026-10-17 05:00:00', 'UTC'));
+    config(['app.display_timezone' => 'Asia/Bangkok']);
+    $this->actingAs(partnerPortalUser())->get(route('portal.home'))->assertOk()->assertSee('12:00');
+    expect(config('app.timezone'))->toBe('UTC');
+});
