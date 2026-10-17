@@ -11,6 +11,9 @@ class StudentAccessRedemptionController extends Controller
 {
     public function show(Request $request): View|RedirectResponse
     {
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('portal.access');
+        }
         if ($request->user()->isStudent()) {
             return redirect()
                 ->route('student.dashboard')
@@ -26,6 +29,9 @@ class StudentAccessRedemptionController extends Controller
         Request $request,
         StudentAccessUpgradeService $upgradeService,
     ): RedirectResponse {
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('portal.access');
+        }
         $validated = $request->validate([
             'access_code' => ['required', 'string', 'max:40'],
         ]);

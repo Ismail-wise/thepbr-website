@@ -340,3 +340,4 @@ Route::middleware('auth')->group(function (): void {
 });
 
 require __DIR__.'/ai.php';
+require __DIR__.'/partner-portal.php';

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\PbrTools\PbrBusinessOperatingService;
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class StudentPortalController extends Controller
@@ -11,7 +12,10 @@ class StudentPortalController extends Controller
     public function dashboard(
         Request $request,
         PbrBusinessOperatingService $businessOperatingSystem
-    ): View {
+    ): View|RedirectResponse {
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('portal.home');
+        }
         $user = $request->user()->load([
             'ownedWorkspaces',
             'workspaceMemberships.workspace',

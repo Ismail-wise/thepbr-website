@@ -3,12 +3,16 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class AccountController extends Controller
 {
-    public function dashboard(Request $request): View
+    public function dashboard(Request $request): View|RedirectResponse
     {
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('portal.home');
+        }
         $user = $request->user()->load([
             'studentEnrollments.classSession',
             'ownedWorkspaces',

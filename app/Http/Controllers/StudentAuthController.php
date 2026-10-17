@@ -17,13 +17,19 @@ use Illuminate\View\View;
 
 class StudentAuthController extends Controller
 {
-    public function showRegister(): View
+    public function showRegister(): View|RedirectResponse
     {
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('register');
+        }
         return view('student.auth.register');
     }
 
     public function register(Request $request): RedirectResponse
     {
+        if (config('partner_portal.enabled')) {
+            return app(AccountAuthController::class)->register($request);
+        }
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],

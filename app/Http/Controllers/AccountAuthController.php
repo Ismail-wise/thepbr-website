@@ -57,6 +57,9 @@ class AccountAuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
+        if (is_string($request->input('email'))) {
+            $request->merge(['email' => strtolower(trim($request->input('email')))]);
+        }
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:120'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email'],
@@ -80,7 +83,7 @@ class AccountAuthController extends Controller
         $request->session()->regenerate();
 
         return redirect()
-            ->intended(route('account.dashboard'))
+            ->intended(route(config('partner_portal.enabled') ? 'portal.home' : 'account.dashboard'))
             ->with('success', 'Your PBR account has been created successfully.');
     }
 
@@ -97,6 +100,9 @@ class AccountAuthController extends Controller
 
     private function destinationFor(User $user): string
     {
+        if (config('partner_portal.enabled')) {
+            return route('portal.home');
+        }
         if ($user->isAdmin()) {
             return route('account.dashboard');
         }

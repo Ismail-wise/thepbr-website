@@ -26,7 +26,7 @@ class EnsureStudentPortalAccess
         }
 
         return redirect()
-            ->route('home')
+            ->route(config('partner_portal.enabled') ? 'portal.access' : 'home')
             ->withErrors([
                 'email' => 'This account does not currently have PBR Business OS access.',
             ]);
