@@ -138,6 +138,12 @@ jobs:
           bash -n scripts/tests/pbr-workspace-update-smoke.sh
           bash scripts/tests/pbr-workspace-update-smoke.sh
 
+      - name: Validate private Knowledge schema, paired AI rollback and preserved records
+        run: |
+          bash -n scripts/pbr-knowledge-update.sh
+          bash -n scripts/tests/pbr-knowledge-update-smoke.sh
+          bash scripts/tests/pbr-knowledge-update-smoke.sh
+
   assets:
     name: Frontend build
     runs-on: ubuntu-latest

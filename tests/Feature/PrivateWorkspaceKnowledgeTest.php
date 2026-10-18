@@ -181,3 +181,14 @@ test('the historical test reset refuses all real private knowledge and conversat
     expect(fn()=>$cleanup->plan())->toThrow(RuntimeException::class,'PRIVATE_WORKSPACE_DATA_PRESENT');
     expect($cleanup->fingerprint())->toBe($before);
 });
+
+
+test('legacy Workspace deletion cannot leave private originals orphaned and metadata edits honor active AI work',function():void{
+    $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);$source=knowledgeNote($workspace);$this->actingAs($owner);
+    $this->delete(route('workspaces.destroy',$workspace),['confirmation_name'=>$workspace->name])->assertStatus(409);
+    expect($source->fresh())->not->toBeNull();
+    $lock=app(PrivateWorkspaceAccess::class)->lock($workspace);
+    $this->put(route('portal.workspaces.update',$workspace),['name'=>'During chat'])->assertStatus(409);
+    $this->put(route('workspaces.update',$workspace),['name'=>'Legacy during chat'])->assertStatus(409);
+    $lock->release();expect($workspace->fresh()->name)->toBe('Private business');
+});

@@ -68,7 +68,7 @@ class PortalWorkspaceAiController extends Controller
         }
 
         try {
-            $history = $conversation?->messages()->latest('id')->limit(20)->get()->reverse()
+            $history = $conversation?->messages()->latest('id')->limit(20)->get()->reverse()->filter(fn ($row) => ! ($row->metadata['incomplete'] ?? false))
                 ->map(fn ($row): array => ['role' => $row->role, 'content' => $row->content])->values()->all() ?? [];
             $query = $message;
             foreach (array_slice(array_filter($history, fn ($item) => $item['role'] === 'user'), -2) as $prior) $query .= "\n".$prior['content'];

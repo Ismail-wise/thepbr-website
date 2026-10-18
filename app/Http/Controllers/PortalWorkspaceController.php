@@ -72,7 +72,8 @@ class PortalWorkspaceController extends Controller
     {
         $this->owner($request, $workspace);
         $values = $this->values($request);
-        $workspace->update($values + ['business_name' => $values['name']]);
+        $lock = app(\App\Services\Portal\PrivateWorkspaceAccess::class)->lock($workspace);
+        try { $workspace->update($values + ['business_name' => $values['name']]); } finally { $lock->release(); }
 
         return redirect()->route('portal.workspaces.show', $workspace)
             ->with('success', 'Workspace အချက်အလက် သိမ်းပြီးပါပြီ။');

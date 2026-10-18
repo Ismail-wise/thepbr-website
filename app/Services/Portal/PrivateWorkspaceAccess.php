@@ -17,7 +17,7 @@ class PrivateWorkspaceAccess
 
     public function lock(PartnershipWorkspace $workspace): mixed
     {
-        $lock = Cache::lock('private-workspace:'.$workspace->id, max(240, (int) config('pbr_ai.timeout', 180) + 60));
+        $lock = Cache::lock('private-workspace:'.$workspace->id, max(600, (int) config('pbr_ai.timeout', 180) * 3 + 60));
         abort_unless($lock->get(), 409, 'ဒီ Workspace မှာ လုပ်ဆောင်နေဆဲ ရှိပါတယ်။ ခဏနေရင် ထပ်စမ်းပါ။');
 
         return $lock;

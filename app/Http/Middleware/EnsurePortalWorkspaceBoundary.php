@@ -40,7 +40,19 @@ class EnsurePortalWorkspaceBoundary
                 }
             }
         }
-        $response = $next($request);
+        $lock = null;
+        if (isset($workspace) && $workspace instanceof PartnershipWorkspace && in_array($name, ['workspaces.update', 'workspaces.destroy'], true)) {
+            $lock = app(\App\Services\Portal\PrivateWorkspaceAccess::class)->lock($workspace);
+        }
+        try {
+            if ($name === 'workspaces.destroy' && isset($workspace)) {
+                // The old deletion screen has no private-file review step.
+                // The Owner must remove originals through Knowledge first.
+                abort_if(\App\Models\WorkspaceKnowledgeSource::where('workspace_id', $workspace->id)->exists(), 409,
+                    'Workspace မဖျက်ခင် Knowledge မှာ မူရင်းဖိုင်များကို အရင်ဖယ်ပေးပါ။');
+            }
+            $response = $next($request);
+        } finally { $lock?->release(); }
         if ($name === 'workspace-invitations.show' || str_starts_with($name, 'portal.workspaces.')) {
             $response->headers->set('Cache-Control', 'no-store, private');
             $response->headers->set('Referrer-Policy', 'no-referrer');
