@@ -5,7 +5,9 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-TARGET="$(git rev-parse HEAD)"
+# Freeze the source allowlist rehearsal to the reviewed presentation release.
+# Later functional changes need their own deployment scope and fixture.
+TARGET=2ef296b102c9dc6011ec319935a4db8cf6954fe2
 BASE=93da710fa086bf5ae9320250da0011683afd2520
 FIXTURE="$(mktemp -d /tmp/pbr-design-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-design-test-XXXXXXXX)"
