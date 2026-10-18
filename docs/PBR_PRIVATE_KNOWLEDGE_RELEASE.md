@@ -116,3 +116,30 @@ Its AI process, generation and HTTPS calls are explicit synthetic doubles; real
 provider requests are tested by the server installer. Partner AI's own contract
 suite validates its actual private endpoint handlers. Signed-in desktop/mobile
 and original-file review remain a live user acceptance check.
+
+
+## Reviewed release validation
+
+Website release: `2567dc48a3d6d83565a7e078d1274cbf810a276d`.
+Original Partner AI runtime: `a0701941890e57267d2c4ab3ad39e1f0f284ae84`.
+The subsequent website commit only freezes this rehearsal target and records the
+following evidence; it changes no production application or installer code.
+
+- Website push CI: https://github.com/Ismail-wise/thepbr-website/actions/runs/39154185689
+- Website PR CI: https://github.com/Ismail-wise/thepbr-website/actions/runs/39154188375
+- 416 passed, 1 pre-existing skipped, 5,698 assertions. PHP syntax, compiled Blade,
+  hand-written JS, shared CSS parsing (342 rules) and frontend build passed.
+- The actual native Filament form saves a PNG cover and rejects an active SVG.
+  Published Article/Video structured metadata stays valid JSON and cannot close
+  its script tag; titles/descriptions retain their original text.
+- Disposable MySQL backup/restore, four-table migration, record fingerprints,
+  repeats with new private records, debug-off preconditions, AI restart failure,
+  paired code rollback, public-probe failure, safe retry and an unexpected binary
+  mutation held for review all passed. HTTPS and AI process/provider calls in
+  this CI fixture are explicit doubles; the server installer makes the real
+  synthetic-only provider checks before reopening.
+- Original Partner AI contract CI: https://github.com/Ismail-wise/partner-ai/actions/runs/39148812670
+  (6 tests). Documentation-only follow-up CI also passed; its runtime is identical.
+- Installer SHA-256: `389a364dfec093030f19b3fad191b74919e76b78b2a779752a4be4512326ca62`.
+- New signed-in upload/review/Workspace AI and desktop/mobile UAT is pending the
+  production installation. No new production receipt has been supplied yet.

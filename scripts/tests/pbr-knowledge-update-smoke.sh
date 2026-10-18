@@ -5,7 +5,8 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-TARGET="$(git rev-parse HEAD)"
+# Keep future feature changes outside this reviewed deployment rehearsal.
+TARGET=2567dc48a3d6d83565a7e078d1274cbf810a276d
 BASE=c086de86c7bc73094c2b0984ca66cd398c1e572f
 FIXTURE="$(mktemp -d /tmp/pbr-knowledge-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-knowledge-test-XXXXXXXX)"
