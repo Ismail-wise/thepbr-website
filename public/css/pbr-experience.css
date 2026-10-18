@@ -239,8 +239,8 @@ body:is(.pbr-public,.pbr-portal,.pbr-app-shell) :is(input,textarea,select) { scr
 .pbr-app-shell .portal-brand img { border-radius: 12px; background: white; padding: 4px; }
 .pbr-app-shell .portal-nav a { border-radius: 10px; min-height: 42px; display: inline-flex; align-items: center; transition: background .2s,color .2s; }
 .pbr-app-shell .portal-nav a:hover,.pbr-app-shell .portal-nav a.is-active { color: var(--pbr-forest); background: #eaf1e3; }
-.pbr-app-shell :is(.portal-button,.pd-primary-button) { border-radius: 12px; min-height: 47px; background: var(--pbr-forest); color: white; border-color: var(--pbr-forest); box-shadow: 0 5px 12px #14382d0d; transition: transform .2s var(--pbr-ease),box-shadow .2s,background .2s; }
-.pbr-app-shell :is(.portal-button,.pd-primary-button):hover { transform: translateY(-2px); box-shadow: 0 8px 18px #14382d20; background: #124e36; }
+.pbr-app-shell :is(.portal-button:not(.secondary),.pd-primary-button) { border-radius: 12px; min-height: 47px; background: var(--pbr-forest); color: white; border-color: var(--pbr-forest); box-shadow: 0 5px 12px #14382d0d; transition: transform .2s var(--pbr-ease),box-shadow .2s,background .2s; }
+.pbr-app-shell :is(.portal-button:not(.secondary),.pd-primary-button):hover { transform: translateY(-2px); box-shadow: 0 8px 18px #14382d20; background: #124e36; }
 .pbr-app-shell :is(.pd-secondary-button,.portal-button.secondary) { border-radius: 12px; min-height: 45px; }
 .pbr-app-shell .auth-section { padding: clamp(38px,7vh,80px) 22px; background: radial-gradient(ellipse at 85% 5%,#e2ebd7aa,transparent 50%),var(--pbr-ivory); min-height: calc(100dvh - 160px); }
 .pbr-app-shell .auth-shell { max-width: 1080px; grid-template-columns: minmax(0,.9fr) minmax(0,1.1fr); gap: clamp(28px,5vw,72px); padding: 0; background: none; border: 0; border-radius: 0; box-shadow: none; align-items: center; }
