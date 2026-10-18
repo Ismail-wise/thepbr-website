@@ -39,7 +39,10 @@ retains its existing workflow.
 The production baseline is premium release
 2ef296b102c9dc6011ec319935a4db8cf6954fe2. Deployment must verify a fresh backup
 and restore, rehearse the one additive migration on isolated MySQL, and compare
-all pre-existing columns/rows before and after migration. Failure restores code
-and leaves the nullable additive column in place; it never restores an older
-database or runs the previous test reset. Signed-in live UAT remains separate
+all pre-existing columns/rows before and after migration. Public/authentication probes use a temporary Laravel maintenance bypass cookie;
+real visitors stay in maintenance until all checks pass. On failure, unchanged
+records permit a code-only rollback while retaining the nullable additive column.
+Unexpected cutover writes keep the new code in maintenance for review, protecting
+the new access boundary and all data. The script never restores an older database
+or runs the previous test reset. Signed-in live UAT remains separate
 from automated application and disposable MySQL checks.

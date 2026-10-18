@@ -47,6 +47,16 @@ rollback() {
     artisan down --retry=30 --render=errors::503 || ok=0
     artisan filament:clear-cached-components || ok=0
     if [[ "$CODE_ATTEMPTED" == 1 ]]; then
+        # Never reopen the broader old permission model if new business data
+        # arrived during cutover. Preserve it and hold the new code closed.
+        if ! env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-workspace-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json" >>"$STATE/private.log" 2>&1; then
+            echo "WORKSPACE_CODE_ROLLBACK=NEEDS_REVIEW"
+            echo "CUTOVER_RECORDS_CHANGED=REVIEW_REQUIRED"
+            echo "WEBSITE_MAINTENANCE=ON"
+            return 1
+        fi
+    fi
+    if [[ "$CODE_ATTEMPTED" == 1 ]]; then
         git -C "$APP_ROOT" checkout --quiet --detach "$BASE" >>"$STATE/private.log" 2>&1 || ok=0
     fi
     (cd "$APP_ROOT" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1 || ok=0
@@ -72,7 +82,7 @@ finish() {
     if [[ "$COMPLETE" != 1 && "$MAINTENANCE" == 1 ]]; then rollback; fi
     if [[ -n "$STATE" ]]; then
         if ! drop_drill; then echo "ISOLATED_DATABASE_CLEANUP=NEEDS_REVIEW"; result=2; COMPLETE=0; fi
-        rm -f -- "$STATE/drill.cnf"
+        rm -f -- "$STATE/drill.cnf" "$STATE/maintenance.cookies"
         rm -rf -- "$SOURCE"
         echo "WORKSPACE_RECEIPT_PATH=$STATE"
     fi
@@ -177,7 +187,7 @@ echo "STEP=$STAGE"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$BASE" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_CHANGED_DURING_TESTS"
 cmp -s "$APP_ROOT/.env" "$STATE/original.env" || stop "LIVE_ENV_CHANGED_DURING_TESTS"
 MAINTENANCE=1
-artisan down --retry=30 --render=errors::503
+artisan down --retry=30 --render=errors::503 --with-secret
 bash "$SOURCE/scripts/pbr-filament-backup.sh" "$APP_ROOT" "$BASE" | tee "$STATE/backup-output.txt"
 FRESH_BACKUP="$(sed -n 's/^BACKUP_PATH=//p' "$STATE/backup-output.txt")"
 grep -qx 'PBR_PORTAL_BACKUP=COMPLETE' "$STATE/backup-output.txt" || stop "CURRENT_PORTAL_RESTORE_DRILL_INCOMPLETE"
@@ -267,18 +277,28 @@ echo "ENVIRONMENT_AND_ACCOUNT_ACCESS=UNCHANGED"
 
 STAGE=public_website_and_admin_checks
 echo "STEP=$STAGE"
-artisan up
+# Probe the actual front door through Laravel's temporary maintenance bypass.
+# Real visitors remain in maintenance until every route and record check passes.
+[[ -r "$APP_ROOT/storage/framework/down" ]] || stop "FILE_MAINTENANCE_REQUIRED"
+MAINTENANCE_SECRET="$("$PHP_BIN" -r '$d=json_decode(file_get_contents($argv[1]),true,512,JSON_THROW_ON_ERROR); $s=$d["secret"]??""; if(!is_string($s)||!preg_match("/^[A-Za-z0-9]{16,128}$/D",$s)) exit(2); echo $s;' "$APP_ROOT/storage/framework/down")"
+BYPASS_CODE="$(printf 'url = "https://thepbr.io/%s"\n' "$MAINTENANCE_SECRET" | curl --config - -sS --connect-timeout 5 --max-time 20 -c "$STATE/maintenance.cookies" -o /dev/null -w '%{http_code}')"
+unset MAINTENANCE_SECRET
+[[ "$BYPASS_CODE" == 302 || "$BYPASS_CODE" == 303 ]] || stop "MAINTENANCE_BYPASS_UNAVAILABLE"
+grep -q 'laravel_maintenance' "$STATE/maintenance.cookies" || stop "MAINTENANCE_COOKIE_MISSING"
 for path in / /login /articles /videos /classes /admin/login; do
-    code="$(curl -sS -L --max-redirs 3 --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?workspace_release=${TARGET}")"
+    code="$(curl -sS --cookie "$STATE/maintenance.cookies" -L --max-redirs 3 --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?workspace_release=${TARGET}")"
     [[ "$code" == 200 ]] || stop "PUBLIC_OR_ADMIN_HTTPS_CHECK_FAILED"
 done
 for path in /portal /portal/workspaces /admin; do
-    code="$(curl -sS --connect-timeout 5 --max-time 20 -H 'Accept: text/html' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?workspace_release=${TARGET}")"
+    code="$(curl -sS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 20 -H 'Accept: text/html' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?workspace_release=${TARGET}")"
     [[ "$code" == 302 || "$code" == 303 ]] || stop "ANONYMOUS_AUTH_CHECK_FAILED"
 done
+env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-workspace-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json"
+echo "MAINTENANCE_PROBES_BEFORE_REOPEN=YES"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$TARGET" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "FINAL_SOURCE_NOT_CLEAN"
 printf 'TARGET=%s\nBASE=%s\nBACKUP=%s\nCOMPLETED_UTC=%s\n' "$TARGET" "$BASE" "$FRESH_BACKUP" "$(date -u +%FT%TZ)" >"$STATE/update-complete.txt"
 echo "PUBLIC_WEBSITE_AND_ADMIN_HTTPS=OK"
 echo "SIGNED_IN_OWNER_PARTNER_AND_PUBLISHING_UAT=PENDING"
+artisan up
 MAINTENANCE=0
 COMPLETE=1

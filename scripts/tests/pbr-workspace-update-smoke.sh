@@ -84,12 +84,28 @@ SQL
 cat >"$ARTIFACTS/bin/curl" <<'SH'
 #!/usr/bin/env bash
 set -eu
-url=""
-for argument in "$@"; do if [[ "$argument" == https://thepbr.io/* ]]; then url="$argument"; fi; done
-[[ -n "$url" ]] || exit 2
+url="" jar=""
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        --config) [[ "$2" == - ]] || exit 2; config="$(cat)"; url="$(printf '%s\n' "$config" | sed -n 's/^url = "\(.*\)"$/\1/p')"; shift 2;;
+        -c|--cookie-jar) jar="$2"; shift 2;;
+        https://thepbr.io/*) url="$1"; shift;;
+        *) shift;;
+    esac
+done
+[[ -n "$url" && -f "$PBR_FIXTURE_APP/storage/framework/down" ]] || exit 2
+if [[ "$url" =~ ^https://thepbr.io/[A-Za-z0-9]{16,128}$ ]]; then
+    [[ -n "$jar" ]] || exit 2
+    printf '# Netscape HTTP Cookie File\n#HttpOnly_thepbr.io\tFALSE\t/\tTRUE\t0\tlaravel_maintenance\tfixture\n' >"$jar"
+    printf 302
+    exit 0
+fi
 code=200
 if [[ "$url" == https://thepbr.io/portal\?* || "$url" == https://thepbr.io/portal/workspaces\?* || "$url" == https://thepbr.io/admin\?* ]]; then code=302; fi
-if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" == yes && "$url" == https://thepbr.io/articles\?* ]]; then code=500; fi
+if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" != no && "$url" == https://thepbr.io/articles\?* ]]; then
+    if [[ "$PBR_FIXTURE_PROBE_FAIL" == changed ]]; then mysql --database="$PBR_FIXTURE_DB" --execute='UPDATE fixture_keep SET bytes=0x001122ff WHERE id=1;'; fi
+    code=500
+fi
 printf '%s' "$code"
 SH
 chmod +x "$ARTIFACTS/bin/curl"
@@ -98,7 +114,7 @@ run_case() {
     local fault="$1" result=0
     set +e
     OUTPUT="$(sudo env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$FIXTURE" \
-        PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_PROBE_FAIL="$fault" bash "$ROOT/scripts/pbr-workspace-update.sh" "$TARGET" "$FIXTURE")"
+        PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_PROBE_FAIL="$fault" PBR_FIXTURE_APP="$FIXTURE" PBR_FIXTURE_DB="$FIXTURE_DB" bash "$ROOT/scripts/pbr-workspace-update.sh" "$TARGET" "$FIXTURE")"
     result=$?
     set -e
     printf '%s\n' "$OUTPUT"
@@ -111,7 +127,7 @@ run_case() {
 run_case no
 [[ "$CASE_RESULT" == 0 && "$OUTPUT" == *PBR_WORKSPACE_UPDATE=COMPLETE* && "$OUTPUT" == *FILAMENT_ADMIN_AND_PUBLISHING_FORMS=OK* ]]
 [[ "$OUTPUT" == *ALL_PREEXISTING_RECORDS=PRESERVED* && "$OUTPUT" == *ONLY_REVIEWED_ADDITIVE_SCHEMA=YES* ]]
-[[ "$OUTPUT" == *ISOLATED_MYSQL_WORKSPACE_MIGRATION=OK* && "$OUTPUT" == *REHEARSAL_ACCOUNT_ISOLATED=YES* ]]
+[[ "$OUTPUT" == *ISOLATED_MYSQL_WORKSPACE_MIGRATION=OK* && "$OUTPUT" == *REHEARSAL_ACCOUNT_ISOLATED=YES* && "$OUTPUT" == *MAINTENANCE_PROBES_BEFORE_REOPEN=YES* ]]
 [[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == "$TARGET" ]]
 sudo env -i PATH="$PATH" php "$ROOT/scripts/pbr-workspace-release-check.php" verify "$FIXTURE" "$ARTIFACTS/original-projection.json" "$ARTIFACTS/original-records.json"
 sudo cmp -s "$ARTIFACTS/original.env" "$FIXTURE/.env"
@@ -142,4 +158,15 @@ run_case no
 [[ "$CASE_RESULT" == 0 && "$OUTPUT" == *PBR_WORKSPACE_UPDATE=COMPLETE* ]]
 sudo env -i PATH="$PATH" php "$ROOT/scripts/pbr-workspace-release-check.php" verify "$FIXTURE" "$ARTIFACTS/current-projection.json" "$ARTIFACTS/current-records.json"
 echo 'Retry after rollback safely reuses the recorded additive migration: PASS'
+(cd "$FIXTURE" && sudo -u www-data php artisan filament:clear-cached-components >/dev/null)
+sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" checkout --quiet --detach "$BASE"
+(cd "$FIXTURE" && sudo env COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction >"$ARTIFACTS/reset.log" 2>&1)
+(cd "$FIXTURE" && sudo -u www-data php artisan config:clear >/dev/null && sudo -u www-data php artisan route:clear >/dev/null && sudo -u www-data php artisan view:clear >/dev/null)
+(cd "$FIXTURE" && sudo -u www-data php artisan filament:cache-components >/dev/null)
+run_case changed
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *WORKSPACE_CODE_ROLLBACK=NEEDS_REVIEW* && "$OUTPUT" == *CUTOVER_RECORDS_CHANGED=REVIEW_REQUIRED* ]]
+sudo test -f "$FIXTURE/storage/framework/down"
+[[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == "$TARGET" ]]
+[[ "$(sudo mysql --database="$FIXTURE_DB" --batch --skip-column-names --execute='SELECT HEX(bytes) FROM fixture_keep WHERE id=1;')" == 001122FF ]]
+echo 'Unexpected cutover writes stay intact and keep maintenance/new access rules closed for review: PASS'
 echo PBR_WORKSPACE_UPDATE_SMOKE=PASS
