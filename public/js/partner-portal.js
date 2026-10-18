@@ -27,6 +27,17 @@
         });
     }
 
+    document.querySelectorAll('[data-knowledge-submit]').forEach(knowledgeForm => {
+        knowledgeForm.addEventListener('submit', event => {
+            // Keep the clicked submitter enabled until the browser captures its
+            // name/value (approve vs draft). Disable on the next event-loop turn.
+            const progress = knowledgeForm.querySelector('[data-knowledge-progress]');
+            if (event.submitter?.value === 'approve' && !knowledgeForm.querySelector('[name="reviewed"]')?.checked) return;
+            if (progress) progress.textContent = 'သိမ်းဆည်းနေပါတယ်။ ဖိုင်ဖတ်ယူမှုနဲ့ AI ပြင်ဆင်မှုအတွက် ခဏစောင့်ပေးပါ…';
+            window.setTimeout(() => knowledgeForm.querySelectorAll('button').forEach(button => button.disabled = true), 0);
+        });
+    });
+
     const root = document.getElementById('portal-ai');
     if (!root) return;
     const form = document.getElementById('portal-chat-form');
@@ -36,6 +47,22 @@
     const status = document.getElementById('portal-chat-status');
     const send = document.getElementById('portal-send');
     let busy = false;
+    function showSources(body, sources) {
+        if (!Array.isArray(sources) || !sources.length) return;
+        const details = document.createElement('details');details.className = 'pbr-ai-sources';
+        const summary = document.createElement('summary');summary.textContent = `အဖြေအတွက် ရွေးပေးထားသော Knowledge · ${sources.length}`;
+        const list = document.createElement('ul');
+        for (const source of sources) {
+            const row = document.createElement('li'), label = `[${String(source.reference)}] ${String(source.title)}`;
+            let target = null;
+            try { target = new URL(source.url, window.location.origin); } catch { /* deleted source */ }
+            if (source.url && target && target.origin === window.location.origin && target.pathname.startsWith('/portal/workspaces/')) {
+                const link = document.createElement('a');link.href = target.href;link.textContent = label;row.append(link);
+            } else row.textContent = label;
+            const note = document.createElement('small');note.textContent = String(source.business_status || '');row.append(note);list.append(row);
+        }
+        details.append(summary, list);body.append(details);
+    }
     function scroll() {
         const area = document.getElementById('chat-scroll');area.scrollTop = area.scrollHeight;
     }
@@ -86,6 +113,7 @@
                         if (data.type === 'meta' && Number.isInteger(data.conversationId)) {
                             root.dataset.conversation = String(data.conversationId);
                             const url = new URL(window.location.href);url.search = '';url.searchParams.set('conversation', String(data.conversationId));window.history.replaceState(null, '', url);
+                            if (root.dataset.workspace) showSources(assistantBubble.reply.parentElement, data.sources);
                             const history = document.querySelector('.history-list');
                             if (history && !history.querySelector(`[data-conversation="${data.conversationId}"]`)) {
                                 history.querySelector('[data-empty-history]')?.remove();
@@ -106,7 +134,7 @@
             }
             buffer += decoder.decode();consume();
             if (upstreamError || !completed || !text.trim()) throw new Error(upstreamError || 'AI အဖြေ မပြီးဆုံးသေးပါ။ ထပ်စမ်းပါ။');
-            input.value = '';status.textContent = 'သင့် Account ထဲမှာ စကားဝိုင်းကို သိမ်းပြီးပါပြီ။';
+            input.value = '';status.textContent = root.dataset.workspace ? `${root.dataset.workspace} · စကားဝိုင်း သိမ်းပြီးပါပြီ။` : 'သင့် Account ထဲမှာ စကားဝိုင်းကို သိမ်းပြီးပါပြီ။';
         } catch (problem) {
             error.textContent = problem.name === 'AbortError' ? 'AI အဖြေစောင့်ရတာ ကြာနေပါတယ်။ ခဏနေရင် ထပ်စမ်းပါ။' : problem.message;
             status.textContent = 'ပြန်စမ်းနိုင်ပါတယ်။';

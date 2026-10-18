@@ -8,7 +8,7 @@
     <title>@yield('title', 'Partner Portal') — thePBR</title>
     <link rel="icon" href="{{ asset('images/pbr-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/partner-portal.css') }}?v=20261017">
-    <script defer src="{{ asset('js/partner-portal.js') }}?v=20261017"></script>
+    <script defer src="{{ asset('js/partner-portal.js') }}?v=20261019"></script>
     @include('partials.premium-assets')
 </head>
 <body class="pbr-portal">

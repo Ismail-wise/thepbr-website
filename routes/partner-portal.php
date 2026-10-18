@@ -17,6 +17,19 @@ Route::middleware('auth')->prefix('portal')->name('portal.')->group(function ():
         Route::get('/{workspace}/edit', [$controller, 'edit'])->name('edit');
         Route::put('/{workspace}', [$controller, 'update'])->name('update');
         Route::get('/{workspace}/partners', [$controller, 'partners'])->name('partners');
+        $knowledge = \App\Http\Controllers\PortalKnowledgeController::class;
+        Route::get('/{workspace}/knowledge', [$knowledge, 'index'])->name('knowledge.index');
+        Route::get('/{workspace}/knowledge/create', [$knowledge, 'create'])->name('knowledge.create');
+        Route::post('/{workspace}/knowledge', [$knowledge, 'store'])->middleware('throttle:20,1')->name('knowledge.store');
+        Route::get('/{workspace}/knowledge/{source}', [$knowledge, 'show'])->name('knowledge.show');
+        Route::put('/{workspace}/knowledge/{source}', [$knowledge, 'update'])->middleware('throttle:20,1')->name('knowledge.update');
+        Route::post('/{workspace}/knowledge/{source}/extract', [$knowledge, 'extract'])->middleware('throttle:10,1')->name('knowledge.extract');
+        Route::get('/{workspace}/knowledge/{source}/original', [$knowledge, 'download'])->name('knowledge.download');
+        Route::delete('/{workspace}/knowledge/{source}', [$knowledge, 'destroy'])->name('knowledge.destroy');
+        $ai = \App\Http\Controllers\PortalWorkspaceAiController::class;
+        Route::get('/{workspace}/ai', [$ai, 'index'])->name('ai');
+        Route::post('/{workspace}/ai/chat', [$ai, 'chat'])->middleware('throttle:20,1')->name('ai.chat');
+        Route::delete('/{workspace}/ai/{conversation}', [$ai, 'destroy'])->name('ai.destroy');
     });
     Route::middleware(EnsurePartnerPortalAccess::class)->group(function (): void {
         Route::get('/', [PartnerPortalController::class, 'home'])->name('home');
