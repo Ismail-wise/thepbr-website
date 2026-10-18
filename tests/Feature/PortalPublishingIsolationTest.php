@@ -35,6 +35,8 @@ test('published Article metadata and paragraphs cannot inject script into an Own
     Article::create(['title'=>$payload,'slug'=>'safe-article-metadata','category'=>'Agreement','excerpt'=>$description,'body'=>$payload,'published_at'=>now()->subMinute()]);
     $owner=User::factory()->create(['role'=>'student','account_status'=>'active']);
     $response=$this->actingAs($owner)->get('/articles/safe-article-metadata')->assertOk()->assertDontSee('<script data-owner-leak>',false);
+    $dom=new DOMDocument;@$dom->loadHTML('<?xml encoding="UTF-8">'.$response->getContent());
+    expect($dom->getElementsByTagName('title')->item(0)->textContent)->toStartWith($payload);
     $graphs=collect(publicationGraphs($response->getContent()));
     expect($graphs->firstWhere('@type','Article')['headline'])->toBe($payload)
         ->and($graphs->firstWhere('@type','Article')['description'])->toBe($description)

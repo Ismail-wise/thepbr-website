@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="robots" content="noindex,nofollow">
-    <title>{{ $__env->yieldContent('title', 'Partner Portal') }} — thePBR</title>
+    <title>@yield('title', 'Partner Portal') — thePBR</title>
     <link rel="icon" href="{{ asset('images/pbr-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/partner-portal.css') }}?v=20261017">
     <script defer src="{{ asset('js/partner-portal.js') }}?v=20261019"></script>

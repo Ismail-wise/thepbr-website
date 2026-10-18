@@ -18,11 +18,13 @@
     produced a social card pointing at an image that does not exist.
 --}}
 @php
-    $seoTitle = trim($__env->yieldContent('title', 'thePBR — Partnership Business Rules'));
-    $seoDescription = trim($__env->yieldContent(
+    // Inline Blade sections have already been HTML-escaped. Normalize text
+    // once, then escape for each destination (attributes vs JSON-LD).
+    $seoTitle = html_entity_decode(trim($__env->yieldContent('title', 'thePBR — Partnership Business Rules')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $seoDescription = html_entity_decode(trim($__env->yieldContent(
         'description',
         'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။'
-    ));
+    )), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $seoType = trim($__env->yieldContent('og_type', 'website'));
 
     // url()->current() drops the query string on purpose: ?utm_source=... and
