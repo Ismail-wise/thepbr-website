@@ -132,6 +132,12 @@ jobs:
           bash -n scripts/tests/pbr-design-update-smoke.sh
           bash scripts/tests/pbr-design-update-smoke.sh
 
+      - name: Validate owner Workspace migration and code rollback on disposable MySQL
+        run: |
+          bash -n scripts/pbr-workspace-update.sh
+          bash -n scripts/tests/pbr-workspace-update-smoke.sh
+          bash scripts/tests/pbr-workspace-update-smoke.sh
+
   assets:
     name: Frontend build
     runs-on: ubuntu-latest

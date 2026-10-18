@@ -190,6 +190,9 @@ test('an invitation only partner completes original dynamics but cannot use any 
     $this->get(route('portal.workspaces.show', $workspace))->assertForbidden();
     Http::assertNothingSent();
     $this->actingAs($owner)->get(route('partner-dynamics.result', $assessment))->assertForbidden();
+    $this->get(route('workspaces.partner-dynamics.show', $workspace))->assertNotFound();
+    $this->post(route('workspaces.partner-dynamics.report.generate', $workspace))->assertNotFound();
+    $this->get(route('workspaces.partner-dynamics.profile', [$workspace, $assessment]))->assertNotFound();
 });
 
 test('all legacy workspace routes deny partners and unrelated admins even with old broad permissions', function (): void {
@@ -220,7 +223,7 @@ test('removal closes invitation only access immediately while preserving assessm
     expect(\App\Models\PartnerDynamicsAssessment::where('user_id', $partner->id)->count())->toBe(1);
     $student = privateWorkspaceStudent();
     $enrollment = StudentEnrollment::create(['user_id' => $student->id, 'status' => 'active', 'started_at' => now(), 'access_expires_at' => now()->addDays(24)]);
-    $before = $enrollment->getAttributes();
+    $before = $enrollment->fresh()->getAttributes();
     [$membership, $token] = privateWorkspaceInvitation($workspace, $student);
     $this->actingAs($student)->post(route('workspace-invitations.accept', $token))->assertRedirect(route('portal.home'));
     $this->actingAs($owner)->delete(route('workspace-members.destroy', [$workspace, $membership]))->assertRedirect();

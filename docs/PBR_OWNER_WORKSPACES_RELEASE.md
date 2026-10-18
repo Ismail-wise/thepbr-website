@@ -25,7 +25,9 @@ not bypass this restriction. Revoke/remove applies immediately; multiple accepte
 memberships and independent Student entitlements remain independent. Student
 expiry removes Student tools; a separate accepted invitation may still permit
 personal PartnerDynamics. No other participant's assessment is exposed by an
-invitation. Team result sharing awaits explicit consent/scope design.
+invitation. Legacy Workspace team report/profile endpoints are unavailable in the new portal
+until explicit result-sharing consent/scope is designed. Personal scoring stays
+unchanged.
 
 Application Admin continues original Filament account management and Article,
 Video and Class Session publishing. Admin privileges do not bypass the private

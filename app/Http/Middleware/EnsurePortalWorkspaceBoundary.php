@@ -29,6 +29,9 @@ class EnsurePortalWorkspaceBoundary
             if ($workspace instanceof PartnershipWorkspace) {
                 abort_unless((int) $workspace->owner_user_id === (int) $user->id, 403);
             }
+            // Team reports previously inferred consent from membership alone.
+            // This release grants only personal Dynamics; sharing is separate.
+            abort_if(str_starts_with($name, 'workspaces.partner-dynamics.'), 404);
             if ($request->isMethod('get')) {
                 if (in_array($name, ['workspaces.index', 'workspaces.create', 'workspaces.show', 'workspaces.edit'], true)) {
                     $route = str_replace('workspaces.', 'portal.workspaces.', $name);
