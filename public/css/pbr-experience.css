@@ -343,6 +343,7 @@ html.dark body.fi-body { --pbr-ivory: #101e19; --pbr-admin-surface: #182a22; --p
   .pbr-app-shell .auth-card .form-grid { grid-template-columns: 1fr; gap: 0; }
 }
 @media (max-width: 360px) {
+  .pbr-portal .pbr-user-chip { display: none; }
   .pbr-portal .launcher-app { padding: 19px 12px; }
   .pbr-portal .launcher-app strong { font-size: 13px; }
   .pbr-portal .launcher-app small { font-size: 11px; }
