@@ -105,6 +105,13 @@ jobs:
       - name: Run Pest
         run: ./vendor/bin/pest --ci
 
+      - name: Validate private Knowledge schema, paired AI rollback and preserved records
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-knowledge-update.sh
+          bash -n scripts/tests/pbr-knowledge-update-smoke.sh
+          bash scripts/tests/pbr-knowledge-update-smoke.sh
+
       - name: Validate backup and isolated MySQL restore on a disposable fixture
         # The full app tests above still use SQLite only. This separate check
         # creates a synthetic local database on the disposable Actions runner.
@@ -137,12 +144,6 @@ jobs:
           bash -n scripts/pbr-workspace-update.sh
           bash -n scripts/tests/pbr-workspace-update-smoke.sh
           bash scripts/tests/pbr-workspace-update-smoke.sh
-
-      - name: Validate private Knowledge schema, paired AI rollback and preserved records
-        run: |
-          bash -n scripts/pbr-knowledge-update.sh
-          bash -n scripts/tests/pbr-knowledge-update-smoke.sh
-          bash scripts/tests/pbr-knowledge-update-smoke.sh
 
   assets:
     name: Frontend build

@@ -82,6 +82,13 @@ try {
             knowledgeRequire(Schema::hasTable($table), 'KNOWLEDGE_SCHEMA_INCOMPLETE');
             if (! array_key_exists($table, $projection)) knowledgeRequire(DB::table($table)->count() === 0, 'NEW_KNOWLEDGE_ROWS_DURING_CUTOVER');
         }
+        $newColumns = [
+            'workspace_knowledge_sources' => ['id','workspace_id','title','kind','business_status','processing_status','extracted_text','reviewed_text','file_path','original_filename','mime_type','file_bytes','file_sha256','extracted_partial','revision','embedding_key','ready_at','created_at','updated_at'],
+            'workspace_knowledge_chunks' => ['id','workspace_id','source_id','revision','content','embedding','embedding_key'],
+            'workspace_ai_conversations' => ['id','workspace_id','user_id','title','knowledge_signature','created_at','updated_at'],
+            'workspace_ai_messages' => ['id','conversation_id','role','content','metadata','created_at','updated_at'],
+        ];
+        foreach ($newColumns as $table => $columns) knowledgeRequire(Schema::getColumnListing($table) === $columns, 'UNEXPECTED_PRIVATE_SCHEMA');
         knowledgeRequire(DB::table('migrations')->where('migration', KNOWLEDGE_MIGRATION)->count() === 1, 'MIGRATION_JOURNAL_INCOMPLETE');
         echo "ALL_PREEXISTING_RECORDS=PRESERVED\nONLY_REVIEWED_ADDITIVE_SCHEMA=YES\n";
     } elseif ($mode === 'render') {

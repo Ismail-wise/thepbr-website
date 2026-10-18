@@ -54,7 +54,7 @@ class EnsurePortalWorkspaceBoundary
             $response = $next($request);
         } finally { $lock?->release(); }
         if ($name === 'workspace-invitations.show' || str_starts_with($name, 'portal.workspaces.')) {
-            $response->headers->set('Cache-Control', 'no-store, private');
+            $response->headers->set('Cache-Control', str_contains((string) $response->headers->get('Content-Type'), 'text/event-stream') ? 'no-store, private, no-transform' : 'no-store, private');
             $response->headers->set('Referrer-Policy', 'no-referrer');
         }
 

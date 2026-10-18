@@ -56,7 +56,8 @@ ai_health() {
     return 1
 }
 ai_cache_verify() {
-    (cd "$AI_CACHE_DIR" && sha256sum --check --status "$STATE/ai-cache.sha256") &&
+    (cd "$AI_CACHE_DIR" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) >"$STATE/ai-cache-current.sha256" &&
+    cmp -s "$STATE/ai-cache.sha256" "$STATE/ai-cache-current.sha256" &&
     cmp -s /etc/pbr-ai-advisor.env "$STATE/ai-original.env" && cmp -s /etc/systemd/system/pbr-ai-advisor.service "$STATE/ai-original.service"
 }
 rollback() {
@@ -231,6 +232,9 @@ done < <(git -C "$AI_SOURCE" diff --name-only "$AI_BASE" "$AI_TARGET")
 "$AI_NODE" --check "$AI_SOURCE/pbr-service.js"
 "$AI_NODE" --check "$AI_SOURCE/private-knowledge.js"
 "$AI_NODE" --test "$AI_SOURCE/tests/private-knowledge.test.js" >>"$STATE/private.log" 2>&1
+AI_BYTES="$(du -sb --exclude=node_modules "$AI_DIR" "$AI_CACHE_DIR" | awk '{s+=$1} END {print s}')"
+AI_FREE="$(df -Pk "$STATE" | awk 'NR==2 {print $4*1024}')"
+awk -v free="$AI_FREE" -v bytes="$AI_BYTES" 'BEGIN {exit !(free > bytes*3+1073741824)}' || stop "AI_BACKUP_DISK_SPACE_INSUFFICIENT"
 echo "ORIGINAL_PARTNER_AI_PRIVATE_CONTRACT=OK"
 
 
@@ -376,6 +380,9 @@ for path in /portal /portal/workspaces /admin; do
     [[ "$code" == 302 || "$code" == 303 ]] || stop "ANONYMOUS_AUTH_CHECK_FAILED"
 done
 env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-knowledge-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json"
+cmp -s "$APP_ROOT/.env" "$STATE/original.env" || stop "FINAL_LARAVEL_CONFIGURATION_CHANGED"
+ai_cache_verify || stop "FINAL_AI_CONFIGURATION_OR_CACHE_CHANGED"
+[[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_TARGET" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "FINAL_AI_SOURCE_NOT_CLEAN"
 echo "MAINTENANCE_PROBES_BEFORE_REOPEN=YES"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$TARGET" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "FINAL_SOURCE_NOT_CLEAN"
 printf 'TARGET=%s\nBASE=%s\nBACKUP=%s\nCOMPLETED_UTC=%s\n' "$TARGET" "$BASE" "$FRESH_BACKUP" "$(date -u +%FT%TZ)" >"$STATE/update-complete.txt"
