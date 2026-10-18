@@ -52,7 +52,7 @@ class PortalKnowledgeController extends Controller
             'title' => ['required', 'string', 'max:160'],
             'business_status' => ['required', Rule::in(array_keys(WorkspaceKnowledgeSource::BUSINESS_STATUSES))],
             'content' => ['required_without:file', 'nullable', 'string', 'max:60000'],
-            'file' => ['required_without:content', 'nullable', 'prohibited_with:content', 'file',
+            'file' => ['required_without:content', 'nullable', Rule::prohibitedIf(fn () => filled($request->input('content'))), 'file',
                 'mimetypes:application/pdf,image/jpeg,image/png,image/webp,text/plain', 'max:'.config('pbr_knowledge.upload_kb', 10240)],
         ]);
         abort_if(trim($values['title']) === '', 422);

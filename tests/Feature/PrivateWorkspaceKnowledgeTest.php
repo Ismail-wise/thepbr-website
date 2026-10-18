@@ -26,18 +26,20 @@ function knowledgeWorkspace(User $owner, string $name = 'Private business'): Par
 }
 function knowledgeNote(PartnershipWorkspace $workspace, string $text = 'Owner confidential text', array $extra = []): WorkspaceKnowledgeSource
 {
-    return WorkspaceKnowledgeSource::create($extra + ['workspace_id'=>$workspace->id,'title'=>'Owner note','kind'=>'text','business_status'=>'current','processing_status'=>'needs_review','reviewed_text'=>$text,'extracted_text'=>$text]);
+    return WorkspaceKnowledgeSource::create($extra + ['workspace_id'=>$workspace->id,'title'=>'Owner note','kind'=>'text','business_status'=>'current','processing_status'=>'needs_review','reviewed_text'=>$text,'extracted_text'=>$text])->fresh();
 }
 function knowledgeApprove($test, PartnershipWorkspace $workspace, WorkspaceKnowledgeSource $source, array $extra = []): void
 {
     $test->put(route('portal.workspaces.knowledge.update', [$workspace,$source]), $extra + ['title'=>$source->title,'content'=>$source->reviewed_text,'business_status'=>$source->business_status,'revision'=>$source->revision,'action'=>'approve','reviewed'=>1])->assertRedirect();
 }
-function knowledgeFakeAi(string $sse = "data: {\"type\":\"delta\",\"text\":\"Owner advice [S1]\"}\n\ndata: {\"type\":\"done\"}\n\n"): void
+function knowledgeFakeAi(string $sse = "data: {\"type\":\"delta\",\"text\":\"Owner advice [S1]\"}\n\ndata: {\"type\":\"done\"}\n\n", bool $failExtraction = false): void
 {
-    Http::fake(function (ClientRequest $request) use ($sse) {
+    Http::swap(new \Illuminate\Http\Client\Factory);
+    Http::preventStrayRequests();
+    Http::fake(function (ClientRequest $request) use ($sse, $failExtraction) {
         if (str_ends_with($request->url(), '/health')) return Http::response(['service'=>'pbr-ai-advisor','knowledgeReady'=>true,'vectors'=>657,'privateKnowledgeProtocol'=>1]);
         if (str_ends_with($request->url(), '/private/embed')) return Http::response(['vectors'=>array_map(fn ($text)=>array_fill(0,128,0.25), $request['texts']), 'embeddingKey'=>'test:128:private-v1']);
-        if (str_ends_with($request->url(), '/private/extract')) return Http::response(['text'=>'မြန်မာ PDF 250,000','partial'=>false]);
+        if (str_ends_with($request->url(), '/private/extract')) return $failExtraction ? Http::response(['error'=>'PRIVATE PROVIDER PAYLOAD'],503) : Http::response(['text'=>'မြန်မာ PDF 250,000','partial'=>false]);
         if (str_ends_with($request->url(), '/internal/pbr/chat')) return Http::response($sse,200,['Content-Type'=>'text/event-stream']);
         throw new RuntimeException('Unexpected isolated HTTP request');
     });
@@ -135,7 +137,7 @@ test('editing or deleting knowledge stops reuse of obsolete private answers and 
 
 test('extraction failures preserve originals and manual review can recover without exposing provider errors',function():void{
     $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);$this->actingAs($owner);
-    knowledgeFakeAi();Http::fake(['http://127.0.0.1:3107/internal/pbr/private/extract'=>Http::response(['error'=>'PRIVATE PROVIDER PAYLOAD'],503)]);
+    knowledgeFakeAi(failExtraction: true);
     $this->post(route('portal.workspaces.knowledge.store',$workspace),['title'=>'Scan','business_status'=>'current','file'=>UploadedFile::fake()->createWithContent('scan.pdf',"%PDF-1.7\nprivate")])->assertRedirect();
     $source=WorkspaceKnowledgeSource::firstOrFail();expect($source->processing_status)->toBe('extraction_failed');Storage::disk('workspace_private')->assertExists($source->file_path);
     $this->get(route('portal.workspaces.knowledge.show',[$workspace,$source]))->assertOk()->assertDontSee('PRIVATE PROVIDER PAYLOAD');
@@ -170,4 +172,12 @@ test('partial streams remain marked incomplete and private model changes require
     $source->update(['embedding_key'=>'changed-model']);
     $this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'New chat'])->assertStatus(503);
     expect(WorkspaceAiConversation::count())->toBe(1);
+});
+
+
+test('the historical test reset refuses all real private knowledge and conversations',function():void{
+    $owner=knowledgeOwner();knowledgeOwner(['is_admin'=>true,'role'=>'admin']);$workspace=knowledgeWorkspace($owner);knowledgeNote($workspace);
+    $cleanup=app(\App\Services\Portal\PortalTestDataCleanup::class);$before=$cleanup->fingerprint();
+    expect(fn()=>$cleanup->plan())->toThrow(RuntimeException::class,'PRIVATE_WORKSPACE_DATA_PRESENT');
+    expect($cleanup->fingerprint())->toBe($before);
 });

@@ -14,6 +14,8 @@ class PortalTestDataCleanup
 
     private const VOLATILE_TABLES = ['sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'];
 
+    private const PRIVATE_TABLES = ['workspace_knowledge_sources', 'workspace_knowledge_chunks', 'workspace_ai_conversations', 'workspace_ai_messages'];
+
     private const RELATED_TABLES = [
         'users', 'partnership_workspaces', 'workspace_members', 'student_enrollments', 'student_access_codes',
         'chapter_progress', 'tool_sessions', 'workspace_tool_outputs', 'workspace_tool_actions',
@@ -99,9 +101,12 @@ class PortalTestDataCleanup
                 }
             }
         }
+        foreach (self::PRIVATE_TABLES as $table) {
+            if (in_array($table, $tables, true)) $this->require($this->db->table($table)->count() === 0, 'PRIVATE_WORKSPACE_DATA_PRESENT');
+        }
         foreach ($foreignKeys as $key) {
             $this->require(! in_array($key->parent_table, self::RELATED_TABLES, true)
-                || in_array($key->child_table, self::RELATED_TABLES, true), 'UNREVIEWED_DATA_DEPENDENCY');
+                || in_array($key->child_table, array_merge(self::RELATED_TABLES, self::PRIVATE_TABLES), true), 'UNREVIEWED_DATA_DEPENDENCY');
         }
         $this->require(! in_array('jobs', $tables, true) || $this->db->table('jobs')->count() === 0, 'PENDING_JOBS_REQUIRE_REVIEW');
     }
