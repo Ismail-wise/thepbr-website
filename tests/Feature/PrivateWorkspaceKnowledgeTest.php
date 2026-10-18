@@ -32,13 +32,13 @@ function knowledgeApprove($test, PartnershipWorkspace $workspace, WorkspaceKnowl
 {
     $test->put(route('portal.workspaces.knowledge.update', [$workspace,$source]), $extra + ['title'=>$source->title,'content'=>$source->reviewed_text,'business_status'=>$source->business_status,'revision'=>$source->revision,'action'=>'approve','reviewed'=>1])->assertRedirect();
 }
-function knowledgeFakeAi(string $sse = "data: {\"type\":\"delta\",\"text\":\"Owner advice [S1]\"}\n\ndata: {\"type\":\"done\"}\n\n", bool $failExtraction = false): void
+function knowledgeFakeAi(string $sse = "data: {\"type\":\"delta\",\"text\":\"Owner advice [S1]\"}\n\ndata: {\"type\":\"done\"}\n\n", bool $failExtraction = false, array $queryVector = []): void
 {
     Http::swap(new \Illuminate\Http\Client\Factory);
     Http::preventStrayRequests();
-    Http::fake(function (ClientRequest $request) use ($sse, $failExtraction) {
+    Http::fake(function (ClientRequest $request) use ($sse, $failExtraction, $queryVector) {
         if (str_ends_with($request->url(), '/health')) return Http::response(['service'=>'pbr-ai-advisor','knowledgeReady'=>true,'vectors'=>657,'privateKnowledgeProtocol'=>1]);
-        if (str_ends_with($request->url(), '/private/embed')) return Http::response(['vectors'=>array_map(fn ($text)=>array_fill(0,128,0.25), $request['texts']), 'embeddingKey'=>'test:128:private-v1']);
+        if (str_ends_with($request->url(), '/private/embed')) return Http::response(['vectors'=>array_map(fn ($text)=>$request['mode']==='query' && $queryVector !== [] ? $queryVector : array_fill(0,128,0.25), $request['texts']), 'embeddingKey'=>'test:128:private-v1']);
         if (str_ends_with($request->url(), '/private/extract')) return $failExtraction ? Http::response(['error'=>'PRIVATE PROVIDER PAYLOAD'],503) : Http::response(['text'=>'မြန်မာ PDF 250,000','partial'=>false]);
         if (str_ends_with($request->url(), '/internal/pbr/chat')) return Http::response($sse,200,['Content-Type'=>'text/event-stream']);
         throw new RuntimeException('Unexpected isolated HTTP request');
@@ -191,4 +191,30 @@ test('legacy Workspace deletion cannot leave private originals orphaned and meta
     $this->put(route('portal.workspaces.update',$workspace),['name'=>'During chat'])->assertStatus(409);
     $this->put(route('workspaces.update',$workspace),['name'=>'Legacy during chat'])->assertStatus(409);
     $lock->release();expect($workspace->fresh()->name)->toBe('Private business');
+});
+
+
+test('long Burmese questions keep the full user message while retrieval stays within the multilingual embedding budget',function():void{
+    $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);$source=knowledgeNote($workspace);$this->actingAs($owner);knowledgeFakeAi();knowledgeApprove($this,$workspace,$source);
+    $question=str_repeat('မြန်မာ ',600).' FULL QUESTION END';
+    $response=$this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>$question]);$response->assertOk();$response->streamedContent();
+    Http::assertSent(fn(ClientRequest $r)=>str_ends_with($r->url(),'/internal/pbr/chat') && $r['message']===$question);
+    Http::assertSent(fn(ClientRequest $r)=>str_ends_with($r->url(),'/private/embed') && $r['mode']==='query' && mb_strlen($r['texts'][0])<=1800);
+});
+
+
+test('source references stay stable when a followup retrieves a different document first',function():void{
+    $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);$this->actingAs($owner);knowledgeFakeAi();
+    $a=knowledgeNote($workspace,'Agreement A');$b=knowledgeNote($workspace,'Agreement B');knowledgeApprove($this,$workspace,$a);knowledgeApprove($this,$workspace,$b);
+    $va=array_fill(0,128,0.0);$va[0]=1.0;$vb=array_fill(0,128,0.0);$vb[1]=1.0;
+    WorkspaceKnowledgeChunk::where('source_id',$a->id)->update(['embedding'=>json_encode($va)]);
+    WorkspaceKnowledgeChunk::where('source_id',$b->id)->update(['embedding'=>json_encode($vb)]);
+    config(['pbr_knowledge.retrieval_chunks'=>1]);knowledgeFakeAi(queryVector:$va);
+    $first=$this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'Agreement A?']);$first->assertOk();$first->streamedContent();
+    $chat=WorkspaceAiConversation::firstOrFail();$answer=$chat->messages()->where('role','assistant')->latest('id')->first();
+    expect($answer->metadata['sources'][0]['id'])->toBe($a->id)->and($answer->metadata['sources'][0]['reference'])->toBe('S1');
+    knowledgeFakeAi("data: {\"type\":\"delta\",\"text\":\"Agreement B [S2]\"}\n\ndata: {\"type\":\"done\"}\n\n",queryVector:$vb);
+    $second=$this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'Agreement B?','conversation_id'=>$chat->id]);$second->assertOk();$second->streamedContent();
+    $answer=$chat->messages()->where('role','assistant')->latest('id')->first();
+    expect($answer->metadata['sources'][0]['id'])->toBe($b->id)->and($answer->metadata['sources'][0]['reference'])->toBe('S2');
 });

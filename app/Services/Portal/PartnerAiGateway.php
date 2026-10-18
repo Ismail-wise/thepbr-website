@@ -15,7 +15,7 @@ class PartnerAiGateway
         if ($url === '' || strlen($secret) < 32) throw new RuntimeException('PRIVATE_AI_NOT_CONFIGURED');
         $health = Http::connectTimeout(3)->timeout(5)->get($url.'/health');
         if (! $health->successful() || $health->json('service') !== 'pbr-ai-advisor'
-            || $health->json('knowledgeReady') !== true || $health->json('privateKnowledgeProtocol') !== 1) {
+            || $health->json('knowledgeReady') !== true || (int) $health->json('vectors') < 1 || $health->json('privateKnowledgeProtocol') !== 1) {
             throw new RuntimeException('PRIVATE_AI_PROTOCOL_NOT_READY');
         }
         $request = Http::withHeaders(['X-PBR-Internal-Secret' => $secret])
@@ -42,7 +42,7 @@ class PartnerAiGateway
         $result = $this->privateRequest('/internal/pbr/private/embed', ['texts' => array_values($texts), 'mode' => $mode])->json();
         $vectors = $result['vectors'] ?? null;
         $key = $result['embeddingKey'] ?? null;
-        if (! is_array($vectors) || count($vectors) !== count($texts) || ! is_string($key) || strlen($key) > 160) {
+        if (! is_array($vectors) || count($vectors) !== count($texts) || ! is_string($key) || trim($key) === '' || strlen($key) > 160) {
             throw new RuntimeException('PRIVATE_EMBEDDING_INVALID');
         }
         $dimensions = null;

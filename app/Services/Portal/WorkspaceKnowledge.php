@@ -59,7 +59,7 @@ class WorkspaceKnowledge
 
     public function retrieve(PartnershipWorkspace $workspace, string $question, PartnerAiGateway $gateway): array
     {
-        $sources = $this->sources($workspace)->where('processing_status', 'ready')->get()->keyBy('id');
+        $sources = $this->sources($workspace)->where('processing_status', 'ready')->orderBy('id')->get()->keyBy('id');
         if ($sources->isEmpty()) return ['sources' => [], 'excerpts' => []];
         $embedding = $gateway->embedPrivate([$question], 'query');
         // A changed model/dimension requires explicit re-approval, never comparison
@@ -67,6 +67,9 @@ class WorkspaceKnowledge
         foreach ($sources as $source) {
             if ($source->embedding_key !== $embedding['key']) throw new RuntimeException('KNOWLEDGE_REINDEX_REQUIRED');
         }
+        // Stable source labels across follow-up answers. Any approved-set change
+        // invalidates the conversation signature before its history is reused.
+        $labels = array_flip($sources->keys()->all());
         $best = [];
         foreach (WorkspaceKnowledgeChunk::where('workspace_id', $workspace->id)->whereIn('source_id', $sources->keys())->cursor() as $chunk) {
             $source = $sources->get($chunk->source_id);
@@ -84,7 +87,7 @@ class WorkspaceKnowledge
             $source = $sources->get($id);
             if (! isset($references[$id])) {
                 $references[$id] = ['id' => $source->id, 'revision' => $source->revision,
-                    'reference' => 'S'.(count($references) + 1), 'title' => $source->title,
+                    'reference' => 'S'.($labels[$id] + 1), 'title' => $source->title,
                     'business_status' => $source->business_status];
             }
             $selected[] = ['reference' => $references[$id]['reference'], 'business_status' => $source->business_status, 'text' => $chunk->content];

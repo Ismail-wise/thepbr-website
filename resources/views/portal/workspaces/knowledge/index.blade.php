@@ -3,7 +3,7 @@
 @section('content')
 <section class="page">
     @include('portal.workspaces.tabs')
-    <div class="page-header"><div><span class="eyebrow">YOUR BUSINESS, IN CONTEXT</span><h1>Knowledge</h1><p>{{ $workspace->name }} · Owner သီးသန့်</p></div><a class="btn" href="{{ route('portal.workspaces.knowledge.create', $workspace) }}">@include('portal.icon', ['icon'=>'plus']) Knowledge ထည့်မယ်</a></div>
+    <div class="page-header"><div><span class="eyebrow">YOUR BUSINESS, IN CONTEXT</span><h1>Knowledge</h1><p>{{ $workspace->name }} · Owner သီးသန့်</p></div><a class="btn" href="{{ route('portal.workspaces.knowledge.create', $workspace) }}">@include('portal.icon', ['icon'=>'folder']) Knowledge ထည့်မယ်</a></div>
     <p class="muted pbr-knowledge-intro">လုပ်ငန်းအချက်အလက်၊ သဘောတူညီချက်၊ မှတ်တမ်းတွေကို သိမ်းထားပါ။ သင်စစ်ပြီး အတည်ပြုထားတဲ့ စာသားကိုပဲ ဒီ Workspace ရဲ့ PBR AI က သုံးပါတယ်။</p>
     <div class="pbr-knowledge-list">
     @forelse($sources as $source)

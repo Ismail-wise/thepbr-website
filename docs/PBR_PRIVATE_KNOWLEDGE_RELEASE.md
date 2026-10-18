@@ -23,7 +23,7 @@ approve facts automatically. Knowledge is not published to the public website.
 The Workspace PBR AI page names the selected business, shows its approved source
 count and keeps its own chat history. It combines the original Partner AI shared
 partnership expertise with selected approved excerpts from this Workspace. It
-returns source references such as [S1]; the Owner can follow the authorized source
+returns stable source references such as [S1], including across follow-up answers; the Owner can follow the authorized source
 and download the original. The source list is labeled as material supplied to the
 answer, not proof every listed source was actually cited or that the whole library
 was audited. Changed revisions and removed sources are identified in old chats.
@@ -64,7 +64,8 @@ cannot process data, nor that their backups/retention policies have changed.
 There is no invented account/Workspace count or subscription storage quota. The
 initial per-request technical bounds are 10 MiB per upload (also subject to the
 existing PHP/web-server limit), 60,000 reviewed characters, 1,800-character chunks
-with overlap, and up to 12 excerpts per question. Long or unclear extraction must
+with overlap, a bounded 1,800-character retrieval query and up to 12 excerpts per
+question. The complete user question still reaches the advice model. Long or unclear extraction must
 be checked by the Owner. Retrieval is a bounded selection; the initial scoped
 MySQL cursor implementation does not claim an exhaustive review of every source.
 

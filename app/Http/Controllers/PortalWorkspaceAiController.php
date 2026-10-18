@@ -72,7 +72,7 @@ class PortalWorkspaceAiController extends Controller
                 ->map(fn ($row): array => ['role' => $row->role, 'content' => $row->content])->values()->all() ?? [];
             $query = $message;
             foreach (array_slice(array_filter($history, fn ($item) => $item['role'] === 'user'), -2) as $prior) $query .= "\n".$prior['content'];
-            $retrieved = $this->knowledge->retrieve($workspace, mb_substr($query, 0, 7500), $gateway);
+            $retrieved = $this->knowledge->retrieve($workspace, mb_substr($query, 0, 1800), $gateway);
             $sources = $retrieved['sources'];
             $links = $this->citationLinks($workspace, $sources);
             $upstream = $gateway->openWorkspace($message, $history, [
@@ -92,7 +92,9 @@ class PortalWorkspaceAiController extends Controller
             $lock->release();
             // Never log upstream private prompts, file data or responses.
 
-            return response()->json(['message' => 'PBR AI ကို ခဏဆက်သွယ်လို့မရသေးပါ။ Admin နှင့် စစ်ဆေးပြီး ထပ်စမ်းပါ။'], 503);
+            return response()->json(['message' => $error->getMessage() === 'KNOWLEDGE_REINDEX_REQUIRED'
+                ? 'Knowledge မှတ်တမ်းတွေကို ဖွင့်ပြီး AI သုံးရန် ပြန်အတည်ပြုပေးပါ။'
+                : 'PBR AI ကို ခဏဆက်သွယ်လို့မရသေးပါ။ Admin နှင့် စစ်ဆေးပြီး ထပ်စမ်းပါ။'], 503);
         }
 
         return response()->stream(function () use ($conversation, $userMessage, $upstream, $lock, $sources, $links): void {
