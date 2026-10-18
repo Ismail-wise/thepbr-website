@@ -9,17 +9,18 @@
     <link rel="icon" href="{{ asset('images/pbr-logo.png') }}">
     <link rel="stylesheet" href="{{ asset('css/partner-portal.css') }}?v=20261017">
     <script defer src="{{ asset('js/partner-portal.js') }}?v=20261017"></script>
+    @include('partials.premium-assets')
 </head>
-<body>
+<body class="pbr-portal">
 <a class="skip-link" href="#main">အဓိကအကြောင်းအရာသို့</a>
 <div class="portal-shell">
     <header class="portal-topbar">
-        <a class="logo" href="{{ route('home') }}"><span class="logo-mark"><img src="{{ asset('images/pbr-logo.png') }}" alt="thePBR"></span><span><span class="logo-name">thePBR<span style="color:#8ba380">.</span></span><span class="logo-sub" style="display:block">PARTNER PORTAL</span></span></a>
+        <a class="logo" href="{{ route('home') }}" aria-label="thePBR — Public Website"><span class="logo-mark"><img src="{{ asset('images/pbr-logo.png') }}" alt=""></span><span><span class="logo-name">thePBR<span class="pbr-logo-dot">.</span></span><span class="logo-sub" style="display:block">PARTNER PORTAL</span></span></a>
         <div class="top-actions">
             @if(auth()->user()->hasActivePortalAccess() && !request()->routeIs('portal.home'))
                 <a class="btn ghost sm" href="{{ route('portal.home') }}">@include('portal.icon', ['icon'=>'back']) Apps</a>
             @endif
-            <span class="portal-person">{{ auth()->user()->name }}</span>
+            <span class="pbr-user-chip"><span class="pbr-user-avatar" aria-hidden="true">{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}</span><span class="portal-person">{{ auth()->user()->name }}</span></span>
             <form method="post" action="{{ route('logout') }}">@csrf<button class="icon-btn" aria-label="Log Out">@include('portal.icon', ['icon'=>'logout'])</button></form>
         </div>
     </header>

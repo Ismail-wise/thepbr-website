@@ -13,12 +13,13 @@
     if (auth()->user()->isAdmin()) $apps[] = ['Admin Portal', 'မူလ Filament မှ ဝင်ခွင့်နှင့် Content စီမံရန်', 'shield', route('filament.admin.pages.dashboard'), 'tone-gold'];
 @endphp
 <section class="launcher">
+    <span class="pbr-launcher-seal">PARTNERSHIP BUSINESS</span>
     <span class="eyebrow">YOUR PARTNERSHIP SPACE</span>
     <h1>မင်္ဂလာပါ၊ {{ auth()->user()->name }}။</h1>
     <p class="lead">ဒီနေ့ ဘာလုပ်ချင်ပါသလဲ?<br>အသုံးပြုချင်တဲ့ App ကို ရွေးပါ။</p>
     <div class="launcher-grid" aria-label="Partnership Apps">
         @foreach($apps as [$label,$description,$icon,$url,$tone])
-        <a class="launcher-app {{ $tone }}" href="{{ $url }}"><span class="app-symbol">@include('portal.icon', ['icon'=>$icon])</span><strong>{{ $label }}</strong><small>{{ $description }}</small></a>
+        <a class="launcher-app {{ $tone }}" href="{{ $url }}"><span class="app-symbol">@include('portal.icon', ['icon'=>$icon])</span><span class="pbr-app-arrow">@include('portal.icon', ['icon'=>'arrow-up-right'])</span><strong>{{ $label }}</strong><small>{{ $description }}</small></a>
         @endforeach
     </div>
     <span class="access-pill">@include('portal.icon', ['icon'=>'shield'])

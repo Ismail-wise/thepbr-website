@@ -26,7 +26,8 @@
         </div>
 
         <div class="auth-card">
-            <form method="POST" action="{{ route('register.store') }}" novalidate>
+            <h2 class="pbr-auth-card-heading">Your account details</h2>
+            <form method="POST" action="{{ route('register.store') }}" data-pbr-loading novalidate>
                 @csrf
 
                 <div class="field">

@@ -11,6 +11,7 @@
         'logout' => 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4 M16 17l5-5-5-5 M21 12H9',
         'send' => 'm22 2-7 20-4-9-9-4 20-7Z M22 2 11 13',
         'spark' => 'm12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3L12 3Z',
+        'arrow-up-right' => 'M7 17 17 7 M7 7h10v10',
     ];
 @endphp
 <svg class="icon" viewBox="0 0 24 24" aria-hidden="true"><path d="{{ $paths[$icon ?? 'spark'] ?? $paths['spark'] }}"/></svg>

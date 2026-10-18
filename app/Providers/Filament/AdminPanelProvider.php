@@ -31,6 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->renderHook('panels::head.end', fn () => view('partials.premium-assets'))
             ->userMenuItems([
                 Action::make('openUserPortal')
                     ->label('Open User Portal')

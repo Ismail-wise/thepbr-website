@@ -8,19 +8,22 @@
         <div class="auth-copy">
             <span class="portal-kicker">PBR Account</span>
             <h1>Welcome back</h1>
-            <p>Use one account to access the public website, Student Portal, invited workspaces, and the Admin Portal when permitted.</p>
+            <p>သင့် Partnership ဆိုင်ရာ လေ့လာမှု၊ ဆွေးနွေးမှုနဲ့ သိမ်းထားတဲ့ ရလဒ်တွေကို ဆက်အသုံးပြုဖို့ Login ဝင်ပါ။</p>
             <div class="auth-note">
                 New to thePBR?
                 <a href="{{ route('register', request()->filled('email') ? ['email' => request('email')] : []) }}">Create a public account</a>
             </div>
+            @unless(config('partner_portal.enabled'))
             <div class="auth-note">
                 Have a new student access code?
                 <a href="{{ route('student.register') }}">Create a student account</a>
             </div>
+            @endunless
         </div>
 
         <div class="auth-card">
-            <form method="POST" action="{{ route('login.store') }}" novalidate>
+            <h2 class="pbr-auth-card-heading">Log in to your account</h2>
+            <form method="POST" action="{{ route('login.store') }}" data-pbr-loading novalidate>
                 @csrf
 
                 <div class="field">

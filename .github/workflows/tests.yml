@@ -126,6 +126,12 @@ jobs:
           bash -n scripts/tests/pbr-portal-reset-smoke.sh
           bash scripts/tests/pbr-portal-reset-smoke.sh
 
+      - name: Validate premium presentation update and rollback on disposable MySQL
+        run: |
+          bash -n scripts/pbr-design-update.sh
+          bash -n scripts/tests/pbr-design-update-smoke.sh
+          bash scripts/tests/pbr-design-update-smoke.sh
+
   assets:
     name: Frontend build
     runs-on: ubuntu-latest
