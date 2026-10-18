@@ -186,7 +186,8 @@ while IFS= read -r path; do
         config/filesystems.php|config/pbr_knowledge.php|routes/partner-portal.php|\
         public/css/pbr-experience.css|public/js/partner-portal.js|resources/views/portal/ai.blade.php|\
         resources/views/portal/layout.blade.php|resources/views/portal/workspaces/*|\
-        resources/views/partials/seo.blade.php|resources/views/articles/show.blade.php|resources/views/videos/show.blade.php|\
+        resources/views/layouts/site.blade.php|resources/views/partials/seo.blade.php|\
+        resources/views/articles/show.blade.php|resources/views/videos/show.blade.php|\
         app/Filament/Resources/Articles/Schemas/ArticleForm.php|\
         "$MIGRATION"|scripts/pbr-knowledge-update.sh|scripts/pbr-knowledge-release-check.php|\
         scripts/fixtures/*|scripts/tests/pbr-knowledge-update-smoke.sh|scripts/tests/pbr-workspace-update-smoke.sh|\

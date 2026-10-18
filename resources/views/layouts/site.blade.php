@@ -31,8 +31,8 @@
       $portalUrl = route('student.dashboard');
       $portalLabel = 'Student Portal';
   } elseif ($currentUser?->hasAcceptedPartnerWorkspaceMembership()) {
-      $portalUrl = route('workspaces.index');
-      $portalLabel = 'My Workspace';
+      $portalUrl = config('partner_portal.enabled') ? route('portal.home') : route('workspaces.index');
+      $portalLabel = config('partner_portal.enabled') ? 'Partner Dynamics' : 'My Workspace';
   } elseif ($currentUser) {
       $portalUrl = route('account.dashboard');
       $portalLabel = 'My Account';

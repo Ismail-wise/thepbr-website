@@ -52,7 +52,9 @@ Public and portal document titles/descriptions are escaped; Article/Video and
 organization JSON-LD uses HTML-safe JSON encoding. These close stored-script
 injection paths from public publishing metadata into an Owner's signed-in browser.
 Public Article covers allow bitmap images, not active SVG documents. Native
-Article/Video draft, edit and publish workflows and stored content remain.
+Article/Video draft, edit and publish workflows and stored content remain. The
+public-site account link sends invitation-only Partners to their Dynamics launcher
+rather than the legacy business URL.
 Source and answer text render as escaped text; model output cannot create arbitrary
 links, HTML or script. Only server-authorized source IDs produce citation links.
 

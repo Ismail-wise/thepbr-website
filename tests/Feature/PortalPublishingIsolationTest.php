@@ -72,3 +72,13 @@ test('native Article publishing keeps bitmap covers and rejects active SVG uploa
     Livewire::test(CreateArticle::class)->fillForm($fields+['slug'=>'active-cover','cover_image'=>$svg])->call('create')->assertHasFormErrors();
     expect(Article::where('slug','active-cover')->exists())->toBeFalse();
 });
+
+
+test('the public site sends invitation only Partners back to their Dynamics launcher',function():void{
+    $owner=User::factory()->create(['role'=>'student','account_status'=>'active']);
+    $partner=User::factory()->create(['role'=>'public','account_status'=>'active']);
+    $workspace=PartnershipWorkspace::create(['owner_user_id'=>$owner->id,'name'=>'Owner business','status'=>'active']);
+    $workspace->memberships()->create(['user_id'=>$partner->id,'member_role'=>'partner','invitation_status'=>'accepted','invited_email'=>$partner->email,'permissions'=>['partner_dynamics_only']]);
+    $this->actingAs($partner)->get('/')->assertOk()->assertSee('href="'.route('portal.home').'"',false)->assertSee('Partner Dynamics')->assertDontSee('href="'.route('workspaces.index').'"',false);
+    $this->get(route('portal.home'))->assertOk()->assertSee('Partner Dynamics-only Access');
+});
