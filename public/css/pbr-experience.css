@@ -222,7 +222,7 @@ body:is(.pbr-public,.pbr-portal,.pbr-app-shell) :is(input,textarea,select) { scr
 .pbr-portal .chat-compose { padding: 13px clamp(16px,4vw,44px) max(17px,env(safe-area-inset-bottom)); background: linear-gradient(0deg,#fafbf6 85%,#fafbf600); }
 .pbr-portal .composer { padding: 13px 15px 13px 20px; border: 1px solid #c8d6be; border-radius: 21px; background: #fffefa; box-shadow: 0 8px 25px #14382d0a; }
 .pbr-portal .composer:focus-within { border-color: #70965e; box-shadow: 0 0 0 4px #e6eddd,0 8px 25px #14382d07; }
-.pbr-portal .composer textarea { line-height: 1.9; font-size: 15px; }
+.pbr-portal .composer textarea { line-height: 1.9; font-size: 16px; }
 .pbr-portal .send-btn { width: 46px; height: 46px; border-radius: 14px; background: linear-gradient(145deg,#2a7450,#145433); transition: transform .2s,box-shadow .2s; }
 .pbr-portal .send-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 5px 12px #14543330; }
 .pbr-portal .compose-caption { font-size: 11px; color: #5e7453; line-height: 1.9; }
