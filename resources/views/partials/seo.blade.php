@@ -78,7 +78,7 @@
 <meta name="twitter:image" content="{{ $seoImage }}">
 
 @hasSection('published_time')
-    <meta property="article:published_time" content="@yield('published_time')">
+    <meta property="article:published_time" content="{{ $__env->yieldContent('published_time') }}">
 @endif
 
 {{-- Organization: tells Google what thePBR is, once, on every page. --}}
@@ -95,7 +95,7 @@
         ['@type' => 'Country', 'name' => 'Myanmar'],
         ['@type' => 'Country', 'name' => 'Thailand'],
     ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}
 </script>
 
 @stack('schema')

@@ -48,6 +48,11 @@ scoring, invitation-only access and result-sharing restrictions remain.
 The dedicated filesystem disk has `serve=false`, private visibility and no public
 storage symlink. Random server filenames, MIME restrictions, integrity checks,
 forced attachment delivery, no-store/no-referrer and nosniff protect originals.
+Public and portal document titles/descriptions are escaped; Article/Video and
+organization JSON-LD uses HTML-safe JSON encoding. These close stored-script
+injection paths from public publishing metadata into an Owner's signed-in browser.
+Public Article covers allow bitmap images, not active SVG documents. Native
+Article/Video draft, edit and publish workflows and stored content remain.
 Source and answer text render as escaped text; model output cannot create arbitrary
 links, HTML or script. Only server-authorized source IDs produce citation links.
 

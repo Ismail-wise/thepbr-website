@@ -186,6 +186,9 @@ while IFS= read -r path; do
         config/filesystems.php|config/pbr_knowledge.php|routes/partner-portal.php|\
         public/css/pbr-experience.css|public/js/partner-portal.js|resources/views/portal/ai.blade.php|\
         resources/views/portal/layout.blade.php|resources/views/portal/workspaces/*|\
+        resources/views/layouts/site.blade.php|resources/views/layouts/student-portal.blade.php|\
+        resources/views/partials/seo.blade.php|resources/views/articles/show.blade.php|resources/views/videos/show.blade.php|\
+        app/Filament/Resources/Articles/Schemas/ArticleForm.php|\
         "$MIGRATION"|scripts/pbr-knowledge-update.sh|scripts/pbr-knowledge-release-check.php|\
         scripts/fixtures/*|scripts/tests/pbr-knowledge-update-smoke.sh|scripts/tests/pbr-workspace-update-smoke.sh|\
         tests/*|docs/*|.github/workflows/tests.yml) ;;
@@ -201,6 +204,7 @@ cmp -s "$STATE/database-meta.json" "$STATE/uncached-database-meta.json" || stop 
 env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
 env -i PATH="$PATH" APP_CONFIG_CACHE="$STATE/uncached-config-check.php" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
 echo "PUBLIC_CONTENT_AND_ASSESSMENT_SCORING=PRESERVED"
+echo "PUBLIC_PUBLISHING_OUTPUT_ENCODING=HARDENED"
 
 STAGE=isolated_private_knowledge_and_publishing_tests
 echo "STEP=$STAGE"

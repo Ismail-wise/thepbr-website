@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>@yield('title', 'thePBR — Partnership Business Rules')</title>
-<meta name="description" content="@yield('description', 'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။')">
+<title>{{ $__env->yieldContent('title', 'thePBR — Partnership Business Rules') }}</title>
+<meta name="description" content="{{ $__env->yieldContent('description', 'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။') }}">
 <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
 @include('partials.seo')
 @if(request()->routeIs('videos.*'))
