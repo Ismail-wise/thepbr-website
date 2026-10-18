@@ -5,7 +5,9 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-TARGET="$(git rev-parse HEAD)"
+# Pin this migration/access rehearsal to its reviewed release.
+# Later knowledge/AI changes have a separate deployment scope.
+TARGET=c086de86c7bc73094c2b0984ca66cd398c1e572f
 BASE=2ef296b102c9dc6011ec319935a4db8cf6954fe2
 FIXTURE="$(mktemp -d /tmp/pbr-workspace-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-workspace-test-XXXXXXXX)"
