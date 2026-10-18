@@ -198,6 +198,8 @@ env -i PATH="$PATH" APP_CONFIG_CACHE="$STATE/uncached-config.php" "$PHP_BIN" -d 
     "$SOURCE/scripts/pbr-portal-release-check.php" filament-inspect "$APP_ROOT" "$STATE/uncached-database-meta.json" "$STATE/uncached-config.sha"
 cmp -s "$STATE/cached-config.sha" "$STATE/uncached-config.sha" || stop "CACHED_ENVIRONMENT_CONFIG_MISMATCH"
 cmp -s "$STATE/database-meta.json" "$STATE/uncached-database-meta.json" || stop "CACHED_DATABASE_MISMATCH"
+env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
+env -i PATH="$PATH" APP_CONFIG_CACHE="$STATE/uncached-config-check.php" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
 echo "PUBLIC_CONTENT_AND_ASSESSMENT_SCORING=PRESERVED"
 
 STAGE=isolated_private_knowledge_and_publishing_tests

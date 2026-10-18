@@ -56,8 +56,11 @@ try {
     $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
     knowledgeRequire(config('partner_portal.enabled') && parse_url((string) config('app.url'), PHP_URL_HOST) === 'thepbr.io', 'PORTAL_CONFIG_REQUIRED');
     knowledgeRequire(DB::connection()->getDriverName() === 'mysql', 'MYSQL_REQUIRED');
+    knowledgeRequire(config('app.debug') === false, 'PRIVATE_KNOWLEDGE_REQUIRES_DEBUG_OFF');
 
-    if ($mode === 'snapshot') {
+    if ($mode === 'config') {
+        echo "PRIVATE_KNOWLEDGE_RUNTIME_CONFIGURATION=OK\n";
+    } elseif ($mode === 'snapshot') {
         $tables = knowledgeTables();
         sort($tables, SORT_STRING);
         $projection = [];

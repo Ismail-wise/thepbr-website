@@ -80,7 +80,8 @@ is never invoked by this deployment.
 
 Only four new tables are added: workspace_knowledge_sources,
 workspace_knowledge_chunks, workspace_ai_conversations and workspace_ai_messages.
-Original rows, columns, credentials, content, chats, account entitlements, .env and
+Cached and environment-loaded debug configuration must both be off before any
+cutover. Original rows, columns, credentials, content, chats, account entitlements, .env and
 shared Partner AI knowledge remain intact.
 
 `scripts/pbr-knowledge-update.sh` targets the exact accepted Workspace baseline and

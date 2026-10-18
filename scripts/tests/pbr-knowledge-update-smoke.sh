@@ -185,6 +185,13 @@ run_case() {
     if [[ -n "$RECEIPT" && "$result" != 0 && "$fault" == no ]]; then sudo tail -n 65 "$RECEIPT/private.log"; fi
     CASE_RESULT=$result
 }
+set +e
+DEBUG_OUTPUT="$(sudo env -i PATH="$PATH" APP_DEBUG=true APP_CONFIG_CACHE="$ARTIFACTS/no-debug-cache.php" php "$ROOT/scripts/pbr-knowledge-release-check.php" config "$FIXTURE" 2>&1)"
+DEBUG_RESULT=$?
+set -e
+[[ "$DEBUG_RESULT" != 0 && "$DEBUG_OUTPUT" == *PRIVATE_KNOWLEDGE_REQUIRES_DEBUG_OFF* ]]
+sudo test ! -e "$FIXTURE/storage/framework/down"
+echo 'Private Knowledge requires debug off before maintenance or data changes: PASS'
 run_case no
 [[ "$CASE_RESULT" == 0 && "$OUTPUT" == *PBR_KNOWLEDGE_UPDATE=COMPLETE* && "$OUTPUT" == *FILAMENT_ADMIN_AND_PUBLISHING_FORMS=OK* ]]
 [[ "$OUTPUT" == *ALL_PREEXISTING_RECORDS=PRESERVED* && "$OUTPUT" == *ONLY_REVIEWED_ADDITIVE_SCHEMA=YES* ]]
