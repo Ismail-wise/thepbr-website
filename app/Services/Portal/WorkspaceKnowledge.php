@@ -59,7 +59,7 @@ class WorkspaceKnowledge
 
     public function retrieve(PartnershipWorkspace $workspace, string $question, PartnerAiGateway $gateway): array
     {
-        $sources = $this->sources($workspace)->where('processing_status', 'ready')->orderBy('id')->get()->keyBy('id');
+        $sources = $this->sources($workspace)->where('processing_status', 'ready')->orderBy('id')->get(['id', 'revision', 'title', 'business_status', 'embedding_key'])->keyBy('id');
         if ($sources->isEmpty()) return ['sources' => [], 'excerpts' => []];
         $embedding = $gateway->embedPrivate([$question], 'query');
         // A changed model/dimension requires explicit re-approval, never comparison
