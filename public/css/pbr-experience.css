@@ -366,3 +366,30 @@ html.dark body.fi-body { --pbr-ivory: #101e19; --pbr-admin-surface: #182a22; --p
   .pbr-portal .portal-topbar,.pbr-app-shell .portal-header,.pbr-password-toggle { display: none; }
   .pbr-portal .surface { box-shadow: none; border-color: #ccc; }
 }
+
+/* Owner Workspaces and narrowly scoped Partner invitations. */
+.pbr-portal .pbr-workspace-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.pbr-portal .pbr-workspace-card { display: flex; flex-direction: column; gap: 16px; transition: transform .2s,border-color .2s,box-shadow .2s; }
+.pbr-portal .pbr-workspace-card:hover { transform: translateY(-3px); border-color: #9db895; }
+.pbr-portal .pbr-workspace-card h2 { font-size: 22px; overflow-wrap: anywhere; }
+.pbr-portal .pbr-workspace-card p { color: var(--pbr-muted); overflow-wrap: anywhere; }
+.pbr-workspace-symbol { color: var(--pbr-forest); width: 48px; height: 48px; display: grid; place-items: center; border-radius: 15px; background: #eaf0e3; }
+.pbr-workspace-caption { display: flex; justify-content: space-between; align-items: center; gap: 12px; color: var(--pbr-muted); font-size: 12px; margin-top: auto; }
+.pbr-workspace-tabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 28px; }
+.pbr-workspace-tabs a { display: inline-flex; gap: 8px; align-items: center; min-height: 44px; padding: 9px 15px; border-radius: 12px; color: var(--pbr-muted); border: 1px solid transparent; }
+.pbr-workspace-tabs a[aria-current] { color: var(--pbr-forest); border-color: #cbdac0; background: #edf3e6; }
+.pbr-workspace-tabs a:hover { color: var(--pbr-forest); background: #edf3e6; }
+.pbr-workspace-description p { margin-top: 16px; white-space: pre-wrap; overflow-wrap: anywhere; line-height: 2; }
+.pbr-invitation-created { margin-bottom: 22px; }
+.pbr-invitation-created input { display: block; width: 100%; min-height: 49px; border: 1px solid var(--pbr-line); border-radius: 10px; padding: 12px; margin-block: 10px; font-size: 14px; }
+.pbr-partner-list { display: grid; gap: 12px; }
+.pbr-partner-row { display: flex; gap: 20px; align-items: center; justify-content: space-between; }
+.pbr-partner-row > div { min-width: 0; overflow-wrap: anywhere; }
+.pbr-partner-row form { flex: 0 0 auto; }
+.pbr-workspace-grid .empty { grid-column: 1/-1; }
+@media (max-width: 650px) {
+  .pbr-portal .pbr-workspace-grid { grid-template-columns: 1fr; }
+  .pbr-partner-row { flex-direction: column; align-items: flex-start; }
+  .pbr-portal .page-header { flex-wrap: wrap; }
+  .pbr-invitation-created input { font-size: 16px; }
+}

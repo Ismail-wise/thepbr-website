@@ -21,7 +21,7 @@ class PartnerPortalController extends Controller
     public function access(Request $request, StudentPortalAccess $access): View|RedirectResponse
     {
         abort_unless(config('partner_portal.enabled'), 404);
-        if ($request->user()->hasActivePortalAccess()) {
+        if ($request->user()->hasActivePortalAccess() || $request->user()->hasAcceptedPartnerWorkspaceMembership()) {
             return redirect()->route('portal.home');
         }
 

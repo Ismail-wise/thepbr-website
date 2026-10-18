@@ -2,14 +2,15 @@
 @section('title', 'Apps')
 @section('content')
 @php
-    $apps = [
+    $apps = auth()->user()->hasActivePortalAccess() ? [
         ['PBR AI', 'မေးမြန်းဆွေးနွေးရန်', 'chat', route('portal.ai'), ''],
         ['PartnerDynamics', 'မိမိလုပ်ကိုင်ပုံကို နားလည်ရန်', 'users', route('partner-dynamics.index'), 'tone-gold'],
         ['Capital Calculator', 'ရင်းနှီးငွေ စမ်းတွက်ရန်', 'coin', route('portal.tool', 'capital'), ''],
         ['Share Simulator', 'ထည့်ဝင်မှု စမ်းနှိုင်းယှဉ်ရန်', 'chart', route('portal.tool', 'shares'), 'tone-blue'],
         ['Partnership Checklist', 'Partner နှင့် ဆွေးနွေးရန်', 'checklist', route('portal.tool', 'checklist'), 'tone-plum'],
         ['My Library', 'သိမ်းထားသည်များ ပြန်ကြည့်ရန်', 'folder', route('portal.library'), ''],
-    ];
+    ] : [['PartnerDynamics', 'မိမိလုပ်ကိုင်ပုံကို နားလည်ရန်', 'users', route('partner-dynamics.index'), 'tone-gold']];
+    if (auth()->user()->isStudent()) array_unshift($apps, ['My Workspaces', 'လုပ်ငန်းအလိုက် သီးသန့်စီမံရန်', 'folder', route('portal.workspaces.index'), '']);
     if (auth()->user()->isAdmin()) $apps[] = ['Admin Portal', 'မူလ Filament မှ ဝင်ခွင့်နှင့် Content စီမံရန်', 'shield', route('filament.admin.pages.dashboard'), 'tone-gold'];
 @endphp
 <section class="launcher">
@@ -24,6 +25,7 @@
     </div>
     <span class="access-pill">@include('portal.icon', ['icon'=>'shield'])
         @if(auth()->user()->isAdmin()) Administrator
+        @elseif(!auth()->user()->isStudent()) Partner Dynamics-only Access
         @elseif($access['expires_at']) အသုံးပြုခွင့် {{ $access['expires_at']->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') }} အထိ
         @else သက်တမ်းမကန့်သတ်ထားသော ဝင်ခွင့် @endif
     </span>

@@ -9,7 +9,7 @@
             <span class="portal-kicker">{{ config('partner_portal.enabled') ? 'PBR Account' : 'Public Account' }}</span>
             <h1>Create your PBR account</h1>
             @if(config('partner_portal.enabled'))
-            <p>Account ဖွင့်ပြီးနောက် Admin က Portal ဝင်ခွင့်နှင့် သက်တမ်းကို သတ်မှတ်ပေးပါမယ်။</p>
+            <p>Student Portal ဝင်ခွင့်နဲ့ သက်တမ်းကို Admin က သတ်မှတ်ပေးပါမယ်။ Partner invitation ရှိသူက invitation ကို လက်ခံပြီး Partner Dynamics သုံးနိုင်ပါတယ်။</p>
             @else
             <p>This account can use public and profile features. Student materials remain locked until the account receives student access.</p>
             @endif

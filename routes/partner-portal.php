@@ -8,6 +8,16 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth')->prefix('portal')->name('portal.')->group(function (): void {
     Route::get('/access', [PartnerPortalController::class, 'access'])->name('access');
+    Route::prefix('workspaces')->name('workspaces.')->group(function (): void {
+        $controller = \App\Http\Controllers\PortalWorkspaceController::class;
+        Route::get('/', [$controller, 'index'])->name('index');
+        Route::get('/create', [$controller, 'create'])->name('create');
+        Route::post('/', [$controller, 'store'])->middleware('throttle:20,1')->name('store');
+        Route::get('/{workspace}', [$controller, 'show'])->name('show');
+        Route::get('/{workspace}/edit', [$controller, 'edit'])->name('edit');
+        Route::put('/{workspace}', [$controller, 'update'])->name('update');
+        Route::get('/{workspace}/partners', [$controller, 'partners'])->name('partners');
+    });
     Route::middleware(EnsurePartnerPortalAccess::class)->group(function (): void {
         Route::get('/', [PartnerPortalController::class, 'home'])->name('home');
         Route::get('/ai', [PortalAiController::class, 'index'])->name('ai');

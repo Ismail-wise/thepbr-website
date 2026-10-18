@@ -11,7 +11,9 @@ class EnsurePartnerPortalAccess
     public function handle(Request $request, Closure $next): Response
     {
         abort_unless(config('partner_portal.enabled'), 404);
-        if (! $request->user()?->hasActivePortalAccess()) {
+        $partnerHome = $request->routeIs('portal.home')
+            && $request->user()?->hasAcceptedPartnerWorkspaceMembership();
+        if (! $request->user()?->hasActivePortalAccess() && ! $partnerHome) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Portal ဝင်ခွင့်ကို Admin နှင့် ပြန်စစ်ပါ။', 'access_url' => route('portal.access')], 403);
             }

@@ -100,7 +100,7 @@
                         <a href="{{ route('workspaces.index') }}" class="{{ $workspaceNavActive ? 'is-active' : '' }}">My Businesses</a>
                     @endif
 
-                    @if(auth()->user()->isAdmin() || auth()->user()->isStudent())
+                    @if(auth()->user()->isAdmin() || auth()->user()->isStudent() || (config('partner_portal.enabled') && auth()->user()->hasAcceptedPartnerWorkspaceMembership()))
                         <a href="{{ route('partner-dynamics.index') }}" class="{{ request()->routeIs('partner-dynamics.*', 'workspaces.partner-dynamics.*') ? 'is-active' : '' }}">Partner Dynamics</a>
                     @endif
 
