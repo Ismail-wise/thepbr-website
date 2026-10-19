@@ -39,8 +39,11 @@ final class ChatReleaseProbe
     {
         // Myanmar digits, punctuation and combining marks alone do not make
         // an English explanation Burmese (for example: "Capital is ၄၂ dollars").
-        $myanmar = preg_match_all('/(?=\p{L})[\x{1000}-\x{109F}\x{AA60}-\x{AA7F}\x{A9E0}-\x{A9FF}]/u', $text);
-        $latin = preg_match_all('/(?=\p{L})\p{Latin}/u', $text);
+        // Citation labels themselves are not English prose either.
+        $prose = preg_replace('/\[S[1-9][0-9]*\]/u', '', $text);
+        if ($prose === null) throw new RuntimeException('LANGUAGE_CHECK_INVALID_TEXT');
+        $myanmar = preg_match_all('/(?=\p{L})[\x{1000}-\x{109F}\x{AA60}-\x{AA7F}\x{A9E0}-\x{A9FF}]/u', $prose);
+        $latin = preg_match_all('/(?=\p{L})\p{Latin}/u', $prose);
         if ($myanmar === false || $latin === false) throw new RuntimeException('LANGUAGE_CHECK_INVALID_TEXT');
 
         return ['myanmar' => $myanmar, 'latin' => $latin];
