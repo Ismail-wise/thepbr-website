@@ -38,6 +38,7 @@ class PortalAiController extends Controller
         $validated = $request->validate([
             'message' => ['required', 'string', 'max:5000'],
             'conversation_id' => ['nullable', 'integer'],
+            'reply_language' => ['sometimes', 'string', 'in:auto,my,en'],
         ]);
         $message = trim($validated['message']);
         abort_if($message === '', 422);
@@ -51,7 +52,7 @@ class PortalAiController extends Controller
         try {
             $history = $conversation?->messages()->latest('id')->limit(20)->get()->reverse()
                 ->map(fn ($row): array => ['role' => $row->role, 'content' => $row->content])->values()->all() ?? [];
-            $upstream = $gateway->open($message, $history);
+            $upstream = $gateway->open($message, $history, $validated['reply_language'] ?? 'auto');
             $conversation ??= PortalConversation::create([
                 'user_id' => $request->user()->id,
                 'title' => Str::limit($message, 72, '…'),

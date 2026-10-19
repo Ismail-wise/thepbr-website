@@ -3,7 +3,7 @@
 @section('content')
 @php($input = $previous?->input ?? [])
 <section class="page">
-    <div class="page-header"><div><span class="eyebrow">PARTNERSHIP TOOLS</span><h1>{{ ['capital'=>'Capital Calculator','shares'=>'Share Simulator','checklist'=>'Partnership Checklist'][$tool] }}</h1><p>ကိုယ့်အခြေအနေကို ဖြည့်ပြီး ရလဒ်သိမ်းနိုင်ပါတယ်။</p></div></div>
+    <div class="page-header"><div><h1>{{ ['capital'=>'Capital Calculator','shares'=>'Share Simulator','checklist'=>'Partnership Checklist'][$tool] }}</h1></div></div>
     <form method="post" action="{{ route('portal.tool.save', $tool) }}" class="surface portal-tool-form">@csrf
     @if($tool==='capital')
         <div class="form-grid">

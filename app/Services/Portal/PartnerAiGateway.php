@@ -20,6 +20,7 @@ class PartnerAiGateway
         }
         $request = Http::withHeaders(['X-PBR-Internal-Secret' => $secret])
             ->connectTimeout((int) config('pbr_ai.connect_timeout', 5))->timeout((int) config('pbr_ai.timeout', 180));
+        if ($path === '/internal/pbr/chat' && $health->json('chatInterfaceProtocol') !== 1) throw new RuntimeException('CHAT_INTERFACE_PROTOCOL_NOT_READY');
         if ($path === '/internal/pbr/chat') $request->withHeaders(['Accept' => 'text/event-stream'])->withOptions(['stream' => true]);
         $response = $request->post($url.$path, $data);
         if (! $response->successful()) throw new RuntimeException('PRIVATE_AI_REQUEST_FAILED');
@@ -58,12 +59,12 @@ class PartnerAiGateway
         return ['vectors' => $vectors, 'key' => $key];
     }
 
-    public function openWorkspace(string $message, array $history, array $context): Response
+    public function openWorkspace(string $message, array $history, array $context, string $replyLanguage = 'auto'): Response
     {
-        return $this->privateRequest('/internal/pbr/chat', ['message' => $message, 'history' => $history, 'workspaceContext' => $context]);
+        return $this->privateRequest('/internal/pbr/chat', ['message' => $message, 'history' => $history, 'workspaceContext' => $context, 'replyLanguage' => $replyLanguage]);
     }
 
-    public function open(string $message, array $history): Response
+    public function open(string $message, array $history, string $replyLanguage = 'auto'): Response
     {
         $url = rtrim((string) config('pbr_ai.base_url'), '/');
         $secret = (string) config('pbr_ai.internal_secret');
@@ -74,7 +75,8 @@ class PartnerAiGateway
         // This integration calls the user's partner-ai service, never a replacement chatbot.
         $health = Http::connectTimeout(3)->timeout(5)->get($url.'/health');
         if (! $health->successful() || $health->json('service') !== 'pbr-ai-advisor'
-            || $health->json('knowledgeReady') !== true || (int) $health->json('vectors') < 1) {
+            || $health->json('knowledgeReady') !== true || (int) $health->json('vectors') < 1
+            || $health->json('chatInterfaceProtocol') !== 1) {
             throw new RuntimeException('Partner AI knowledge base is not ready.');
         }
 
@@ -87,6 +89,7 @@ class PartnerAiGateway
             ->post($url.'/internal/pbr/chat', [
                 'message' => $message,
                 'history' => $history,
+                'replyLanguage' => $replyLanguage,
                 // No business is manufactured and no private workspace data is included.
                 'workspaceContext' => ['scope' => 'personal_partnership_advice'],
             ]);

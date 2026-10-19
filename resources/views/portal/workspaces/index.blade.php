@@ -2,17 +2,17 @@
 @section('title', 'My Workspaces')
 @section('content')
 <section class="page">
-    <div class="page-header"><div><span class="eyebrow">YOUR BUSINESSES</span><h1>My Workspaces</h1><p>လုပ်ငန်းတစ်ခုစီအတွက် Workspace သီးသန့် ဖန်တီးထားပါ။</p></div><a class="btn" href="{{ route('portal.workspaces.create') }}">Workspace အသစ်</a></div>
+    <div class="page-header"><div><h1>My Workspaces</h1></div><a class="btn" href="{{ route('portal.workspaces.create') }}">Workspace အသစ်</a></div>
     <div class="pbr-workspace-grid">
         @forelse($workspaces as $workspace)
         <a class="surface pbr-workspace-card" href="{{ route('portal.workspaces.show', $workspace) }}">
             <span class="pbr-workspace-symbol">@include('portal.icon', ['icon'=>'folder'])</span>
             <h2>{{ $workspace->name }}</h2>
-            <p>{{ \Illuminate\Support\Str::limit($workspace->description ?? 'သင့်လုပ်ငန်းအတွက် သီးသန့်နေရာ။', 180) }}</p>
+            <p>{{ \Illuminate\Support\Str::limit($workspace->description ?? '', 180) }}</p>
             <span class="pbr-workspace-caption">Owner · {{ $workspace->created_at->format('d M Y') }} @include('portal.icon', ['icon'=>'arrow-up-right'])</span>
         </a>
         @empty
-        <div class="surface empty"><h2>ပထမဆုံး Workspace ဖန်တီးလိုက်ပါ။</h2><p>Workspace နာမည်ပေးပြီး စတင်နိုင်ပါတယ်။</p><a class="btn" href="{{ route('portal.workspaces.create') }}">Workspace ဖန်တီးမယ်</a></div>
+        <div class="surface empty"><h2>Workspace မရှိသေးပါ။</h2><a class="btn" href="{{ route('portal.workspaces.create') }}">Workspace ဖန်တီးမယ်</a></div>
         @endforelse
     </div>
     <div class="portal-pagination">{{ $workspaces->links('portal.pagination') }}</div>

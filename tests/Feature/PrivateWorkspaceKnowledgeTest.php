@@ -37,7 +37,7 @@ function knowledgeFakeAi(string $sse = "data: {\"type\":\"delta\",\"text\":\"Own
     Http::swap(new \Illuminate\Http\Client\Factory);
     Http::preventStrayRequests();
     Http::fake(function (ClientRequest $request) use ($sse, $failExtraction, $queryVector) {
-        if (str_ends_with($request->url(), '/health')) return Http::response(['service'=>'pbr-ai-advisor','knowledgeReady'=>true,'vectors'=>657,'privateKnowledgeProtocol'=>1]);
+        if (str_ends_with($request->url(), '/health')) return Http::response(['service'=>'pbr-ai-advisor','chatInterfaceProtocol'=>1,'knowledgeReady'=>true,'vectors'=>657,'privateKnowledgeProtocol'=>1]);
         if (str_ends_with($request->url(), '/private/embed')) return Http::response(['vectors'=>array_map(fn ($text)=>$request['mode']==='query' && $queryVector !== [] ? $queryVector : array_fill(0,128,0.25), $request['texts']), 'embeddingKey'=>'test:128:private-v1']);
         if (str_ends_with($request->url(), '/private/extract')) return $failExtraction ? Http::response(['error'=>'PRIVATE PROVIDER PAYLOAD'],503) : Http::response(['text'=>'မြန်မာ PDF 250,000','partial'=>false]);
         if (str_ends_with($request->url(), '/internal/pbr/chat')) return Http::response($sse,200,['Content-Type'=>'text/event-stream']);

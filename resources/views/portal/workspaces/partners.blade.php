@@ -3,18 +3,18 @@
 @section('content')
 <section class="page">
     @include('portal.workspaces.tabs')
-    <div class="page-header"><div><span class="eyebrow">{{ $workspace->name }}</span><h1>Partners</h1><p>Partner Dynamics အတွက် ဖိတ်ကြားချက်တွေကို ဒီနေရာမှာ စီမံပါ။</p></div></div>
+    <div class="page-header"><div><h1>Partners</h1><p>{{ $workspace->name }} · PartnerDynamics only</p></div></div>
     @if(session('invitation_link'))
     <div class="surface pbr-invitation-created" role="status">
-        <h2>Invitation link အဆင်သင့်ပါ။</h2><p>{{ session('invitation_email') }} အတွက်သာ ဖြစ်ပါတယ်။</p>
-        <label for="invitation-link">Link ကို ကူးယူပြီး ဖိတ်ထားသူထံ ပို့ပေးပါ။</label><input id="invitation-link" readonly value="{{ session('invitation_link') }}" autocomplete="off">
-        <p class="muted small">Email အလိုအလျောက် မပို့ထားပါ။ Link က တစ်ကြိမ်သုံးဖြစ်ပြီး {{ \Carbon\Carbon::parse(session('invitation_expires_at'))->timezone(config('app.display_timezone'))->format('d M Y, H:i') }} အထိ သုံးနိုင်ပါတယ်။</p>
+        <h2>Invitation link</h2><p>{{ session('invitation_email') }} အတွက်သာ ဖြစ်ပါတယ်။</p>
+        <label for="invitation-link">Link ကူးပြီး ပို့ပေးပါ။</label><input id="invitation-link" readonly value="{{ session('invitation_link') }}" autocomplete="off">
+        <p class="muted small">Email အလိုအလျောက် မပို့ထားပါ။ တစ်ကြိမ်သုံး · {{ \Carbon\Carbon::parse(session('invitation_expires_at'))->timezone(config('app.display_timezone'))->format('d M Y, H:i') }} အထိ သုံးနိုင်ပါတယ်။</p>
     </div>
     @endif
     <form class="surface portal-tool-form" method="post" action="{{ route('workspace-invitations.store', $workspace) }}" data-pbr-loading>
         @csrf
-        <div class="field"><label for="partner-email">ဖိတ်ကြားမည့် Partner ၏ Email</label><input id="partner-email" name="email" type="email" value="{{ old('email') }}" maxlength="255" autocomplete="email" required></div>
-        <p class="muted small" style="margin-top:12px">Admin approval စောင့်ရန်မလိုပါ။ ဒီ invitation က Workspace အကြောင်းအရာ၊ AI၊ calculators နဲ့ Student tools ဝင်ခွင့် မပေးပါ။</p>
+        <div class="field"><label for="partner-email">Partner email</label><input id="partner-email" name="email" type="email" value="{{ old('email') }}" maxlength="255" autocomplete="email" required></div>
+        <details class="quiet-details"><summary>Partner ဝင်ခွင့်</summary><p>Admin approval မလိုပါ။ PartnerDynamics ကိုပဲ သုံးနိုင်ပါတယ်။ Workspace နဲ့ Student tools တွေကို မမြင်ရပါ။</p></details>
         <div class="page-actions"><button class="btn" type="submit">Invitation link ထုတ်မယ်</button></div>
     </form>
     <div class="pbr-partner-list" style="margin-top:28px">

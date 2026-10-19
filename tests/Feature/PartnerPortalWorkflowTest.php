@@ -25,7 +25,7 @@ function partnerPortalUser(string $kind = 'student'): User
 function partnerPortalFakeAi(string $body = "data: {\"type\":\"delta\",\"text\":\"Partnership အကြောင်း ဆွေးနွေးကြရအောင်။\"}\n\ndata: {\"type\":\"done\"}\n\n"): void
 {
     Http::fake([
-        'http://127.0.0.1:3107/health' => Http::response(['service' => 'pbr-ai-advisor', 'knowledgeReady' => true, 'vectors' => 100]),
+        'http://127.0.0.1:3107/health' => Http::response(['service' => 'pbr-ai-advisor', 'chatInterfaceProtocol' => 1, 'knowledgeReady' => true, 'vectors' => 100]),
         'http://127.0.0.1:3107/internal/pbr/chat' => Http::response($body, 200, ['Content-Type' => 'text/event-stream']),
     ]);
 }
@@ -158,7 +158,7 @@ test('ai history is supplied by the server and continues the same conversation',
 });
 
 test('ai refuses to answer if the real knowledge base is not ready', function (): void {
-    Http::fake(['http://127.0.0.1:3107/health' => Http::response(['service' => 'pbr-ai-advisor', 'knowledgeReady' => false, 'vectors' => 0])]);
+    Http::fake(['http://127.0.0.1:3107/health' => Http::response(['service' => 'pbr-ai-advisor', 'chatInterfaceProtocol' => 1, 'knowledgeReady' => false, 'vectors' => 0])]);
     $this->actingAs(partnerPortalUser())->postJson(route('portal.ai.chat'), ['message' => 'Question'])->assertStatus(503);
     expect(PortalConversation::count())->toBe(0);
     Http::assertSentCount(1);

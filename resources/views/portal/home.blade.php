@@ -14,13 +14,10 @@
     if (auth()->user()->isAdmin()) $apps[] = ['Admin Portal', 'မူလ Filament မှ ဝင်ခွင့်နှင့် Content စီမံရန်', 'shield', route('filament.admin.pages.dashboard'), 'tone-gold'];
 @endphp
 <section class="launcher">
-    <span class="pbr-launcher-seal">PARTNERSHIP BUSINESS</span>
-    <span class="eyebrow">YOUR PARTNERSHIP SPACE</span>
     <h1>မင်္ဂလာပါ၊ {{ auth()->user()->name }}။</h1>
-    <p class="lead">ဒီနေ့ ဘာလုပ်ချင်ပါသလဲ?<br>အသုံးပြုချင်တဲ့ App ကို ရွေးပါ။</p>
     <div class="launcher-grid" aria-label="Partnership Apps">
         @foreach($apps as [$label,$description,$icon,$url,$tone])
-        <a class="launcher-app {{ $tone }}" href="{{ $url }}"><span class="app-symbol">@include('portal.icon', ['icon'=>$icon])</span><span class="pbr-app-arrow">@include('portal.icon', ['icon'=>'arrow-up-right'])</span><strong>{{ $label }}</strong><small>{{ $description }}</small></a>
+        <a class="launcher-app {{ $tone }}" href="{{ $url }}" title="{{ $description }}"><span class="app-symbol">@include('portal.icon', ['icon'=>$icon])</span><strong>{{ $label }}</strong></a>
         @endforeach
     </div>
     <span class="access-pill">@include('portal.icon', ['icon'=>'shield'])
@@ -29,6 +26,6 @@
         @elseif($access['expires_at']) အသုံးပြုခွင့် {{ $access['expires_at']->copy()->timezone(config('app.display_timezone'))->format('d M Y, H:i') }} အထိ
         @else သက်တမ်းမကန့်သတ်ထားသော ဝင်ခွင့် @endif
     </span>
-    <div class="launcher-footer"><span>{{ auth()->user()->email }}</span><span>·</span><a href="{{ route('home') }}">Public Website</a>@if(auth()->user()->isAdmin())<span>·</span><a href="/admin">Admin Portal</a>@endif</div>
+    <div class="launcher-footer"><a href="{{ route('home') }}">Public Website</a>@if(auth()->user()->isAdmin())<span>·</span><a href="/admin">Admin Portal</a>@endif</div>
 </section>
 @endsection
