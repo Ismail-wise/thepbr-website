@@ -183,7 +183,7 @@ cat >"$ARTIFACTS/bin/php" <<SH
 #!/usr/bin/env bash
 set -eu
 for arg in "\$@"; do
-    if [[ "\$arg" == language-check && "\${PBR_FIXTURE_PROBE_FAIL:-}" == language ]]; then
+    if [[ "\$arg" == language-check && "\$(cat "$ARTIFACTS/probe-fault")" == language ]]; then
         printf 'CHAT_CHECK_CASE=WORKSPACE_SELECTED_EN\nCHAT_CHECK_FAILED=REPLY_LANGUAGE_MISMATCH\n'; exit 2
     fi
     if [[ "\$arg" == ai-check || "\$arg" == language-check ]]; then echo CI_AI_GENERATION_AND_LANGUAGES=EXPLICIT_SYNTHETIC_DOUBLE; exit 0; fi
@@ -194,6 +194,7 @@ chmod +x "$ARTIFACTS/bin/"*
 sudo env -i PATH="$PATH" php "$ROOT/scripts/pbr-knowledge-release-check.php" snapshot "$FIXTURE" "$ARTIFACTS/original-projection.json" "$ARTIFACTS/original-records.json"
 run_case() {
     local fault="$1" result=0
+    printf '%s\n' "$fault" >"$ARTIFACTS/probe-fault"
     set +e
     OUTPUT="$(sudo env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$FIXTURE" \
         PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_AI="$AI_FIXTURE" PBR_FIXTURE_AI_HEAD="$ARTIFACTS/ai-head" PBR_FIXTURE_AI_TARGET="$AI_TARGET" PBR_FIXTURE_REAL_GIT="$REAL_GIT" PBR_FIXTURE_PROBE_FAIL="$fault" PBR_FIXTURE_APP="$FIXTURE" PBR_FIXTURE_DB="$FIXTURE_DB" bash "$ROOT/scripts/pbr-chat-update.sh" "$TARGET" "$FIXTURE" "$AI_FIXTURE" "$AI_CACHE")"
