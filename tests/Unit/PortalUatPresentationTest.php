@@ -25,10 +25,19 @@ test('upload repair changes only the app vhost and keeps explicit FastCGI parame
     $after = $changes['/etc/nginx/sites-enabled/pbr']['after'];
     expect($after)->toContain('server_name other.example; root /srv/other; client_max_body_size 1m;')
         ->toContain('client_max_body_size 12m;')->toContain('error_page 413 /pbr-upload-too-large.html;')
-        ->toContain('fastcgi_param PHP_VALUE "upload_max_filesize=10M\\npost_max_size=12M";')
+        ->toContain('set $pbr_knowledge_upload_php "upload_max_filesize=10M\\npost_max_size=12M";')
+        ->toContain('fastcgi_param PHP_VALUE $pbr_knowledge_upload_php;')
         ->toContain('include fastcgi_params;')->toContain('fastcgi_pass unix:/run/php/php8.4-fpm.sock;');
     $files['/etc/nginx/sites-enabled/pbr'] = $after;
     expect(PbrUploadLimits::transform($files, '/var/www/pbr/public'))->toBe([]);
+});
+
+test('larger existing request limits and other application uploads are preserved', function (): void {
+    $files=uploadNginxFixture('client_max_body_size 64m; include fastcgi_params; fastcgi_pass php;');
+    $files['/etc/nginx/nginx.conf']='http { client_max_body_size 32m; include /etc/nginx/sites-enabled/*; }';
+    $after=PbrUploadLimits::transform($files,'/var/www/pbr/public')['/etc/nginx/sites-enabled/pbr']['after'];
+    expect($after)->toContain('client_max_body_size 64m;')->not->toContain('client_max_body_size 12m;')
+        ->toContain('set $pbr_knowledge_upload_php "";')->toContain('^/portal/workspaces/[0-9]+/knowledge');
 });
 
 test('upload repair handles a tighter location override and quoted braces', function (): void {

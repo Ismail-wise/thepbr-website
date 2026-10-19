@@ -4,6 +4,7 @@
 final class PbrUploadLimits
 {
     private const PHP_VALUE = 'upload_max_filesize=10M'."\n".'post_max_size=12M';
+    private const REQUEST_PATTERN = '"^/portal/workspaces/[0-9]+/knowledge(?:\\\\?|$)"';
 
     private static function parse(string $text): array
     {
@@ -45,6 +46,13 @@ REGEX;
         return str_starts_with($text, '"') ? stripcslashes(substr($text, 1, -1)) : trim($text, "'");
     }
 
+    private static function needsRaise(string $size): bool
+    {
+        if (! preg_match('/^(\d+)([kmg]?)$/iD', self::value($size), $m)) throw new RuntimeException('UPLOAD_BODY_SIZE_REQUIRES_REVIEW');
+        if ((int) $m[1] === 0) return false; // Existing unlimited settings stay unchanged.
+        return (int) $m[1] * (1024 ** (['' => 0, 'k' => 1, 'm' => 2, 'g' => 3][strtolower($m[2])])) < 12 * 1024 * 1024;
+    }
+
     public static function transform(array $files, string $publicRoot): array
     {
         $trees = array_map(self::parse(...), $files);
@@ -67,9 +75,15 @@ REGEX;
             }
             return $expanded;
         };
+        $httpLimit = '1m';
+        foreach ($trees as $tree) foreach ($tree as $node) {
+            if ($node['name'] === 'http' && $node['children'] !== null) foreach ($scope($node['children']) as $entry) {
+                if ($entry['name'] === 'client_max_body_size') $httpLimit = $entry['args'][0];
+            }
+        }
         foreach ($files as $path => $text) {
             $edits = [];
-            $visit = function (array $entries) use (&$visit, &$edits, &$phpLocations, $publicRoot, $scope): void {
+            $visit = function (array $entries) use (&$visit, &$edits, &$phpLocations, $publicRoot, $scope, $httpLimit): void {
                 foreach ($entries as $server) {
                     if ($server['children'] === null) continue;
                     if ($server['name'] !== 'server') {$visit($server['children']);continue;}
@@ -86,6 +100,10 @@ REGEX;
                     }
                     $hasServerLimit = false;$hasErrorPage = false;
                     foreach ($scope($server['children']) as $entry) {
+                        if ($entry['name'] === 'client_max_body_size') {
+                            $hasServerLimit = true;
+                            if (self::needsRaise($entry['args'][0]) && ! in_array($entry, $server['children'], true)) throw new RuntimeException('UPLOAD_INCLUDED_BODY_LIMIT_REQUIRES_REVIEW');
+                        }
                         if ($entry['name'] === 'error_page' && in_array('413', $entry['args'], true)) {
                             if ($entry['args'] !== ['413', '/pbr-upload-too-large.html']) throw new RuntimeException('UPLOAD_CUSTOM_ERROR_PAGE_REQUIRES_REVIEW');
                             $hasErrorPage = true;
@@ -96,13 +114,13 @@ REGEX;
                         foreach ($nodes as $node) {
                             if ($node['name'] === 'client_max_body_size') {
                                 if ($top) $hasServerLimit = true;
-                                $edits[] = [$node['start'], $node['end'], 'client_max_body_size 12m;'];
+                                if (self::needsRaise($node['args'][0])) $edits[] = [$node['start'], $node['end'], 'client_max_body_size 12m;'];
                             }
                             if ($node['children'] !== null) $limits($node['children']);
                         }
                     };
                     $limits($server['children'], true);
-                    if (! $hasServerLimit) $edits[] = [$server['open'] + 1, $server['open'] + 1, "\n    client_max_body_size 12m;"];
+                    if (! $hasServerLimit && self::needsRaise($httpLimit)) $edits[] = [$server['open'] + 1, $server['open'] + 1, "\n    client_max_body_size 12m;"];
                     $locations = function (array $nodes) use (&$locations, &$edits, &$phpLocations, $scope): void {
                         foreach ($nodes as $node) {
                             if ($node['children'] === null) continue;
@@ -114,7 +132,7 @@ REGEX;
                                 if ($entry['name'] === 'fastcgi_param') {
                                     $params = true;
                                     if (in_array($entry['args'][0] ?? '', ['PHP_VALUE', 'PHP_ADMIN_VALUE'], true)) {
-                                        if (($entry['args'][0] ?? '') !== 'PHP_VALUE' || self::value($entry['args'][1] ?? '') !== self::PHP_VALUE || $managed) {
+                                        if (($entry['args'][0] ?? '') !== 'PHP_VALUE' || ($entry['args'][1] ?? '') !== '$pbr_knowledge_upload_php' || $managed) {
                                             throw new RuntimeException('UPLOAD_CUSTOM_PHP_VALUES_REQUIRE_REVIEW');
                                         }
                                         $managed = true;
@@ -126,8 +144,19 @@ REGEX;
                                 // inherited parameter set. Require an explicit
                                 // existing set in this location or its includes.
                                 if (! $params) throw new RuntimeException('UPLOAD_INHERITED_FASTCGI_PARAMS_REQUIRE_REVIEW');
+                                if ($managed) {
+                                    $defaults = array_values(array_filter($node['children'], fn ($e) => $e['name'] === 'set' && $e['args'] === ['$pbr_knowledge_upload_php', '""']));
+                                    $rules = array_values(array_filter($node['children'], fn ($e) => $e['name'] === 'if' && $e['args'] === ['($request_uri', '~', self::REQUEST_PATTERN, ')']));
+                                    if (count($defaults) !== 1 || count($rules) !== 1 || count($rules[0]['children']) !== 1) throw new RuntimeException('UPLOAD_MANAGED_SETTINGS_CHANGED');
+                                    $setting = $rules[0]['children'][0];
+                                    if ($setting['name'] !== 'set' || ($setting['args'][0] ?? '') !== '$pbr_knowledge_upload_php' || self::value($setting['args'][1] ?? '') !== self::PHP_VALUE) throw new RuntimeException('UPLOAD_MANAGED_SETTINGS_CHANGED');
+                                }
                                 $phpLocations++;
-                                if (! $managed) $edits[] = [$node['open'] + 1, $node['open'] + 1, "\n        fastcgi_param PHP_VALUE \"upload_max_filesize=10M\\npost_max_size=12M\";\n"];
+                                if (! $managed) $edits[] = [$node['open'] + 1, $node['open'] + 1,
+                                    "\n        set \$pbr_knowledge_upload_php \"\";\n".
+                                    '        if ($request_uri ~ '.self::REQUEST_PATTERN.") {\n".
+                                    "            set \$pbr_knowledge_upload_php \"upload_max_filesize=10M\\npost_max_size=12M\";\n        }\n".
+                                    "        fastcgi_param PHP_VALUE \$pbr_knowledge_upload_php;\n"];
                             }
                             $locations($node['children']);
                         }

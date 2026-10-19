@@ -105,6 +105,15 @@ jobs:
       - name: Run Pest
         run: ./vendor/bin/pest --ci
 
+      - name: Validate scoped upload configuration with real nginx
+        run: |
+          if ! command -v nginx >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends nginx
+          fi
+          bash -n scripts/tests/pbr-upload-nginx.sh
+          bash scripts/tests/pbr-upload-nginx.sh
+
       - name: Validate chat interface, private records and paired AI rollback
         run: |
           sudo systemctl start mysql

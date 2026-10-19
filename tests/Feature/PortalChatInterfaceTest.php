@@ -20,6 +20,8 @@ beforeEach(function (): void {
 
 function bilingualFakeAi(int $protocol = 1): void
 {
+    Http::swap(new \Illuminate\Http\Client\Factory);
+    Http::preventStrayRequests();
     Http::fake(function (ClientRequest $request) use ($protocol) {
         if (str_ends_with($request->url(), '/health')) return Http::response(['service' => 'pbr-ai-advisor', 'knowledgeReady' => true, 'vectors' => 657, 'privateKnowledgeProtocol' => 1, 'chatInterfaceProtocol' => $protocol]);
         return Http::response("data: {\"type\":\"delta\",\"text\":\"Answer / အဖြေ\"}\n\ndata: {\"type\":\"done\"}\n\n", 200, ['Content-Type' => 'text/event-stream']);
