@@ -16,7 +16,7 @@ $changes=PbrUploadLimits::transform($files,"/var/www/pbr/public");
 $files[$fixture."/vhost.conf"]=$changes[$fixture."/vhost.conf"]["after"];
 if(PbrUploadLimits::transform($files,"/var/www/pbr/public")!==[])exit(2);
 file_put_contents($fixture."/vhost.conf",$files[$fixture."/vhost.conf"]);
-file_put_contents($fixture."/nginx.conf","pid ".$fixture."/nginx.pid;\nerror_log stderr;\nevents {}\nhttp { include ".$fixture."/vhost.conf; }\n");
+file_put_contents($fixture."/nginx.conf","pid ".$fixture."/nginx.pid;\nerror_log stderr;\nevents {}\nhttp { access_log off; include ".$fixture."/vhost.conf; }\n");
 ' "$ROOT" "$FIXTURE"
 nginx -t -p "$FIXTURE/" -c "$FIXTURE/nginx.conf"
 echo PBR_SCOPED_UPLOAD_REAL_NGINX_SYNTAX=PASS
