@@ -41,7 +41,8 @@ try {
             if (! $done || $failed || trim($text) === '') throw new RuntimeException('LANGUAGE_GENERATION_FAILED');
             $hasMyanmar = preg_match('/[\x{1000}-\x{109F}\x{AA60}-\x{AA7F}\x{A9E0}-\x{A9FF}]/u', $text) === 1;
             if ($hasMyanmar !== $myanmar) throw new RuntimeException('REPLY_LANGUAGE_MISMATCH');
-            if ($scope === 'workspace' && (! str_contains($text, '42') || ! str_contains($text, '[S1]'))) throw new RuntimeException('WORKSPACE_CITATION_FAILED');
+            $numericText = strtr($text, ['၀'=>'0','၁'=>'1','၂'=>'2','၃'=>'3','၄'=>'4','၅'=>'5','၆'=>'6','၇'=>'7','၈'=>'8','၉'=>'9']);
+            if ($scope === 'workspace' && (! str_contains($numericText, '42') || ! str_contains($text, '[S1]'))) throw new RuntimeException('WORKSPACE_CITATION_FAILED');
         } finally { $body->close(); }
     }
     echo "LIVE_BURMESE_AND_ENGLISH_REPLIES=OK\nAUTOMATIC_AND_SELECTED_REPLY_LANGUAGE=OK\nPRIVATE_SOURCE_CITATIONS=OK\nLIVE_USER_DATA_SENT_FOR_TESTING=NONE\n";

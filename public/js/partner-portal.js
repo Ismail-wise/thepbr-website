@@ -65,6 +65,14 @@
     let busy = false, following = true;
     const stale = root.dataset.stale === 'true';
     const labels = (my, en) => language?.value === 'en' ? en : my;
+    function fitViewport() {
+        const viewport = window.visualViewport;
+        if (viewport && viewport.scale === 1 && viewport.height > 0) {
+            document.documentElement.style.setProperty('--portal-viewport', viewport.height + 'px');
+        }
+    }
+    window.visualViewport?.addEventListener('resize', fitViewport);
+    fitViewport();
     function resize() {
         input.style.height = 'auto';
         input.style.height = Math.min(input.scrollHeight, 160) + 'px';
@@ -89,7 +97,7 @@
         parent.append(document.createTextNode(text.slice(last)));
     }
     function renderReply(reply, text) {
-        originals.set(reply, text);reply.replaceChildren();
+        originals.set(reply, text);reply.dataset.formatted = 'true';reply.replaceChildren();
         let paragraph = null, list = null, code = null;
         for (const line of text.split('\n')) {
             if (/^\s*```/.test(line)) {

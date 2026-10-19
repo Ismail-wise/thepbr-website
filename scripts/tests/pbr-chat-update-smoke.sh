@@ -140,7 +140,7 @@ if [[ "$url" =~ ^https://thepbr.io/[A-Za-z0-9]{16,128}$ ]]; then
 fi
 code=200
 if [[ "$url" == https://thepbr.io/portal\?* || "$url" == https://thepbr.io/portal/workspaces\?* || "$url" == https://thepbr.io/admin\?* ]]; then code=302; fi
-if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" != no && "$url" == https://thepbr.io/articles\?* ]]; then
+if [[ ( "${PBR_FIXTURE_PROBE_FAIL:-}" == yes || "${PBR_FIXTURE_PROBE_FAIL:-}" == changed ) && "$url" == https://thepbr.io/articles\?* ]]; then
     if [[ "$PBR_FIXTURE_PROBE_FAIL" == changed ]]; then mysql --database="$PBR_FIXTURE_DB" --execute='UPDATE fixture_keep SET bytes=0x001122ff WHERE id=1;'; fi
     code=500
 fi

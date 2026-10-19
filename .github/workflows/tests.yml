@@ -181,5 +181,10 @@ jobs:
       - name: Parse shared portal CSS
         run: node --input-type=module -e "import postcss from 'postcss'; import fs from 'node:fs'; const css=postcss.parse(fs.readFileSync('public/css/pbr-experience.css','utf8') + fs.readFileSync('public/css/partner-chat.css','utf8')); let count=0; css.walkRules(()=>count++); console.log('Shared portal CSS parsed:',count,'rules');"
 
+      - name: Check bilingual chat interactions with a temporary DOM runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pbr-chat-qa" --no-package-lock --no-audit --no-fund jsdom@26.1.0
+          PBR_CHAT_JSDOM="$RUNNER_TEMP/pbr-chat-qa/node_modules/jsdom" node scripts/tests/partner-chat-client.cjs
+
       - name: Build
         run: npm run build

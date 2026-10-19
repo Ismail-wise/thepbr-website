@@ -51,8 +51,8 @@ rollback() {
     artisan down --retry=30 --render=errors::503 || ok=0
     artisan filament:clear-cached-components || ok=0
     if [[ "$CODE_ATTEMPTED" == 1 ]]; then
-        # Never reopen the broader old permission model if new business data
-        # arrived during cutover. Preserve it and hold the new code closed.
+        # Preserve unexpected writes and hold the current code under maintenance
+        # until they can be reviewed. A rollback never restores old data.
         if ! env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json" >>"$STATE/private.log" 2>&1; then
             echo "CHAT_CODE_ROLLBACK=NEEDS_REVIEW"
             echo "CUTOVER_RECORDS_CHANGED=REVIEW_REQUIRED"

@@ -73,10 +73,10 @@ The fixture covers retained ready Knowledge and originals, repeat installation,
 AI restart failure, incorrect CDN assets, failed public probes, safe retry and
 unexpected cutover writes.
 
-Local checks: frontend build, JS syntax, CSS parse (221 chat rules), 11 existing
-streaming-client checks and 13 new DOM interaction checks passed. The latter cover
+Local checks: frontend build, JS syntax, CSS parse (222 chat rules), 11 existing
+streaming-client checks and 14 new DOM interaction checks passed. The latter cover
 language switching, source isolation, safe formatting/copy, immediate deletion,
-stale chats, Burmese IME and manual scrolling. Original AI's 9 contract checks pass.
+stale chats, Burmese IME mobile keyboard resizing and manual scrolling. Original AI's 9 contract checks pass.
 PHP 8.4, compiled Blade, the full application suite and deployment rehearsal run in
 Actions. Signed-in desktop/mobile appearance and both reply languages need Owner
 acceptance after the production receipt. Browser screenshots were not available
