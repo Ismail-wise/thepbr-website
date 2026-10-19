@@ -1,22 +1,22 @@
 #!/usr/bin/env bash
-# Partner AI interface and bilingual reply update.
+# Partner AI user-testing fixes: language, composer, lists, Knowledge and History.
 # Two reviewed repositories; no schema, account, content or private-data changes.
 set -Eeuo pipefail
 umask 022
 
 TARGET="${1:-}"
 APP_ROOT="${2:-/var/www/thepbr-laravel}"
-BASE="2567dc48a3d6d83565a7e078d1274cbf810a276d"
+BASE="0694d95e09f0f20218c762df2c47a1bcc2fa85c5"
 REPOSITORY="https://github.com/Ismail-wise/thepbr-website.git"
 BACKUP_PARENT="/root/thepbr-deploy-backups"
 WEB_USER=www-data
 STATE="" SOURCE="" FRESH_BACKUP=""
 AI_DIR="${3:-/opt/pbr-partner-ai}"
 AI_CACHE_DIR="${4:-/var/lib/pbr-ai}"
-AI_BASE="a0701941890e57267d2c4ab3ad39e1f0f284ae84"
-AI_TARGET="908173283ff963fe6ee0dc6ff79933682afd74f1"
+AI_BASE="908173283ff963fe6ee0dc6ff79933682afd74f1"
+AI_TARGET="902dbbe52c7ac38924ba18a36101ab0a7b701ba0"
 AI_NODE=/usr/local/bin/pbr-node
-AI_SOURCE="" AI_ATTEMPTED=0
+AI_SOURCE="" AI_ATTEMPTED=0 UPLOAD_ATTEMPTED=0
 STAGE=prerequisites
 MAINTENANCE=0 CODE_ATTEMPTED=0 COMPLETE=0
 
@@ -59,6 +59,15 @@ rollback() {
             echo "WEBSITE_MAINTENANCE=ON"
             return 1
         fi
+    fi
+    if [[ "$UPLOAD_ATTEMPTED" == 1 ]]; then
+        if ! "$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" rollback "$STATE/upload-plan.json" >>"$STATE/private.log" 2>&1 ||
+            ! nginx -t >>"$STATE/private.log" 2>&1 || ! systemctl reload nginx >>"$STATE/private.log" 2>&1; then
+            echo "UPLOAD_CONFIGURATION_ROLLBACK=NEEDS_REVIEW"
+            echo "WEBSITE_MAINTENANCE=ON"
+            return 1
+        fi
+        echo "UPLOAD_CONFIGURATION_ROLLBACK=OK"
     fi
     if [[ "$CODE_ATTEMPTED" == 1 ]]; then
         git -C "$APP_ROOT" checkout --quiet --detach "$BASE" >>"$STATE/private.log" 2>&1 || ok=0
@@ -113,7 +122,7 @@ trap 'exit 143' TERM
 
 [[ "$EUID" == 0 ]] || stop "RUN_WITH_SUDO_ON_PBR_SERVER"
 [[ $# -ge 1 && $# -le 4 && "$TARGET" =~ ^[a-f0-9]{40}$ ]] || stop "EXPECTED_REVIEWED_COMMIT_SHA"
-for executable in php composer git mysql mysqldump curl openssl tar gzip sha256sum cmp sed awk grep flock runuser realpath stat tee du df systemctl find sort xargs install; do
+for executable in php composer git mysql mysqldump curl openssl tar gzip sha256sum cmp sed awk grep flock runuser realpath stat tee du df systemctl find sort xargs install nginx; do
     command -v "$executable" >/dev/null || stop "MISSING_${executable^^}"
 done
 PHP_BIN="$(command -v php)"
@@ -142,6 +151,9 @@ if [[ "$CURRENT" == "$TARGET" ]]; then
     runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-knowledge-release-check.php" render "$APP_ROOT"
     [[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_TARGET" ]] || stop "AI_SOURCE_CHANGED_RECHECK_REQUIRED"
     curl -fsS --connect-timeout 3 --max-time 5 http://127.0.0.1:3107/health | "$PHP_BIN" -r '$d=json_decode(stream_get_contents(STDIN),true);exit(($d["privateKnowledgeProtocol"]??null)===1 && ($d["chatInterfaceProtocol"]??null)===1 && ($d["knowledgeReady"]??false)===true?0:2);' || stop "AI_PROTOCOL_NOT_READY"
+    nginx -T >"$STATE/nginx-already.conf" 2>>"$STATE/private.log"
+    "$PHP_BIN" "$APP_ROOT/scripts/pbr-upload-limits.php" plan "$STATE/nginx-already.conf" "$APP_ROOT" "$STATE/upload-already.json"
+    "$PHP_BIN" -r 'exit(json_decode(file_get_contents($argv[1]),true,512,JSON_THROW_ON_ERROR)===[]?0:2);' "$STATE/upload-already.json" || stop "SCOPED_UPLOAD_CONFIGURATION_NOT_INSTALLED"
     echo "ALREADY_AT_REVIEWED_VERSION=YES"
     COMPLETE=1
     exit 0
@@ -161,8 +173,8 @@ git -C "$SOURCE" merge-base --is-ancestor "$BASE" "$TARGET" || stop "TARGET_NOT_
 while IFS= read -r path; do
     case "$path" in
         bootstrap/app.php|app/Http/Controllers/PortalAiController.php|app/Http/Controllers/PortalWorkspaceAiController.php|\
-        app/Services/Portal/PartnerAiGateway.php|public/css/partner-chat.css|public/js/partner-portal.js|\
-        resources/views/portal/*|scripts/pbr-chat-update.sh|scripts/pbr-chat-release-check.php|scripts/pbr-chat-check-support.php|\
+        app/Services/Portal/PartnerAiGateway.php|app/Services/Portal/ChatPresentation.php|app/Http/Controllers/PortalKnowledgeController.php|public/pbr-upload-too-large.html|public/css/partner-chat.css|public/js/partner-portal.js|\
+        resources/views/portal/*|scripts/pbr-chat-update.sh|scripts/pbr-chat-release-check.php|scripts/pbr-chat-check-support.php|scripts/pbr-upload-limits.php|\
         scripts/tests/*|tests/*|docs/*|.github/workflows/tests.yml) ;;
         *) stop "CHANGE_OUTSIDE_REVIEWED_CHAT_INTERFACE_SCOPE";;
     esac
@@ -217,6 +229,14 @@ AI_FREE="$(df -Pk "$STATE" | awk 'NR==2 {print $4*1024}')"
 awk -v free="$AI_FREE" -v bytes="$AI_BYTES" 'BEGIN {exit !(free > bytes*3+1073741824)}' || stop "AI_BACKUP_DISK_SPACE_INSUFFICIENT"
 echo "ORIGINAL_PARTNER_AI_BILINGUAL_CONTRACT=OK"
 
+
+STAGE=plan_scoped_upload_configuration
+echo "STEP=$STAGE"
+nginx -t >>"$STATE/private.log" 2>&1
+systemctl is-active --quiet nginx || stop "NGINX_NOT_ACTIVE"
+nginx -T >"$STATE/nginx-before.conf" 2>>"$STATE/private.log"
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" plan "$STATE/nginx-before.conf" "$APP_ROOT" "$STATE/upload-plan.json"
+sha256sum "$STATE/upload-plan.json" >"$STATE/upload-plan.sha256"
 
 STAGE=maintenance_and_verified_current_portal_backup
 echo "STEP=$STAGE"
@@ -273,6 +293,15 @@ echo "EXISTING_CONTENT_ACCOUNTS_CHATS_AND_ACCESS=PRESERVED"
 echo "SCHEMA_AND_EXISTING_PRIVATE_RECORDS=UNCHANGED"
 echo "ENVIRONMENT_AND_ACCOUNT_ACCESS=UNCHANGED"
 
+STAGE=install_scoped_upload_limits
+echo "STEP=$STAGE"
+(cd "$STATE" && sha256sum --check --status upload-plan.sha256)
+UPLOAD_ATTEMPTED=1
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" apply "$STATE/upload-plan.json"
+nginx -t >>"$STATE/private.log" 2>&1
+systemctl reload nginx >>"$STATE/private.log" 2>&1
+echo "NGINX_AND_PHP_UPLOAD_LIMITS=SCOPED_TO_PBR"
+
 STAGE=install_original_partner_ai_bilingual_replies
 echo "STEP=$STAGE"
 [[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_BASE" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "AI_SOURCE_CHANGED_DURING_TESTS"
@@ -301,6 +330,14 @@ BYPASS_CODE="$(printf 'url = "https://thepbr.io/%s"\n' "$MAINTENANCE_SECRET" | c
 unset MAINTENANCE_SECRET
 [[ "$BYPASS_CODE" == 302 || "$BYPASS_CODE" == 303 ]] || stop "MAINTENANCE_BYPASS_UNAVAILABLE"
 grep -q 'laravel_maintenance' "$STATE/maintenance.cookies" || stop "MAINTENANCE_COOKIE_MISSING"
+# A synthetic 10 MiB multipart POST without a user or CSRF token must reach
+# Laravel's auth/CSRF boundary, never create a source or invoke the AI provider.
+"$PHP_BIN" -r '$f=fopen($argv[1],"wb");for($i=0;$i<10;$i++)fwrite($f,str_repeat("x",1048576));fclose($f);' "$STATE/upload-probe.bin"
+UPLOAD_HTTP="$(curl -sS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 45 -H 'Expect:' -F "file=@$STATE/upload-probe.bin;filename=synthetic.txt;type=text/plain" -o /dev/null -w '%{http_code}' "https://thepbr.io/portal/workspaces/0/knowledge?upload_probe=${TARGET}")"
+rm -f -- "$STATE/upload-probe.bin"
+[[ "$UPLOAD_HTTP" == 419 || "$UPLOAD_HTTP" == 302 || "$UPLOAD_HTTP" == 303 ]] || stop "SYNTHETIC_UPLOAD_HTTP_CHECK_FAILED"
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" verify "$STATE/upload-plan.json"
+echo "TEN_MB_UPLOAD_REACHES_AUTH_BOUNDARY=YES"
 for path in / /login /articles /videos /classes /admin/login; do
     code="$(curl -sS --cookie "$STATE/maintenance.cookies" -L --max-redirs 3 --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?chat_ui_release=${TARGET}")"
     [[ "$code" == 200 ]] || stop "PUBLIC_OR_ADMIN_HTTPS_CHECK_FAILED"
@@ -309,7 +346,7 @@ for path in /portal /portal/workspaces /admin; do
     code="$(curl -sS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 20 -H 'Accept: text/html' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?chat_ui_release=${TARGET}")"
     [[ "$code" == 302 || "$code" == 303 ]] || stop "ANONYMOUS_AUTH_CHECK_FAILED"
 done
-for asset in css/partner-chat.css js/partner-portal.js; do
+for asset in css/partner-chat.css js/partner-portal.js pbr-upload-too-large.html; do
     curl -fsS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' "https://thepbr.io/${asset}?chat_ui_release=${TARGET}" -o "$STATE/$(basename "$asset")"
     cmp -s "$STATE/$(basename "$asset")" "$APP_ROOT/public/$asset" || stop "LIVE_CHAT_ASSET_MISMATCH"
 done
@@ -325,7 +362,8 @@ echo "MAINTENANCE_PROBES_BEFORE_REOPEN=YES"
 [[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$TARGET" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "FINAL_SOURCE_NOT_CLEAN"
 printf 'TARGET=%s\nBASE=%s\nBACKUP=%s\nCOMPLETED_UTC=%s\n' "$TARGET" "$BASE" "$FRESH_BACKUP" "$(date -u +%FT%TZ)" >"$STATE/update-complete.txt"
 echo "PUBLIC_WEBSITE_AND_ADMIN_HTTPS=OK"
-echo "SIGNED_IN_BILINGUAL_CHAT_AND_MOBILE_UAT=PENDING"
+echo "USER_TESTING_LOG_FIXES=INSTALLED"
+echo "SIGNED_IN_CHAT_UPLOAD_KNOWLEDGE_AND_HISTORY_RETEST=PENDING"
 artisan up
 MAINTENANCE=0
 COMPLETE=1

@@ -16,17 +16,22 @@ try {
     $context = [
         'scope' => 'owner_private_knowledge_v1', 'workspace' => ['name' => 'Synthetic language check'],
         'sources' => [['reference' => 'S1', 'title' => 'Synthetic number', 'business_status' => 'current']],
-        'excerpts' => [['reference' => 'S1', 'business_status' => 'current', 'text' => 'The reviewed synthetic capital is 42 dollars.']],
+        'excerpts' => [['reference' => 'S1', 'business_status' => 'current', 'text' => 'လက်ရှိ အတည်ပြုထားသော ရင်းနှီးငွေမှာ 42 dollars ဖြစ်သည်။']],
     ];
+    $burmeseHistory = [['role'=>'user','content'=>'ရင်းနှီးငွေ ဘယ်လောက်လဲ။'], ['role'=>'assistant','content'=>str_repeat('ရင်းနှီးငွေမှာ 42 dollars ဖြစ်ပါတယ်။ [S1] ', 25)]];
+    $englishHistory = [['role'=>'user','content'=>'What is the capital?'], ['role'=>'assistant','content'=>'The capital is 42 dollars. [S1]']];
     $checks = [
-        ['PERSONAL_AUTO_EN', 'personal', 'auto', 'What should business partners agree before starting? Give one short sentence.', 'en'],
-        ['PERSONAL_SELECTED_MY', 'personal', 'my', 'What should business partners agree before starting? Give one short sentence.', 'my'],
-        ['WORKSPACE_AUTO_MY', 'workspace', 'auto', 'ဒီလုပ်ငန်းရဲ့ ရင်းနှီးငွေ ဘယ်လောက်လဲ။ စာကြောင်းတို တစ်ကြောင်းနဲ့ ဖြေပါ။', 'my'],
-        ['WORKSPACE_SELECTED_EN', 'workspace', 'en', 'ဒီလုပ်ငန်းရဲ့ ရင်းနှီးငွေ ဘယ်လောက်လဲ။ စာကြောင်းတို တစ်ကြောင်းနဲ့ ဖြေပါ။', 'en'],
+        ['PERSONAL_AUTO_EN', 'personal', 'auto', 'What should business partners agree before starting? Give one short sentence.', 'en', []],
+        ['PERSONAL_SELECTED_MY', 'personal', 'my', 'What should business partners agree before starting? Give one short sentence.', 'my', []],
+        ['WORKSPACE_AUTO_MY', 'workspace', 'auto', 'ဒီလုပ်ငန်းရဲ့ ရင်းနှီးငွေ ဘယ်လောက်လဲ။ စာကြောင်းတို တစ်ကြောင်းနဲ့ ဖြေပါ။', 'my', []],
+        ['WORKSPACE_SELECTED_EN', 'workspace', 'en', 'ဒီလုပ်ငန်းရဲ့ ရင်းနှီးငွေ ဘယ်လောက်လဲ။ စာကြောင်းတို တစ်ကြောင်းနဲ့ ဖြေပါ။', 'en', []],
+        ['PERSONAL_AUTO_EN_AFTER_MY', 'personal', 'auto', 'What should business partners agree before starting? Give one short sentence.', 'en', $burmeseHistory],
+        ['WORKSPACE_AUTO_EN_AFTER_MY', 'workspace', 'auto', 'How much capital is approved? Give one short sentence.', 'en', $burmeseHistory],
+        ['WORKSPACE_AUTO_MY_AFTER_EN', 'workspace', 'auto', 'အတည်ပြုထားတဲ့ ရင်းနှီးငွေ ဘယ်လောက်လဲ။ စာကြောင်းတို တစ်ကြောင်းနဲ့ ဖြေပါ။', 'my', $englishHistory],
     ];
-    foreach ($checks as [$case, $scope, $language, $question, $expected]) {
+    foreach ($checks as [$case, $scope, $language, $question, $expected, $history]) {
         echo 'CHAT_CHECK_CASE='.$case."\nCHAT_CHECK_EXPECTED=".strtoupper($expected)."\n";
-        $response = $scope === 'personal' ? $gateway->open($question, [], $language) : $gateway->openWorkspace($question, [], $context, $language);
+        $response = $scope === 'personal' ? $gateway->open($question, $history, $language) : $gateway->openWorkspace($question, $history, $context, $language);
         $body = $response->toPsrResponse()->getBody();
         try {
             $text = Pbr\Deployment\ChatReleaseProbe::readAnswer($body, (int) config('pbr_ai.timeout', 180));

@@ -169,6 +169,8 @@ html[data-theme=dark] .pbr-chat-ui .pbr-knowledge-state.is-ready {color:#86efac}
 .pbr-chat-ui .portal-reply p {margin:0 0 11px}
 .pbr-chat-ui .portal-reply p:last-child {margin-bottom:0}
 .pbr-chat-ui .portal-reply :is(ul,ol) {margin:8px 0 12px;padding-left:21px}
+.pbr-chat-ui .portal-reply ol {list-style-type:decimal}
+.pbr-chat-ui .portal-reply ul {list-style-type:disc}
 .pbr-chat-ui .portal-reply li {padding:3px 0}
 .pbr-chat-ui .portal-reply strong {font-weight:700}
 .pbr-chat-ui .portal-reply code {font-family:ui-monospace,monospace;font-size:.9em;background:#1665340c;border:1px solid var(--pbr-line);border-radius:5px;padding:1px 4px;white-space:pre-wrap}

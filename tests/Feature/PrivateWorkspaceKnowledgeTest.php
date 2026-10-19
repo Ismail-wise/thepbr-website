@@ -63,6 +63,25 @@ test('Owner text requires review and business status stays distinct from AI read
     $this->get(route('portal.workspaces.knowledge.show',[$workspace,$source]))->assertOk()->assertHeader('Cache-Control','no-store, private');
 });
 
+test('approval returns to the Knowledge list and the next form is empty while the approved source stays usable', function (): void {
+    $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);$source=knowledgeNote($workspace,'Retain approved facts');knowledgeFakeAi();$this->actingAs($owner);
+    $this->put(route('portal.workspaces.knowledge.update',[$workspace,$source]),[
+        'title'=>'Approved title','content'=>'Retain approved facts','business_status'=>'current','action'=>'approve','reviewed'=>1,'revision'=>$source->revision,
+    ])->assertRedirect(route('portal.workspaces.knowledge.index',$workspace))->assertSessionHas('success');
+    expect($source->fresh()->processing_status)->toBe('ready')->and($source->fresh()->reviewed_text)->toBe('Retain approved facts');
+    $this->get(route('portal.workspaces.knowledge.index',$workspace))->assertOk()->assertSee('Approved title');
+    $this->get(route('portal.workspaces.knowledge.create',$workspace))->assertOk()->assertDontSee('Approved title')->assertDontSee('Retain approved facts')->assertSee('data-max-bytes="10485760"',false);
+});
+
+test('the supplied photo size is supported but oversize files fail before extraction', function (): void {
+    $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);knowledgeFakeAi();$this->actingAs($owner);
+    $this->post(route('portal.workspaces.knowledge.store',$workspace),['title'=>'Receipt photo','business_status'=>'current','file'=>UploadedFile::fake()->create('receipt.png',2343,'image/png')])->assertRedirect();
+    expect(WorkspaceKnowledgeSource::firstOrFail()->processing_status)->toBe('needs_review');
+    knowledgeFakeAi();
+    $this->post(route('portal.workspaces.knowledge.store',$workspace),['title'=>'Oversize photo','business_status'=>'current','file'=>UploadedFile::fake()->create('big.png',10241,'image/png')])->assertSessionHasErrors('file');
+    Http::assertNothingSent();expect(WorkspaceKnowledgeSource::count())->toBe(1);
+});
+
 test('private PDF and photo originals stay outside public storage and return only through Owner authorization', function (): void {
     $owner=knowledgeOwner();$workspace=knowledgeWorkspace($owner);knowledgeFakeAi();$this->actingAs($owner);
     foreach ([UploadedFile::fake()->createWithContent('agreement.pdf',"%PDF-1.7\nprivate original"), UploadedFile::fake()->createWithContent('note.png',base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+X2ioAAAAASUVORK5CYII='))] as $file) {
@@ -118,7 +137,7 @@ test('Workspace AI retrieves only reviewed sources from the selected Workspace a
     });
     $chat=WorkspaceAiConversation::firstOrFail();expect($chat->workspace_id)->toBe($a->id)->and($chat->messages()->count())->toBe(2)->and(PortalConversation::count())->toBe(0);
     $assistant=$chat->messages()->where('role','assistant')->first();expect($assistant->metadata['sources'])->toHaveCount(2);
-    $this->get(route('portal.workspaces.ai',[$a,'conversation'=>$chat->id]))->assertOk()->assertSee('Selected A')->assertSee('Owner advice [S1]')->assertSee('Knowledge');
+    $this->get(route('portal.workspaces.ai',[$a,'conversation'=>$chat->id]))->assertOk()->assertSee('Selected A')->assertSee('Owner advice')->assertDontSee('[S1]')->assertSee('Knowledge');
 });
 
 test('editing or deleting knowledge stops reuse of obsolete private answers and physically removes originals',function():void{
@@ -126,8 +145,12 @@ test('editing or deleting knowledge stops reuse of obsolete private answers and 
     $response=$this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'First question']);$response->streamedContent();$chat=WorkspaceAiConversation::firstOrFail();
     $this->put(route('portal.workspaces.knowledge.update',[$workspace,$source]),['title'=>'Revised','content'=>'NEW CURRENT TEXT','business_status'=>'current','action'=>'draft','revision'=>$source->revision])->assertRedirect();
     expect($source->fresh()->processing_status)->toBe('needs_review')->and(WorkspaceKnowledgeChunk::count())->toBe(0);
-    $this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'Continue','conversation_id'=>$chat->id])->assertStatus(409);
-    $this->get(route('portal.workspaces.ai',[$workspace,'conversation'=>$chat->id]))->assertOk()->assertSee('data-stale="true"',false)->assertSee('စကားဝိုင်းအသစ်');
+    $this->get(route('portal.workspaces.ai',[$workspace,'conversation'=>$chat->id]))->assertOk()->assertSee('data-stale="true"',false)->assertDontSee('disabled')->assertSee('လက်ရှိ Knowledge နဲ့ ဆက်မေးနိုင်ပါတယ်။');
+    knowledgeFakeAi();
+    $resumed=$this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'Continue','conversation_id'=>$chat->id])->assertOk();
+    expect($resumed->streamedContent())->toContain('"contextRefreshed":true');
+    Http::assertSent(fn(ClientRequest $r)=>str_ends_with($r->url(),'/internal/pbr/chat') && $r['history']===[] && $r['workspaceContext']['sources']===[]);
+    expect(WorkspaceAiConversation::count())->toBe(1)->and($chat->messages()->count())->toBe(4);
     Storage::disk('workspace_private')->put('workspaces/'.$workspace->id.'/fixture.txt','original private');
     $source->update(['file_path'=>'workspaces/'.$workspace->id.'/fixture.txt']);
     $this->delete(route('portal.workspaces.knowledge.destroy',[$workspace,$source]))->assertRedirect();Storage::disk('workspace_private')->assertMissing('workspaces/'.$workspace->id.'/fixture.txt');

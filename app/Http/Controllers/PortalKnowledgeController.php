@@ -160,6 +160,10 @@ class PortalKnowledgeController extends Controller
                 try { $this->knowledge->approve($source, $gateway); } catch (Throwable) { $failed = true; }
             }
         } finally { $lock->release(); }
+        if (! $failed && $source->processing_status === 'ready') {
+            return redirect()->route('portal.workspaces.knowledge.index', $workspace)
+                ->with('success', 'AI သုံးရန် အတည်ပြုပြီးပါပြီ။');
+        }
         $response = redirect()->route('portal.workspaces.knowledge.show', [$workspace, $source]);
 
         return $failed ? $response->withErrors(['knowledge' => 'စာသားကို သိမ်းထားပါတယ်။ AI သုံးရန် အတည်ပြုမှု မပြီးသေးလို့ ခဏနေရင် ပြန်စမ်းပါ။'])

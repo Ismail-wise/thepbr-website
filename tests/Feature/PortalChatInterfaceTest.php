@@ -4,6 +4,7 @@ use App\Models\PartnershipWorkspace;
 use App\Models\PortalConversation;
 use App\Models\User;
 use App\Models\WorkspaceAiConversation;
+use App\Models\WorkspaceKnowledgeSource;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as ClientRequest;
 use Illuminate\Support\Facades\Http;
@@ -85,4 +86,31 @@ test('switching languages keeps the same private conversation and server supplie
     Http::assertSent(fn (ClientRequest $request): bool => str_ends_with($request->url(), '/internal/pbr/chat') && $request['replyLanguage'] === 'en' && count($request['history']) === 2 && $request['history'][0]['content'] === 'တာဝန်ခွဲဝေမှု');
     expect(WorkspaceAiConversation::count())->toBe(1)->and($conversation->messages()->count())->toBe(4);
     $this->get(route('portal.workspaces.ai', [$this->chatWorkspace, 'conversation' => $conversation->id]))->assertOk()->assertSee('တာဝန်ခွဲဝေမှု')->assertSee('Now give me an example.')->assertSee('စကားဝိုင်းဖျက်မယ်');
+});
+
+test('History resumes the same thread with refreshed Knowledge and never replays obsolete answers', function (): void {
+    bilingualFakeAi();$this->actingAs($this->chatOwner);
+    $url=route('portal.workspaces.ai.chat', $this->chatWorkspace);
+    $this->postJson($url, ['message'=>'Old question'])->assertOk()->streamedContent();
+    $conversation=WorkspaceAiConversation::firstOrFail();
+    $this->chatWorkspace->update(['description'=>'Updated business context']);
+    $this->get(route('portal.workspaces.ai', [$this->chatWorkspace,'conversation'=>$conversation->id]))->assertOk()
+        ->assertSee('Old question')->assertSee('data-stale="true"',false)->assertDontSee('disabled');
+    $this->postJson($url, ['message'=>'Resume after update','conversation_id'=>$conversation->id])->assertOk()->streamedContent();
+    $this->postJson($url, ['message'=>'Follow up again','conversation_id'=>$conversation->id])->assertOk()->streamedContent();
+    Http::assertSent(fn(ClientRequest $r)=>str_ends_with($r->url(),'/internal/pbr/chat') && $r['message']==='Resume after update' && $r['history']===[]);
+    Http::assertSent(fn(ClientRequest $r)=>str_ends_with($r->url(),'/internal/pbr/chat') && $r['message']==='Follow up again' && count($r['history'])===2 && $r['history'][0]['content']==='Resume after update');
+    expect(WorkspaceAiConversation::count())->toBe(1)->and($conversation->messages()->count())->toBe(6);
+    $this->get(route('portal.workspaces.ai', [$this->chatWorkspace,'conversation'=>$conversation->id]))->assertOk()->assertSee('data-stale="false"',false);
+});
+
+test('failed context refresh preserves the old History boundary for a safe retry', function (): void {
+    bilingualFakeAi();$this->actingAs($this->chatOwner);
+    $url=route('portal.workspaces.ai.chat', $this->chatWorkspace);
+    $this->postJson($url, ['message'=>'Original'])->assertOk()->streamedContent();
+    $conversation=WorkspaceAiConversation::firstOrFail();$signature=$conversation->knowledge_signature;
+    $this->chatWorkspace->update(['description'=>'New context']);
+    bilingualFakeAi(0);
+    $this->postJson($url, ['message'=>'Cannot generate','conversation_id'=>$conversation->id])->assertStatus(503);
+    expect($conversation->fresh()->knowledge_signature)->toBe($signature)->and($conversation->messages()->count())->toBe(2);
 });

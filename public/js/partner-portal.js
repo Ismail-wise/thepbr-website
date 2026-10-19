@@ -28,7 +28,17 @@
     }
 
     document.querySelectorAll('[data-knowledge-submit]').forEach(knowledgeForm => {
+        const file = knowledgeForm.querySelector('input[type="file"]');
+        function checkFile() {
+            if (!file) return true;
+            const max = Number(file.dataset.maxBytes);
+            const tooLarge = max > 0 && file.files?.[0]?.size > max;
+            file.setCustomValidity(tooLarge ? `ဖိုင်အရွယ်အစား ${file.dataset.maxLabel} ထက် မကျော်ရပါ။ / Maximum ${file.dataset.maxLabel}.` : '');
+            return !tooLarge;
+        }
+        file?.addEventListener('change', () => {checkFile();file.reportValidity();});
         knowledgeForm.addEventListener('submit', event => {
+            if (!checkFile()) {event.preventDefault();file.reportValidity();return;}
             // Keep the clicked submitter enabled until the browser captures its
             // name/value (approve vs draft). Disable on the next event-loop turn.
             const progress = knowledgeForm.querySelector('[data-knowledge-progress]');
@@ -63,7 +73,6 @@
     const area = document.getElementById('chat-scroll');
     const originals = new WeakMap();
     let busy = false, following = true;
-    const stale = root.dataset.stale === 'true';
     const labels = (my, en) => language?.value === 'en' ? en : my;
     function fitViewport() {
         const viewport = window.visualViewport;
@@ -96,9 +105,17 @@
         }
         parent.append(document.createTextNode(text.slice(last)));
     }
+    function cleanAnswer(text, streaming = false) {
+        const marker = '(?:\\[S\\d+(?:[ \\t]*[,;][ \\t]*S\\d+)*\\]|\\(S\\d+(?:[ \\t]*[,;][ \\t]*S\\d+)*\\))';
+        let clean = text.replace(new RegExp(`[ \\t]*${marker}(?:[ \\t]*[,;]?[ \\t]*${marker})*`, 'g'), '');
+        // Do not flash half a source label when it straddles streamed chunks.
+        if (streaming) clean = clean.replace(/[ \t]*[\[(](?:S\d*(?:[ \t]*[,;][ \t]*S\d*)*)?$/, '');
+        return clean;
+    }
     function renderReply(reply, text) {
+        text = cleanAnswer(text);
         originals.set(reply, text);reply.dataset.formatted = 'true';reply.replaceChildren();
-        let paragraph = null, list = null, code = null;
+        let paragraph = null, list = null, item = null, code = null;
         for (const line of text.split('\n')) {
             if (/^\s*```/.test(line)) {
                 if (code) code = null;
@@ -106,12 +123,21 @@
                 paragraph = null;list = null;continue;
             }
             if (code) {code.append(document.createTextNode(line + '\n'));continue;}
-            if (!line.trim()) {paragraph = null;list = null;continue;}
+            if (!line.trim()) {paragraph = null;continue;}
             const bullet = line.match(/^\s*(?:([-*])\s+|(\d+)[.)]\s+)(.*)$/);
             if (bullet) {
                 const tag = bullet[2] ? 'OL' : 'UL';
-                if (!list || list.tagName !== tag) {list = document.createElement(tag.toLowerCase());reply.append(list);}
-                const item = document.createElement('li');inline(item, bullet[3]);list.append(item);paragraph = null;continue;
+                if (!list || list.tagName !== tag) {
+                    list = document.createElement(tag.toLowerCase());
+                    if (tag === 'OL' && Number(bullet[2]) > 1) list.setAttribute('start', bullet[2]);
+                    reply.append(list);
+                }
+                item = document.createElement('li');inline(item, bullet[3]);list.append(item);paragraph = null;continue;
+            }
+            if (list && item && /^\s{2,}\S/.test(line)) {
+                if (!paragraph) {paragraph = document.createElement('p');item.append(paragraph);}
+                else paragraph.append(document.createElement('br'));
+                inline(paragraph, line.trimStart());continue;
             }
             list = null;
             const heading = line.match(/^#{1,6}\s+(.+)$/);
@@ -166,7 +192,7 @@
         const summary = document.createElement('summary');summary.textContent = `Sources · ${sources.length}`;
         const list = document.createElement('ul');
         for (const source of sources) {
-            const row = document.createElement('li'), label = `[${String(source.reference)}] ${String(source.title)}`;
+            const row = document.createElement('li'), label = String(source.title);
             let target = null;
             try {target = new URL(source.url, window.location.origin);} catch { /* deleted source */ }
             if (source.url && target && target.origin === window.location.origin && target.pathname.startsWith('/portal/workspaces/')) {
@@ -196,26 +222,27 @@
         return {article, reply};
     }
     document.querySelectorAll('[data-ai-prompt]').forEach(button => button.addEventListener('click', () => {
-        if (busy || stale) return;
+        if (busy) return;
         input.value = (language?.value === 'en' ? button.dataset.aiPromptEn : button.dataset.aiPromptMy) || button.dataset.aiPrompt;
         resize();input.focus();
     }));
     input.addEventListener('input', resize);
     input.addEventListener('keydown', event => {
         if (event.key === 'Enter' && !event.shiftKey && !event.isComposing) {
-            event.preventDefault();if (!stale && !busy) form.requestSubmit();
+            event.preventDefault();if (!busy) form.requestSubmit();
         }
     });
     form.addEventListener('submit', async event => {
         event.preventDefault();
-        const message = input.value.trim();
-        if (!message || busy || stale) return;
-        busy = true;following = true;send.disabled = true;input.disabled = true;if (language) language.disabled = true;
+        const draft = input.value, message = draft.trim();
+        if (!message || busy) return;
+        busy = true;following = true;send.disabled = true;if (language) language.disabled = true;
+        input.value = '';resize();
         error.textContent = '';status.textContent = labels('အဖြေပေးနေပါတယ်…', 'Replying…');
         document.getElementById('portal-welcome')?.remove();
         const userBubble = bubble('user', message), assistantBubble = bubble('assistant', '');
         assistantBubble.article.classList.add('is-pending');
-        let text = '', completed = false, upstreamError = '';
+        let text = '', completed = false, accepted = false, upstreamError = '';
         const abort = new AbortController(), timer = window.setTimeout(() => abort.abort(), 210000);
         scroll(true);
         try {
@@ -239,7 +266,9 @@
                         if (!line.startsWith('data:')) continue;
                         let data;try {data = JSON.parse(line.slice(5).trim());} catch {continue;}
                         if (data.type === 'meta' && Number.isInteger(data.conversationId)) {
+                            accepted = true;
                             root.dataset.conversation = String(data.conversationId);
+                            if (data.contextRefreshed) {root.dataset.stale = 'false';root.querySelector('[data-knowledge-notice]')?.remove();}
                             const deletion = document.getElementById('portal-delete-chat');
                             if (deletion) {deletion.action = `${deletion.dataset.deleteBase}/${data.conversationId}`;deletion.hidden = false;}
                             const url = new URL(window.location.href);url.search = '';url.searchParams.set('conversation', String(data.conversationId));window.history.replaceState(null, '', url);
@@ -250,7 +279,7 @@
                                 const link = document.createElement('a');link.href = url.href;link.dataset.conversation = String(data.conversationId);link.textContent = message.slice(0, 72);history.prepend(link);
                             }
                         } else if (data.type === 'delta' && typeof data.text === 'string') {
-                            text += data.text;assistantBubble.reply.textContent = text;assistantBubble.article.classList.remove('is-pending');scroll();
+                            text += data.text;assistantBubble.reply.textContent = cleanAnswer(text, true);assistantBubble.article.classList.remove('is-pending');scroll();
                         } else if (data.type === 'error') {
                             upstreamError = typeof data.text === 'string' ? data.text : labels('အဖြေ မပြီးဆုံးသေးပါ။', 'Incomplete response.');
                         } else if (data.type === 'done') completed = true;
@@ -264,16 +293,22 @@
             }
             buffer += decoder.decode();consume();
             if (upstreamError || !completed || !text.trim()) throw new Error(upstreamError || labels('အဖြေ မပြီးဆုံးသေးပါ။ ထပ်စမ်းပါ။', 'Incomplete response. Please retry.'));
-            input.value = '';status.textContent = labels('သိမ်းပြီးပါပြီ။', 'Saved.');
+            status.textContent = labels('သိမ်းပြီးပါပြီ။', 'Saved.');
         } catch (problem) {
             error.textContent = problem.name === 'AbortError' ? labels('အချိန်ကြာနေပါတယ်။ ထပ်စမ်းပါ။', 'The response timed out. Please retry.') : problem.message;
             status.textContent = labels('ပြန်စမ်းနိုင်ပါတယ်။', 'You can retry.');
-            if (!text) {userBubble.article.remove();assistantBubble.article.remove();input.value = message;}
-            else input.value = '';
+            if (!text) assistantBubble.article.remove();
+            if (!accepted && !text) {
+                if (!input.value) {userBubble.article.remove();input.value = draft;}
+                else {
+                    const note = document.createElement('span');note.textContent = labels('မပို့ရသေးပါ။', 'Not sent.');
+                    userBubble.article.querySelector('.message-meta').append(note);
+                }
+            }
         } finally {
             if (text) {renderReply(assistantBubble.reply, text);assistantBubble.article.querySelector('[data-copy-reply]').disabled = false;}
             assistantBubble.article.classList.remove('is-pending');
-            window.clearTimeout(timer);busy = false;send.disabled = stale;input.disabled = stale;if (language) language.disabled = false;
+            window.clearTimeout(timer);busy = false;send.disabled = false;input.disabled = false;if (language) language.disabled = false;
             resize();scroll();input.focus();
         }
     });

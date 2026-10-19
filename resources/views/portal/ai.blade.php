@@ -22,12 +22,12 @@
             <form id="portal-delete-chat" method="post" action="{{ $selected ? ($workspaceAI ? route('portal.workspaces.ai.destroy', [$workspace, $selected]) : route('portal.ai.destroy', $selected)) : $aiUrl }}" data-delete-base="{{ $aiUrl }}" data-confirm="ဒီစကားဝိုင်းကို ဖျက်မလား?" @if(!$selected) hidden @endif>@csrf @method('delete')<button class="icon-btn" aria-label="စကားဝိုင်းဖျက်မယ်" title="Delete chat">@include('portal.icon', ['icon'=>'trash'])</button></form>
         </div>
     </header>
-    @if($stale ?? false)<div class="chat-notice" role="status">Knowledge ပြောင်းထားပါတယ်။ <a href="{{ $aiUrl }}">စကားဝိုင်းအသစ် စမယ် →</a></div>@endif
+    @if($stale ?? false)<div class="chat-notice" role="status" data-knowledge-notice>လက်ရှိ Knowledge နဲ့ ဆက်မေးနိုင်ပါတယ်။</div>@endif
     <div class="chat-scroll" id="chat-scroll"><div class="message-list" id="portal-messages">
         @forelse($messages as $message)
         <article class="message {{ $message->role }}">
             <span class="message-avatar" aria-hidden="true">@if($message->role === 'assistant')<img src="{{ asset('images/pbr-logo.png') }}" alt="">@else{{ mb_strtoupper(mb_substr(auth()->user()->name, 0, 1)) }}@endif</span>
-            <div class="message-content"><div class="message-body"><div class="portal-reply" @if($message->role === 'assistant') data-format-reply @endif>{{ $message->content }}</div>
+            <div class="message-content"><div class="message-body"><div class="portal-reply" @if($message->role === 'assistant') data-format-reply @endif>{{ $message->role === 'assistant' ? \App\Services\Portal\ChatPresentation::answer($message->content) : $message->content }}</div>
                 @if($workspaceAI)@include('portal.workspaces.knowledge.citations', ['links'=>$message->citation_links ?? []])@endif
                 @if($message->metadata['incomplete'] ?? false)<small class="error">အဖြေ မပြီးဆုံးသေးပါ။ / Incomplete response.</small>@endif
             </div><div class="message-meta"><time>{{ $message->created_at->copy()->timezone(config('app.display_timezone'))->format('H:i') }}</time>@if($message->role === 'assistant')<button type="button" class="reply-copy" data-copy-reply aria-label="Copy answer" title="Copy">@include('portal.icon', ['icon'=>'copy'])</button>@endif</div></div>
@@ -51,7 +51,7 @@
     </div></div>
     <div class="chat-compose"><div class="compose-wrap">
         @if($workspaceAI && $readyCount === 0)<a class="chat-add-knowledge" href="{{ route('portal.workspaces.knowledge.create', $workspace) }}">@include('portal.icon', ['icon'=>'plus']) Knowledge ထည့်မယ်</a>@endif
-        <form id="portal-chat-form" class="composer"><label class="sr-only" for="portal-message">Message in Burmese or English</label><textarea id="portal-message" maxlength="5000" rows="1" required @disabled($stale ?? false) placeholder="မြန်မာလို သို့မဟုတ် English လို မေးပါ…">{{ $prefill ?? '' }}</textarea><button class="send-btn" id="portal-send" @disabled($stale ?? false) aria-label="Send message">@include('portal.icon', ['icon'=>'send'])</button></form>
+        <form id="portal-chat-form" class="composer"><label class="sr-only" for="portal-message">Message in Burmese or English</label><textarea id="portal-message" maxlength="5000" rows="1" required placeholder="မြန်မာလို သို့မဟုတ် English လို မေးပါ…">{{ $prefill ?? '' }}</textarea><button class="send-btn" id="portal-send" aria-label="Send message">@include('portal.icon', ['icon'=>'send'])</button></form>
         <div class="compose-caption"><label class="chat-language" for="portal-reply-language"><span class="sr-only">အဖြေဘာသာ / Reply language</span><select id="portal-reply-language" aria-label="အဖြေဘာသာ / Reply language"><option value="auto">Auto · မြန်မာ / EN</option><option value="my">မြန်မာ</option><option value="en">English</option></select></label><span class="chat-key-hint" aria-hidden="true">Enter ↵</span></div>
         <p id="portal-chat-status" class="sr-only" role="status" aria-live="polite"></p><p id="portal-chat-error" class="error" role="alert"></p>
     </div></div>

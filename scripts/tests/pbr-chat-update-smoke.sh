@@ -7,14 +7,15 @@ umask 022
 ROOT="$(pwd)"
 # Test this exact immutable checkout, including the release check being shipped.
 TARGET="$(git rev-parse HEAD)"
-BASE=2567dc48a3d6d83565a7e078d1274cbf810a276d
+BASE=0694d95e09f0f20218c762df2c47a1bcc2fa85c5
 FIXTURE="$(mktemp -d /tmp/pbr-chat-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-chat-test-XXXXXXXX)"
 FIXTURE_DB="pbr_chat_fixture_$(openssl rand -hex 8)"
 AI_FIXTURE="$ARTIFACTS/ai"
 AI_CACHE="$ARTIFACTS/ai-cache"
-AI_BASE=a0701941890e57267d2c4ab3ad39e1f0f284ae84
-AI_TARGET=908173283ff963fe6ee0dc6ff79933682afd74f1
+NGINX_FIXTURE="/etc/nginx/pbr-chat-fixture-$(openssl rand -hex 8).conf"
+AI_BASE=908173283ff963fe6ee0dc6ff79933682afd74f1
+AI_TARGET=902dbbe52c7ac38924ba18a36101ab0a7b701ba0
 REAL_GIT="$(command -v git)"
 REAL_PHP="$(command -v php)"
 AI_FIXTURE_CREATED=0
@@ -34,6 +35,7 @@ cleanup() {
     done
     if [[ "$AI_FIXTURE_CREATED" == 1 ]]; then sudo rm -f /etc/pbr-ai-advisor.env /etc/systemd/system/pbr-ai-advisor.service /usr/local/bin/pbr-node; fi
     git worktree remove --force "$FIXTURE" >/dev/null 2>&1 || true
+    sudo rm -f -- "$NGINX_FIXTURE"
     sudo rm -rf -- "$FIXTURE" "$ARTIFACTS"
     exit "$result"
 }
@@ -58,6 +60,9 @@ printf '#!/usr/bin/env bash\nexit 0\n' | sudo install -m 755 /dev/stdin /usr/loc
 AI_FIXTURE_CREATED=1
 chmod a+rx "$ARTIFACTS" "$ARTIFACTS/bin"
 chmod -R a+rX "$AI_FIXTURE"
+sudo install -d -m 755 /etc/nginx
+printf 'server { listen 443 ssl; server_name thepbr.io; root %s/public; location ~ \.php$ { client_max_body_size 1m; fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name; fastcgi_pass unix:/run/php/php8.4-fpm.sock; } }\n' "$FIXTURE" | sudo tee "$NGINX_FIXTURE" >/dev/null
+sudo cp "$NGINX_FIXTURE" "$ARTIFACTS/original-nginx.conf"
 printf 'CREATE DATABASE `%s` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;\n' "$FIXTURE_DB" | sudo mysql
 cat >"$FIXTURE/.env" <<EOF
 APP_NAME=PBRKnowledgeFixture
@@ -113,19 +118,20 @@ sudo sha256sum "$FIXTURE/storage/app/pbr-private/workspaces/1/keep.txt" >"$ARTIF
 cat >"$ARTIFACTS/bin/curl" <<'SH'
 #!/usr/bin/env bash
 set -eu
-url="" jar="" output=""
+url="" jar="" output="" upload=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --config) [[ "$2" == - ]] || exit 2; config="$(cat)"; url="$(printf '%s\n' "$config" | sed -n 's/^url = "\(.*\)"$/\1/p')"; shift 2;;
         -c|--cookie-jar) jar="$2"; shift 2;;
         -o|--output) output="$2"; shift 2;;
+        -F|--form) upload="$2"; shift 2;;
         https://thepbr.io/*|http://127.0.0.1:3107/*) url="$1"; shift;;
         *) shift;;
     esac
 done
 if [[ "$url" == http://127.0.0.1:3107/health ]]; then printf '%s' '{"service":"pbr-ai-advisor","knowledgeReady":true,"vectors":657,"privateKnowledgeProtocol":1,"chatInterfaceProtocol":1}'; exit 0; fi
 [[ -n "$url" && -f "$PBR_FIXTURE_APP/storage/framework/down" ]] || exit 2
-if [[ "$url" == https://thepbr.io/css/partner-chat.css* || "$url" == https://thepbr.io/js/partner-portal.js* ]]; then
+if [[ "$url" == https://thepbr.io/css/partner-chat.css* || "$url" == https://thepbr.io/js/partner-portal.js* || "$url" == https://thepbr.io/pbr-upload-too-large.html* ]]; then
     [[ -n "$output" ]] || exit 2
     asset="${url#https://thepbr.io/}";asset="${asset%%\?*}"
     cp "$PBR_FIXTURE_APP/public/$asset" "$output"
@@ -136,6 +142,13 @@ if [[ "$url" =~ ^https://thepbr.io/[A-Za-z0-9]{16,128}$ ]]; then
     [[ -n "$jar" ]] || exit 2
     printf '# Netscape HTTP Cookie File\n#HttpOnly_thepbr.io\tFALSE\t/\tTRUE\t0\tlaravel_maintenance\tfixture\n' >"$jar"
     printf 302
+    exit 0
+fi
+if [[ "$url" == https://thepbr.io/portal/workspaces/0/knowledge* ]]; then
+    [[ "$upload" == file=@* ]] || exit 2
+    file="${upload#file=@}";file="${file%%;*}"
+    [[ "$(stat -c %s "$file")" == 10485760 ]] || exit 2
+    if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" == uploadprobe ]]; then printf 413; else grep -q PHP_VALUE "$PBR_FIXTURE_NGINX_FILE" && printf 419; fi
     exit 0
 fi
 code=200
@@ -172,9 +185,19 @@ SH
 cat >"$ARTIFACTS/bin/systemctl" <<'SH'
 #!/usr/bin/env bash
 set -eu
-[[ "$*" == 'is-active --quiet pbr-ai-advisor.service' ]] && exit 0
+[[ "$*" == 'is-active --quiet pbr-ai-advisor.service' || "$*" == 'is-active --quiet nginx' || "$*" == 'reload nginx' ]] && exit 0
 if [[ "$*" == 'restart pbr-ai-advisor.service' ]]; then
     if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" == ai && "$(cat "$PBR_FIXTURE_AI_HEAD")" == "$PBR_FIXTURE_AI_TARGET" ]]; then exit 2; fi
+    exit 0
+fi
+exit 2
+SH
+cat >"$ARTIFACTS/bin/nginx" <<'SH'
+#!/usr/bin/env bash
+set -eu
+if [[ "$*" == -T ]]; then printf '# configuration file %s:\n' "$PBR_FIXTURE_NGINX_FILE";cat "$PBR_FIXTURE_NGINX_FILE";exit 0;fi
+if [[ "$*" == -t ]]; then
+    if [[ "${PBR_FIXTURE_PROBE_FAIL:-}" == nginx && "$(cat "$PBR_FIXTURE_NGINX_FILE")" == *PHP_VALUE* ]]; then exit 2;fi
     exit 0
 fi
 exit 2
@@ -197,7 +220,7 @@ run_case() {
     printf '%s\n' "$fault" >"$ARTIFACTS/probe-fault"
     set +e
     OUTPUT="$(sudo env GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=safe.directory GIT_CONFIG_VALUE_0="$FIXTURE" \
-        PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_AI="$AI_FIXTURE" PBR_FIXTURE_AI_HEAD="$ARTIFACTS/ai-head" PBR_FIXTURE_AI_TARGET="$AI_TARGET" PBR_FIXTURE_REAL_GIT="$REAL_GIT" PBR_FIXTURE_PROBE_FAIL="$fault" PBR_FIXTURE_APP="$FIXTURE" PBR_FIXTURE_DB="$FIXTURE_DB" bash "$ROOT/scripts/pbr-chat-update.sh" "$TARGET" "$FIXTURE" "$AI_FIXTURE" "$AI_CACHE")"
+        PATH="$ARTIFACTS/bin:$PATH" PBR_FIXTURE_AI="$AI_FIXTURE" PBR_FIXTURE_AI_HEAD="$ARTIFACTS/ai-head" PBR_FIXTURE_AI_TARGET="$AI_TARGET" PBR_FIXTURE_REAL_GIT="$REAL_GIT" PBR_FIXTURE_PROBE_FAIL="$fault" PBR_FIXTURE_NGINX_FILE="$NGINX_FIXTURE" PBR_FIXTURE_APP="$FIXTURE" PBR_FIXTURE_DB="$FIXTURE_DB" bash "$ROOT/scripts/pbr-chat-update.sh" "$TARGET" "$FIXTURE" "$AI_FIXTURE" "$AI_CACHE")"
     result=$?
     set -e
     printf '%s\n' "$OUTPUT"
@@ -221,7 +244,9 @@ run_case no
 [[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == "$TARGET" ]]
 sudo env -i PATH="$PATH" php "$ROOT/scripts/pbr-knowledge-release-check.php" verify "$FIXTURE" "$ARTIFACTS/original-projection.json" "$ARTIFACTS/original-records.json"
 sudo cmp -s "$ARTIFACTS/original.env" "$FIXTURE/.env"
-echo 'Chat interface release keeps the existing schema and all records: PASS'
+sudo grep -q 'upload_max_filesize=10M' "$NGINX_FIXTURE"
+[[ "$OUTPUT" == *TEN_MB_UPLOAD_REACHES_AUTH_BOUNDARY=YES* ]]
+echo 'Chat interface release keeps the existing schema, records and scoped upload settings: PASS'
 sudo mysql --database="$FIXTURE_DB" --default-character-set=utf8mb4 <<'SQL'
 INSERT INTO users(id,name,email,password,role,is_admin,account_status,created_at,updated_at) VALUES (3,'New real member','new-member@example.invalid','retain-new-credential','public',0,'active',NOW(),NOW());
 INSERT INTO partnership_workspaces(id,owner_user_id,name,business_name,description,status,created_at,updated_at) VALUES (7,2,'New real Workspace','New real Workspace','Retain new private description မြန်မာ','active',NOW(),NOW());
@@ -240,11 +265,21 @@ sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" checkout --quiet --detach "$
 (cd "$FIXTURE" && sudo -u www-data php artisan config:clear >/dev/null && sudo -u www-data php artisan route:clear >/dev/null && sudo -u www-data php artisan view:clear >/dev/null)
 (cd "$FIXTURE" && sudo -u www-data php artisan filament:cache-components >/dev/null)
 printf '%s\n' "$AI_BASE" >"$ARTIFACTS/ai-head"
+sudo cp "$ARTIFACTS/original-nginx.conf" "$NGINX_FIXTURE"
+run_case nginx
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *UPLOAD_CONFIGURATION_ROLLBACK=OK* && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
+sudo cmp -s "$ARTIFACTS/original-nginx.conf" "$NGINX_FIXTURE"
+echo 'Invalid nginx settings restore the configuration and app code: PASS'
+run_case uploadprobe
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *SYNTHETIC_UPLOAD_HTTP_CHECK_FAILED* && "$OUTPUT" == *UPLOAD_CONFIGURATION_ROLLBACK=OK* && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
+sudo cmp -s "$ARTIFACTS/original-nginx.conf" "$NGINX_FIXTURE"
+echo 'A rejected multipart body restores nginx and both code repositories: PASS'
 run_case ai
 [[ "$CASE_RESULT" != 0 && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
 [[ "$(cat "$ARTIFACTS/ai-head")" == "$AI_BASE" ]]
 sudo test ! -e "$FIXTURE/storage/framework/down"
-echo 'AI restart failure rolls both repositories back without restoring a database: PASS'
+sudo cmp -s "$ARTIFACTS/original-nginx.conf" "$NGINX_FIXTURE"
+echo 'AI restart failure rolls both repositories and nginx back without restoring a database: PASS'
 run_case language
 [[ "$CASE_RESULT" != 0 && "$OUTPUT" == *CHAT_CHECK_CASE=WORKSPACE_SELECTED_EN* && "$OUTPUT" == *CHAT_CHECK_FAILED=REPLY_LANGUAGE_MISMATCH* && "$OUTPUT" == *CHAT_UPDATE_FAILED_STAGE=verify_real_burmese_and_english_replies* && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
 [[ "$(cat "$ARTIFACTS/ai-head")" == "$AI_BASE" ]]
