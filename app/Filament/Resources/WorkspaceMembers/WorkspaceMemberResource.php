@@ -28,6 +28,16 @@ class WorkspaceMemberResource extends Resource
 
     protected static ?int $navigationSort = 1;
 
+    public static function canViewAny(): bool
+    {
+        return ! config('partner_portal.enabled') && (bool) auth()->user()?->isAdmin();
+    }
+
+    public static function shouldRegisterNavigation(): bool
+    {
+        return ! config('partner_portal.enabled');
+    }
+
     public static function form(Schema $schema): Schema
     {
         return $schema->components([]);

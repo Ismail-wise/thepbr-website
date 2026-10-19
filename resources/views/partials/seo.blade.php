@@ -18,11 +18,13 @@
     produced a social card pointing at an image that does not exist.
 --}}
 @php
-    $seoTitle = trim($__env->yieldContent('title', 'thePBR — Partnership Business Rules'));
-    $seoDescription = trim($__env->yieldContent(
+    // Inline Blade sections have already been HTML-escaped. Normalize text
+    // once, then escape for each destination (attributes vs JSON-LD).
+    $seoTitle = html_entity_decode(trim($__env->yieldContent('title', 'thePBR — Partnership Business Rules')), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+    $seoDescription = html_entity_decode(trim($__env->yieldContent(
         'description',
         'မိတ်ဖက်လုပ်ငန်း စည်းမျဉ်းများကို လုပ်ငန်းရှင်များ နားလည်လွယ်အောင် သင်ကြားပေးသည့် သင်တန်း။'
-    ));
+    )), ENT_QUOTES | ENT_HTML5, 'UTF-8');
     $seoType = trim($__env->yieldContent('og_type', 'website'));
 
     // url()->current() drops the query string on purpose: ?utm_source=... and
@@ -78,7 +80,7 @@
 <meta name="twitter:image" content="{{ $seoImage }}">
 
 @hasSection('published_time')
-    <meta property="article:published_time" content="@yield('published_time')">
+    <meta property="article:published_time" content="{{ $__env->yieldContent('published_time') }}">
 @endif
 
 {{-- Organization: tells Google what thePBR is, once, on every page. --}}
@@ -95,7 +97,7 @@
         ['@type' => 'Country', 'name' => 'Myanmar'],
         ['@type' => 'Country', 'name' => 'Thailand'],
     ],
-], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) !!}
+], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}
 </script>
 
 @stack('schema')

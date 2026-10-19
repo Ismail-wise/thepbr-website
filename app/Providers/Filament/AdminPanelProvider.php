@@ -11,6 +11,8 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use App\Filament\Widgets\ActivationFunnelWidget;
 use App\Filament\Widgets\AreaProgressWidget;
+use App\Filament\Widgets\PortalAccessWidget;
+use Filament\Actions\Action;
 use Filament\Support\Colors\Color;
 use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -29,6 +31,13 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->renderHook('panels::head.end', fn () => view('partials.premium-assets'))
+            ->userMenuItems([
+                Action::make('openUserPortal')
+                    ->label('Open User Portal')
+                    ->url(fn (): string => route('portal.home'))
+                    ->visible(fn (): bool => (bool) config('partner_portal.enabled')),
+            ])
             // Brand green from public/css/site.css (--forest #157F09), not
             // Filament's default amber, so the admin panel reads as part of
             // thePBR rather than a separate tool.
@@ -46,6 +55,7 @@ class AdminPanelProvider extends PanelProvider
             // which tells an admin nothing about how thePBR is doing.
             ->widgets([
                 AccountWidget::class,
+                PortalAccessWidget::class,
                 ActivationFunnelWidget::class,
                 AreaProgressWidget::class,
             ])

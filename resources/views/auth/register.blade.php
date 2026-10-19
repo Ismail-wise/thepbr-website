@@ -6,21 +6,28 @@
 <section class="auth-section">
     <div class="auth-shell">
         <div class="auth-copy">
-            <span class="portal-kicker">Public Account</span>
+            <span class="portal-kicker">{{ config('partner_portal.enabled') ? 'PBR Account' : 'Public Account' }}</span>
             <h1>Create your PBR account</h1>
+            @if(config('partner_portal.enabled'))
+            <p>Student Portal ဝင်ခွင့်နဲ့ သက်တမ်းကို Admin က သတ်မှတ်ပေးပါမယ်။ Partner invitation ရှိသူက invitation ကို လက်ခံပြီး Partner Dynamics သုံးနိုင်ပါတယ်။</p>
+            @else
             <p>This account can use public and profile features. Student materials remain locked until the account receives student access.</p>
+            @endif
             <div class="auth-note">
                 Already have an account?
                 <a href="{{ route('login', request()->filled('email') ? ['email' => request('email')] : []) }}">Log in here</a>
             </div>
+            @unless(config('partner_portal.enabled'))
             <div class="auth-note">
                 Already received a student access code?
                 <a href="{{ route('student.register') }}">Use student registration</a>
             </div>
+            @endunless
         </div>
 
         <div class="auth-card">
-            <form method="POST" action="{{ route('register.store') }}" novalidate>
+            <h2 class="pbr-auth-card-heading">Your account details</h2>
+            <form method="POST" action="{{ route('register.store') }}" data-pbr-loading novalidate>
                 @csrf
 
                 <div class="field">
@@ -55,7 +62,7 @@
                     </div>
                 </div>
 
-                <button class="portal-button" type="submit">Create Public Account</button>
+                <button class="portal-button" type="submit">{{ config('partner_portal.enabled') ? 'Create Account' : 'Create Public Account' }}</button>
             </form>
         </div>
     </div>

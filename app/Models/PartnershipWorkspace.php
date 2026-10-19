@@ -28,6 +28,7 @@ class PartnershipWorkspace extends Model
         'owner_user_id',
         'name',
         'business_name',
+        'description',
         'business_stage',
         'currency_code',
         'status',

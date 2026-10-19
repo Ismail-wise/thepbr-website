@@ -9,8 +9,11 @@
             <span class="portal-kicker">Secure Partnership Invitation</span>
             <h1>Workspace သို့ ဖိတ်ကြားထားပါသည်</h1>
             <p>
-                ဒီ email-bound invitation ကို accept လုပ်ရင် သင့်မူလ Account Type မပြောင်းဘဲ
-                ဒီ Workspace တစ်ခုထဲကို Partner Read-Only အဖြစ် ချိတ်ဆက်ပေးမှာပါ။
+                @if(config('partner_portal.enabled'))
+                Invitation လက်ခံပြီးရင် Admin approval စောင့်စရာမလိုဘဲ Partner Dynamics သုံးနိုင်ပါတယ်။ သင့်မူလ Student ဝင်ခွင့်ရှိပြီးသားဆိုလည်း ဆက်ရှိနေပါတယ်။
+                @else
+                ဒီ email-bound invitation ကို accept လုပ်ရင် သင့်မူလ Account Type မပြောင်းဘဲ ဒီ Workspace တစ်ခုထဲကို Partner Read-Only အဖြစ် ချိတ်ဆက်ပေးမှာပါ။
+                @endif
             </p>
         </div>
 
@@ -37,9 +40,13 @@
 
             <div class="auth-note">
                 <strong>Partner Access:</strong><br>
+                @if(config('partner_portal.enabled'))
+                Partner Dynamics တစ်မျိုးတည်းအတွက် ဖြစ်ပါတယ်။ Workspace အကြောင်းအရာ၊ AI နဲ့ Student tools ဝင်ခွင့် မပေးပါ။ သင့် assessment နဲ့ result ကို မိမိ account ကနေ သုံးနိုင်ပါတယ်။
+                @else
                 Owner က approve လုပ်ထားတဲ့ Current Rules နဲ့ shared workspace information ကို
                 read-only ကြည့်နိုင်ပါတယ်။ Tools ကို edit/approve လုပ်ခြင်း၊ private drafts၊
                 Feasibility နဲ့ Valuation data ကို ကြည့်ခြင်း မပြုလုပ်နိုင်ပါ။
+                @endif
             </div>
 
             <div class="auth-note">
@@ -79,7 +86,7 @@
                     >
                         @csrf
                         <button class="portal-button" type="submit">
-                            Accept Partner Read-Only Access
+                            {{ config('partner_portal.enabled') ? 'Accept · Partner Dynamics' : 'Accept Partner Read-Only Access' }}
                         </button>
                     </form>
                 @else

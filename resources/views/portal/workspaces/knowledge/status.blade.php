@@ -1,0 +1,2 @@
+<span class="pbr-knowledge-state {{ $source->processing_status === 'ready' ? 'is-ready' : '' }}">{{ $source->processing_status === 'ready' ? 'AI အသုံးပြုနိုင်ပြီ' : ($source->processing_status === 'extraction_failed' ? 'စာသားဖတ်ယူမှု ပြန်စစ်ရန်' : 'Owner စစ်ဆေးရန်') }}</span>
+<span class="pbr-knowledge-business">{{ \App\Models\WorkspaceKnowledgeSource::BUSINESS_STATUSES[$source->business_status] }}</span>

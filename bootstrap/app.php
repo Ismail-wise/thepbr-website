@@ -15,10 +15,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             EnsureActiveAccount::class,
+            \App\Http\Middleware\EnsurePortalWorkspaceBoundary::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => $request->is('api/*') || $request->is('portal/ai/chat') || $request->is('portal/workspaces/*/ai/chat'),
         );
     })->create();

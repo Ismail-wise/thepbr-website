@@ -237,6 +237,7 @@ class PartnerDynamicsController extends Controller
             && (
                 $user->isAdmin()
                 || $user->isStudent()
+                || (config('partner_portal.enabled') && $user->hasAcceptedPartnerWorkspaceMembership())
             ),
             403
         );

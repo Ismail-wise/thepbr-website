@@ -1,0 +1,369 @@
+#!/usr/bin/env bash
+# Partner AI user-testing fixes: language, composer, lists, Knowledge and History.
+# Two reviewed repositories; no schema, account, content or private-data changes.
+set -Eeuo pipefail
+umask 022
+
+TARGET="${1:-}"
+APP_ROOT="${2:-/var/www/thepbr-laravel}"
+BASE="0694d95e09f0f20218c762df2c47a1bcc2fa85c5"
+REPOSITORY="https://github.com/Ismail-wise/thepbr-website.git"
+BACKUP_PARENT="/root/thepbr-deploy-backups"
+WEB_USER=www-data
+STATE="" SOURCE="" FRESH_BACKUP=""
+AI_DIR="${3:-/opt/pbr-partner-ai}"
+AI_CACHE_DIR="${4:-/var/lib/pbr-ai}"
+AI_BASE="908173283ff963fe6ee0dc6ff79933682afd74f1"
+AI_TARGET="902dbbe52c7ac38924ba18a36101ab0a7b701ba0"
+AI_NODE=/usr/local/bin/pbr-node
+AI_SOURCE="" AI_ATTEMPTED=0 UPLOAD_ATTEMPTED=0
+STAGE=prerequisites
+MAINTENANCE=0 CODE_ATTEMPTED=0 COMPLETE=0
+
+echo "PBR_CHAT_UPDATE=START"
+stop() { echo "CHAT_UPDATE_STOP_REASON=$1"; exit 2; }
+artisan() {
+    (cd "$APP_ROOT" && runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" artisan "$@") >>"$STATE/private.log" 2>&1
+}
+isolated() {
+    (cd "$SOURCE" && env -i PATH="$PATH" APP_ENV=testing APP_KEY="$TEST_KEY" \
+        APP_MAINTENANCE_DRIVER=file DB_CONNECTION=sqlite DB_DATABASE=:memory: DB_URL= \
+        CACHE_STORE=array SESSION_DRIVER=array QUEUE_CONNECTION=sync MAIL_MAILER=array \
+        PBR_AI_BASE_URL=http://127.0.0.1:9 PBR_AI_INTERNAL_SECRET=isolated-test-secret-never-production \
+        PULSE_ENABLED=false TELESCOPE_ENABLED=false NIGHTWATCH_ENABLED=false "$@") >>"$STATE/private.log" 2>&1
+}
+ai_health() {
+    local protocol="$1"
+    for attempt in {1..30}; do
+        if systemctl is-active --quiet pbr-ai-advisor.service && curl -fsS --connect-timeout 2 --max-time 3 http://127.0.0.1:3107/health 2>/dev/null | "$PHP_BIN" -r '$d=json_decode(stream_get_contents(STDIN),true);exit(($d["service"]??"")==="pbr-ai-advisor" && ($d["knowledgeReady"]??false)===true && ($d["vectors"]??0)>0 && ($d["privateKnowledgeProtocol"]??null)===1 && ((int)$argv[1]===0 || ($d["chatInterfaceProtocol"]??null)===1)?0:2);' "$protocol"; then return 0; fi
+        sleep 2
+    done
+    return 1
+}
+ai_cache_verify() {
+    (cd "$AI_CACHE_DIR" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) >"$STATE/ai-cache-current.sha256" &&
+    cmp -s "$STATE/ai-cache.sha256" "$STATE/ai-cache-current.sha256" &&
+    cmp -s /etc/pbr-ai-advisor.env "$STATE/ai-original.env" && cmp -s /etc/systemd/system/pbr-ai-advisor.service "$STATE/ai-original.service"
+}
+rollback() {
+    local ok=1
+    echo "CHAT_CODE_ROLLBACK=START"
+    artisan down --retry=30 --render=errors::503 || ok=0
+    artisan filament:clear-cached-components || ok=0
+    if [[ "$CODE_ATTEMPTED" == 1 ]]; then
+        # Preserve unexpected writes and hold the current code under maintenance
+        # until they can be reviewed. A rollback never restores old data.
+        if ! env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json" >>"$STATE/private.log" 2>&1; then
+            echo "CHAT_CODE_ROLLBACK=NEEDS_REVIEW"
+            echo "CUTOVER_RECORDS_CHANGED=REVIEW_REQUIRED"
+            echo "WEBSITE_MAINTENANCE=ON"
+            return 1
+        fi
+    fi
+    if [[ "$UPLOAD_ATTEMPTED" == 1 ]]; then
+        if ! "$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" rollback "$STATE/upload-plan.json" >>"$STATE/private.log" 2>&1 ||
+            ! nginx -t >>"$STATE/private.log" 2>&1 || ! systemctl reload nginx >>"$STATE/private.log" 2>&1; then
+            echo "UPLOAD_CONFIGURATION_ROLLBACK=NEEDS_REVIEW"
+            echo "WEBSITE_MAINTENANCE=ON"
+            return 1
+        fi
+        echo "UPLOAD_CONFIGURATION_ROLLBACK=OK"
+    fi
+    if [[ "$CODE_ATTEMPTED" == 1 ]]; then
+        git -C "$APP_ROOT" checkout --quiet --detach "$BASE" >>"$STATE/private.log" 2>&1 || ok=0
+    fi
+    (cd "$APP_ROOT" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1 || ok=0
+    artisan config:clear || ok=0
+    artisan route:clear || ok=0
+    artisan view:clear || ok=0
+    artisan config:cache || ok=0
+    artisan filament:cache-components || ok=0
+    artisan view:cache || ok=0
+    if [[ "$AI_ATTEMPTED" == 1 ]]; then
+        git -C "$AI_DIR" checkout --quiet --detach "$AI_BASE" >>"$STATE/private.log" 2>&1 || ok=0
+        systemctl restart pbr-ai-advisor.service >>"$STATE/private.log" 2>&1 || ok=0
+        ai_health 0 || ok=0
+        ai_cache_verify || ok=0
+    fi
+    if [[ "$ok" == 1 ]] && artisan up; then
+        MAINTENANCE=0
+        echo "CHAT_CODE_ROLLBACK=OK"
+        echo "ALL_PORTAL_RECORDS=RETAINED"
+    else
+        echo "CHAT_CODE_ROLLBACK=NEEDS_REVIEW"
+        echo "WEBSITE_MAINTENANCE=ON"
+    fi
+}
+finish() {
+    local result=$?
+    trap - EXIT ERR
+    set +e
+    if [[ "$COMPLETE" != 1 && "$MAINTENANCE" == 1 ]]; then rollback; fi
+    if [[ -n "$STATE" ]]; then
+        rm -f -- "$STATE/maintenance.cookies"
+        rm -rf -- "$SOURCE" "$AI_SOURCE"
+        echo "CHAT_RECEIPT_PATH=$STATE"
+    fi
+    if [[ "$result" == 0 && "$COMPLETE" == 1 ]]; then
+        echo "LIVE_SOURCE_HEAD=$TARGET"
+        echo "AI_SOURCE_HEAD=$AI_TARGET"
+        echo "PBR_CHAT_UPDATE=COMPLETE"
+    else
+        echo "CHAT_UPDATE_FAILED_STAGE=$STAGE"
+        echo "PBR_CHAT_UPDATE=INCOMPLETE"
+        result=2
+    fi
+    exit "$result"
+}
+trap finish EXIT
+trap 'echo "CHAT_UPDATE_STEP_FAILED=$STAGE"' ERR
+trap 'exit 130' INT
+trap 'exit 143' TERM
+
+[[ "$EUID" == 0 ]] || stop "RUN_WITH_SUDO_ON_PBR_SERVER"
+[[ $# -ge 1 && $# -le 4 && "$TARGET" =~ ^[a-f0-9]{40}$ ]] || stop "EXPECTED_REVIEWED_COMMIT_SHA"
+for executable in php composer git mysql mysqldump curl openssl tar gzip sha256sum cmp sed awk grep flock runuser realpath stat tee du df systemctl find sort xargs install nginx; do
+    command -v "$executable" >/dev/null || stop "MISSING_${executable^^}"
+done
+PHP_BIN="$(command -v php)"
+"$PHP_BIN" -r 'exit(PHP_VERSION_ID >= 80400 && extension_loaded("pdo_sqlite") && extension_loaded("pdo_mysql") ? 0 : 2);' || stop "PHP_84_SQLITE_MYSQL_REQUIRED"
+APP_ROOT="$(realpath -e -- "$APP_ROOT")"
+[[ -f "$APP_ROOT/.env" && ! -L "$APP_ROOT/.env" && -f "$APP_ROOT/vendor/autoload.php" ]] || stop "REGULAR_APP_AND_ENV_REQUIRED"
+[[ -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_NOT_CLEAN"
+CURRENT="$(git -C "$APP_ROOT" rev-parse HEAD)"
+[[ "$CURRENT" == "$BASE" || "$CURRENT" == "$TARGET" ]] || stop "LIVE_SOURCE_CHANGED_RECHECK_REQUIRED"
+runuser -u "$WEB_USER" -- test -w "$APP_ROOT/storage" || stop "STORAGE_NOT_WRITABLE_BY_WEB_USER"
+runuser -u "$WEB_USER" -- test -w "$APP_ROOT/bootstrap/cache" || stop "BOOTSTRAP_CACHE_NOT_WRITABLE_BY_WEB_USER"
+[[ ! -L "$BACKUP_PARENT" ]] || stop "BACKUP_PARENT_IS_SYMLINK"
+mkdir -p -- "$BACKUP_PARENT"
+chmod 700 -- "$BACKUP_PARENT"
+exec 8>"$BACKUP_PARENT/.partner-portal-install.lock"
+flock -n 8 || stop "ANOTHER_PORTAL_INSTALL_IS_RUNNING"
+STATE="$BACKUP_PARENT/chat-ui-release-$(date -u +%Y%m%dT%H%M%SZ)-$(openssl rand -hex 4)"
+mkdir -m 700 -- "$STATE"
+exec 2>>"$STATE/private.log"
+cp -p -- "$APP_ROOT/.env" "$STATE/original.env"
+if [[ "$CURRENT" == "$TARGET" ]]; then
+    STAGE=verify_already_installed_version
+    env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" \
+        filament-inspect "$APP_ROOT" "$STATE/database-meta.json" "$STATE/config.sha"
+    runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" render "$APP_ROOT"
+    runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-knowledge-release-check.php" render "$APP_ROOT"
+    [[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_TARGET" ]] || stop "AI_SOURCE_CHANGED_RECHECK_REQUIRED"
+    curl -fsS --connect-timeout 3 --max-time 5 http://127.0.0.1:3107/health | "$PHP_BIN" -r '$d=json_decode(stream_get_contents(STDIN),true);exit(($d["privateKnowledgeProtocol"]??null)===1 && ($d["chatInterfaceProtocol"]??null)===1 && ($d["knowledgeReady"]??false)===true?0:2);' || stop "AI_PROTOCOL_NOT_READY"
+    nginx -T >"$STATE/nginx-already.conf" 2>>"$STATE/private.log"
+    "$PHP_BIN" "$APP_ROOT/scripts/pbr-upload-limits.php" plan "$STATE/nginx-already.conf" "$APP_ROOT" "$STATE/upload-already.json"
+    "$PHP_BIN" -r 'exit(json_decode(file_get_contents($argv[1]),true,512,JSON_THROW_ON_ERROR)===[]?0:2);' "$STATE/upload-already.json" || stop "SCOPED_UPLOAD_CONFIGURATION_NOT_INSTALLED"
+    echo "ALREADY_AT_REVIEWED_VERSION=YES"
+    COMPLETE=1
+    exit 0
+fi
+VENDOR_BYTES="$(du -sb "$APP_ROOT/vendor" | awk '{print $1}')"
+STAGING_FREE="$(df -Pk "$STATE" | awk 'NR==2 {print $4*1024}')"
+awk -v free="$STAGING_FREE" -v vendor="$VENDOR_BYTES" 'BEGIN {exit !(free > vendor*2+1073741824)}' || stop "ISOLATED_STAGING_DISK_SPACE_INSUFFICIENT"
+
+STAGE=fetch_reviewed_partner_ai_interface
+echo "STEP=$STAGE"
+SOURCE="$STATE/source"
+git clone --quiet --no-checkout "$REPOSITORY" "$SOURCE" >>"$STATE/private.log" 2>&1
+git -C "$SOURCE" fetch --quiet --no-tags origin "$TARGET" >>"$STATE/private.log" 2>&1
+git -C "$SOURCE" checkout --quiet --detach "$TARGET" >>"$STATE/private.log" 2>&1
+git -C "$SOURCE" merge-base --is-ancestor "$BASE" "$TARGET" || stop "TARGET_NOT_BASED_ON_INSTALLED_PORTAL"
+# This update cannot alter permissions, scoring, public publishing or schema.
+while IFS= read -r path; do
+    case "$path" in
+        bootstrap/app.php|app/Http/Controllers/PortalAiController.php|app/Http/Controllers/PortalWorkspaceAiController.php|\
+        app/Services/Portal/PartnerAiGateway.php|app/Services/Portal/ChatPresentation.php|app/Http/Controllers/PortalKnowledgeController.php|public/pbr-upload-too-large.html|public/css/partner-chat.css|public/js/partner-portal.js|\
+        resources/views/portal/*|scripts/pbr-chat-update.sh|scripts/pbr-chat-release-check.php|scripts/pbr-chat-check-support.php|scripts/pbr-upload-limits.php|\
+        scripts/tests/*|tests/*|docs/*|.github/workflows/tests.yml) ;;
+        *) stop "CHANGE_OUTSIDE_REVIEWED_CHAT_INTERFACE_SCOPE";;
+    esac
+done < <(git -C "$SOURCE" diff --name-only "$BASE" "$TARGET")
+[[ -z "$(git -C "$SOURCE" diff --name-only "$BASE" "$TARGET" -- database config app/Models app/Filament resources/views/articles resources/views/videos)" ]] || stop "SCHEMA_ACCESS_OR_PUBLIC_PUBLISHING_CHANGE"
+env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$SOURCE/scripts/pbr-portal-release-check.php" filament-inspect "$APP_ROOT" "$STATE/database-meta.json" "$STATE/cached-config.sha"
+env -i PATH="$PATH" APP_CONFIG_CACHE="$STATE/uncached-config.php" "$PHP_BIN" -d display_errors=0 \
+    "$SOURCE/scripts/pbr-portal-release-check.php" filament-inspect "$APP_ROOT" "$STATE/uncached-database-meta.json" "$STATE/uncached-config.sha"
+cmp -s "$STATE/cached-config.sha" "$STATE/uncached-config.sha" || stop "CACHED_ENVIRONMENT_CONFIG_MISMATCH"
+cmp -s "$STATE/database-meta.json" "$STATE/uncached-database-meta.json" || stop "CACHED_DATABASE_MISMATCH"
+env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
+env -i PATH="$PATH" APP_CONFIG_CACHE="$STATE/uncached-config-check.php" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" config "$APP_ROOT"
+echo "PUBLIC_CONTENT_AND_ASSESSMENT_SCORING=PRESERVED"
+echo "PUBLIC_PUBLISHING_AND_PRIVATE_ACCESS=PRESERVED"
+
+STAGE=isolated_chat_interface_and_language_tests
+echo "STEP=$STAGE"
+cp -a -- "$APP_ROOT/vendor" "$SOURCE/vendor"
+cp "$SOURCE/.env.example" "$SOURCE/.env"
+TEST_KEY="base64:$(openssl rand -base64 32)"
+mkdir -p "$SOURCE/storage/framework/cache/data" "$SOURCE/storage/framework/views" "$SOURCE/storage/framework/sessions" "$SOURCE/storage/logs"
+if [[ ! -f "$SOURCE/vendor/bin/pest" ]]; then
+    (cd "$SOURCE" && COMPOSER_ALLOW_SUPERUSER=1 composer install --no-scripts --no-interaction --prefer-dist --no-progress) >>"$STATE/private.log" 2>&1
+fi
+(cd "$SOURCE" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1
+isolated "$PHP_BIN" artisan view:cache
+isolated "$PHP_BIN" vendor/bin/pest --ci --colors=never
+echo "SERVER_ISOLATED_CHAT_AND_PUBLISHING_TESTS=OK"
+
+STAGE=validate_original_partner_ai_extension
+echo "STEP=$STAGE"
+AI_DIR="$(realpath -e -- "$AI_DIR")"
+AI_CACHE_DIR="$(realpath -e -- "$AI_CACHE_DIR")"
+[[ -x "$AI_NODE" && -d "$AI_DIR/.git" && ! -L "$AI_DIR/.env" ]] || stop "ORIGINAL_AI_RUNTIME_REQUIRED"
+[[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_BASE" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "AI_SOURCE_CHANGED_RECHECK_REQUIRED"
+[[ -f /etc/pbr-ai-advisor.env && -f /etc/systemd/system/pbr-ai-advisor.service ]] || stop "AI_SERVICE_CONFIGURATION_REQUIRED"
+git -C "$AI_DIR" fetch --quiet --no-tags origin "$AI_TARGET" >>"$STATE/private.log" 2>&1
+AI_SOURCE="$STATE/source-ai"
+git clone --quiet --no-checkout --no-hardlinks "$AI_DIR" "$AI_SOURCE" >>"$STATE/private.log" 2>&1
+git -C "$AI_SOURCE" checkout --quiet --detach "$AI_TARGET" >>"$STATE/private.log" 2>&1
+git -C "$AI_SOURCE" merge-base --is-ancestor "$AI_BASE" "$AI_TARGET" || stop "AI_TARGET_NOT_BASED_ON_INSTALLED_SOURCE"
+while IFS= read -r path; do
+    case "$path" in pbr-service.js|chat-style.js|tests/*|.github/workflows/*|docs/PRIVATE_KNOWLEDGE.md) ;; *) stop "AI_CHANGE_OUTSIDE_REVIEWED_SCOPE";; esac
+done < <(git -C "$AI_SOURCE" diff --name-only "$AI_BASE" "$AI_TARGET")
+"$AI_NODE" --check "$AI_SOURCE/pbr-service.js"
+"$AI_NODE" --check "$AI_SOURCE/private-knowledge.js"
+"$AI_NODE" --check "$AI_SOURCE/chat-style.js"
+"$AI_NODE" --check "$SOURCE/public/js/partner-portal.js"
+"$AI_NODE" --test "$AI_SOURCE"/tests/*.test.js >>"$STATE/private.log" 2>&1
+AI_BYTES="$(du -sb --exclude=node_modules "$AI_DIR" "$AI_CACHE_DIR" | awk '{s+=$1} END {print s}')"
+AI_FREE="$(df -Pk "$STATE" | awk 'NR==2 {print $4*1024}')"
+awk -v free="$AI_FREE" -v bytes="$AI_BYTES" 'BEGIN {exit !(free > bytes*3+1073741824)}' || stop "AI_BACKUP_DISK_SPACE_INSUFFICIENT"
+echo "ORIGINAL_PARTNER_AI_BILINGUAL_CONTRACT=OK"
+
+
+STAGE=plan_scoped_upload_configuration
+echo "STEP=$STAGE"
+nginx -t >>"$STATE/private.log" 2>&1
+systemctl is-active --quiet nginx || stop "NGINX_NOT_ACTIVE"
+nginx -T >"$STATE/nginx-before.conf" 2>>"$STATE/private.log"
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" plan "$STATE/nginx-before.conf" "$APP_ROOT" "$STATE/upload-plan.json"
+sha256sum "$STATE/upload-plan.json" >"$STATE/upload-plan.sha256"
+
+STAGE=maintenance_and_verified_current_portal_backup
+echo "STEP=$STAGE"
+[[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$BASE" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "LIVE_SOURCE_CHANGED_DURING_TESTS"
+cmp -s "$APP_ROOT/.env" "$STATE/original.env" || stop "LIVE_ENV_CHANGED_DURING_TESTS"
+MAINTENANCE=1
+artisan down --retry=30 --render=errors::503 --with-secret
+bash "$SOURCE/scripts/pbr-filament-backup.sh" "$APP_ROOT" "$BASE" | tee "$STATE/backup-output.txt"
+FRESH_BACKUP="$(sed -n 's/^BACKUP_PATH=//p' "$STATE/backup-output.txt")"
+grep -qx 'PBR_PORTAL_BACKUP=COMPLETE' "$STATE/backup-output.txt" || stop "CURRENT_PORTAL_RESTORE_DRILL_INCOMPLETE"
+[[ "$FRESH_BACKUP" == "$BACKUP_PARENT"/pre-filament-admin-* && -f "$FRESH_BACKUP/restore-verified.txt" ]] || stop "CURRENT_PORTAL_BACKUP_REQUIRED"
+grep -qx "SOURCE_HEAD=$BASE" "$FRESH_BACKUP/restore-verified.txt" || stop "CURRENT_PORTAL_BACKUP_SOURCE_MISMATCH"
+cmp -s "$STATE/database-meta.json" "$FRESH_BACKUP/database-meta.json" || stop "FRESH_BACKUP_DATABASE_MISMATCH"
+(cd "$FRESH_BACKUP" && sha256sum --check --status SHA256SUMS)
+echo "FRESH_VERIFIED_BACKUP=$FRESH_BACKUP"
+[[ -z "$(find "$AI_DIR" "$AI_CACHE_DIR" -type l -not -path '*/node_modules/*' -print -quit)" ]] || stop "AI_BACKUP_LINKS_REQUIRE_REVIEW"
+cp -p /etc/pbr-ai-advisor.env "$STATE/ai-original.env"
+cp -p /etc/systemd/system/pbr-ai-advisor.service "$STATE/ai-original.service"
+(cd "$AI_CACHE_DIR" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) >"$STATE/ai-cache.sha256"
+[[ -s "$STATE/ai-cache.sha256" ]] || stop "AI_SHARED_CACHE_REQUIRED"
+tar --exclude='*/node_modules' -czf "$STATE/partner-ai-backup.tar.gz" -C / "${AI_DIR#/}" "${AI_CACHE_DIR#/}" etc/pbr-ai-advisor.env etc/systemd/system/pbr-ai-advisor.service >>"$STATE/private.log" 2>&1
+mkdir -m 700 "$STATE/restore-ai"
+tar -xzf "$STATE/partner-ai-backup.tar.gz" -C "$STATE/restore-ai" >>"$STATE/private.log" 2>&1
+tar --compare --gzip --file="$STATE/partner-ai-backup.tar.gz" --directory="$STATE/restore-ai" >>"$STATE/private.log" 2>&1
+sha256sum "$STATE/partner-ai-backup.tar.gz" >"$STATE/partner-ai-backup.sha256"
+ai_cache_verify || stop "AI_CONFIGURATION_OR_CACHE_CHANGED"
+echo "ORIGINAL_AI_BACKUP_AND_RESTORE=OK"
+
+env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" snapshot "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json" >>"$STATE/private.log" 2>&1
+DB_NAME="$("$PHP_BIN" -r 'echo json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR)["database"];' "$STATE/database-meta.json")"
+DB_SOCKET="$("$PHP_BIN" -r 'echo json_decode(file_get_contents($argv[1]), true, 512, JSON_THROW_ON_ERROR)["socket"];' "$STATE/database-meta.json")"
+mysqldump --protocol=socket --socket="$DB_SOCKET" --user=root --no-data --skip-comments --no-tablespaces "$DB_NAME" >"$STATE/schema-before.sql"
+[[ -d "$APP_ROOT/storage/app/pbr-private" && ! -L "$APP_ROOT/storage/app/pbr-private" ]] || stop "PRIVATE_STORAGE_REQUIRED"
+(cd "$APP_ROOT/storage/app/pbr-private" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) >"$STATE/private-files-before.sha256"
+
+STAGE=install_partner_ai_interface
+echo "STEP=$STAGE"
+git -C "$APP_ROOT" fetch --quiet --no-tags "$SOURCE" "$TARGET" >>"$STATE/private.log" 2>&1
+git -C "$APP_ROOT" branch "backup/pre-chat-ui-$(basename "$STATE")" "$BASE"
+CODE_ATTEMPTED=1
+artisan filament:clear-cached-components
+git -C "$APP_ROOT" checkout --quiet --detach "$TARGET" >>"$STATE/private.log" 2>&1
+(cd "$APP_ROOT" && COMPOSER_ALLOW_SUPERUSER=1 composer dump-autoload --no-scripts --no-plugins --optimize --no-interaction) >>"$STATE/private.log" 2>&1
+artisan config:clear
+artisan route:clear
+artisan config:cache
+artisan filament:cache-components
+artisan view:cache
+runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-portal-release-check.php" render "$APP_ROOT"
+env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-knowledge-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json"
+runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-knowledge-release-check.php" render "$APP_ROOT"
+cmp -s "$APP_ROOT/.env" "$STATE/original.env" || stop "LIVE_CONFIGURATION_CHANGED"
+echo "EXISTING_CONTENT_ACCOUNTS_CHATS_AND_ACCESS=PRESERVED"
+echo "SCHEMA_AND_EXISTING_PRIVATE_RECORDS=UNCHANGED"
+echo "ENVIRONMENT_AND_ACCOUNT_ACCESS=UNCHANGED"
+
+STAGE=install_scoped_upload_limits
+echo "STEP=$STAGE"
+(cd "$STATE" && sha256sum --check --status upload-plan.sha256)
+UPLOAD_ATTEMPTED=1
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" apply "$STATE/upload-plan.json"
+nginx -t >>"$STATE/private.log" 2>&1
+systemctl reload nginx >>"$STATE/private.log" 2>&1
+echo "NGINX_AND_PHP_UPLOAD_LIMITS=SCOPED_TO_PBR"
+
+STAGE=install_original_partner_ai_bilingual_replies
+echo "STEP=$STAGE"
+[[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_BASE" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "AI_SOURCE_CHANGED_DURING_TESTS"
+ai_cache_verify || stop "AI_CONFIGURATION_OR_CACHE_CHANGED"
+AI_ATTEMPTED=1
+git -C "$AI_DIR" branch "backup/pre-chat-ui-$(basename "$STATE")" "$AI_BASE"
+git -C "$AI_DIR" checkout --quiet --detach "$AI_TARGET" >>"$STATE/private.log" 2>&1
+runuser -u "$WEB_USER" -- test -r "$AI_DIR/private-knowledge.js" || stop "AI_PRIVATE_MODULE_NOT_READABLE"
+systemctl restart pbr-ai-advisor.service >>"$STATE/private.log" 2>&1
+ai_health 1 || stop "PRIVATE_AI_NOT_HEALTHY"
+runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-knowledge-release-check.php" ai-check "$APP_ROOT"
+ai_cache_verify || stop "AI_SHARED_CACHE_CHANGED"
+STAGE=verify_real_burmese_and_english_replies
+echo "STEP=$STAGE"
+runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-chat-release-check.php" language-check "$APP_ROOT"
+echo "SHARED_AI_KNOWLEDGE_AND_CONFIGURATION=PRESERVED"
+
+
+STAGE=public_website_and_admin_checks
+echo "STEP=$STAGE"
+# Probe the actual front door through Laravel's temporary maintenance bypass.
+# Real visitors remain in maintenance until every route and record check passes.
+[[ -r "$APP_ROOT/storage/framework/down" ]] || stop "FILE_MAINTENANCE_REQUIRED"
+MAINTENANCE_SECRET="$("$PHP_BIN" -r '$d=json_decode(file_get_contents($argv[1]),true,512,JSON_THROW_ON_ERROR); $s=$d["secret"]??""; if(!is_string($s)||!preg_match("/^[A-Za-z0-9]{16,128}$/D",$s)) exit(2); echo $s;' "$APP_ROOT/storage/framework/down")"
+BYPASS_CODE="$(printf 'url = "https://thepbr.io/%s"\n' "$MAINTENANCE_SECRET" | curl --config - -sS --connect-timeout 5 --max-time 20 -c "$STATE/maintenance.cookies" -o /dev/null -w '%{http_code}')"
+unset MAINTENANCE_SECRET
+[[ "$BYPASS_CODE" == 302 || "$BYPASS_CODE" == 303 ]] || stop "MAINTENANCE_BYPASS_UNAVAILABLE"
+grep -q 'laravel_maintenance' "$STATE/maintenance.cookies" || stop "MAINTENANCE_COOKIE_MISSING"
+# A synthetic 10 MiB multipart POST without a user or CSRF token must reach
+# Laravel's auth/CSRF boundary, never create a source or invoke the AI provider.
+"$PHP_BIN" -r '$f=fopen($argv[1],"wb");for($i=0;$i<10;$i++)fwrite($f,str_repeat("x",1048576));fclose($f);' "$STATE/upload-probe.bin"
+UPLOAD_HTTP="$(curl -sS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 45 -H 'Expect:' -F "file=@$STATE/upload-probe.bin;filename=synthetic.txt;type=text/plain" -o /dev/null -w '%{http_code}' "https://thepbr.io/portal/workspaces/0/knowledge?upload_probe=${TARGET}")"
+rm -f -- "$STATE/upload-probe.bin"
+[[ "$UPLOAD_HTTP" == 419 || "$UPLOAD_HTTP" == 302 || "$UPLOAD_HTTP" == 303 ]] || stop "SYNTHETIC_UPLOAD_HTTP_CHECK_FAILED"
+"$PHP_BIN" "$SOURCE/scripts/pbr-upload-limits.php" verify "$STATE/upload-plan.json"
+echo "TEN_MB_UPLOAD_REACHES_AUTH_BOUNDARY=YES"
+for path in / /login /articles /videos /classes /admin/login; do
+    code="$(curl -sS --cookie "$STATE/maintenance.cookies" -L --max-redirs 3 --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?chat_ui_release=${TARGET}")"
+    [[ "$code" == 200 ]] || stop "PUBLIC_OR_ADMIN_HTTPS_CHECK_FAILED"
+done
+for path in /portal /portal/workspaces /admin; do
+    code="$(curl -sS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 20 -H 'Accept: text/html' -o /dev/null -w '%{http_code}' "https://thepbr.io${path}?chat_ui_release=${TARGET}")"
+    [[ "$code" == 302 || "$code" == 303 ]] || stop "ANONYMOUS_AUTH_CHECK_FAILED"
+done
+for asset in css/partner-chat.css js/partner-portal.js pbr-upload-too-large.html; do
+    curl -fsS --cookie "$STATE/maintenance.cookies" --connect-timeout 5 --max-time 20 -H 'Cache-Control: no-cache' "https://thepbr.io/${asset}?chat_ui_release=${TARGET}" -o "$STATE/$(basename "$asset")"
+    cmp -s "$STATE/$(basename "$asset")" "$APP_ROOT/public/$asset" || stop "LIVE_CHAT_ASSET_MISMATCH"
+done
+env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-knowledge-release-check.php" verify "$APP_ROOT" "$STATE/projection.json" "$STATE/records-before.json"
+mysqldump --protocol=socket --socket="$DB_SOCKET" --user=root --no-data --skip-comments --no-tablespaces "$DB_NAME" >"$STATE/schema-after.sql"
+cmp -s "$STATE/schema-before.sql" "$STATE/schema-after.sql" || stop "DATABASE_SCHEMA_CHANGED"
+(cd "$APP_ROOT/storage/app/pbr-private" && find . -type f -print0 | sort -z | xargs -0 -r sha256sum) >"$STATE/private-files-after.sha256"
+cmp -s "$STATE/private-files-before.sha256" "$STATE/private-files-after.sha256" || stop "PRIVATE_ORIGINAL_FILES_CHANGED"
+cmp -s "$APP_ROOT/.env" "$STATE/original.env" || stop "FINAL_LARAVEL_CONFIGURATION_CHANGED"
+ai_cache_verify || stop "FINAL_AI_CONFIGURATION_OR_CACHE_CHANGED"
+[[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_TARGET" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "FINAL_AI_SOURCE_NOT_CLEAN"
+echo "MAINTENANCE_PROBES_BEFORE_REOPEN=YES"
+[[ "$(git -C "$APP_ROOT" rev-parse HEAD)" == "$TARGET" && -z "$(git --no-optional-locks -C "$APP_ROOT" status --porcelain)" ]] || stop "FINAL_SOURCE_NOT_CLEAN"
+printf 'TARGET=%s\nBASE=%s\nBACKUP=%s\nCOMPLETED_UTC=%s\n' "$TARGET" "$BASE" "$FRESH_BACKUP" "$(date -u +%FT%TZ)" >"$STATE/update-complete.txt"
+echo "PUBLIC_WEBSITE_AND_ADMIN_HTTPS=OK"
+echo "USER_TESTING_LOG_FIXES=INSTALLED"
+echo "SIGNED_IN_CHAT_UPLOAD_KNOWLEDGE_AND_HISTORY_RETEST=PENDING"
+artisan up
+MAINTENANCE=0
+COMPLETE=1

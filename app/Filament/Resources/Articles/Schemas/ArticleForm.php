@@ -62,6 +62,7 @@ class ArticleForm
                 FileUpload::make('cover_image')
                     ->label('ပုံ')
                     ->image()
+                    ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/avif', 'image/bmp', 'image/x-ms-bmp', 'image/heic', 'image/heif'])
                     ->disk('public')
                     ->directory('articles')
                     ->imageEditor()

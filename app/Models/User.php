@@ -157,6 +157,10 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessBusinessOperatingSystem(): bool
     {
+        if (config('partner_portal.enabled')) {
+            return $this->isStudent();
+        }
+
         return $this->isAdmin()
             || $this->isStudent()
             || $this->hasAcceptedPartnerWorkspaceMembership();
@@ -169,6 +173,11 @@ class User extends Authenticatable implements FilamentUser
 
     public function canAccessWorkspace(PartnershipWorkspace $workspace): bool
     {
+        if (config('partner_portal.enabled')) {
+            return $this->isStudent()
+                && (int) $workspace->owner_user_id === (int) $this->id;
+        }
+
         if (! $this->hasActiveAccount()) {
             return false;
         }

@@ -15,8 +15,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Myanmar:wght@400;500;600;700&family=Noto+Serif+Myanmar:wght@500;600&family=Noto+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ asset('css/site.css') }}?v={{ filemtime(public_path('css/site.css')) }}">
 @stack('head')
+@include('partials.premium-assets')
 </head>
-<body>
+<body class="pbr-public">
 
 @stack('before')
 
@@ -30,8 +31,8 @@
       $portalUrl = route('student.dashboard');
       $portalLabel = 'Student Portal';
   } elseif ($currentUser?->hasAcceptedPartnerWorkspaceMembership()) {
-      $portalUrl = route('workspaces.index');
-      $portalLabel = 'My Workspace';
+      $portalUrl = config('partner_portal.enabled') ? route('portal.home') : route('workspaces.index');
+      $portalLabel = config('partner_portal.enabled') ? 'Partner Dynamics' : 'My Workspace';
   } elseif ($currentUser) {
       $portalUrl = route('account.dashboard');
       $portalLabel = 'My Account';

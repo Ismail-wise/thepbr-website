@@ -51,13 +51,15 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           # sqlite3 + pdo_sqlite are what the in-memory test database needs.
-          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, bcmath, intl, zip
+          extensions: mbstring, dom, fileinfo, sqlite3, pdo_sqlite, pdo_mysql, bcmath, intl, zip
           coverage: none
           tools: composer:v2
 
@@ -93,7 +95,7 @@ jobs:
       - name: Lint PHP syntax
         # Cheap guard: catches a parse error before the suite spends 20s booting.
         run: |
-          find app config database routes tests -name '*.php' -print0 \
+          find app config database routes tests scripts -name '*.php' -print0 \
             | xargs -0 -n1 -P4 php -l > /dev/null
 
       - name: Compile Blade templates
@@ -102,6 +104,62 @@ jobs:
 
       - name: Run Pest
         run: ./vendor/bin/pest --ci
+
+      - name: Validate scoped upload configuration with real nginx
+        run: |
+          if ! command -v nginx >/dev/null; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends nginx
+          fi
+          bash -n scripts/tests/pbr-upload-nginx.sh
+          bash scripts/tests/pbr-upload-nginx.sh
+
+      - name: Validate chat interface, private records and paired AI rollback
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-chat-update.sh
+          bash -n scripts/tests/pbr-chat-update-smoke.sh
+          bash scripts/tests/pbr-chat-update-smoke.sh
+
+      - name: Validate private Knowledge schema, paired AI rollback and preserved records
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-knowledge-update.sh
+          bash -n scripts/tests/pbr-knowledge-update-smoke.sh
+          bash scripts/tests/pbr-knowledge-update-smoke.sh
+
+      - name: Validate backup and isolated MySQL restore on a disposable fixture
+        # The full app tests above still use SQLite only. This separate check
+        # creates a synthetic local database on the disposable Actions runner.
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-portal-backup.sh
+          bash -n scripts/tests/pbr-portal-backup-smoke.sh
+          bash scripts/tests/pbr-portal-backup-smoke.sh
+
+      - name: Validate portal install and rollback on a disposable fixture
+        run: |
+          bash -n scripts/pbr-portal-install.sh
+          bash -n scripts/tests/pbr-portal-install-smoke.sh
+          bash scripts/tests/pbr-portal-install-smoke.sh
+
+      - name: Validate one-time test reset and rollback on a disposable MySQL fixture
+        run: |
+          bash -n scripts/pbr-portal-reset.sh
+          bash -n scripts/tests/pbr-portal-reset-smoke.sh
+          bash scripts/tests/pbr-portal-reset-smoke.sh
+
+      - name: Validate premium presentation update and rollback on disposable MySQL
+        run: |
+          bash -n scripts/pbr-design-update.sh
+          bash -n scripts/tests/pbr-design-update-smoke.sh
+          bash scripts/tests/pbr-design-update-smoke.sh
+
+      - name: Validate owner Workspace migration and code rollback on disposable MySQL
+        run: |
+          bash -n scripts/pbr-workspace-update.sh
+          bash -n scripts/tests/pbr-workspace-update-smoke.sh
+          bash scripts/tests/pbr-workspace-update-smoke.sh
 
   assets:
     name: Frontend build
@@ -128,6 +186,14 @@ jobs:
             node --check "$f" || exit 1
           done
           echo "All public/js files parse."
+
+      - name: Parse shared portal CSS
+        run: node --input-type=module -e "import postcss from 'postcss'; import fs from 'node:fs'; const css=postcss.parse(fs.readFileSync('public/css/pbr-experience.css','utf8') + fs.readFileSync('public/css/partner-chat.css','utf8')); let count=0; css.walkRules(()=>count++); console.log('Shared portal CSS parsed:',count,'rules');"
+
+      - name: Check bilingual chat interactions with a temporary DOM runner
+        run: |
+          npm install --prefix "$RUNNER_TEMP/pbr-chat-qa" --no-package-lock --no-audit --no-fund jsdom@26.1.0
+          PBR_CHAT_JSDOM="$RUNNER_TEMP/pbr-chat-qa/node_modules/jsdom" node scripts/tests/partner-chat-client.cjs
 
       - name: Build
         run: npm run build

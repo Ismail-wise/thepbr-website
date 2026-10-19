@@ -77,12 +77,12 @@ class WorkspaceInvitationController extends Controller
             'invited_at' => now(),
             'invitation_expires_at' => $expiresAt,
             'accepted_at' => null,
-            'permissions' => self::PARTNER_PERMISSIONS,
+            'permissions' => config('partner_portal.enabled') ? ['partner_dynamics_only'] : self::PARTNER_PERMISSIONS,
         ]);
         $invitation->save();
 
         return redirect()
-            ->route('workspaces.show', $workspace)
+            ->route(config('partner_portal.enabled') ? 'portal.workspaces.partners' : 'workspaces.show', $workspace)
             ->with(
                 'success',
                 'Secure invitation link created. PBR has not emailed it automatically; copy and send it only to '.$email.'.'
@@ -193,12 +193,16 @@ class WorkspaceInvitationController extends Controller
                     'invitation_status' => 'accepted',
                     'accepted_at' => now(),
                     'invitation_token_hash' => null,
-                    'permissions' => self::PARTNER_PERMISSIONS,
+                    'permissions' => config('partner_portal.enabled') ? ['partner_dynamics_only'] : self::PARTNER_PERMISSIONS,
                 ]);
 
                 return $workspace;
             }
         );
+
+        if (config('partner_portal.enabled')) {
+            return redirect()->route('portal.home')->with('success', 'Partner invitation လက်ခံပြီးပါပြီ။ Partner Dynamics ကို စသုံးနိုင်ပါပြီ။');
+        }
 
         return redirect()
             ->route('workspaces.show', $workspace)
@@ -228,7 +232,7 @@ class WorkspaceInvitationController extends Controller
         ]);
 
         return redirect()
-            ->route('workspaces.show', $workspace)
+            ->route(config('partner_portal.enabled') ? 'portal.workspaces.partners' : 'workspaces.show', $workspace)
             ->with('success', 'Partner invitation revoked.');
     }
 
@@ -253,7 +257,7 @@ class WorkspaceInvitationController extends Controller
         ]);
 
         return redirect()
-            ->route('workspaces.show', $workspace)
+            ->route(config('partner_portal.enabled') ? 'portal.workspaces.partners' : 'workspaces.show', $workspace)
             ->with('success', 'Partner access removed immediately.');
     }
 
@@ -303,6 +307,12 @@ class WorkspaceInvitationController extends Controller
         Request $request,
         PartnershipWorkspace $workspace,
     ): void {
+        if (config('partner_portal.enabled')) {
+            abort_unless($request->user()->isStudent()
+                && (int) $workspace->owner_user_id === (int) $request->user()->id, 403);
+
+            return;
+        }
         abort_unless(
             $request->user()->isAdmin()
                 || (

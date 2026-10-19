@@ -23,6 +23,11 @@ use Illuminate\Support\Collection;
  */
 class AreaProgressWidget extends TableWidget
 {
+    public static function canView(): bool
+    {
+        return ! config('partner_portal.enabled') && auth()->user()?->isAdmin();
+    }
+
     protected static ?string $heading = 'Progress by business area';
 
     protected int|string|array $columnSpan = 'full';
