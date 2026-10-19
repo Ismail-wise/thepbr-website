@@ -81,3 +81,28 @@ PHP 8.4, compiled Blade, the full application suite and deployment rehearsal run
 Actions. Signed-in desktop/mobile appearance and both reply languages need Owner
 acceptance after the production receipt. Browser screenshots were not available
 in this environment; DOM checks do not establish visual acceptance.
+
+
+## Reviewed production package
+
+- Website: `0af5c5902eb5cafc5c14c6a43d28b2edd93ce812`.
+- Original AI: `48d978daeebb996f729cbf559914adc4c204381b`.
+- Installer SHA-256:
+  `efb6b5abf8c97638e1822a772066d9c9b19327c01b4f9ac2f10747b9c4ad556c`.
+- Push CI passed: https://github.com/Ismail-wise/thepbr-website/actions/runs/39190998914
+- PR CI passed: https://github.com/Ismail-wise/thepbr-website/actions/runs/39191003155
+- PHP 8.4: **428 passed, 1 pre-existing skipped, 5,795 assertions**. PHP parse,
+  compiled Blade, all deployment regressions and frontend build passed.
+- Shared/chat CSS parsed: 564 rules, including 222 in the new chat stylesheet.
+- The 14 DOM interaction checks also passed in Actions. Application dependencies
+  remain unchanged; the DOM runner is temporary and pinned to jsdom 26.1.0.
+- The MySQL chat release rehearsal passed successful/repeated installation,
+  preservation of existing ready Knowledge, private originals and chats, paired AI
+  restart rollback, asset mismatch rollback, public-probe rollback, safe retry and
+  retention of unexpected cutover writes under maintenance. Historical deployment
+  regressions passed too; these ran only against disposable synthetic fixtures.
+
+The follow-up pins the chat deployment regression to this reviewed website SHA
+and records its evidence. It changes no application or installer code. Production
+execution/receipt and signed-in visual/bilingual desktop/mobile acceptance remain
+pending. Use the exact package above rather than a moving branch head.

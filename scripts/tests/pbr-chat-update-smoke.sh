@@ -6,7 +6,7 @@ set -Eeuo pipefail
 umask 022
 ROOT="$(pwd)"
 # Keep future feature changes outside this reviewed deployment rehearsal.
-TARGET="${PBR_CHAT_TEST_TARGET:-$(git rev-parse HEAD)}"
+TARGET=0af5c5902eb5cafc5c14c6a43d28b2edd93ce812
 BASE=2567dc48a3d6d83565a7e078d1274cbf810a276d
 FIXTURE="$(mktemp -d /tmp/pbr-chat-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-chat-test-XXXXXXXX)"
