@@ -19,10 +19,10 @@ beforeEach(function (): void {
 
 function bilingualFakeAi(int $protocol = 1): void
 {
-    Http::fake([
-        'http://127.0.0.1:3107/health' => Http::response(['service' => 'pbr-ai-advisor', 'knowledgeReady' => true, 'vectors' => 657, 'privateKnowledgeProtocol' => 1, 'chatInterfaceProtocol' => $protocol]),
-        'http://127.0.0.1:3107/internal/pbr/chat' => Http::response("data: {\"type\":\"delta\",\"text\":\"Answer / အဖြေ\"}\n\ndata: {\"type\":\"done\"}\n\n", 200, ['Content-Type' => 'text/event-stream']),
-    ]);
+    Http::fake(function (ClientRequest $request) use ($protocol) {
+        if (str_ends_with($request->url(), '/health')) return Http::response(['service' => 'pbr-ai-advisor', 'knowledgeReady' => true, 'vectors' => 657, 'privateKnowledgeProtocol' => 1, 'chatInterfaceProtocol' => $protocol]);
+        return Http::response("data: {\"type\":\"delta\",\"text\":\"Answer / အဖြေ\"}\n\ndata: {\"type\":\"done\"}\n\n", 200, ['Content-Type' => 'text/event-stream']);
+    });
 }
 
 test('the compact chat has real history controls and both reply languages in personal and private views', function (): void {

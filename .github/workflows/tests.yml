@@ -105,6 +105,13 @@ jobs:
       - name: Run Pest
         run: ./vendor/bin/pest --ci
 
+      - name: Validate chat interface, private records and paired AI rollback
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-chat-update.sh
+          bash -n scripts/tests/pbr-chat-update-smoke.sh
+          bash scripts/tests/pbr-chat-update-smoke.sh
+
       - name: Validate private Knowledge schema, paired AI rollback and preserved records
         run: |
           sudo systemctl start mysql

@@ -127,7 +127,7 @@ test('editing or deleting knowledge stops reuse of obsolete private answers and 
     $this->put(route('portal.workspaces.knowledge.update',[$workspace,$source]),['title'=>'Revised','content'=>'NEW CURRENT TEXT','business_status'=>'current','action'=>'draft','revision'=>$source->revision])->assertRedirect();
     expect($source->fresh()->processing_status)->toBe('needs_review')->and(WorkspaceKnowledgeChunk::count())->toBe(0);
     $this->postJson(route('portal.workspaces.ai.chat',$workspace),['message'=>'Continue','conversation_id'=>$chat->id])->assertStatus(409);
-    $this->get(route('portal.workspaces.ai',[$workspace,'conversation'=>$chat->id]))->assertOk()->assertSee('Knowledge သို့မဟုတ်');
+    $this->get(route('portal.workspaces.ai',[$workspace,'conversation'=>$chat->id]))->assertOk()->assertSee('data-stale="true"',false)->assertSee('စကားဝိုင်းအသစ်');
     Storage::disk('workspace_private')->put('workspaces/'.$workspace->id.'/fixture.txt','original private');
     $source->update(['file_path'=>'workspaces/'.$workspace->id.'/fixture.txt']);
     $this->delete(route('portal.workspaces.knowledge.destroy',[$workspace,$source]))->assertRedirect();Storage::disk('workspace_private')->assertMissing('workspaces/'.$workspace->id.'/fixture.txt');
