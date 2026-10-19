@@ -5,8 +5,8 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-# Keep future feature changes outside this reviewed deployment rehearsal.
-TARGET=0af5c5902eb5cafc5c14c6a43d28b2edd93ce812
+# Test this exact immutable checkout, including the release check being shipped.
+TARGET="$(git rev-parse HEAD)"
 BASE=2567dc48a3d6d83565a7e078d1274cbf810a276d
 FIXTURE="$(mktemp -d /tmp/pbr-chat-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-chat-test-XXXXXXXX)"
@@ -14,7 +14,7 @@ FIXTURE_DB="pbr_chat_fixture_$(openssl rand -hex 8)"
 AI_FIXTURE="$ARTIFACTS/ai"
 AI_CACHE="$ARTIFACTS/ai-cache"
 AI_BASE=a0701941890e57267d2c4ab3ad39e1f0f284ae84
-AI_TARGET=48d978daeebb996f729cbf559914adc4c204381b
+AI_TARGET=908173283ff963fe6ee0dc6ff79933682afd74f1
 REAL_GIT="$(command -v git)"
 REAL_PHP="$(command -v php)"
 AI_FIXTURE_CREATED=0
@@ -183,6 +183,9 @@ cat >"$ARTIFACTS/bin/php" <<SH
 #!/usr/bin/env bash
 set -eu
 for arg in "\$@"; do
+    if [[ "\$arg" == language-check && "\${PBR_FIXTURE_PROBE_FAIL:-}" == language ]]; then
+        printf 'CHAT_CHECK_CASE=WORKSPACE_SELECTED_EN\nCHAT_CHECK_FAILED=REPLY_LANGUAGE_MISMATCH\n'; exit 2
+    fi
     if [[ "\$arg" == ai-check || "\$arg" == language-check ]]; then echo CI_AI_GENERATION_AND_LANGUAGES=EXPLICIT_SYNTHETIC_DOUBLE; exit 0; fi
 done
 exec "$REAL_PHP" "\$@"
@@ -241,6 +244,13 @@ run_case ai
 [[ "$(cat "$ARTIFACTS/ai-head")" == "$AI_BASE" ]]
 sudo test ! -e "$FIXTURE/storage/framework/down"
 echo 'AI restart failure rolls both repositories back without restoring a database: PASS'
+run_case language
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *CHAT_CHECK_CASE=WORKSPACE_SELECTED_EN* && "$OUTPUT" == *CHAT_CHECK_FAILED=REPLY_LANGUAGE_MISMATCH* && "$OUTPUT" == *CHAT_UPDATE_FAILED_STAGE=verify_real_burmese_and_english_replies* && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
+[[ "$(cat "$ARTIFACTS/ai-head")" == "$AI_BASE" ]]
+[[ "$(sudo git -C "$FIXTURE" -c safe.directory="$FIXTURE" rev-parse HEAD)" == "$BASE" ]]
+sudo test ! -e "$FIXTURE/storage/framework/down"
+sudo env -i PATH="$PATH" php "$ROOT/scripts/pbr-knowledge-release-check.php" verify "$FIXTURE" "$ARTIFACTS/current-projection.json" "$ARTIFACTS/current-records.json"
+echo 'A real language mismatch reports its case and rolls both repositories back with all records retained: PASS'
 run_case asset
 [[ "$CASE_RESULT" != 0 && "$OUTPUT" == *LIVE_CHAT_ASSET_MISMATCH* && "$OUTPUT" == *CHAT_CODE_ROLLBACK=OK* ]]
 echo 'A stale or incorrect CDN asset triggers paired code rollback: PASS'

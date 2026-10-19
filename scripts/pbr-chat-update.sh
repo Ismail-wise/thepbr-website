@@ -14,7 +14,7 @@ STATE="" SOURCE="" FRESH_BACKUP=""
 AI_DIR="${3:-/opt/pbr-partner-ai}"
 AI_CACHE_DIR="${4:-/var/lib/pbr-ai}"
 AI_BASE="a0701941890e57267d2c4ab3ad39e1f0f284ae84"
-AI_TARGET="48d978daeebb996f729cbf559914adc4c204381b"
+AI_TARGET="908173283ff963fe6ee0dc6ff79933682afd74f1"
 AI_NODE=/usr/local/bin/pbr-node
 AI_SOURCE="" AI_ATTEMPTED=0
 STAGE=prerequisites
@@ -162,7 +162,7 @@ while IFS= read -r path; do
     case "$path" in
         bootstrap/app.php|app/Http/Controllers/PortalAiController.php|app/Http/Controllers/PortalWorkspaceAiController.php|\
         app/Services/Portal/PartnerAiGateway.php|public/css/partner-chat.css|public/js/partner-portal.js|\
-        resources/views/portal/*|scripts/pbr-chat-update.sh|scripts/pbr-chat-release-check.php|\
+        resources/views/portal/*|scripts/pbr-chat-update.sh|scripts/pbr-chat-release-check.php|scripts/pbr-chat-check-support.php|\
         scripts/tests/*|tests/*|docs/*|.github/workflows/tests.yml) ;;
         *) stop "CHANGE_OUTSIDE_REVIEWED_CHAT_INTERFACE_SCOPE";;
     esac
@@ -285,6 +285,8 @@ systemctl restart pbr-ai-advisor.service >>"$STATE/private.log" 2>&1
 ai_health 1 || stop "PRIVATE_AI_NOT_HEALTHY"
 runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-knowledge-release-check.php" ai-check "$APP_ROOT"
 ai_cache_verify || stop "AI_SHARED_CACHE_CHANGED"
+STAGE=verify_real_burmese_and_english_replies
+echo "STEP=$STAGE"
 runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" -d display_errors=0 "$APP_ROOT/scripts/pbr-chat-release-check.php" language-check "$APP_ROOT"
 echo "SHARED_AI_KNOWLEDGE_AND_CONFIGURATION=PRESERVED"
 

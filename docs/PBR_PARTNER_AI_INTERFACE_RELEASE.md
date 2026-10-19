@@ -42,7 +42,7 @@ validated preference and builds all history/Workspace context on the server.
 Workspace chat validation/authentication errors return JSON for the streaming
 client. Saved questions and private retrieval queries retain the exact user text.
 
-Original AI reviewed runtime: `48d978daeebb996f729cbf559914adc4c204381b`.
+Original AI retry runtime: `908173283ff963fe6ee0dc6ff79933682afd74f1`.
 Health advertises `chatInterfaceProtocol: 1`; an older service fails closed for
 chat. The private Knowledge protocol, original partnership knowledge, embeddings,
 OCR, source permissions and absence of external tools for private chat remain.
@@ -98,11 +98,49 @@ in this environment; DOM checks do not establish visual acceptance.
   remain unchanged; the DOM runner is temporary and pinned to jsdom 26.1.0.
 - The MySQL chat release rehearsal passed successful/repeated installation,
   preservation of existing ready Knowledge, private originals and chats, paired AI
-  restart rollback, asset mismatch rollback, public-probe rollback, safe retry and
+restart rollback, asset mismatch rollback, public-probe rollback, safe retry and
   retention of unexpected cutover writes under maintenance. Historical deployment
   regressions passed too; these ran only against disposable synthetic fixtures.
 
-The follow-up pins the chat deployment regression to this reviewed website SHA
-and records its evidence. It changes no application or installer code. Production
-execution/receipt and signed-in visual/bilingual desktop/mobile acceptance remain
-pending. Use the exact package above rather than a moving branch head.
+The original follow-up recorded this package's CI evidence. Its production attempt
+on 19 October 2026 did not complete: the real provider language check returned
+`CHAT_CHECK_FAILED=REPLY_LANGUAGE_MISMATCH`. The receipt reports successful paired
+code rollback and retention of all portal records. A read-only server diagnosis
+confirmed website `2567dc48a3d6d83565a7e078d1274cbf810a276d` and AI
+`a0701941890e57267d2c4ab3ad39e1f0f284ae84` remain the live pair. The original
+checker did not record which case failed, so its output cannot distinguish an
+actual wrong-language explanation from a script-detection false positive.
+
+- Failed-attempt receipt:
+  `/root/thepbr-deploy-backups/chat-ui-release-20261019T025954Z-05320d49`.
+- Verified backup from that attempt:
+  `/root/thepbr-deploy-backups/pre-filament-admin-20261019T030125Z-923637c0`.
+
+## Language-check retry
+
+The original AI now puts the current turn's language rule after all multilingual
+Knowledge and Workspace evidence. Selected English and Burmese explicitly apply
+when the question, earlier turns or evidence use the other language. Citations and
+business terms stay intact. Twelve local Node contract tests pass, including long
+opposite-language evidence and repeated preference changes; these are not live
+provider tests.
+
+The release probe now counts Myanmar letters rather than all code points in the
+Myanmar blocks. Previously an English answer containing the native amount `၄၂`
+could falsely fail. Myanmar numbers and punctuation alone no longer count as
+Burmese prose. Wrong-language prose, missing/failed streams, empty answers, wrong
+Workspace amounts and missing exact source citations still fail closed. Focused
+PHP regressions exercise those cases and a Unicode SSE body across read boundaries.
+
+Each real synthetic provider case prints a fixed case identifier, expected
+language, letter counts and success/failure code. No prompts, generated answers or
+Owner content are printed. The installer exposes failures in the normal receipt
+and identifies the language-probe stage. The disposable MySQL rehearsal tests this
+failure specifically, including paired rollback, reopening and unchanged records.
+It exercises the exact current checkout rather than the superseded package above.
+
+The retry retains the same live baselines, fresh verified backup/restore drill,
+four real synthetic language cases, OCR/embedding checks, source citations,
+private-record verification and HTTPS/asset probes. No checks are bypassed. Retry
+CI, real server execution and signed-in visual/bilingual desktop/mobile acceptance
+must pass before this replacement can be treated as live and accepted.
