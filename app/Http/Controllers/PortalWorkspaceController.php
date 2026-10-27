@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartnershipWorkspace;
+use App\Models\WorkspaceBusinessPlan;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -57,8 +58,10 @@ class PortalWorkspaceController extends Controller
     public function show(Request $request, PartnershipWorkspace $workspace): View
     {
         $this->owner($request, $workspace);
+        $plan = WorkspaceBusinessPlan::where('workspace_id', $workspace->id)->first();
+        $planLatest = $plan?->revisions()->latest('revision')->first();
 
-        return view('portal.workspaces.show', compact('workspace'));
+        return view('portal.workspaces.show', compact('workspace', 'plan', 'planLatest'));
     }
 
     public function edit(Request $request, PartnershipWorkspace $workspace): View

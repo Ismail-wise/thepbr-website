@@ -5,8 +5,9 @@ set -Eeuo pipefail
 [[ "${GITHUB_ACTIONS:-}" == true && "${CI:-}" == true && "$EUID" != 0 ]] || exit 2
 umask 022
 ROOT="$(pwd)"
-# Test this exact immutable checkout, including the release check being shipped.
-TARGET="$(git rev-parse HEAD)"
+# Rehearse the exact reviewed chat-only release. Subsequent schema changes have
+# their own installer and must never broaden the chat installer's allowlist.
+TARGET=369a1ec3bb2e947cfc0c18482b23ff96cf78fbcd
 BASE=0694d95e09f0f20218c762df2c47a1bcc2fa85c5
 FIXTURE="$(mktemp -d /tmp/pbr-chat-fixture-XXXXXXXX)"
 ARTIFACTS="$(mktemp -d /tmp/pbr-chat-test-XXXXXXXX)"

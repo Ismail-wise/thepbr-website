@@ -14,7 +14,8 @@ class PortalTestDataCleanup
 
     private const VOLATILE_TABLES = ['sessions', 'cache', 'cache_locks', 'jobs', 'job_batches', 'failed_jobs'];
 
-    private const PRIVATE_TABLES = ['workspace_knowledge_sources', 'workspace_knowledge_chunks', 'workspace_ai_conversations', 'workspace_ai_messages'];
+    private const PRIVATE_TABLES = ['workspace_knowledge_sources', 'workspace_knowledge_chunks', 'workspace_ai_conversations', 'workspace_ai_messages',
+        'workspace_business_plans', 'workspace_business_plan_revisions'];
 
     private const RELATED_TABLES = [
         'users', 'partnership_workspaces', 'workspace_members', 'student_enrollments', 'student_access_codes',
