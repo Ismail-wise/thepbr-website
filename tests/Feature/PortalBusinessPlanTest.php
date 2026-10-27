@@ -213,6 +213,7 @@ test('guests pending accounts and expired entitlements cannot enter business pla
     $owner = planOwner();
     $workspace = planWorkspace($owner);
     $this->get(route('portal.workspaces.business-plan.edit', $workspace))->assertRedirect(route('login'));
+    $this->get('/portal/workspaces/0/business-plan')->assertRedirect(route('login'));
     $this->post(route('portal.workspaces.business-plan.save', $workspace), planValues())->assertRedirect(route('login'));
     $owner->update(['portal_access_expires_at' => now()->subMinute()]);
     $this->actingAs($owner)->get(route('portal.workspaces.business-plan.edit', $workspace))->assertForbidden();
@@ -341,7 +342,7 @@ test('business plan writes preserve existing account access Workspace fields and
     $owner = planOwner();
     $workspace = planWorkspace($owner);
     $saved = PortalSavedItem::create(['user_id' => $owner->id, 'kind' => 'capital', 'title' => 'Existing result', 'input' => ['monthly' => 42], 'output' => ['total' => 84]]);
-    $before = [$owner->getAttributes(), $workspace->getAttributes(), $saved->getAttributes()];
+    $before = [$owner->fresh()->getAttributes(), $workspace->fresh()->getAttributes(), $saved->fresh()->getAttributes()];
     $revision = planConfirm($this, $owner, $workspace, ['business_name' => 'A separate plan display name']);
     $this->post(route('portal.workspaces.business-plan.knowledge', [$workspace, $revision->id]))->assertRedirect();
     expect([$owner->fresh()->getAttributes(), $workspace->fresh()->getAttributes(), $saved->fresh()->getAttributes()])->toBe($before);

@@ -161,6 +161,14 @@ jobs:
           bash -n scripts/tests/pbr-workspace-update-smoke.sh
           bash scripts/tests/pbr-workspace-update-smoke.sh
 
+      - name: Validate Business Plan migration, private records and code rollback on disposable MySQL
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-business-plan-update.sh
+          bash -n scripts/tests/pbr-business-plan-update-smoke.sh
+          node --check scripts/tests/pbr-business-plan-provider-fixture.cjs
+          bash scripts/tests/pbr-business-plan-update-smoke.sh
+
   assets:
     name: Frontend build
     runs-on: ubuntu-latest

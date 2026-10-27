@@ -77,3 +77,36 @@ behavior; the original AI service itself is not changed by this release.
 Signed-in acceptance must check desktop/mobile typing, collapsed sections,
 draft reopening, two confirmed versions, History, stale-tab recovery and the
 explicit Knowledge review/approval path before marking the release accepted.
+
+## Guarded installation
+
+`scripts/pbr-business-plan-update.sh TARGET [APP_ROOT] [AI_ROOT]` accepts the exact
+installed baseline or the same reviewed target for an idempotent retry. It
+checks cached/uncached production configuration, the original local AI source,
+and schema consistency before maintenance. The target diff must stay inside an
+explicit Business Plan allowlist and contain only this one additive migration.
+
+The installer runs the full isolated SQLite suite and synthetic original-AI
+OCR/embedding/generation checks before maintenance. It then verifies a fresh
+application/database backup through an isolated restore, rehearses the migration
+on that restored MySQL database using an account with no access to production,
+and verifies existing row/schema fingerprints before switching code. Live
+render probes use unsaved synthetic models and do not create user records.
+
+All original business/private tables, account/access records, old schema and
+private original files are checked again before reopening. Public/Admin HTTPS,
+anonymous Business Plan authentication and exact served CSS bytes are checked
+through the temporary maintenance bypass. The AI repository is never switched,
+its service is not restarted, `.env` is unchanged and no data reset is run.
+
+On a failed cutover, only code/caches are restored; additive tables and existing
+records remain. Unexpected record/private-file changes keep the current code
+under maintenance for review. An old database backup is never restored over
+new data. The historical test-data cleanup also refuses to run when private
+Business Plan records are present.
+
+The disposable Actions smoke test exercises successful MySQL migration/render,
+repeat installation with new plan data, bad-asset rollback, retry after rollback
+and preservation/maintenance on unexpected private-file or new-plan writes.
+Its HTTPS and AI services are explicit doubles; production executes the actual
+checks. This does not replace the signed-in acceptance checklist above.
