@@ -17,6 +17,15 @@ Route::middleware('auth')->prefix('portal')->name('portal.')->group(function ():
         Route::get('/{workspace}/edit', [$controller, 'edit'])->name('edit');
         Route::put('/{workspace}', [$controller, 'update'])->name('update');
         Route::get('/{workspace}/partners', [$controller, 'partners'])->name('partners');
+        $plans = \App\Http\Controllers\PortalBusinessPlanController::class;
+        Route::get('/{workspace}/business-plan', [$plans, 'edit'])->name('business-plan.edit');
+        Route::post('/{workspace}/business-plan/draft', [$plans, 'save'])->middleware('throttle:20,1')->name('business-plan.save');
+        Route::get('/{workspace}/business-plan/review', [$plans, 'review'])->name('business-plan.review');
+        Route::post('/{workspace}/business-plan/confirm', [$plans, 'confirm'])->middleware('throttle:20,1')->name('business-plan.confirm');
+        Route::get('/{workspace}/business-plan/history', [$plans, 'history'])->name('business-plan.history');
+        Route::get('/{workspace}/business-plan/revisions/{revision}', [$plans, 'showRevision'])->whereNumber('revision')->name('business-plan.revision');
+        Route::post('/{workspace}/business-plan/revisions/{revision}/draft', [$plans, 'copyRevision'])->whereNumber('revision')->middleware('throttle:20,1')->name('business-plan.copy');
+        Route::post('/{workspace}/business-plan/revisions/{revision}/knowledge', [$plans, 'prepareKnowledge'])->whereNumber('revision')->middleware('throttle:20,1')->name('business-plan.knowledge');
         $knowledge = \App\Http\Controllers\PortalKnowledgeController::class;
         Route::get('/{workspace}/knowledge', [$knowledge, 'index'])->name('knowledge.index');
         Route::get('/{workspace}/knowledge/create', [$knowledge, 'create'])->name('knowledge.create');

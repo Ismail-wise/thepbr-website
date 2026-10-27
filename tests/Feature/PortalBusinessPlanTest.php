@@ -13,6 +13,7 @@ use App\Services\Portal\WorkspaceKnowledge;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request as ClientRequest;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\DB;
 
 uses(RefreshDatabase::class);
 
@@ -345,4 +346,14 @@ test('business plan writes preserve existing account access Workspace fields and
     $this->post(route('portal.workspaces.business-plan.knowledge', [$workspace, $revision->id]))->assertRedirect();
     expect([$owner->fresh()->getAttributes(), $workspace->fresh()->getAttributes(), $saved->fresh()->getAttributes()])->toBe($before);
     $this->get(route('portal.saved', $saved))->assertOk();
+});
+
+test('the old test-data cleanup refuses to remove private business plan records', function (): void {
+    $owner = planOwner();
+    $workspace = planWorkspace($owner);
+    User::factory()->create(['role' => 'admin', 'is_admin' => true, 'account_status' => 'active']);
+    $revision = planConfirm($this, $owner, $workspace);
+    $cleanup = new \App\Services\Portal\PortalTestDataCleanup(DB::connection());
+    expect(fn () => $cleanup->plan())->toThrow(RuntimeException::class, 'PRIVATE_WORKSPACE_DATA_PRESENT');
+    expect($revision->fresh()->content['business_name'])->toBe('Synthetic Lotus Studio')->and($workspace->fresh())->not->toBeNull();
 });
