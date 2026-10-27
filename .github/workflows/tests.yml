@@ -114,6 +114,14 @@ jobs:
           bash -n scripts/tests/pbr-upload-nginx.sh
           bash scripts/tests/pbr-upload-nginx.sh
 
+      - name: Validate Business Plan migration, private records and code rollback on disposable MySQL
+        run: |
+          sudo systemctl start mysql
+          bash -n scripts/pbr-business-plan-update.sh
+          bash -n scripts/tests/pbr-business-plan-update-smoke.sh
+          node --check scripts/tests/pbr-business-plan-provider-fixture.cjs
+          bash scripts/tests/pbr-business-plan-update-smoke.sh
+
       - name: Validate chat interface, private records and paired AI rollback
         run: |
           sudo systemctl start mysql
@@ -160,14 +168,6 @@ jobs:
           bash -n scripts/pbr-workspace-update.sh
           bash -n scripts/tests/pbr-workspace-update-smoke.sh
           bash scripts/tests/pbr-workspace-update-smoke.sh
-
-      - name: Validate Business Plan migration, private records and code rollback on disposable MySQL
-        run: |
-          sudo systemctl start mysql
-          bash -n scripts/pbr-business-plan-update.sh
-          bash -n scripts/tests/pbr-business-plan-update-smoke.sh
-          node --check scripts/tests/pbr-business-plan-provider-fixture.cjs
-          bash scripts/tests/pbr-business-plan-update-smoke.sh
 
   assets:
     name: Frontend build
