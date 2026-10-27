@@ -201,7 +201,7 @@ echo "SERVER_ISOLATED_BUSINESS_PLAN_AND_PUBLISHING_TESTS=OK"
 
 STAGE=validate_original_partner_ai
 echo "STEP=$STAGE"
-runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" "$SOURCE/scripts/pbr-knowledge-release-check.php" ai-check "$APP_ROOT"
+runuser -u "$WEB_USER" -- env -i PATH="$PATH" "$PHP_BIN" "$APP_ROOT/scripts/pbr-knowledge-release-check.php" ai-check "$APP_ROOT"
 [[ "$(git -C "$AI_DIR" rev-parse HEAD)" == "$AI_EXPECTED" && -z "$(git --no-optional-locks -C "$AI_DIR" status --porcelain)" ]] || stop "ORIGINAL_AI_SOURCE_CHANGED_DURING_CHECKS"
 echo "ORIGINAL_PARTNER_AI_SOURCE=PRESERVED"
 

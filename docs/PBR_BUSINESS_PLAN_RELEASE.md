@@ -57,7 +57,8 @@ One additive migration creates `workspace_business_plans` and
 confirmation and history-to-Draft copies use a version token, the existing
 private Workspace lock and a transactional Workspace row lock. A stale form
 returns HTTP 409 with its submitted text still visible for recovery, rather
-than replacing the newer Draft. Confirmation creates no Knowledge source.
+than replacing the newer Draft. A busy Workspace lock also retains submitted
+text for recovery/retry. Confirmation creates no Knowledge source.
 
 The revision's content/provenance is immutable through these routes. A nullable
 Knowledge-source reference can be attached or cleared on source deletion.

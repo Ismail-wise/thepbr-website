@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
+use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 class PortalBusinessPlanController extends Controller
 {
@@ -36,10 +37,25 @@ class PortalBusinessPlanController extends Controller
             ->findOrFail($revision);
     }
 
+    private function conflict(PartnershipWorkspace $workspace, ?WorkspaceBusinessPlan $plan, ?array $submitted, bool $busy = false): never
+    {
+        throw new HttpResponseException(response()->view('portal.workspaces.business-plan.conflict',
+            compact('workspace', 'plan', 'submitted', 'busy'), 409)->withHeaders([
+                'Cache-Control' => 'no-store, private', 'Referrer-Policy' => 'no-referrer',
+            ]));
+    }
+
     private function mutate(Request $request, PartnershipWorkspace $workspace, Closure $change, ?array $submitted = null): mixed
     {
         $request->validate(['version' => ['required', 'integer', 'min:0', 'max:2147483647']]);
-        $lock = $this->access->lock($workspace);
+        try {
+            $lock = $this->access->lock($workspace);
+        } catch (HttpExceptionInterface $error) {
+            if ($error->getStatusCode() === 409) {
+                $this->conflict($workspace, $this->plan($workspace), $submitted, true);
+            }
+            throw $error;
+        }
         try {
             return DB::transaction(function () use ($request, $workspace, $change, $submitted): mixed {
                 // Serialize the first plan creation too, when no plan row exists yet.
@@ -47,10 +63,7 @@ class PortalBusinessPlanController extends Controller
                 $plan = WorkspaceBusinessPlan::firstOrCreate(['workspace_id' => $workspace->id]);
                 $plan->refresh();
                 if ($plan->lock_version !== $request->integer('version')) {
-                    throw new HttpResponseException(response()->view('portal.workspaces.business-plan.conflict',
-                        compact('workspace', 'plan', 'submitted'), 409)->withHeaders([
-                            'Cache-Control' => 'no-store, private', 'Referrer-Policy' => 'no-referrer',
-                        ]));
+                    $this->conflict($workspace, $plan, $submitted);
                 }
                 $result = $change($plan);
                 $plan->lock_version++;

@@ -146,6 +146,23 @@ test('a stale confirmation and a double submission cannot create duplicate revis
     expect(WorkspaceBusinessPlanRevision::count())->toBe(1)->and(WorkspaceBusinessPlanRevision::firstOrFail()->content['value_proposition'])->toBe('New saved text');
 });
 
+test('a busy Workspace preserves the submitted plan text and permits retry after its lock is released', function (): void {
+    $owner = planOwner();
+    $workspace = planWorkspace($owner);
+    $this->actingAs($owner);
+    $lock = app(\App\Services\Portal\PrivateWorkspaceAccess::class)->lock($workspace);
+    try {
+        $this->post(route('portal.workspaces.business-plan.save', $workspace), planValues(['business_name' => 'Recover this unsaved plan']))
+            ->assertStatus(409)->assertSee('Recover this unsaved plan')->assertSee('လုပ်ဆောင်နေဆဲ')
+            ->assertHeader('Cache-Control', 'no-store, private');
+        expect(WorkspaceBusinessPlan::count())->toBe(0);
+    } finally {
+        $lock->release();
+    }
+    $this->post(route('portal.workspaces.business-plan.save', $workspace), planValues(['business_name' => 'Recover this unsaved plan']))->assertRedirect();
+    expect(WorkspaceBusinessPlan::firstOrFail()->draft['business_name'])->toBe('Recover this unsaved plan');
+});
+
 test('an old confirmed revision can become a new draft without changing history', function (): void {
     $owner = planOwner();
     $workspace = planWorkspace($owner);
