@@ -9,6 +9,8 @@ if (PHP_SAPI !== 'cli') {
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
+require_once __DIR__.'/pbr-business-plan-check-support.php';
+
 const PLAN_MIGRATION = '2026_10_27_060000_create_workspace_business_plans';
 const PLAN_COLUMNS = [
     'workspace_business_plans' => ['id', 'workspace_id', 'draft', 'draft_base_revision', 'lock_version', 'created_at', 'updated_at'],
@@ -38,10 +40,7 @@ function planSchemaDigest(string $table): string
 {
     $row = (array) DB::selectOne('SHOW CREATE TABLE `'.$table.'`');
     $sql = (string) array_values($row)[1];
-    if ($table === 'migrations') {
-        // Only the reviewed migration journal row may advance this sequence.
-        $sql = preg_replace('/ AUTO_INCREMENT=\d+/', '', $sql);
-    }
+    $sql = Pbr\Deployment\BusinessPlanSchema::normalize($sql, $table === 'migrations');
 
     return hash('sha256', $sql);
 }
@@ -74,8 +73,13 @@ function planInspectSchema(): void
     foreach (PLAN_COLUMNS as $table => $columns) {
         planRequire(Schema::hasTable($table) && Schema::getColumnListing($table) === $columns, 'BUSINESS_PLAN_SCHEMA_INCOMPLETE');
     }
-    planRequire(Schema::getColumnType('workspace_business_plans', 'draft') === 'json'
-        && Schema::getColumnType('workspace_business_plan_revisions', 'content') === 'json', 'BUSINESS_PLAN_JSON_REQUIRED');
+    foreach ([['workspace_business_plans', 'draft'], ['workspace_business_plan_revisions', 'content']] as [$table, $column]) {
+        $type = Schema::getColumnType($table, $column);
+        $row = (array) DB::selectOne('SHOW CREATE TABLE `'.$table.'`');
+        // MariaDB implements Laravel's JSON column using LONGTEXT + JSON_VALID.
+        $jsonAlias = $type === 'longtext' && preg_match('/json_valid\s*\(\s*`?'.preg_quote($column, '/').'`?\s*\)/i', (string) array_values($row)[1]);
+        planRequire($type === 'json' || (bool) $jsonAlias, 'BUSINESS_PLAN_JSON_REQUIRED');
+    }
     foreach ([
         ['workspace_business_plans', ['workspace_id']],
         ['workspace_business_plan_revisions', ['business_plan_id', 'revision']],

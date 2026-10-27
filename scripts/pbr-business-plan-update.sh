@@ -170,7 +170,7 @@ while IFS= read -r path; do
         app/Services/Portal/BusinessPlanContent.php|app/Services/Portal/PortalTestDataCleanup.php|routes/partner-portal.php|\
         public/css/portal-business-plan.css|resources/views/portal/layout.blade.php|\
         resources/views/portal/workspaces/show.blade.php|resources/views/portal/workspaces/tabs.blade.php|resources/views/portal/workspaces/business-plan/*|\
-        "$MIGRATION"|scripts/pbr-business-plan-update.sh|scripts/pbr-business-plan-release-check.php|scripts/tests/*|tests/*|docs/*|.github/workflows/tests.yml) ;;
+        "$MIGRATION"|scripts/pbr-business-plan-update.sh|scripts/pbr-business-plan-release-check.php|scripts/pbr-business-plan-check-support.php|scripts/tests/*|tests/*|docs/*|.github/workflows/tests.yml) ;;
         *) stop "CHANGE_OUTSIDE_REVIEWED_BUSINESS_PLAN_SCOPE";;
     esac
 done < <(git -C "$SOURCE" diff --name-only "$BASE" "$TARGET")
