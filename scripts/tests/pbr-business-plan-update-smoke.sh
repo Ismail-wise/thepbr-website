@@ -207,4 +207,10 @@ sudo test -f "$FIXTURE/storage/framework/down"
 [[ "$(sudo mysql --database="$FIXTURE_DB" --batch --skip-column-names --execute='SELECT COUNT(*) FROM workspace_business_plans WHERE workspace_id=7;')" == 1 ]]
 [[ "$OUTPUT" != *plan-admin* && "$OUTPUT" != *DB_PASSWORD* && "$OUTPUT" != *APP_KEY* ]]
 echo 'Unexpected new plan rows are preserved and keep current code closed for review: PASS'
+run_case no
+[[ "$CASE_RESULT" != 0 && "$OUTPUT" == *BUSINESS_PLAN_UPDATE_STOP_REASON=EXISTING_MAINTENANCE_REVIEW_REQUIRED* ]]
+[[ "$OUTPUT" != *PBR_BUSINESS_PLAN_UPDATE=COMPLETE* ]]
+sudo test -f "$FIXTURE/storage/framework/down"
+[[ "$(sudo mysql --database="$FIXTURE_DB" --batch --skip-column-names --execute='SELECT COUNT(*) FROM workspace_business_plans WHERE workspace_id=7;')" == 1 ]]
+echo 'Retry while maintenance is held requires review and retains new business data: PASS'
 echo PBR_BUSINESS_PLAN_UPDATE_SMOKE=PASS

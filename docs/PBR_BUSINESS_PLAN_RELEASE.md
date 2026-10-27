@@ -103,7 +103,9 @@ its service is not restarted, `.env` is unchanged and no data reset is run.
 On a failed cutover, only code/caches are restored; additive tables and existing
 records remain. Unexpected record/private-file changes keep the current code
 under maintenance for review. An old database backup is never restored over
-new data. The historical test-data cleanup also refuses to run when private
+new data. A retry while maintenance is still held stops explicitly for review;
+it neither reopens the site nor reports a completed release. The historical
+test-data cleanup also refuses to run when private
 Business Plan records are present.
 
 The disposable Actions smoke test exercises successful MySQL migration/render,
