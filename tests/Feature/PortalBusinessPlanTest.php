@@ -341,7 +341,10 @@ test('plan evidence reaches private retrieval only after the existing Owner appr
 test('business plan writes preserve existing account access Workspace fields and personal saved items', function (): void {
     $owner = planOwner();
     $workspace = planWorkspace($owner);
-    $saved = PortalSavedItem::create(['user_id' => $owner->id, 'kind' => 'capital', 'title' => 'Existing result', 'input' => ['monthly' => 42], 'output' => ['total' => 84]]);
+    $this->actingAs($owner)->post(route('portal.tool.save', 'capital'), [
+        'pre' => 10, 'assets' => 20, 'monthly' => 42, 'months' => 3, 'reserve' => 10, 'available' => 50, 'currency' => 'THB',
+    ])->assertRedirect();
+    $saved = PortalSavedItem::latest('id')->firstOrFail();
     $before = [$owner->fresh()->getAttributes(), $workspace->fresh()->getAttributes(), $saved->fresh()->getAttributes()];
     $revision = planConfirm($this, $owner, $workspace, ['business_name' => 'A separate plan display name']);
     $this->post(route('portal.workspaces.business-plan.knowledge', [$workspace, $revision->id]))->assertRedirect();
