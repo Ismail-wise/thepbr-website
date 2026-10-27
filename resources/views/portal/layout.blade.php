@@ -12,6 +12,7 @@
     <script defer src="{{ asset('js/partner-portal.js') }}?v={{ filemtime(public_path('js/partner-portal.js')) }}"></script>
     @include('partials.premium-assets')
     <link rel="stylesheet" href="{{ asset('css/partner-chat.css') }}?v={{ filemtime(public_path('css/partner-chat.css')) }}">
+    @stack('styles')
 </head>
 <body class="pbr-portal pbr-chat-ui @yield('body-class')">
 <a class="skip-link" href="#main">အဓိကအကြောင်းအရာသို့</a>
